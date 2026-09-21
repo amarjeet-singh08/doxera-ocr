@@ -88,6 +88,15 @@
                         <p class="text-slate-300 text-sm font-medium z-10 relative">Extracting data from <span id="scan-count"></span> docket(s)...</p>
                     </div>
                 </div>
+
+                <div id="limit-ui" class="hidden absolute inset-0 w-full h-full bg-slate-900 flex flex-col items-center justify-center overflow-hidden z-40">
+                    <img src="{{ url_for('static', filename='doxera_logo.png') }}" class="h-14 mb-4 object-contain brightness-0 invert" alt="DOXERA Logo">
+                    <div class="text-rose-500 font-bold text-2xl uppercase tracking-widest mb-2">Out of limit</div>
+                    <p class="text-slate-400 text-sm text-center max-w-sm">
+                        DOXERA AI has reached its rate limit. Please try again later or add credits to your account.
+                    </p>
+                    <button type="button" onclick="window.location.reload()" class="mt-6 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm rounded border border-slate-600 transition-colors">Go Back</button>
+                </div>
             </div>
             
             <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100 pt-6">
@@ -196,10 +205,29 @@
             .then(data => {
                 if (!data || !data.job_id) return;
                 
-                // Show the cool scanning UI for exactly 3 seconds so they know it started
-                setTimeout(() => {
-                    window.location.href = '{{ url_for("ops.dashboard") }}';
-                }, 3000);
+                const checkStatus = () => {
+                    fetch('/api/job_status/' + data.job_id)
+                    .then(res => res.json())
+                    .then(statusData => {
+                        if (statusData.rate_limited) {
+                            scanningUi.classList.add('hidden');
+                            document.getElementById('limit-ui').classList.remove('hidden');
+                            uploadBtn.innerHTML = '<i data-lucide="alert-triangle" class="h-4 w-4 mr-2"></i> OUT OF LIMIT';
+                            lucide.createIcons();
+                        } else if (statusData.processed > 0 || statusData.complete) {
+                            window.location.href = '{{ url_for("ops.dashboard") }}';
+                        } else {
+                            setTimeout(checkStatus, 1000);
+                        }
+                    })
+                    .catch(() => {
+                        // Error checking status, fallback to dashboard
+                        window.location.href = '{{ url_for("ops.dashboard") }}';
+                    });
+                };
+                
+                // Start polling instead of blindly redirecting
+                setTimeout(checkStatus, 1500);
             })
             .catch(err => {
                 // Error — hide scanner and show error

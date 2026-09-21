@@ -236,17 +236,19 @@ def api_job_status(job_id):
         conn.close()
         return {"error": "not found"}, 404
         
-    dockets = conn.execute("SELECT status FROM dockets WHERE job_id = ?", (job_id,)).fetchall()
+    dockets = conn.execute("SELECT status, rejection_reasons FROM dockets WHERE job_id = ?", (job_id,)).fetchall()
     conn.close()
     
     total = len(dockets)
     processed = sum(1 for d in dockets if d['status'] not in ('UPLOADED', 'PROCESSING'))
+    rate_limited = any('Rate limit' in str(d['rejection_reasons']) or '429' in str(d['rejection_reasons']) or '402' in str(d['rejection_reasons']) for d in dockets if d['status'] == 'FAILED')
     
     return {
         "status": job['status'],
         "total": total,
         "processed": processed,
-        "complete": processed >= total if total > 0 else True
+        "complete": processed >= total if total > 0 else True,
+        "rate_limited": rate_limited
     }
 
 @ops_bp.route('/processing')
