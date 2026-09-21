@@ -38,7 +38,7 @@
                             {{ d.rejection_reasons|replace('["', '')|replace('"]', '')|replace('","', ', ') if d.rejection_reasons and d.rejection_reasons != '[]' else 'Pending completeness check' }}
                         {% endif %}
                     </td>
-                    <td class="px-6 py-3 text-xs text-slate-500">{{ d.uploaded_at }}</td>
+                    <td class="px-6 py-3 text-xs text-slate-500">{{ d.uploaded_at|localdt }}</td>
                     <td class="px-6 py-3 text-right">
                         <a href="{{ url_for('ops.docket_detail', docket_id=d.id) }}" class="inline-flex items-center px-3 py-1.5 bg-nexpress-blue hover:bg-blue-700 text-white text-xs font-medium rounded shadow-sm transition-colors">
                             Review

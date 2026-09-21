@@ -26,7 +26,7 @@
                         {% endif %}
                     </h3>
                     <div class="text-xs text-slate-500 mt-1 flex items-center gap-3">
-                        <span class="flex items-center"><i data-lucide="clock" class="h-3 w-3 mr-1"></i> {{ job.created_at }}</span>
+                        <span class="flex items-center"><i data-lucide="clock" class="h-3 w-3 mr-1"></i> {{ job.created_at|localdt }}</span>
                         <span class="flex items-center"><i data-lucide="user" class="h-3 w-3 mr-1"></i> {{ job.created_by }}</span>
                     </div>
                 </div>

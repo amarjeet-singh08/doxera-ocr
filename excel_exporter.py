@@ -4,6 +4,21 @@ import os
 from datetime import datetime
 from config import Config
 
+def format_db_date(value):
+    if not value:
+        return value
+    try:
+        from datetime import timezone, timedelta
+        # Check if the string matches SQLite timestamp format
+        if len(value) == 19 and value[10] == ' ':
+            dt = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+            dt = dt.replace(tzinfo=timezone.utc)
+            ist = timezone(timedelta(hours=5, minutes=30))
+            return dt.astimezone(ist).strftime('%Y-%m-%d %I:%M %p')
+        return value
+    except Exception:
+        return value
+
 class ExcelExporter:
 
     @staticmethod
@@ -75,7 +90,7 @@ class ExcelExporter:
             
             row['Total Volumetric Weight'] = round(total_vol_weight, 2)
             row['Status'] = d['status']
-            row['Verified At'] = d['human_reviewed_at']
+            row['Verified At'] = format_db_date(d['human_reviewed_at'])
             row['Verified By'] = d['human_reviewer']
             
             export_data.append(row)
@@ -162,7 +177,7 @@ class ExcelExporter:
             row['Status'] = d['status']
             row['Rejection Reason'] = d['rejection_reasons']
             row['Original Filename'] = d['original_filename']
-            row['Uploaded At'] = d['uploaded_at']
+            row['Uploaded At'] = format_db_date(d['uploaded_at'])
             row['Uploaded By'] = d['uploaded_by']
             
             export_data.append(row)

@@ -26,7 +26,7 @@
                     <span class="px-2.5 py-0.5 text-[11px] uppercase tracking-wider rounded font-bold bg-slate-100 text-slate-700 border border-slate-200">{{ docket.status }}</span>
                 {% endif %}
             </h1>
-            <p class="text-xs text-slate-500 mt-0.5">Uploaded by {{ docket.uploaded_by }} on {{ docket.uploaded_at }}</p>
+            <p class="text-xs text-slate-500 mt-0.5">Uploaded by {{ docket.uploaded_by }} on {{ docket.uploaded_at|localdt }}</p>
         </div>
     </div>
     
@@ -289,7 +289,7 @@
                     <div>
                         <p class="text-slate-800"><span class="font-medium">{{ log.user }}</span> {{ log.action|replace('_', ' ')|lower }}</p>
                         <p class="text-xs text-slate-500">{{ log.details }}</p>
-                        <p class="text-[10px] text-slate-400 mt-0.5">{{ log.timestamp }}</p>
+                        <p class="text-[10px] text-slate-400 mt-0.5">{{ log.timestamp|localdt }}</p>
                     </div>
                 </div>
                 {% else %}
@@ -302,7 +302,7 @@
                 <div class="text-sm text-slate-700 border-l-2 border-blue-400 pl-3 py-1 bg-slate-50 rounded-r">
                     <span class="font-medium text-slate-900">{{ c.corrected_by }}</span> changed <span class="font-mono bg-white border border-slate-200 px-1 rounded text-xs">{{ c.field_name }}</span><br>
                     <span class="text-rose-600 line-through text-xs">{{ c.original_value or 'empty' }}</span> &rarr; <span class="text-emerald-600 font-bold text-xs">{{ c.corrected_value or 'empty' }}</span>
-                    <div class="text-[10px] text-slate-400 mt-1">{{ c.corrected_at }}</div>
+                    <div class="text-[10px] text-slate-400 mt-1">{{ c.corrected_at|localdt }}</div>
                 </div>
                 {% else %}
                 <p class="text-sm text-slate-500">No corrections made yet.</p>

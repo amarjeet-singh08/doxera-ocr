@@ -73,7 +73,7 @@
                             {% endif %}
                         </td>
                         <td class="px-4 py-3 text-xs text-slate-500">
-                            {{ u['last_login'] if u['last_login'] else 'Never' }}
+                            {{ u['last_login']|localdt if u['last_login'] else 'Never' }}
                         </td>
                         <td class="px-4 py-3 text-right">
                             {% if u['id'] != session['user_id'] %}

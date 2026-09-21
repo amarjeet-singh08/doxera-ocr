@@ -4,8 +4,24 @@ from flask import Flask, redirect, url_for
 from config import Config
 from database import init_db, get_db_connection
 
+def format_datetime(value):
+    if not value:
+        return value
+    try:
+        from datetime import datetime, timedelta, timezone
+        # Check if the string matches SQLite timestamp format
+        if len(value) == 19 and value[10] == ' ':
+            dt = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+            dt = dt.replace(tzinfo=timezone.utc)
+            ist = timezone(timedelta(hours=5, minutes=30))
+            return dt.astimezone(ist).strftime('%Y-%m-%d %I:%M %p')
+        return value
+    except Exception:
+        return value
+
 def create_app():
     app = Flask(__name__)
+    app.jinja_env.filters['localdt'] = format_datetime
     app.config.from_object(Config)
     Config.init_app()
     
