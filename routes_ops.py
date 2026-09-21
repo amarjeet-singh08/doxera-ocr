@@ -81,7 +81,9 @@ def process_docket_async(docket_id, filepath, app_context):
                 
                 # 4. DOXERA Final Validation logic
                 # AI must only extract data. Never automatically mark a docket VERIFIED.
-                if ai_status == 'REJECTED':
+                if ai_status == 'FAILED':
+                    final_status = 'FAILED'
+                elif ai_status == 'REJECTED':
                     final_status = 'REJECTED'
                 else:
                     # Even if validation is perfect, it MUST be verified by a human
@@ -104,12 +106,14 @@ def process_docket_async(docket_id, filepath, app_context):
                     processed_count = processed_count + 1,
                     verified_count = verified_count + ?,
                     review_count = review_count + ?,
-                    rejected_count = rejected_count + ?
+                    rejected_count = rejected_count + ?,
+                    failed_count = failed_count + ?
                     WHERE id = ?
                 ''', (
                     1 if final_status == 'VERIFIED' else 0,
                     1 if final_status == 'REVIEW_REQUIRED' else 0,
                     1 if final_status == 'REJECTED' else 0,
+                    1 if final_status == 'FAILED' else 0,
                     job_id
                 ))
                 

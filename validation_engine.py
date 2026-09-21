@@ -84,9 +84,9 @@ class ValidationEngine:
 
         # 1. Check if OCR returned an error
         if isinstance(ocr_data, str):
-            return 'REVIEW_REQUIRED', [ocr_data], parsed_data
+            return 'FAILED', [ocr_data], parsed_data
         if 'error' in ocr_data:
-            return 'REVIEW_REQUIRED', [f"{ocr_data['error']}"], parsed_data
+            return 'FAILED', [f"{ocr_data['error']}"], parsed_data
 
         # ═══════════════════════════════════════════════════════
         # 2. DOCKET NUMBER — always accepted if present (clearly printed)
