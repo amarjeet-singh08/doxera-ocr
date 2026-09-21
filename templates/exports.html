@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block header_title %}Data Exports{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl">
+    
+    <!-- Verified Export -->
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-emerald-100 bg-emerald-50">
+            <h2 class="text-base font-bold text-emerald-900 flex items-center">
+                <i data-lucide="check-circle" class="h-5 w-5 mr-2 text-emerald-600"></i> Verified Dockets Export
+            </h2>
+        </div>
+        <div class="p-6">
+            <p class="text-sm text-slate-600 mb-6">Generates an Excel spreadsheet containing only dockets with the final <strong>VERIFIED</strong> status. Any records pending review, rejected, or modified are strictly excluded.</p>
+            
+            <form action="{{ url_for('ops.do_export_verified') }}" method="GET" class="space-y-4">
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <label class="block text-xs font-medium text-slate-700 mb-1">Start Date</label>
+                        <input type="date" name="start_date" class="w-full text-sm border-slate-300 rounded-md shadow-sm">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-xs font-medium text-slate-700 mb-1">End Date</label>
+                        <input type="date" name="end_date" class="w-full text-sm border-slate-300 rounded-md shadow-sm">
+                    </div>
+                </div>
+                <button type="submit" class="inline-flex items-center justify-center w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-sm font-medium shadow-sm transition-colors">
+                    <i data-lucide="download" class="h-4 w-4 mr-2"></i> Download Verified Excel
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Rejected Export -->
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+        <div class="px-6 py-4 border-b border-rose-100 bg-rose-50">
+            <h2 class="text-base font-bold text-rose-900 flex items-center">
+                <i data-lucide="x-circle" class="h-5 w-5 mr-2 text-rose-600"></i> Rejected Dockets Export
+            </h2>
+        </div>
+        <div class="p-6">
+            <p class="text-sm text-slate-600 mb-6">Generates an Excel spreadsheet containing explicitly <strong>REJECTED</strong> dockets along with their rejection reasons. Dockets pending review are not included here.</p>
+            
+            <form action="{{ url_for('ops.do_export_rejected') }}" method="GET" class="space-y-4">
+                <div class="flex gap-4">
+                    <div class="flex-1">
+                        <label class="block text-xs font-medium text-slate-700 mb-1">Start Date</label>
+                        <input type="date" name="start_date" class="w-full text-sm border-slate-300 rounded-md shadow-sm">
+                    </div>
+                    <div class="flex-1">
+                        <label class="block text-xs font-medium text-slate-700 mb-1">End Date</label>
+                        <input type="date" name="end_date" class="w-full text-sm border-slate-300 rounded-md shadow-sm">
+                    </div>
+                </div>
+                <button type="submit" class="inline-flex items-center justify-center w-full px-4 py-2 bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 rounded-md text-sm font-medium shadow-sm transition-colors">
+                    <i data-lucide="download" class="h-4 w-4 mr-2"></i> Download Rejected Excel
+                </button>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

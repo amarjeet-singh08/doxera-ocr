@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DOXERA</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        navy: {
+                            800: '#0f172a',
+                            900: '#0b1120',
+                        },
+                        nexpress: {
+                            blue: '#0052cc',
+                            light: '#e6f0ff'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'system-ui', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body { background-color: #f8fafc; font-family: 'Inter', sans-serif; }
+        .sidebar-link {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem 0.75rem;
+            color: #64748b;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+        .sidebar-link:hover {
+            background-color: #f1f5f9;
+            color: #0f172a;
+        }
+        .sidebar-link.active {
+            background-color: #e6f0ff;
+            color: #0052cc;
+        }
+        .sidebar-icon { margin-right: 0.75rem; width: 1.25rem; height: 1.25rem; }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 antialiased flex overflow-hidden">
+    
+    {% if session.get('user_id') %}
+    <!-- Sidebar -->
+    <aside class="w-64 bg-white border-r border-slate-200 flex flex-col h-screen flex-shrink-0 z-20 shadow-sm">
+        <div class="h-20 flex items-center px-6 border-b border-slate-200">
+            <img src="{{ url_for('static', filename='doxera_logo.png') }}" alt="DOXERA" class="h-16">
+        </div>
+        
+        <div class="flex-1 overflow-y-auto py-4 px-3 space-y-6">
+            <div>
+                <a href="{{ url_for('ops.dashboard') }}" class="sidebar-link {% if request.endpoint == 'ops.dashboard' %}active{% endif %}">
+                    <i data-lucide="layout-dashboard" class="sidebar-icon"></i> Dashboard
+                </a>
+            </div>
+            
+            <div>
+                <div class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Operations</div>
+                <div class="space-y-1">
+                    <a href="{{ url_for('ops.upload') }}" class="sidebar-link {% if request.endpoint == 'ops.upload' %}active{% endif %}">
+                        <i data-lucide="upload-cloud" class="sidebar-icon"></i> Upload Dockets
+                    </a>
+                    <a href="{{ url_for('ops.review_center') }}" class="sidebar-link {% if request.endpoint == 'ops.review_center' %}active{% endif %}">
+                        <i data-lucide="inbox" class="sidebar-icon"></i> Review Center
+                        <!-- Need to pass badge count dynamically in a real app, placeholder for now -->
+                    </a>
+                    <a href="{{ url_for('ops.dockets') }}" class="sidebar-link {% if request.endpoint == 'ops.dockets' %}active{% endif %}">
+                        <i data-lucide="files" class="sidebar-icon"></i> All Dockets
+                    </a>
+                </div>
+            </div>
+            
+            <div>
+                <div class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Data & Settings</div>
+                <div class="space-y-1">
+                    <a href="{{ url_for('ops.exports_page') }}" class="sidebar-link {% if request.endpoint == 'ops.exports_page' %}active{% endif %}">
+                        <i data-lucide="download" class="sidebar-icon"></i> Exports
+                    </a>
+                    
+                    {% if session.get('role') == 'ADMIN' %}
+                    <a href="{{ url_for('auth.user_management') }}" class="sidebar-link {% if request.endpoint == 'auth.user_management' %}active{% endif %}">
+                        <i data-lucide="users" class="sidebar-icon"></i> User Management
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="p-4 border-t border-slate-200">
+            <div class="flex items-center">
+                <div class="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-sm">
+                    {{ session.get('username')[0]|upper }}
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm font-medium text-slate-900">{{ session.get('username') }}</p>
+                    <p class="text-xs text-slate-500">{{ session.get('role') }}</p>
+                </div>
+            </div>
+            <a href="{{ url_for('auth.logout') }}" class="mt-3 flex items-center justify-center w-full px-3 py-1.5 border border-slate-200 rounded-md text-xs font-medium text-slate-600 hover:bg-slate-50 hover:text-red-600 transition-colors">
+                <i data-lucide="log-out" class="h-3.5 w-3.5 mr-1.5"></i> Logout
+            </a>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <div class="flex-1 flex flex-col h-screen overflow-hidden">
+        <!-- Top Header -->
+        <header class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 flex-shrink-0 z-10">
+            <h2 class="text-lg font-semibold text-slate-800">
+                {% block header_title %}DOXERA Operations{% endblock %}
+            </h2>
+            <div class="flex items-center space-x-4">
+                <div class="relative">
+                    <i data-lucide="search" class="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" placeholder="Global search..." class="pl-9 pr-4 py-1.5 text-sm border border-slate-300 rounded-md bg-slate-50 focus:bg-white focus:ring-1 focus:ring-nexpress-blue focus:border-nexpress-blue transition-colors w-64">
+                </div>
+                <button class="text-slate-400 hover:text-slate-600">
+                    <i data-lucide="bell" class="h-5 w-5"></i>
+                </button>
+            </div>
+        </header>
+        
+        <!-- Page Content -->
+        <main class="flex-1 overflow-y-auto p-6 bg-slate-50">
+            <!-- Flash Messages -->
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% if messages %}
+                    <div class="mb-6 space-y-2">
+                    {% for category, message in messages %}
+                        {% set bg_color = 'bg-emerald-50 border-emerald-200 text-emerald-800' if category == 'success' else 'bg-rose-50 border-rose-200 text-rose-800' if category == 'error' else 'bg-amber-50 border-amber-200 text-amber-800' %}
+                        {% set icon = 'check-circle' if category == 'success' else 'alert-circle' if category == 'error' else 'alert-triangle' %}
+                        <div class="flex items-center p-3 rounded-lg border {{ bg_color }} shadow-sm text-sm">
+                            <i data-lucide="{{ icon }}" class="h-4 w-4 mr-2 flex-shrink-0"></i>
+                            <p class="font-medium">{{ message }}</p>
+                        </div>
+                    {% endfor %}
+                    </div>
+                {% endif %}
+            {% endwith %}
+
+            {% block content %}{% endblock %}
+        </main>
+    </div>
+    {% else %}
+        <!-- Auth Layout -->
+        <main class="w-full min-h-screen bg-slate-50 flex items-center justify-center p-4">
+            {% block auth_content %}{% endblock %}
+        </main>
+    {% endif %}
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+</html>

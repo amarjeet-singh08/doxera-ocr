@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block header_title %}Review Center{% endblock %}
+
+{% block content %}
+<div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+    <div class="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <h2 class="text-sm font-bold text-slate-800">Action Required</h2>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm whitespace-nowrap">
+            <thead class="bg-slate-50 text-slate-500 text-[11px] uppercase font-bold tracking-wider">
+                <tr>
+                    <th class="px-6 py-3">Docket No</th>
+                    <th class="px-6 py-3">Status</th>
+                    <th class="px-6 py-3">Extracted Weight</th>
+                    <th class="px-6 py-3">Reason / Missing</th>
+                    <th class="px-6 py-3">Uploaded</th>
+                    <th class="px-6 py-3 text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+                {% for d in dockets %}
+                <tr class="hover:bg-amber-50/30 transition-colors">
+                    <td class="px-6 py-3 font-semibold text-slate-900">{{ d.docket_number or '---' }}</td>
+                    <td class="px-6 py-3">
+                        {% if d.status == 'MODIFIED_REVERIFICATION_REQUIRED' %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-800 border border-amber-200">Reverification</span>
+                        {% else %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-800 border border-amber-200">Review Required</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-3 font-mono">{{ d.actual_weight or '---' }} kg</td>
+                    <td class="px-6 py-3 text-xs text-amber-700 max-w-xs truncate" title="{{ d.rejection_reasons }}">
+                        {% if d.status == 'MODIFIED_REVERIFICATION_REQUIRED' %}
+                            Values edited by user
+                        {% else %}
+                            {{ d.rejection_reasons|replace('["', '')|replace('"]', '')|replace('","', ', ') if d.rejection_reasons and d.rejection_reasons != '[]' else 'Pending completeness check' }}
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-3 text-xs text-slate-500">{{ d.uploaded_at }}</td>
+                    <td class="px-6 py-3 text-right">
+                        <a href="{{ url_for('ops.docket_detail', docket_id=d.id) }}" class="inline-flex items-center px-3 py-1.5 bg-nexpress-blue hover:bg-blue-700 text-white text-xs font-medium rounded shadow-sm transition-colors">
+                            Review
+                        </a>
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="px-6 py-16 text-center text-slate-500">
+                        <div class="flex flex-col items-center justify-center">
+                            <div class="h-12 w-12 rounded-full bg-emerald-50 flex items-center justify-center mb-3">
+                                <i data-lucide="check" class="h-6 w-6 text-emerald-500"></i>
+                            </div>
+                            <p class="font-medium text-slate-800">All caught up!</p>
+                            <p class="text-sm mt-1">There are no dockets currently requiring manual review.</p>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

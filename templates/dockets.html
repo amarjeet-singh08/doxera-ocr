@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+{% block header_title %}All Dockets{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-navy-900">Docket Registry</h1>
+    <div class="flex items-center gap-3">
+        {% if session.role == 'ADMIN' %}
+        <form method="POST" action="{{ url_for('ops.delete_all_dockets') }}" onsubmit="return confirm('WARNING: Are you sure you want to permanently delete ALL dockets currently shown in this filter? This cannot be undone!');">
+            <input type="hidden" name="status" value="{{ current_filter }}">
+            <button type="submit" class="inline-flex items-center px-4 py-2 bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 text-sm font-medium rounded-md shadow-sm transition-colors">
+                <i data-lucide="trash-2" class="h-4 w-4 mr-2"></i> Delete All {{ current_filter }}
+            </button>
+        </form>
+        {% endif %}
+        <a href="{{ url_for('ops.upload') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors">
+            <i data-lucide="plus" class="h-4 w-4 mr-1.5"></i> New Upload
+        </a>
+    </div>
+</div>
+
+<div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+    
+    <!-- Filters -->
+    <div class="px-6 py-3 bg-slate-50 border-b border-slate-200 flex gap-2 overflow-x-auto">
+        {% set statuses = [
+            ('ALL', 'All Dockets', 'slate'),
+            ('VERIFIED', 'Verified', 'emerald'),
+            ('REVIEW', 'Review / Modified', 'amber'),
+            ('REJECTED', 'Rejected', 'rose'),
+            ('FAILED', 'Failed', 'red'),
+            ('PROCESSING', 'Processing', 'blue')
+        ] %}
+        
+        {% for val, label, color in statuses %}
+            {% set is_active = current_filter == val %}
+            <a href="{{ url_for('ops.dockets', status=val) }}" 
+               class="whitespace-nowrap px-3 py-1 rounded-md text-xs font-medium border transition-colors
+               {% if is_active %} bg-{{color}}-100 text-{{color}}-800 border-{{color}}-200
+               {% else %} bg-white text-slate-600 border-slate-200 hover:bg-slate-100 {% endif %}">
+                {{ label }}
+            </a>
+        {% endfor %}
+    </div>
+
+    <!-- Table -->
+    <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm whitespace-nowrap">
+            <thead class="bg-white text-slate-500 text-[11px] uppercase font-bold tracking-wider border-b border-slate-200">
+                <tr>
+                    <th class="px-6 py-3">Docket No</th>
+                    <th class="px-6 py-3">Status</th>
+                    <th class="px-6 py-3">Weight (kg)</th>
+                    <th class="px-6 py-3">Pkgs</th>
+                    <th class="px-6 py-3">Date Uploaded</th>
+                    <th class="px-6 py-3 text-right">Action</th>
+                </tr>
+            </thead>
+            <tbody class="divide-y divide-slate-100 text-slate-700">
+                {% for d in dockets %}
+                <tr class="hover:bg-slate-50 transition-colors">
+                    <td class="px-6 py-3 font-semibold text-slate-900">{{ d.docket_number or '---' }}</td>
+                    <td class="px-6 py-3">
+                        {% if d.status == 'VERIFIED' %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">Verified</span>
+                        {% elif d.status == 'REVIEW_REQUIRED' or d.status == 'MODIFIED_REVERIFICATION_REQUIRED' %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-800 border border-amber-200">Review</span>
+                        {% elif d.status == 'REJECTED' %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-rose-100 text-rose-800 border border-rose-200">Rejected</span>
+                        {% elif d.status == 'FAILED' %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-red-100 text-red-800 border border-red-200">Failed</span>
+                        {% else %}
+                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-700 border border-slate-200">{{ d.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-3 font-mono">{{ d.actual_weight or '--' }}</td>
+                    <td class="px-6 py-3 font-mono">{{ d.total_packages or '--' }}</td>
+                    <td class="px-6 py-3 text-xs text-slate-500">{{ d.uploaded_at }}</td>
+                    <td class="px-6 py-3 text-right flex justify-end gap-2">
+                        {% if d.status not in ['PROCESSING', 'UPLOADED'] %}
+                        <a href="{{ url_for('ops.docket_detail', docket_id=d.id) }}" class="inline-flex items-center px-3 py-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs font-medium rounded shadow-sm transition-colors">
+                            Open
+                        </a>
+                        {% else %}
+                        <span class="inline-flex items-center px-3 py-1 bg-slate-100 text-slate-400 border border-slate-200 text-xs font-medium rounded shadow-sm cursor-not-allowed" title="Processing in background">
+                            Wait
+                        </span>
+                        {% endif %}
+                        {% if session.role in ['ADMIN', 'REVIEWER'] %}
+                        <form method="POST" action="{{ url_for('ops.delete_docket', docket_id=d.id) }}" onsubmit="return confirm('Permanently delete this docket?');">
+                            <button type="submit" class="inline-flex items-center px-2 py-1 bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 text-xs font-medium rounded shadow-sm transition-colors" title="Delete Docket">
+                                <i data-lucide="trash-2" class="h-3 w-3"></i>
+                            </button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center text-slate-500">
+                        No dockets found matching the filter.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+    // Auto-refresh if there are any processing dockets on the screen
+    if (document.body.innerHTML.includes('Wait</span>') || document.body.innerHTML.includes('>PROCESSING<')) {
+        setTimeout(() => window.location.reload(), 5000);
+    }
+</script>
+{% endblock %}
