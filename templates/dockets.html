@@ -2,9 +2,9 @@
 {% block header_title %}All Dockets{% endblock %}
 
 {% block content %}
-<div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold text-navy-900">Docket Registry</h1>
-    <div class="flex items-center gap-3">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+    <h1 class="text-xl sm:text-2xl font-bold text-navy-900">Docket Registry</h1>
+    <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
         {% if session.role == 'ADMIN' %}
         <form method="POST" action="{{ url_for('ops.delete_all_dockets') }}" onsubmit="return confirm('WARNING: Are you sure you want to permanently delete ALL dockets currently shown in this filter? This cannot be undone!');">
             <input type="hidden" name="status" value="{{ current_filter }}">
