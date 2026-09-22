@@ -102,7 +102,7 @@ def init_db():
     conn.execute('''
         CREATE TABLE IF NOT EXISTS audit_log (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
-            user TEXT,
+            "user" TEXT,
             action TEXT,
             docket_id INTEGER,
             details TEXT,
@@ -183,7 +183,7 @@ def log_audit(user, action, docket_id=None, details=None, conn=None):
         conn = get_db_connection()
         close_conn = True
         
-    c = conn.execute('INSERT INTO audit_log (user, action, docket_id, details) VALUES (?, ?, ?, ?)',
+    c = conn.execute('INSERT INTO audit_log ("user", action, docket_id, details) VALUES (?, ?, ?, ?)',
               (user, action, docket_id, details))
               
     if close_conn:

@@ -93,7 +93,7 @@ def migrate():
         );
         CREATE TABLE IF NOT EXISTS audit_log (
             id SERIAL PRIMARY KEY,
-            user_id TEXT,
+            "user" TEXT,
             action TEXT,
             docket_id INTEGER,
             details TEXT,
