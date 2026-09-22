@@ -159,7 +159,11 @@ def dashboard():
     failed = conn.execute("SELECT COUNT(*) FROM dockets WHERE status = 'FAILED'").fetchone()[0]
     
     # Pipeline Jobs
-    jobs = conn.execute("SELECT * FROM processing_jobs ORDER BY created_at DESC LIMIT 3").fetchall()
+    # Pipeline Jobs: Admin sees all, others see only their own
+    if session.get('role') == 'ADMIN':
+        jobs = conn.execute("SELECT * FROM processing_jobs ORDER BY created_at DESC LIMIT 5").fetchall()
+    else:
+        jobs = conn.execute("SELECT * FROM processing_jobs WHERE created_by = ? ORDER BY created_at DESC LIMIT 5", (session['username'],)).fetchall()
     
     # Recent dockets
     dockets = conn.execute("SELECT * FROM dockets WHERE is_archived = 0 ORDER BY uploaded_at DESC LIMIT 10").fetchall()
