@@ -536,7 +536,7 @@ def do_export_verified():
     end_date = request.args.get('end_date')
     
     from excel_exporter import ExcelExporter
-    filename = ExcelExporter.export_verified(start_date, end_date)
+    filename = ExcelExporter.export_verified(start_date, end_date, session['username'])
     if not filename:
         flash("No verified records found for this date range.", "error")
         return redirect(url_for('ops.exports_page'))
@@ -551,7 +551,7 @@ def do_export_rejected():
     end_date = request.args.get('end_date')
 
     from excel_exporter import ExcelExporter
-    filename = ExcelExporter.export_rejected(start_date, end_date)
+    filename = ExcelExporter.export_rejected(start_date, end_date, session['username'])
     if not filename:
         flash("No rejected records found for this date range.", "error")
         return redirect(url_for('ops.exports_page'))

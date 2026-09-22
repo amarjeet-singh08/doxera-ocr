@@ -23,9 +23,8 @@ class ExcelExporter:
 
     @staticmethod
     def _get_db_connection():
-        conn = sqlite3.connect(Config.DB_PATH)
-        conn.row_factory = sqlite3.Row
-        return conn
+        from database import get_db_connection
+        return get_db_connection()
 
     @staticmethod
     def export_verified(start_date=None, end_date=None, username=None):
