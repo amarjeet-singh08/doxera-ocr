@@ -4,20 +4,33 @@ import os
 from datetime import datetime
 from config import Config
 
-def format_db_date(value):
+def format_db_datetime(value):
     if not value:
-        return value
+        return ""
     try:
-        from datetime import timezone, timedelta
-        # Check if the string matches SQLite timestamp format
-        if len(value) == 19 and value[10] == ' ':
-            dt = datetime.strptime(value, '%Y-%m-%d %H:%M:%S')
+        from datetime import datetime, timedelta, timezone
+        if hasattr(value, 'strftime'):
+            dt = value
+            if dt.tzinfo is None:
+                dt = dt.replace(tzinfo=timezone.utc)
+            ist = timezone(timedelta(hours=5, minutes=30))
+            return dt.astimezone(ist).strftime('%Y-%m-%d %I:%M %p')
+            
+        value_str = str(value)
+        if len(value_str) >= 19 and value_str[10] in (' ', 'T'):
+            clean_val = value_str[:19].replace('T', ' ')
+            dt = datetime.strptime(clean_val, '%Y-%m-%d %H:%M:%S')
             dt = dt.replace(tzinfo=timezone.utc)
             ist = timezone(timedelta(hours=5, minutes=30))
             return dt.astimezone(ist).strftime('%Y-%m-%d %I:%M %p')
-        return value
     except Exception:
-        return value
+        pass
+    return str(value)[:19] if value else ""
+
+def format_db_dateonly(value):
+    dt_str = format_db_datetime(value)
+    return dt_str[:10] if dt_str else ""
+
 
 class ExcelExporter:
 
@@ -59,7 +72,7 @@ class ExcelExporter:
                 
         export_data = []
         for i, d in enumerate(dockets, 1):
-            date_only = d['uploaded_at'].strftime('%Y-%m-%d') if hasattr(d['uploaded_at'], 'strftime') else str(d['uploaded_at'])[:10] if d['uploaded_at'] else ''
+            date_only = format_db_dateonly(d['uploaded_at'])
             row = {
                 'S.No': i,
                 'Date': date_only,
@@ -94,7 +107,7 @@ class ExcelExporter:
             
             row['Total Volumetric Weight'] = round(total_vol_weight, 2)
             row['Status'] = d['status']
-            row['Verified At'] = format_db_date(d['human_reviewed_at'])
+            row['Verified At'] = format_db_datetime(d['human_reviewed_at'])
             row['Verified By'] = d['human_reviewer']
             
             export_data.append(row)
@@ -149,7 +162,7 @@ class ExcelExporter:
                 
         export_data = []
         for i, d in enumerate(dockets, 1):
-            date_only = d['uploaded_at'].strftime('%Y-%m-%d') if hasattr(d['uploaded_at'], 'strftime') else str(d['uploaded_at'])[:10] if d['uploaded_at'] else ''
+            date_only = format_db_dateonly(d['uploaded_at'])
             row = {
                 'S.No': i,
                 'Date': date_only,
@@ -186,7 +199,7 @@ class ExcelExporter:
             row['Status'] = d['status']
             row['Rejection Reason'] = d['rejection_reasons']
             row['Original Filename'] = d['original_filename']
-            row['Uploaded At'] = format_db_date(d['uploaded_at'])
+            row['Uploaded At'] = format_db_datetime(d['uploaded_at'])
             row['Uploaded By'] = d['uploaded_by']
             
             export_data.append(row)
@@ -240,7 +253,7 @@ class ExcelExporter:
                 
         export_data = []
         for i, d in enumerate(dockets, 1):
-            date_only = d['uploaded_at'].strftime('%Y-%m-%d') if hasattr(d['uploaded_at'], 'strftime') else str(d['uploaded_at'])[:10] if d['uploaded_at'] else ''
+            date_only = format_db_dateonly(d['uploaded_at'])
             row = {
                 'S.No': i,
                 'Date': date_only,
