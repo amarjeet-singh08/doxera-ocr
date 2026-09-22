@@ -68,14 +68,15 @@ def inject_notifications():
         from database import get_db_connection
         from datetime import datetime
         conn = get_db_connection()
-        today_start = datetime.now().strftime("%Y-%m-%d 00:00:00")
+        from datetime import timezone
+        today_start = datetime.now(timezone.utc).strftime("%Y-%m-%d 00:00:00")
         
         pending = conn.execute("SELECT COUNT(*) FROM dockets WHERE is_archived = 0 AND status IN ('REVIEW_REQUIRED', 'MODIFIED_REVERIFICATION_REQUIRED')").fetchone()[0]
         failed = conn.execute("SELECT COUNT(*) FROM dockets WHERE is_archived = 0 AND status = 'FAILED'").fetchone()[0]
         rejected = conn.execute("SELECT COUNT(*) FROM dockets WHERE is_archived = 0 AND status = 'REJECTED'").fetchone()[0]
         
         # Calculate rate limit remaining (assume 50 limit per day)
-        today_count = conn.execute("SELECT COUNT(*) FROM dockets WHERE uploaded_at >= ?", (today_start,)).fetchone()[0]
+        today_count = conn.execute("SELECT COUNT(*) FROM audit_log WHERE action = 'UPLOADED' AND timestamp >= ?", (today_start,)).fetchone()[0]
         rate_limit_left = max(0, 50 - today_count)
         
         conn.close()

@@ -32,7 +32,20 @@ def format_db_dateonly(value):
     return dt_str[:10] if dt_str else ""
 
 
+
+def ist_to_utc_str(date_str, is_end_of_day=False):
+    try:
+        from datetime import datetime, timedelta, timezone
+        time_str = "23:59:59" if is_end_of_day else "00:00:00"
+        ist = timezone(timedelta(hours=5, minutes=30))
+        dt = datetime.strptime(f"{date_str} {time_str}", "%Y-%m-%d %H:%M:%S")
+        dt = dt.replace(tzinfo=ist)
+        return dt.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M:%S")
+    except Exception:
+        return f"{date_str} 23:59:59" if is_end_of_day else f"{date_str} 00:00:00"
+
 class ExcelExporter:
+
 
     @staticmethod
     def _get_db_connection():
@@ -51,10 +64,10 @@ class ExcelExporter:
         params = []
         if start_date:
             query += " AND uploaded_at >= ?"
-            params.append(f"{start_date} 00:00:00")
+            params.append(ist_to_utc_str(start_date, False))
         if end_date:
             query += " AND uploaded_at <= ?"
-            params.append(f"{end_date} 23:59:59")
+            params.append(ist_to_utc_str(end_date, True))
             
         query += " ORDER BY uploaded_at DESC"
         dockets = conn.execute(query, params).fetchall()
@@ -141,10 +154,10 @@ class ExcelExporter:
         params = []
         if start_date:
             query += " AND uploaded_at >= ?"
-            params.append(f"{start_date} 00:00:00")
+            params.append(ist_to_utc_str(start_date, False))
         if end_date:
             query += " AND uploaded_at <= ?"
-            params.append(f"{end_date} 23:59:59")
+            params.append(ist_to_utc_str(end_date, True))
             
         query += " ORDER BY uploaded_at DESC"
         dockets = conn.execute(query, params).fetchall()
@@ -233,10 +246,10 @@ class ExcelExporter:
         params = []
         if start_date:
             query += " AND uploaded_at >= ?"
-            params.append(f"{start_date} 00:00:00")
+            params.append(ist_to_utc_str(start_date, False))
         if end_date:
             query += " AND uploaded_at <= ?"
-            params.append(f"{end_date} 23:59:59")
+            params.append(ist_to_utc_str(end_date, True))
             
         query += " ORDER BY uploaded_at DESC"
         dockets = conn.execute(query, params).fetchall()
