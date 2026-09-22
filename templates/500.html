@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block title %}System Error - DOXERA{% endblock %}
+
+{% block content %}
+<div class="flex items-center justify-center h-full min-h-[60vh]">
+    <div class="bg-white rounded-xl shadow-lg border border-slate-200 p-8 max-w-md w-full text-center relative overflow-hidden flex flex-col items-center">
+        <div class="absolute top-0 left-0 w-full h-1 bg-amber-500"></div>
+        <img src="{{ url_for('static', filename='doxera_logo.png') }}" alt="DOXERA" class="h-10 mb-6">
+        <div class="flex items-center justify-center h-12 w-12 rounded-full bg-amber-100 mb-4">
+            <i data-lucide="server-crash" class="h-6 w-6 text-amber-600"></i>
+        </div>
+        <h2 class="text-xl font-bold text-slate-800 mb-2">Internal Server Error</h2>
+        <p class="text-slate-500 text-sm mb-6">The server encountered an unexpected condition that prevented it from fulfilling the request. Please try again later or contact your administrator.</p>
+        <button onclick="window.history.back()" class="w-full inline-flex justify-center items-center px-4 py-2 border border-slate-300 shadow-sm text-sm font-medium rounded-md text-slate-700 bg-white hover:bg-slate-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-nexpress-blue transition-colors">
+            <i data-lucide="arrow-left" class="h-4 w-4 mr-2"></i> Go Back
+        </button>
+    </div>
+</div>
+{% endblock %}

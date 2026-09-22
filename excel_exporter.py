@@ -258,9 +258,9 @@ class ExcelExporter:
                 if idx <= len(dims):
                     dim = dims[idx-1]
                     row[f'L{idx}'] = dim['length']
-                    row[f'B{idx}'] = dim['width']
+                    row[f'B{idx}'] = dim['breadth']
                     row[f'H{idx}'] = dim['height']
-                    row[f'Boxes {idx}'] = dim['boxes_count']
+                    row[f'Boxes {idx}'] = dim['num_packages']
                     row[f'VolWeight {idx}'] = dim['dimension_weight']
                     if dim['dimension_weight']:
                         total_vol_weight += float(dim['dimension_weight'])

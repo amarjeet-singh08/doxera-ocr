@@ -5,24 +5,24 @@
 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl">
     
         <!-- All Dockets Export -->
-    <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
         <div class="px-6 py-4 border-b border-blue-100 bg-blue-50">
             <h2 class="text-base font-bold text-blue-900 flex items-center">
                 <i data-lucide="layers" class="h-5 w-5 mr-2 text-blue-600"></i> All Dockets Export
             </h2>
         </div>
-        <div class="p-6">
+        <div class="p-6 flex flex-col h-full">
             <p class="text-sm text-slate-600 mb-6">Generates an Excel spreadsheet containing <strong>ALL</strong> dockets, regardless of status (including those Pending Review, Verified, and Rejected).</p>
             
-            <form action="{{ url_for('ops.do_export_all') }}" method="GET" class="space-y-4">
+            <form class="space-y-4 mt-auto" action="{{ url_for('ops.do_export_all') }}" method="GET">
                 <div class="flex gap-4">
                     <div class="flex-1">
                         <label class="block text-xs font-medium text-slate-700 mb-1">Start Date</label>
-                        <input type="date" name="start_date" class="w-full text-sm border-slate-300 rounded-md shadow-sm">
+                        <input type="date" required name="start_date" class="w-full text-sm border-slate-300 rounded-md shadow-sm">
                     </div>
                     <div class="flex-1">
                         <label class="block text-xs font-medium text-slate-700 mb-1">End Date</label>
-                        <input type="date" name="end_date" class="w-full text-sm border-slate-300 rounded-md shadow-sm">
+                        <input type="date" required name="end_date" class="w-full text-sm border-slate-300 rounded-md shadow-sm">
                     </div>
                 </div>
                 <button type="submit" class="inline-flex items-center justify-center w-full px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium shadow-sm transition-colors">
@@ -33,24 +33,24 @@
     </div>
 
     <!-- Verified Export -->
-    <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
         <div class="px-6 py-4 border-b border-emerald-100 bg-emerald-50">
             <h2 class="text-base font-bold text-emerald-900 flex items-center">
                 <i data-lucide="check-circle" class="h-5 w-5 mr-2 text-emerald-600"></i> Verified Dockets Export
             </h2>
         </div>
-        <div class="p-6">
+        <div class="p-6 flex flex-col h-full">
             <p class="text-sm text-slate-600 mb-6">Generates an Excel spreadsheet containing only dockets with the final <strong>VERIFIED</strong> status. Any records pending review, rejected, or modified are strictly excluded.</p>
             
-            <form action="{{ url_for('ops.do_export_verified') }}" method="GET" class="space-y-4">
+            <form class="space-y-4 mt-auto" action="{{ url_for('ops.do_export_verified') }}" method="GET">
                 <div class="flex gap-4">
                     <div class="flex-1">
                         <label class="block text-xs font-medium text-slate-700 mb-1">Start Date</label>
-                        <input type="date" name="start_date" class="w-full text-sm border-slate-300 rounded-md shadow-sm">
+                        <input type="date" required name="start_date" class="w-full text-sm border-slate-300 rounded-md shadow-sm">
                     </div>
                     <div class="flex-1">
                         <label class="block text-xs font-medium text-slate-700 mb-1">End Date</label>
-                        <input type="date" name="end_date" class="w-full text-sm border-slate-300 rounded-md shadow-sm">
+                        <input type="date" required name="end_date" class="w-full text-sm border-slate-300 rounded-md shadow-sm">
                     </div>
                 </div>
                 <button type="submit" class="inline-flex items-center justify-center w-full px-4 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md text-sm font-medium shadow-sm transition-colors">
@@ -61,24 +61,24 @@
     </div>
 
     <!-- Rejected Export -->
-    <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
+    <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden flex flex-col h-full">
         <div class="px-6 py-4 border-b border-rose-100 bg-rose-50">
             <h2 class="text-base font-bold text-rose-900 flex items-center">
                 <i data-lucide="x-circle" class="h-5 w-5 mr-2 text-rose-600"></i> Rejected Dockets Export
             </h2>
         </div>
-        <div class="p-6">
+        <div class="p-6 flex flex-col h-full">
             <p class="text-sm text-slate-600 mb-6">Generates an Excel spreadsheet containing explicitly <strong>REJECTED</strong> dockets along with their rejection reasons. Dockets pending review are not included here.</p>
             
-            <form action="{{ url_for('ops.do_export_rejected') }}" method="GET" class="space-y-4">
+            <form class="space-y-4 mt-auto" action="{{ url_for('ops.do_export_rejected') }}" method="GET">
                 <div class="flex gap-4">
                     <div class="flex-1">
                         <label class="block text-xs font-medium text-slate-700 mb-1">Start Date</label>
-                        <input type="date" name="start_date" class="w-full text-sm border-slate-300 rounded-md shadow-sm">
+                        <input type="date" required name="start_date" class="w-full text-sm border-slate-300 rounded-md shadow-sm">
                     </div>
                     <div class="flex-1">
                         <label class="block text-xs font-medium text-slate-700 mb-1">End Date</label>
-                        <input type="date" name="end_date" class="w-full text-sm border-slate-300 rounded-md shadow-sm">
+                        <input type="date" required name="end_date" class="w-full text-sm border-slate-300 rounded-md shadow-sm">
                     </div>
                 </div>
                 <button type="submit" class="inline-flex items-center justify-center w-full px-4 py-2 bg-white border border-rose-200 text-rose-700 hover:bg-rose-50 rounded-md text-sm font-medium shadow-sm transition-colors">
