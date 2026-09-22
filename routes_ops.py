@@ -151,18 +151,18 @@ def dashboard():
     today_start = datetime.utcnow().strftime('%Y-%m-%d 00:00:00')
     
     # Stats
-    today = conn.execute("SELECT COUNT(*) FROM dockets WHERE uploaded_by = ? AND uploaded_at >= ?", (session['username'], today_start,)).fetchone()[0]
-    processing = conn.execute("SELECT COUNT(*) FROM dockets WHERE uploaded_by = ? AND status IN ('PROCESSING', 'UPLOADED')", (session['username'],)).fetchone()[0]
-    verified = conn.execute("SELECT COUNT(*) FROM dockets WHERE uploaded_by = ? AND status = 'VERIFIED'", (session['username'],)).fetchone()[0]
-    review = conn.execute("SELECT COUNT(*) FROM dockets WHERE uploaded_by = ? AND (status = 'REVIEW_REQUIRED' OR status = 'MODIFIED_REVERIFICATION_REQUIRED')", (session['username'],)).fetchone()[0]
-    rejected = conn.execute("SELECT COUNT(*) FROM dockets WHERE uploaded_by = ? AND status = 'REJECTED'", (session['username'],)).fetchone()[0]
-    failed = conn.execute("SELECT COUNT(*) FROM dockets WHERE uploaded_by = ? AND status = 'FAILED'", (session['username'],)).fetchone()[0]
+    today = conn.execute("SELECT COUNT(*) FROM dockets WHERE uploaded_at >= ?", (today_start,)).fetchone()[0]
+    processing = conn.execute("SELECT COUNT(*) FROM dockets WHERE status IN ('PROCESSING', 'UPLOADED')", ()).fetchone()[0]
+    verified = conn.execute("SELECT COUNT(*) FROM dockets WHERE status = 'VERIFIED'", ()).fetchone()[0]
+    review = conn.execute("SELECT COUNT(*) FROM dockets WHERE (status = 'REVIEW_REQUIRED' OR status = 'MODIFIED_REVERIFICATION_REQUIRED')", ()).fetchone()[0]
+    rejected = conn.execute("SELECT COUNT(*) FROM dockets WHERE status = 'REJECTED'", ()).fetchone()[0]
+    failed = conn.execute("SELECT COUNT(*) FROM dockets WHERE status = 'FAILED'", ()).fetchone()[0]
     
     # Pipeline Jobs
-    jobs = conn.execute("SELECT * FROM processing_jobs WHERE created_by = ? ORDER BY created_at DESC LIMIT 3", (session['username'],)).fetchall()
+    jobs = conn.execute("SELECT * FROM processing_jobs WHERE created_by = ? ORDER BY created_at DESC LIMIT 3", ()).fetchall()
     
     # Recent dockets
-    dockets = conn.execute("SELECT * FROM dockets WHERE uploaded_by = ? AND is_archived = 0 ORDER BY uploaded_at DESC LIMIT 10", (session['username'],)).fetchall()
+    dockets = conn.execute("SELECT * FROM dockets WHERE is_archived = 0 ORDER BY uploaded_at DESC LIMIT 10", ()).fetchall()
     
     conn.close()
     
@@ -221,7 +221,7 @@ def upload():
                         conn.close()
 
                 docket_id = create_docket(job_id, saved_filename, image_hash, filename, session['username'])
-                log_audit(session['username'], 'UPLOADED', docket_id, f"Uploaded {filename}")
+                log_audit('UPLOADED', docket_id, f"Uploaded {filename}")
                 dockets_to_process.append((docket_id, filepath))
                 
         if dockets_to_process:
@@ -287,10 +287,18 @@ def processing():
 @login_required
 def dockets():
     status_filter = request.args.get('status', 'ALL')
+    search_query = request.args.get('search', '').strip()
     conn = get_db_connection()
     
-    query = "SELECT * FROM dockets WHERE uploaded_by = ? AND is_archived = 0 "
-    params = [session['username']]
+    query = "SELECT * FROM dockets WHERE is_archived = 0"
+    params = []
+    
+    if search_query:
+        # Match exactly or partially? User said "when user type docket no, so user will go directly to that docket"
+        # Since docket numbers are exact, let's do exact match or LIKE
+        query += " AND docket_number = ?"
+        params.append(search_query)
+        
     if status_filter != 'ALL':
         if status_filter == 'REVIEW':
             query += " AND (status = 'REVIEW_REQUIRED' OR status = 'MODIFIED_REVERIFICATION_REQUIRED')"
@@ -302,7 +310,7 @@ def dockets():
     
     rows = conn.execute(query, params).fetchall()
     conn.close()
-    return render_template('dockets.html', dockets=rows, current_filter=status_filter)
+    return render_template('dockets.html', dockets=rows, current_filter=status_filter, search_query=search_query)
 
 @ops_bp.route('/review_center')
 @login_required
@@ -310,7 +318,7 @@ def dockets():
 def review_center():
     conn = get_db_connection()
     # Fetch ones needing review
-    rows = conn.execute("SELECT * FROM dockets WHERE uploaded_by = ? AND is_archived = 0 AND (status = 'REVIEW_REQUIRED' OR status = 'MODIFIED_REVERIFICATION_REQUIRED') ORDER BY uploaded_at ASC", (session['username'],)).fetchall()
+    rows = conn.execute("SELECT * FROM dockets WHERE is_archived = 0 AND (status = 'REVIEW_REQUIRED' OR status = 'MODIFIED_REVERIFICATION_REQUIRED') ORDER BY uploaded_at ASC", ()).fetchall()
     conn.close()
     return render_template('review_center.html', dockets=rows)
 
@@ -329,8 +337,8 @@ def docket_detail(docket_id):
                 # Must pass validation to verify
                 is_valid, _ = ValidationService.validate_docket_record(conn, docket_id)
                 if is_valid:
-                    conn.execute("UPDATE dockets SET status = 'VERIFIED', human_reviewed = 1, human_reviewer = ?, human_reviewed_at = CURRENT_TIMESTAMP WHERE id = ?", (session['username'], docket_id))
-                    log_audit(session['username'], 'VERIFIED', docket_id, "Marked as Verified", conn=conn)
+                    conn.execute("UPDATE dockets SET status = 'VERIFIED', human_reviewed = 1, human_reviewer = ?, human_reviewed_at = CURRENT_TIMESTAMP WHERE id = ?", (docket_id))
+                    log_audit('VERIFIED', docket_id, "Marked as Verified", conn=conn)
                     flash("Docket Verified successfully.", "success")
                 else:
                     flash("Cannot verify. Validation failed.", "error")
@@ -338,18 +346,18 @@ def docket_detail(docket_id):
             elif action == 'reject':
                 reason = request.form.get('rejection_reason', 'Manual rejection')
                 conn.execute("UPDATE dockets SET status = 'REJECTED' WHERE id = ?", (docket_id,))
-                log_audit(session['username'], 'REJECTED', docket_id, f"Rejected: {reason}", conn=conn)
+                log_audit('REJECTED', docket_id, f"Rejected: {reason}", conn=conn)
                 flash("Docket Rejected.", "success")
                 
             elif action == 'archive':
                 conn.execute("UPDATE dockets SET is_archived = 1 WHERE id = ?", (docket_id,))
-                log_audit(session['username'], 'ARCHIVED', docket_id, "Archived docket", conn=conn)
+                log_audit('ARCHIVED', docket_id, "Archived docket", conn=conn)
                 flash("Docket Archived.", "success")
                 
             elif action == 'reopen':
                 reason = request.form.get('reopen_reason', 'Reopened for review')
                 conn.execute("UPDATE dockets SET status = 'REVIEW_REQUIRED', reopen_reason = ? WHERE id = ?", (reason, docket_id))
-                log_audit(session['username'], 'REOPENED', docket_id, f"Reopened: {reason}", conn=conn)
+                log_audit('REOPENED', docket_id, f"Reopened: {reason}", conn=conn)
                 flash("Docket Reopened.", "success")
                 
             elif action == 'permanent_delete':
@@ -362,7 +370,7 @@ def docket_detail(docket_id):
                 conn.execute("DELETE FROM corrections WHERE docket_id = ?", (docket_id,))
                 
                 # Cannot delete audit_log rows if we want a permanent log, but let's keep one final log before deleting the docket itself
-                log_audit(session['username'], 'PERMANENT_DELETE', docket_id, "PERMANENTLY DELETED DOCKET RECORD", conn=conn)
+                log_audit('PERMANENT_DELETE', docket_id, "PERMANENTLY DELETED DOCKET RECORD", conn=conn)
                 
                 # We could keep the docket image file around, but we'll delete the DB record
                 conn.execute("DELETE FROM dockets WHERE id = ?", (docket_id,))
@@ -374,7 +382,7 @@ def docket_detail(docket_id):
             conn.commit()
             return redirect(url_for('ops.docket_detail', docket_id=docket_id))
             
-        docket = conn.execute('SELECT * FROM dockets WHERE id = ? AND uploaded_by = ?', (docket_id, session['username'])).fetchone()
+        docket = conn.execute('SELECT * FROM dockets WHERE id = ?', (docket_id,)).fetchone()
         if not docket:
             return "Not found", 404
             
@@ -394,7 +402,7 @@ def docket_detail(docket_id):
 def edit_all(docket_id):
     conn = get_db_connection()
     try:
-        docket = conn.execute('SELECT * FROM dockets WHERE id = ? AND uploaded_by = ?', (docket_id, session['username'])).fetchone()
+        docket = conn.execute('SELECT * FROM dockets WHERE id = ?', (docket_id,)).fetchone()
         if not docket:
             abort(404)
             
@@ -480,7 +488,7 @@ def edit_all(docket_id):
             
         if changes_made:
             ValidationService.transition_status_on_edit(conn, docket_id)
-            log_audit(session['username'], 'EDITED_DOCKET', docket_id, "Updated docket fields and/or dimensions", conn=conn)
+            log_audit('EDITED_DOCKET', docket_id, "Updated docket fields and/or dimensions", conn=conn)
             flash("Docket updated successfully.", "success")
         else:
             flash("No changes detected.", "info")
@@ -500,7 +508,7 @@ def delete_docket(docket_id):
     conn = get_db_connection()
     conn.execute('DELETE FROM dimension_groups WHERE docket_id = ?', (docket_id,))
     conn.execute('DELETE FROM corrections WHERE docket_id = ?', (docket_id,))
-    log_audit(session['username'], 'PERMANENT_DELETE', docket_id, 'PERMANENTLY DELETED DOCKET RECORD', conn=conn)
+    log_audit('PERMANENT_DELETE', docket_id, 'PERMANENTLY DELETED DOCKET RECORD', conn=conn)
     conn.execute('DELETE FROM dockets WHERE id = ?', (docket_id,))
     conn.commit()
     conn.close()
@@ -519,18 +527,18 @@ def delete_all_dockets():
     status = request.form.get('status', 'ALL')
     
     if status == 'ALL':
-        dockets = conn.execute('SELECT id FROM dockets WHERE uploaded_by = ?', (session['username'],)).fetchall()
+        dockets = conn.execute('SELECT id FROM dockets ', ()).fetchall()
     elif status == 'REVIEW':
-        dockets = conn.execute("SELECT id FROM dockets WHERE uploaded_by = ? AND status IN ('REVIEW_REQUIRED', 'MODIFIED_REVERIFICATION_REQUIRED')", (session['username'],)).fetchall()
+        dockets = conn.execute("SELECT id FROM dockets WHERE status IN ('REVIEW_REQUIRED', 'MODIFIED_REVERIFICATION_REQUIRED')", ()).fetchall()
     else:
-        dockets = conn.execute('SELECT id FROM dockets WHERE uploaded_by = ? AND status = ?', (session['username'], status)).fetchall()
+        dockets = conn.execute('SELECT id FROM dockets WHERE status = ?', (status)).fetchall()
         
     for d in dockets:
         conn.execute('DELETE FROM dimension_groups WHERE docket_id = ?', (d['id'],))
         conn.execute('DELETE FROM corrections WHERE docket_id = ?', (d['id'],))
         conn.execute('DELETE FROM dockets WHERE id = ?', (d['id'],))
         
-    log_audit(session['username'], 'PERMANENT_DELETE_ALL', details=f'Deleted all dockets in status {status}', conn=conn)
+    log_audit('PERMANENT_DELETE_ALL', details=f'Deleted all dockets in status {status}', conn=conn)
     conn.commit()
     conn.close()
     
@@ -566,11 +574,11 @@ def do_export_verified():
     end_date = request.args.get('end_date')
     
     from excel_exporter import ExcelExporter
-    filename = ExcelExporter.export_verified(start_date, end_date, session['username'])
+    filename = ExcelExporter.export_verified(start_date, end_date)
     if not filename:
         flash("No verified records found for this date range.", "error")
         return redirect(url_for('ops.exports_page'))
-    log_audit(session['username'], 'EXPORTED', details=f"Generated Verified Excel: {filename}")
+    log_audit('EXPORTED', details=f"Generated Verified Excel: {filename}")
     return send_from_directory(current_app.config['EXPORT_FOLDER'], filename, as_attachment=True)
 
 @ops_bp.route('/export/rejected')
@@ -581,9 +589,9 @@ def do_export_rejected():
     end_date = request.args.get('end_date')
 
     from excel_exporter import ExcelExporter
-    filename = ExcelExporter.export_rejected(start_date, end_date, session['username'])
+    filename = ExcelExporter.export_rejected(start_date, end_date)
     if not filename:
         flash("No rejected records found for this date range.", "error")
         return redirect(url_for('ops.exports_page'))
-    log_audit(session['username'], 'EXPORTED', details=f"Generated Rejected Excel: {filename}")
+    log_audit('EXPORTED', details=f"Generated Rejected Excel: {filename}")
     return send_from_directory(current_app.config['EXPORT_FOLDER'], filename, as_attachment=True)

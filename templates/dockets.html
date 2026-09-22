@@ -58,7 +58,7 @@
             </thead>
             <tbody class="divide-y divide-slate-100 text-slate-700">
                 {% for d in dockets %}
-                <tr class="hover:bg-slate-50 transition-colors">
+                <tr class="hover:bg-slate-50 transition-colors {% if search_query and search_query == d.docket_number %}bg-amber-100 ring-2 ring-amber-300{% endif %}">
                     <td class="px-6 py-3 font-semibold text-slate-900">{{ d.docket_number or '---' }}</td>
                     <td class="px-6 py-3">
                         {% if d.status == 'VERIFIED' %}

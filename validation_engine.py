@@ -19,7 +19,7 @@ class ValidationEngine:
         if 'extracted_' in val_str or 'here' in val_str or '...' in val_str:
             return None
         # Keep letters and digits
-        cleaned = re.sub(r'[^a-zA-Z0-9]', '', val_str)
+        cleaned = re.sub(r'[^a-zA-Z0-9/\-\+ ]', '', val_str)
         return cleaned if cleaned else None
 
     @staticmethod
@@ -29,12 +29,9 @@ class ValidationEngine:
         val_str = str(val_str).strip()
         if 'extracted_' in val_str or 'here' in val_str or '...' in val_str:
             return None
-        # Remove anything that isn't digit or dot
-        cleaned = re.sub(r'[^0-9.]', '', val_str)
-        try:
-            return float(cleaned)
-        except ValueError:
-            return None
+        # Allow symbols since user requested /, -, + for invoice values
+        cleaned = re.sub(r'[^a-zA-Z0-9.\/\-\+ ]', '', val_str)
+        return cleaned if cleaned else None
 
     def _clean_number(val_str):
         """Clean a string value to extract a float. Fails if there are non-numeric chars."""

@@ -27,7 +27,7 @@ class ExcelExporter:
         return get_db_connection()
 
     @staticmethod
-    def export_verified(start_date=None, end_date=None, username=None):
+    def export_verified(start_date=None, end_date=None):
         """
         Exports only strictly VERIFIED dockets.
         Dynamically flattens dimension groups with strict column ordering.
@@ -36,9 +36,6 @@ class ExcelExporter:
         
         query = "SELECT * FROM dockets WHERE status = 'VERIFIED' AND is_archived = 0"
         params = []
-        if username:
-            query += " AND uploaded_by = ?"
-            params.append(username)
         if start_date:
             query += " AND uploaded_at >= ?"
             params.append(f"{start_date} 00:00:00")
@@ -61,8 +58,11 @@ class ExcelExporter:
                 max_dims = count
                 
         export_data = []
-        for d in dockets:
+        for i, d in enumerate(dockets, 1):
+            date_only = d['uploaded_at'][:10] if d['uploaded_at'] else ''
             row = {
+                'S.No': i,
+                'Date': date_only,
                 'Docket No': d['docket_number'],
                 'Invoice No': d['invoice_no'],
                 'Invoice Value': d['invoice_value'],
@@ -102,7 +102,7 @@ class ExcelExporter:
         conn.close()
         
         # Use columns parameter to strictly enforce order
-        all_cols = ['Docket No', 'Actual Weight', 'Total Packages']
+        all_cols = ['S.No', 'Date', 'Docket No', 'Invoice No', 'Invoice Value', 'Actual Weight', 'Total Packages']
         for idx in range(1, max_dims + 1):
             all_cols.extend([f'L{idx}', f'B{idx}', f'H{idx}', f'Boxes {idx}', f'VolWeight {idx}'])
         all_cols.extend(['Total Volumetric Weight', 'Status', 'Verified At', 'Verified By'])
@@ -119,16 +119,13 @@ class ExcelExporter:
         return filename
 
     @staticmethod
-    def export_rejected(start_date=None, end_date=None, username=None):
+    def export_rejected(start_date=None, end_date=None):
         """
         Exports strictly REJECTED dockets with strict column ordering.
         """
         conn = ExcelExporter._get_db_connection()
         query = "SELECT * FROM dockets WHERE status = 'REJECTED' AND is_archived = 0"
         params = []
-        if username:
-            query += " AND uploaded_by = ?"
-            params.append(username)
         if start_date:
             query += " AND uploaded_at >= ?"
             params.append(f"{start_date} 00:00:00")
@@ -151,8 +148,11 @@ class ExcelExporter:
                 max_dims = count
                 
         export_data = []
-        for d in dockets:
+        for i, d in enumerate(dockets, 1):
+            date_only = d['uploaded_at'][:10] if d['uploaded_at'] else ''
             row = {
+                'S.No': i,
+                'Date': date_only,
                 'Docket No': d['docket_number'] or '[Not Found]',
                 'Invoice No': d['invoice_no'],
                 'Invoice Value': d['invoice_value'],
@@ -194,7 +194,7 @@ class ExcelExporter:
         conn.close()
         
         # Use columns parameter to strictly enforce order
-        all_cols = ['Docket No', 'Actual Weight', 'Total Packages']
+        all_cols = ['S.No', 'Date', 'Docket No', 'Invoice No', 'Invoice Value', 'Actual Weight', 'Total Packages']
         for idx in range(1, max_dims + 1):
             all_cols.extend([f'L{idx}', f'B{idx}', f'H{idx}', f'Boxes {idx}', f'VolWeight {idx}'])
         all_cols.extend(['Total Volumetric Weight', 'Status', 'Rejection Reason', 'Original Filename', 'Uploaded At', 'Uploaded By'])
