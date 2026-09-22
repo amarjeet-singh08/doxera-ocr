@@ -147,18 +147,18 @@ def dashboard():
     today_start = datetime.utcnow().strftime('%Y-%m-%d 00:00:00')
     
     # Stats
-    today = conn.execute("SELECT COUNT(*) FROM dockets WHERE uploaded_at >= ?", (today_start,)).fetchone()[0]
-    processing = conn.execute("SELECT COUNT(*) FROM dockets WHERE status IN ('PROCESSING', 'UPLOADED')").fetchone()[0]
-    verified = conn.execute("SELECT COUNT(*) FROM dockets WHERE status = 'VERIFIED'").fetchone()[0]
-    review = conn.execute("SELECT COUNT(*) FROM dockets WHERE status = 'REVIEW_REQUIRED' OR status = 'MODIFIED_REVERIFICATION_REQUIRED'").fetchone()[0]
-    rejected = conn.execute("SELECT COUNT(*) FROM dockets WHERE status = 'REJECTED'").fetchone()[0]
-    failed = conn.execute("SELECT COUNT(*) FROM dockets WHERE status = 'FAILED'").fetchone()[0]
+    today = conn.execute("SELECT COUNT(*) FROM dockets WHERE uploaded_by = ? AND uploaded_at >= ?", (session['username'], today_start,)).fetchone()[0]
+    processing = conn.execute("SELECT COUNT(*) FROM dockets WHERE uploaded_by = ? AND status IN ('PROCESSING', 'UPLOADED')", (session['username'],)).fetchone()[0]
+    verified = conn.execute("SELECT COUNT(*) FROM dockets WHERE uploaded_by = ? AND status = 'VERIFIED'", (session['username'],)).fetchone()[0]
+    review = conn.execute("SELECT COUNT(*) FROM dockets WHERE uploaded_by = ? AND (status = 'REVIEW_REQUIRED' OR status = 'MODIFIED_REVERIFICATION_REQUIRED')", (session['username'],)).fetchone()[0]
+    rejected = conn.execute("SELECT COUNT(*) FROM dockets WHERE uploaded_by = ? AND status = 'REJECTED'", (session['username'],)).fetchone()[0]
+    failed = conn.execute("SELECT COUNT(*) FROM dockets WHERE uploaded_by = ? AND status = 'FAILED'", (session['username'],)).fetchone()[0]
     
     # Pipeline Jobs
-    jobs = conn.execute("SELECT * FROM processing_jobs ORDER BY created_at DESC LIMIT 3").fetchall()
+    jobs = conn.execute("SELECT * FROM processing_jobs WHERE created_by = ? ORDER BY created_at DESC LIMIT 3", (session['username'],)).fetchall()
     
     # Recent dockets
-    dockets = conn.execute("SELECT * FROM dockets WHERE is_archived = 0 ORDER BY uploaded_at DESC LIMIT 10").fetchall()
+    dockets = conn.execute("SELECT * FROM dockets WHERE uploaded_by = ? AND is_archived = 0 ORDER BY uploaded_at DESC LIMIT 10", (session['username'],)).fetchall()
     
     conn.close()
     
@@ -269,9 +269,8 @@ def dockets():
     status_filter = request.args.get('status', 'ALL')
     conn = get_db_connection()
     
-    query = "SELECT * FROM dockets WHERE is_archived = 0 "
-    params = []
-    
+    query = "SELECT * FROM dockets WHERE uploaded_by = ? AND is_archived = 0 "
+    params = [session['username']]
     if status_filter != 'ALL':
         if status_filter == 'REVIEW':
             query += " AND (status = 'REVIEW_REQUIRED' OR status = 'MODIFIED_REVERIFICATION_REQUIRED')"
@@ -291,7 +290,7 @@ def dockets():
 def review_center():
     conn = get_db_connection()
     # Fetch ones needing review
-    rows = conn.execute("SELECT * FROM dockets WHERE is_archived = 0 AND (status = 'REVIEW_REQUIRED' OR status = 'MODIFIED_REVERIFICATION_REQUIRED') ORDER BY uploaded_at ASC").fetchall()
+    rows = conn.execute("SELECT * FROM dockets WHERE uploaded_by = ? AND is_archived = 0 AND (status = 'REVIEW_REQUIRED' OR status = 'MODIFIED_REVERIFICATION_REQUIRED') ORDER BY uploaded_at ASC", (session['username'],)).fetchall()
     conn.close()
     return render_template('review_center.html', dockets=rows)
 
@@ -355,7 +354,7 @@ def docket_detail(docket_id):
             conn.commit()
             return redirect(url_for('ops.docket_detail', docket_id=docket_id))
             
-        docket = conn.execute('SELECT * FROM dockets WHERE id = ?', (docket_id,)).fetchone()
+        docket = conn.execute('SELECT * FROM dockets WHERE id = ? AND uploaded_by = ?', (docket_id, session['username'])).fetchone()
         if not docket:
             return "Not found", 404
             
@@ -375,7 +374,7 @@ def docket_detail(docket_id):
 def edit_all(docket_id):
     conn = get_db_connection()
     try:
-        docket = conn.execute('SELECT * FROM dockets WHERE id = ?', (docket_id,)).fetchone()
+        docket = conn.execute('SELECT * FROM dockets WHERE id = ? AND uploaded_by = ?', (docket_id, session['username'])).fetchone()
         if not docket:
             abort(404)
             
@@ -500,11 +499,11 @@ def delete_all_dockets():
     status = request.form.get('status', 'ALL')
     
     if status == 'ALL':
-        dockets = conn.execute('SELECT id FROM dockets').fetchall()
+        dockets = conn.execute('SELECT id FROM dockets WHERE uploaded_by = ?', (session['username'],)).fetchall()
     elif status == 'REVIEW':
-        dockets = conn.execute("SELECT id FROM dockets WHERE status IN ('REVIEW_REQUIRED', 'MODIFIED_REVERIFICATION_REQUIRED')").fetchall()
+        dockets = conn.execute("SELECT id FROM dockets WHERE uploaded_by = ? AND status IN ('REVIEW_REQUIRED', 'MODIFIED_REVERIFICATION_REQUIRED')", (session['username'],)).fetchall()
     else:
-        dockets = conn.execute('SELECT id FROM dockets WHERE status = ?', (status,)).fetchall()
+        dockets = conn.execute('SELECT id FROM dockets WHERE uploaded_by = ? AND status = ?', (session['username'], status)).fetchall()
         
     for d in dockets:
         conn.execute('DELETE FROM dimension_groups WHERE docket_id = ?', (d['id'],))

@@ -1,11 +1,10 @@
 import sqlite3
 import json
 from config import Config
+from db_adapter import get_connection
 
 def get_db_connection():
-    conn = sqlite3.connect(Config.DB_PATH, timeout=15)
-    conn.row_factory = sqlite3.Row
-    return conn
+    return get_connection(Config.DB_PATH)
 
 def init_db():
     conn = get_db_connection()
@@ -152,9 +151,14 @@ def check_duplicate_image(image_hash):
 def create_job(batch_id, total_images, created_by):
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute('INSERT INTO processing_jobs (batch_id, total_images, created_by) VALUES (?, ?, ?)', 
-              (batch_id, total_images, created_by))
-    job_id = c.lastrowid
+    if getattr(conn, 'is_postgres', False):
+        c.execute('INSERT INTO processing_jobs (batch_id, total_images, created_by) VALUES (?, ?, ?) RETURNING id', 
+                  (batch_id, total_images, created_by))
+        job_id = c.fetchone()[0]
+    else:
+        c.execute('INSERT INTO processing_jobs (batch_id, total_images, created_by) VALUES (?, ?, ?)', 
+                  (batch_id, total_images, created_by))
+        job_id = c.lastrowid
     conn.commit()
     conn.close()
     return job_id
@@ -162,11 +166,18 @@ def create_job(batch_id, total_images, created_by):
 def create_docket(job_id, image_filename, image_hash, original_filename, uploaded_by):
     conn = get_db_connection()
     c = conn.cursor()
-    c.execute('''
-        INSERT INTO dockets (job_id, image_filename, image_hash, original_filename, uploaded_by)
-        VALUES (?, ?, ?, ?, ?)
-    ''', (job_id, image_filename, image_hash, original_filename, uploaded_by))
-    docket_id = c.lastrowid
+    if getattr(conn, 'is_postgres', False):
+        c.execute('''
+            INSERT INTO dockets (job_id, image_filename, image_hash, original_filename, uploaded_by)
+            VALUES (?, ?, ?, ?, ?) RETURNING id
+        ''', (job_id, image_filename, image_hash, original_filename, uploaded_by))
+        docket_id = c.fetchone()[0]
+    else:
+        c.execute('''
+            INSERT INTO dockets (job_id, image_filename, image_hash, original_filename, uploaded_by)
+            VALUES (?, ?, ?, ?, ?)
+        ''', (job_id, image_filename, image_hash, original_filename, uploaded_by))
+        docket_id = c.lastrowid
     conn.commit()
     conn.close()
     return docket_id
