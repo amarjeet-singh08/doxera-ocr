@@ -79,5 +79,11 @@ def inject_notifications():
     except Exception as e:
         return dict(notif_total=0)
 
+
+@app.errorhandler(403)
+def forbidden_error(error):
+    from flask import render_template
+    return render_template('403.html'), 403
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000, threaded=True)
