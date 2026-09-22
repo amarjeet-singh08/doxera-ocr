@@ -81,11 +81,43 @@ STEP 4: DIMENSIONS TABLE (MOST CRITICAL — READ VERY CAREFULLY)
 
 ═══════════════════════════════════════════════════════
 
-Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
+
+  STEP 5: INVOICE NO.
+  ==============================================================================
+  - Look for fields labeled "Invoice No.", "Inv No.", or similar.
+  - Invoice numbers can be strictly alphanumeric (contain both letters and numbers, e.g., "INV12345A").
+  - Do NOT confuse this with the Docket Number.
+  - If illegible, set confidence to "UNREADABLE" and value to "".
+
+  STEP 6: INVOICE VALUE
+  ==============================================================================
+  - Look for fields labeled "Invoice Value", "Value", "Declared Value", or currency amounts.
+  - This is often a large number (e.g., 50000, 1500.50).
+  - EXTREMELY IMPORTANT: Do NOT confuse a large Invoice Value with package dimensions (Length/Breadth/Height). Dimensions are strictly small numbers typically measured in cm or inches. Invoice Value is currency.
+  - If illegible, set confidence to "UNREADABLE" and value to "".
+  
+
+  STEP 5: INVOICE NO.
+  ==============================================================================
+  - Look for fields labeled "Invoice No.", "Inv No.", or similar.
+  - Invoice numbers can be strictly alphanumeric (contain both letters and numbers, e.g., "INV12345A").
+  - Do NOT confuse this with the Docket Number.
+  - If illegible, set confidence to "UNREADABLE" and value to "".
+
+  STEP 6: INVOICE VALUE
+  ==============================================================================
+  - Look for fields labeled "Invoice Value", "Value", "Declared Value", or currency amounts.
+  - This is often a large number (e.g., 50000, 1500.50).
+  - EXTREMELY IMPORTANT: Do NOT confuse a large Invoice Value with package dimensions (Length/Breadth/Height). Dimensions are strictly small numbers typically measured in cm or inches. Invoice Value is currency.
+  - If illegible, set confidence to "UNREADABLE" and value to "".
+
+  Return ONLY valid JSON (no markdown, no explanation) with this exact structure:
 {
   "docket_number": {"value": "...", "confidence": "HIGH|MEDIUM|LOW|UNREADABLE"},
   "actual_weight": {"value": "...", "confidence": "HIGH|MEDIUM|LOW|UNREADABLE"},
   "total_packages": {"value": "...", "confidence": "HIGH|MEDIUM|LOW|UNREADABLE"},
+  "invoice_no": {"value": "...", "confidence": "HIGH|MEDIUM|LOW|UNREADABLE"},
+  "invoice_value": {"value": "...", "confidence": "HIGH|MEDIUM|LOW|UNREADABLE"},
   "dimension_groups": [
     {
       "length": {"value": "...", "confidence": "HIGH|MEDIUM|LOW|UNREADABLE"},

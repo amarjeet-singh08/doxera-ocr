@@ -64,6 +64,8 @@ class ExcelExporter:
         for d in dockets:
             row = {
                 'Docket No': d['docket_number'],
+                'Invoice No': d['invoice_no'],
+                'Invoice Value': d['invoice_value'],
                 'Actual Weight': d['actual_weight'],
                 'Total Packages': d['total_packages']
             }
@@ -152,6 +154,8 @@ class ExcelExporter:
         for d in dockets:
             row = {
                 'Docket No': d['docket_number'] or '[Not Found]',
+                'Invoice No': d['invoice_no'],
+                'Invoice Value': d['invoice_value'],
                 'Actual Weight': d['actual_weight'],
                 'Total Packages': d['total_packages']
             }

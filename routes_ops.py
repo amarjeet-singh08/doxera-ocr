@@ -44,8 +44,8 @@ def process_docket_async(docket_id, filepath, app_context):
                 # Update docket with AI parsed data
                 conn.execute('''
                     UPDATE dockets 
-                    SET docket_number = ?, actual_weight = ?, total_packages = ?, 
-                        ai_original_docket_number = ?, ai_original_actual_weight = ?, ai_original_total_packages = ?,
+                    SET docket_number = ?, actual_weight = ?, total_packages = ?, invoice_no = ?, invoice_value = ?,
+                        ai_original_docket_number = ?, ai_original_actual_weight = ?, ai_original_total_packages = ?, ai_original_invoice_no = ?, ai_original_invoice_value = ?,
                         ai_raw_response = ?, ai_confidence_notes = ?, rejection_reasons = ?,
                         processed_at = CURRENT_TIMESTAMP
                     WHERE id = ?
@@ -53,9 +53,13 @@ def process_docket_async(docket_id, filepath, app_context):
                     docket_num, 
                     parsed_data.get('actual_weight'), 
                     parsed_data.get('total_packages'),
+                    parsed_data.get('invoice_no'),
+                    parsed_data.get('invoice_value'),
                     str(parsed_data.get('docket_number')) if parsed_data.get('docket_number') is not None else None,
                     str(parsed_data.get('actual_weight')) if parsed_data.get('actual_weight') is not None else None,
                     str(parsed_data.get('total_packages')) if parsed_data.get('total_packages') is not None else None,
+                    str(parsed_data.get('ai_original_invoice_no')) if parsed_data.get('ai_original_invoice_no') is not None else None,
+                    str(parsed_data.get('ai_original_invoice_value')) if parsed_data.get('ai_original_invoice_value') is not None else None,
                     parsed_data.get('ai_raw_response'), 
                     parsed_data.get('ai_confidence_notes'), 
                     json.dumps(reasons), 
@@ -380,7 +384,7 @@ def edit_all(docket_id):
             
         # 1. Update basic fields
         changes_made = False
-        for field in ['docket_number', 'actual_weight', 'total_packages']:
+        for field in ['docket_number', 'actual_weight', 'total_packages', 'invoice_no', 'invoice_value']:
             new_val = request.form.get(field, '').strip()
             if not new_val: new_val = None
             old_val = docket[field]

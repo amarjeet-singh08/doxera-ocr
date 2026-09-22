@@ -41,9 +41,14 @@ def init_db():
             actual_weight REAL,
             total_packages INTEGER,
             
+            invoice_no TEXT,
+            invoice_value TEXT,
+            
             ai_original_docket_number TEXT,
             ai_original_actual_weight TEXT,
             ai_original_total_packages TEXT,
+            ai_original_invoice_no TEXT,
+            ai_original_invoice_value TEXT,
             
             ai_raw_response TEXT,
             ai_confidence_notes TEXT,
@@ -135,8 +140,29 @@ def init_db():
         )
     ''')
     
+
+    # Safe upgrade for existing databases
+    def column_exists(table, column, conn):
+        if getattr(conn, 'is_postgres', False):
+            c = conn.execute("SELECT column_name FROM information_schema.columns WHERE table_name=%s AND column_name=%s", (table, column))
+            return c.fetchone() is not None
+        else:
+            c = conn.execute(f"PRAGMA table_info({table})")
+            columns = [col[1] for col in c.fetchall()]
+            return column in columns
+
+    if not column_exists('dockets', 'invoice_no', conn):
+        conn.execute("ALTER TABLE dockets ADD COLUMN invoice_no TEXT")
+    if not column_exists('dockets', 'invoice_value', conn):
+        conn.execute("ALTER TABLE dockets ADD COLUMN invoice_value TEXT")
+    if not column_exists('dockets', 'ai_original_invoice_no', conn):
+        conn.execute("ALTER TABLE dockets ADD COLUMN ai_original_invoice_no TEXT")
+    if not column_exists('dockets', 'ai_original_invoice_value', conn):
+        conn.execute("ALTER TABLE dockets ADD COLUMN ai_original_invoice_value TEXT")
+
     conn.commit()
     conn.close()
+
 
 def check_duplicate_image(image_hash):
     conn = get_db_connection()
@@ -159,7 +185,7 @@ def create_job(batch_id, total_images, created_by):
     conn.close()
     return job_id
 
-def create_docket(job_id, image_filename, image_hash, original_filename, uploaded_by):
+def create_docket(job_id, image_filename, image_hash, original_filename, uploaded_by, invoice_no=None, invoice_value=None, ai_invoice_no=None, ai_invoice_value=None):
     conn = get_db_connection()
     if getattr(conn, 'is_postgres', False):
         c = conn.execute('''
