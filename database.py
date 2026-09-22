@@ -8,10 +8,8 @@ def get_db_connection():
 
 def init_db():
     conn = get_db_connection()
-    c = conn.cursor()
-    
     # Jobs
-    c.execute('''
+    conn.execute('''
         CREATE TABLE IF NOT EXISTS processing_jobs (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             batch_id TEXT UNIQUE,
@@ -28,7 +26,7 @@ def init_db():
     ''')
     
     # Dockets
-    c.execute('''
+    conn.execute('''
         CREATE TABLE IF NOT EXISTS dockets (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             job_id INTEGER,
@@ -65,7 +63,7 @@ def init_db():
     ''')
     
     # Dimensions
-    c.execute('''
+    conn.execute('''
         CREATE TABLE IF NOT EXISTS dimension_groups (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             docket_id INTEGER,
@@ -86,7 +84,7 @@ def init_db():
     ''')
     
     # Corrections
-    c.execute('''
+    conn.execute('''
         CREATE TABLE IF NOT EXISTS corrections (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             docket_id INTEGER,
@@ -101,7 +99,7 @@ def init_db():
     ''')
     
     # Audit Log
-    c.execute('''
+    conn.execute('''
         CREATE TABLE IF NOT EXISTS audit_log (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user TEXT,
@@ -113,7 +111,7 @@ def init_db():
     ''')
     
     # Users
-    c.execute('''
+    conn.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             username TEXT UNIQUE,
@@ -126,7 +124,7 @@ def init_db():
     ''')
     
     # Exports
-    c.execute('''
+    conn.execute('''
         CREATE TABLE IF NOT EXISTS exports (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             filename TEXT,
@@ -142,21 +140,19 @@ def init_db():
 
 def check_duplicate_image(image_hash):
     conn = get_db_connection()
-    c = conn.cursor()
-    c.execute('SELECT id, docket_number FROM dockets WHERE image_hash = ?', (image_hash,))
+    c = conn.execute('SELECT id, docket_number FROM dockets WHERE image_hash = ?', (image_hash,))
     result = c.fetchone()
     conn.close()
     return result
 
 def create_job(batch_id, total_images, created_by):
     conn = get_db_connection()
-    c = conn.cursor()
     if getattr(conn, 'is_postgres', False):
-        c.execute('INSERT INTO processing_jobs (batch_id, total_images, created_by) VALUES (?, ?, ?) RETURNING id', 
+        c = conn.execute('INSERT INTO processing_jobs (batch_id, total_images, created_by) VALUES (?, ?, ?) RETURNING id', 
                   (batch_id, total_images, created_by))
         job_id = c.fetchone()[0]
     else:
-        c.execute('INSERT INTO processing_jobs (batch_id, total_images, created_by) VALUES (?, ?, ?)', 
+        c = conn.execute('INSERT INTO processing_jobs (batch_id, total_images, created_by) VALUES (?, ?, ?)', 
                   (batch_id, total_images, created_by))
         job_id = c.lastrowid
     conn.commit()
@@ -165,15 +161,14 @@ def create_job(batch_id, total_images, created_by):
 
 def create_docket(job_id, image_filename, image_hash, original_filename, uploaded_by):
     conn = get_db_connection()
-    c = conn.cursor()
     if getattr(conn, 'is_postgres', False):
-        c.execute('''
+        c = conn.execute('''
             INSERT INTO dockets (job_id, image_filename, image_hash, original_filename, uploaded_by)
             VALUES (?, ?, ?, ?, ?) RETURNING id
         ''', (job_id, image_filename, image_hash, original_filename, uploaded_by))
         docket_id = c.fetchone()[0]
     else:
-        c.execute('''
+        c = conn.execute('''
             INSERT INTO dockets (job_id, image_filename, image_hash, original_filename, uploaded_by)
             VALUES (?, ?, ?, ?, ?)
         ''', (job_id, image_filename, image_hash, original_filename, uploaded_by))
@@ -188,8 +183,7 @@ def log_audit(user, action, docket_id=None, details=None, conn=None):
         conn = get_db_connection()
         close_conn = True
         
-    c = conn.cursor()
-    c.execute('INSERT INTO audit_log (user, action, docket_id, details) VALUES (?, ?, ?, ?)',
+    c = conn.execute('INSERT INTO audit_log (user, action, docket_id, details) VALUES (?, ?, ?, ?)',
               (user, action, docket_id, details))
               
     if close_conn:
