@@ -200,6 +200,9 @@ class ValidationEngine:
         # ═══════════════════════════════════════════════════════
         # 7. DETERMINE FINAL STATUS
         # ═══════════════════════════════════════════════════════
+        if parsed_data['actual_weight'] is None and parsed_data['total_packages'] is None and not parsed_data['dimensions']:
+            reject_reasons.append("NOT A DOCKET: No recognizable docket data was found in this image.")
+
         all_reasons = reject_reasons + review_reasons
         
         # NEVER set to VERIFIED automatically. Human review is mandatory.
