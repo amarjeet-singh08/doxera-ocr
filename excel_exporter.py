@@ -59,7 +59,7 @@ class ExcelExporter:
                 
         export_data = []
         for i, d in enumerate(dockets, 1):
-            date_only = d['uploaded_at'][:10] if d['uploaded_at'] else ''
+            date_only = d['uploaded_at'].strftime('%Y-%m-%d') if hasattr(d['uploaded_at'], 'strftime') else str(d['uploaded_at'])[:10] if d['uploaded_at'] else ''
             row = {
                 'S.No': i,
                 'Date': date_only,
@@ -149,7 +149,7 @@ class ExcelExporter:
                 
         export_data = []
         for i, d in enumerate(dockets, 1):
-            date_only = d['uploaded_at'][:10] if d['uploaded_at'] else ''
+            date_only = d['uploaded_at'].strftime('%Y-%m-%d') if hasattr(d['uploaded_at'], 'strftime') else str(d['uploaded_at'])[:10] if d['uploaded_at'] else ''
             row = {
                 'S.No': i,
                 'Date': date_only,

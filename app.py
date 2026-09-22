@@ -64,9 +64,9 @@ def inject_notifications():
         failed = conn.execute("SELECT COUNT(*) FROM dockets WHERE is_archived = 0 AND status = 'FAILED'").fetchone()[0]
         rejected = conn.execute("SELECT COUNT(*) FROM dockets WHERE is_archived = 0 AND status = 'REJECTED'").fetchone()[0]
         
-        # Calculate rate limit remaining (assume 200 free tier limit per day)
+        # Calculate rate limit remaining (assume 50 limit per day)
         today_count = conn.execute("SELECT COUNT(*) FROM dockets WHERE uploaded_at >= ?", (today_start,)).fetchone()[0]
-        rate_limit_left = max(0, 200 - today_count)
+        rate_limit_left = max(0, 50 - today_count)
         
         conn.close()
         return dict(

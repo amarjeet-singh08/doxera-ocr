@@ -79,7 +79,7 @@
                     <a href="{{ url_for('ops.upload') }}" class="sidebar-link {% if request.endpoint == 'ops.upload' %}active{% endif %} {% if session.get('role') == 'VIEWER' %}opacity-50 cursor-not-allowed pointer-events-none{% endif %}">
                         <i data-lucide="upload-cloud" class="sidebar-icon"></i> Upload Dockets
                     </a>
-                    <a href="{{ url_for('ops.review_center') }}" class="sidebar-link {% if request.endpoint == 'ops.review_center' %}active{% endif %}">
+                    <a href="{{ url_for('ops.review_center') }}" class="sidebar-link {% if request.endpoint == 'ops.review_center' %}active{% endif %} {% if session.get('role') == 'VIEWER' %}opacity-50 cursor-not-allowed pointer-events-none{% endif %}">
                         <i data-lucide="inbox" class="sidebar-icon"></i> Review Center
                     </a>
                     <a href="{{ url_for('ops.dockets') }}" class="sidebar-link {% if request.endpoint == 'ops.dockets' %}active{% endif %}">
@@ -162,8 +162,8 @@
                             <span class="bg-rose-100 text-rose-800 text-xs font-bold px-2 py-0.5 rounded-full">{{ notif_rejected|default(0) }}</span>
                         </a>
                         <div class="block px-4 py-3 text-sm text-slate-600 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
-                            <span class="font-medium text-xs uppercase tracking-wider text-slate-400">AI Quota Left Today</span>
-                            <span class="{% if notif_limit and notif_limit < 20 %}text-rose-600{% else %}text-emerald-600{% endif %} font-bold">{{ notif_limit|default(200) }} Dockets</span>
+                            <span class="font-medium text-xs uppercase tracking-wider text-slate-400">Doxera Quota Left Today</span>
+                            <span class="{% if notif_limit and notif_limit < 20 %}text-rose-600{% else %}text-emerald-600{% endif %} font-bold">{{ notif_limit|default(50) }} Dockets</span>
                         </div>
                     </div>
                 </div>

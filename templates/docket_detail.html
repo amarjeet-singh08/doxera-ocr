@@ -303,10 +303,15 @@
         <!-- History Tabs -->
         <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
             <div class="flex border-b border-slate-100 bg-slate-50 text-xs font-bold text-slate-500 uppercase tracking-wide">
+                {% if session.get('role') == 'ADMIN' %}
                 <button class="px-4 py-3 text-nexpress-blue border-b-2 border-nexpress-blue" id="tabAudit" onclick="switchTab('audit')">Audit Log</button>
                 <button class="px-4 py-3 hover:text-slate-700" id="tabCorr" onclick="switchTab('corr')">Corrections</button>
+                {% else %}
+                <button class="px-4 py-3 text-nexpress-blue border-b-2 border-nexpress-blue" id="tabCorr" onclick="switchTab('corr')">Corrections</button>
+                {% endif %}
             </div>
             
+            {% if session.get('role') == 'ADMIN' %}
             <div id="contentAudit" class="p-4 max-h-64 overflow-y-auto space-y-3">
                 {% for log in audit %}
                 <div class="flex gap-3 text-sm">
@@ -323,8 +328,9 @@
                 <p class="text-sm text-slate-500">No history available.</p>
                 {% endfor %}
             </div>
+            {% endif %}
             
-            <div id="contentCorr" class="p-4 max-h-64 overflow-y-auto space-y-3 hidden">
+            <div id="contentCorr" class="p-4 max-h-64 overflow-y-auto space-y-3 {% if session.get('role') == 'ADMIN' %}hidden{% endif %}">
                 {% for c in corrections %}
                 <div class="text-sm text-slate-700 border-l-2 border-blue-400 pl-3 py-1 bg-slate-50 rounded-r">
                     <span class="font-medium text-slate-900">{{ c.corrected_by }}</span> changed <span class="font-mono bg-white border border-slate-200 px-1 rounded text-xs">{{ c.field_name }}</span><br>
@@ -388,14 +394,14 @@
 
 <script>
     function switchTab(tab) {
-        document.getElementById('contentAudit').classList.add('hidden');
-        document.getElementById('contentCorr').classList.add('hidden');
-        document.getElementById('tabAudit').classList.remove('text-nexpress-blue', 'border-b-2', 'border-nexpress-blue');
-        document.getElementById('tabCorr').classList.remove('text-nexpress-blue', 'border-b-2', 'border-nexpress-blue');
-        document.getElementById('tabAudit').classList.add('hover:text-slate-700');
-        document.getElementById('tabCorr').classList.add('hover:text-slate-700');
+        if(document.getElementById('contentAudit')) document.getElementById('contentAudit').classList.add('hidden');
+        if(document.getElementById('contentCorr')) document.getElementById('contentCorr').classList.add('hidden');
+        if(document.getElementById('tabAudit')) document.getElementById('tabAudit').classList.remove('text-nexpress-blue', 'border-b-2', 'border-nexpress-blue');
+        if(document.getElementById('tabCorr')) document.getElementById('tabCorr').classList.remove('text-nexpress-blue', 'border-b-2', 'border-nexpress-blue');
+        if(document.getElementById('tabAudit')) document.getElementById('tabAudit').classList.add('hover:text-slate-700');
+        if(document.getElementById('tabCorr')) document.getElementById('tabCorr').classList.add('hover:text-slate-700');
         
-        if(tab === 'audit') {
+        if(tab === 'audit' && document.getElementById('contentAudit')) {
             document.getElementById('contentAudit').classList.remove('hidden');
             document.getElementById('tabAudit').classList.add('text-nexpress-blue', 'border-b-2', 'border-nexpress-blue');
             document.getElementById('tabAudit').classList.remove('hover:text-slate-700');
