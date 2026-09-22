@@ -25,6 +25,16 @@ def init_db():
         )
     ''')
     
+
+    # Images (For persistent storage on Render)
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS docket_images (
+            filename TEXT PRIMARY KEY,
+            image_base64 TEXT,
+            mimetype TEXT
+        )
+    ''')
+
     # Dockets
     conn.execute('''
         CREATE TABLE IF NOT EXISTS dockets (
