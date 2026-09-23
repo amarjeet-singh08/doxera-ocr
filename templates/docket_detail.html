@@ -154,7 +154,11 @@
                 </h3>
             </div>
             <div class="p-4">
+                {% if docket.status == 'FAILED' and session.role != 'ADMIN' %}
+                <p class="text-sm text-red-700 font-medium whitespace-pre-wrap">The system encountered an error while processing this docket. Please notify an administrator.</p>
+                {% else %}
                 <p class="text-sm text-red-700 font-mono break-all whitespace-pre-wrap">{{ docket.rejection_reasons }}</p>
+                {% endif %}
             </div>
         </div>
         {% endif %}
