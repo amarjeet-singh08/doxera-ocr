@@ -610,5 +610,5 @@ def do_export_all():
     if not filename:
         flash("No records found for this date range.", "error")
         return redirect(url_for('ops.exports_page'))
-    log_audit('EXPORTED', details=f"Generated All Dockets Excel: {filename}")
+    log_audit(session['username'], 'EXPORTED', details=f"Generated All Dockets Excel: {filename}")
     return send_from_directory(current_app.config['EXPORT_FOLDER'], filename, as_attachment=True)
