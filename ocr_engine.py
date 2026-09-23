@@ -358,4 +358,5 @@ class OCREngine:
         self.last_model_used = "NONE"
         self.last_model_tier = "ALL_FAILED"
         # If all models failed
-        return f"OCR Error: All models failed to process the image. Detailed reasons: {\' | \'.join(errors)}"
+        error_details = " | ".join(errors)
+        return f"OCR Error: All models failed to process the image. Detailed reasons: {error_details}"
