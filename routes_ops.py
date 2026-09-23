@@ -240,7 +240,7 @@ def upload():
                     
                 # Free models usually allow ~10-20 requests per minute
                 # Using 3 workers will process about 10-15 images per minute, staying under the radar
-                with ThreadPoolExecutor(max_workers=2) as executor:
+                with ThreadPoolExecutor(max_workers=4) as executor:
                     executor.map(process_single, dockets)
             
             thread = threading.Thread(target=process_batch, args=(dockets_to_process, app_context))
