@@ -53,7 +53,7 @@ class ExcelExporter:
         return get_db_connection()
 
     @staticmethod
-    def export_verified(start_date=None, end_date=None):
+    def export_verified(start_date=None, end_date=None, username=None):
         """
         Exports only strictly VERIFIED dockets.
         Dynamically flattens dimension groups with strict column ordering.
@@ -62,6 +62,9 @@ class ExcelExporter:
         
         query = "SELECT * FROM dockets WHERE status = 'VERIFIED' AND is_archived = 0"
         params = []
+        if username:
+            query += " AND uploaded_by = ?"
+            params.append(username)
         if start_date:
             query += " AND uploaded_at >= ?"
             params.append(ist_to_utc_str(start_date, False))
@@ -145,13 +148,16 @@ class ExcelExporter:
         return filename
 
     @staticmethod
-    def export_rejected(start_date=None, end_date=None):
+    def export_rejected(start_date=None, end_date=None, username=None):
         """
         Exports strictly REJECTED dockets with strict column ordering.
         """
         conn = ExcelExporter._get_db_connection()
         query = "SELECT * FROM dockets WHERE status = 'REJECTED' AND is_archived = 0"
         params = []
+        if username:
+            query += " AND uploaded_by = ?"
+            params.append(username)
         if start_date:
             query += " AND uploaded_at >= ?"
             params.append(ist_to_utc_str(start_date, False))
