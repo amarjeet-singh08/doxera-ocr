@@ -240,7 +240,7 @@ def upload():
                     
                 # Free models usually allow ~10-20 requests per minute
                 # Using 3 workers will process about 10-15 images per minute, staying under the radar
-                with ThreadPoolExecutor(max_workers=3) as executor:
+                with ThreadPoolExecutor(max_workers=2) as executor:
                     executor.map(process_single, dockets)
             
             thread = threading.Thread(target=process_batch, args=(dockets_to_process, app_context))
@@ -269,7 +269,7 @@ def api_job_status(job_id):
     
     total = len(dockets)
     processed = sum(1 for d in dockets if d['status'] not in ('UPLOADED', 'PROCESSING'))
-    rate_limited = any('Rate limit' in str(d['rejection_reasons']) or '429' in str(d['rejection_reasons']) or '402' in str(d['rejection_reasons']) for d in dockets if d['status'] == 'FAILED')
+    rate_limited = any('429' in str(d['rejection_reasons']) or '402' in str(d['rejection_reasons']) for d in dockets if d['status'] == 'FAILED')
     
     return {
         "status": job['status'],

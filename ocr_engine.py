@@ -208,9 +208,14 @@ class OCREngine:
             if 'error' in result_json:
                 return None, f"API error: {result_json['error']}"
             
-            content = result_json['choices'][0]['message'].get('content')
+            choices = result_json.get('choices')
+            if not choices or not isinstance(choices, list) or len(choices) == 0:
+                return None, f"API returned no choices: {result_json}"
+                
+            message = choices[0].get('message', {})
+            content = message.get('content')
             if content is None:
-                finish_reason = result_json['choices'][0].get('finish_reason', 'unknown')
+                finish_reason = choices[0].get('finish_reason', 'unknown')
                 return None, f"API returned no content (finish_reason: {finish_reason})"
                 
             # Clean markdown wrapping
@@ -230,6 +235,8 @@ class OCREngine:
                 content = content[json_start:json_end + 1]
             
             result = json.loads(content)
+            if not isinstance(result, dict):
+                return None, "API did not return a JSON object (dictionary)"
             
             # Safety: force all values to strings
             for field in ['docket_number', 'actual_weight', 'total_packages']:
@@ -304,18 +311,21 @@ class OCREngine:
             model_name = model_config["name"]
             model_tier = model_config["tier"]
             
-            # Rate limit retry loop
-            max_retries = 3
+            # Rate limit retry loop with jitter for high concurrency
+            max_retries = 6
             result = None
             error = None
             
+            import random
             for attempt in range(max_retries):
                 result, error = self._call_model(model_config, base64_image)
                 if result is not None:
                     break
                 
-                if "429" in error or "402" in error:
-                    time.sleep(2 ** attempt) # Exponential backoff (1s, 2s, 4s)
+                if error and ("429" in error or "402" in error or "overloaded" in error.lower() or "timeout" in error.lower() or "502" in error or "503" in error or "529" in error):
+                    # Exponential backoff with jitter to prevent thundering herd
+                    sleep_time = (2 ** attempt) + random.uniform(0, 1)
+                    time.sleep(sleep_time)
                 else:
                     break # Don't retry non-rate-limit errors
             
@@ -348,4 +358,4 @@ class OCREngine:
         self.last_model_used = "NONE"
         self.last_model_tier = "ALL_FAILED"
         # If all models failed
-        return f"OCR Error: All models failed. The AI servers might be at capacity or rate-limited. Detailed reasons: {' | '.join(errors)}"
+        return f"OCR Error: All models failed to process the image. Detailed reasons: {\' | \'.join(errors)}"
