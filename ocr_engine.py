@@ -24,8 +24,8 @@ from config import Config
 # ═══════════════════════════════════════════════════════════════
 MODEL_CHAIN = [
     {
-        "id": "nex-agi/nex-n2.5-pro:free",
-        "name": "Nex N2.5 Pro Vision",
+        "id": "openrouter/free",
+        "name": "OpenRouter Auto Free",
         "free": True,
         "max_tokens": 4000,
         "tier": "PRIMARY"
@@ -38,8 +38,8 @@ MODEL_CHAIN = [
         "tier": "SECONDARY"
     },
     {
-        "id": "google/gemma-4-26b-a4b-it:free",
-        "name": "Gemma 4 26B Vision",
+        "id": "qwen/qwen3.8-27b:free",
+        "name": "Qwen 3.8 27B Vision",
         "free": True,
         "max_tokens": 4000,
         "tier": "FALLBACK"
