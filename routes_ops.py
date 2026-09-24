@@ -156,32 +156,73 @@ def process_docket_async(docket_id, filepath, app_context):
 @ops_bp.route('/dashboard')
 @login_required
 def dashboard():
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    
     conn = get_db_connection()
-    today_start = datetime.utcnow().strftime('%Y-%m-%d 00:00:00')
+    from datetime import datetime, timedelta, timezone
+    ist = timezone(timedelta(hours=5, minutes=30))
+    now_ist = datetime.now(ist)
+    
+    # Calculate date range conditions
+    date_filter = ""
+    date_params = []
+    
+    if start_date and end_date:
+        # User specified a range
+        try:
+            start_dt = datetime.strptime(start_date, '%Y-%m-%d').replace(tzinfo=ist)
+            end_dt = datetime.strptime(end_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, tzinfo=ist)
+            start_utc = start_dt.astimezone(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+            end_utc = end_dt.astimezone(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+            date_filter = "AND uploaded_at >= ? AND uploaded_at <= ?"
+            date_params = [start_utc, end_utc]
+            period_label = f"{start_date} to {end_date}" if start_date != end_date else start_date
+        except:
+            date_filter = ""
+            period_label = "All Time (Invalid Date)"
+    else:
+        # Default to "Today" for the new/today count, but keep total for others?
+        # Actually if no filter is applied, we show overall stats, but "today" is strictly today.
+        period_label = "All Time"
+        
+    # Start of today in IST converted to UTC
+    today_start_ist = now_ist.replace(hour=0, minute=0, second=0, microsecond=0)
+    today_start_utc = today_start_ist.astimezone(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
     
     # Stats
-    today = conn.execute("SELECT COUNT(*) FROM dockets WHERE uploaded_at >= ?", (today_start,)).fetchone()[0]
-    processing = conn.execute("SELECT COUNT(*) FROM dockets WHERE status IN ('PROCESSING', 'UPLOADED')").fetchone()[0]
-    verified = conn.execute("SELECT COUNT(*) FROM dockets WHERE status = 'VERIFIED'").fetchone()[0]
-    review = conn.execute("SELECT COUNT(*) FROM dockets WHERE (status = 'REVIEW_REQUIRED' OR status = 'MODIFIED_REVERIFICATION_REQUIRED')").fetchone()[0]
-    rejected = conn.execute("SELECT COUNT(*) FROM dockets WHERE status = 'REJECTED'").fetchone()[0]
-    failed = conn.execute("SELECT COUNT(*) FROM dockets WHERE status = 'FAILED'").fetchone()[0]
+    if date_filter:
+        today = conn.execute(f"SELECT COUNT(*) FROM dockets WHERE is_archived = 0 {date_filter}", date_params).fetchone()[0]
+        processing = conn.execute(f"SELECT COUNT(*) FROM dockets WHERE status IN ('PROCESSING', 'UPLOADED') AND is_archived = 0 {date_filter}", date_params).fetchone()[0]
+        verified = conn.execute(f"SELECT COUNT(*) FROM dockets WHERE status = 'VERIFIED' AND is_archived = 0 {date_filter}", date_params).fetchone()[0]
+        review = conn.execute(f"SELECT COUNT(*) FROM dockets WHERE (status = 'REVIEW_REQUIRED' OR status = 'MODIFIED_REVERIFICATION_REQUIRED') AND is_archived = 0 {date_filter}", date_params).fetchone()[0]
+        rejected = conn.execute(f"SELECT COUNT(*) FROM dockets WHERE status = 'REJECTED' AND is_archived = 0 {date_filter}", date_params).fetchone()[0]
+        failed = conn.execute(f"SELECT COUNT(*) FROM dockets WHERE status = 'FAILED' AND is_archived = 0 {date_filter}", date_params).fetchone()[0]
+    else:
+        today = conn.execute("SELECT COUNT(*) FROM dockets WHERE uploaded_at >= ? AND is_archived = 0", (today_start_utc,)).fetchone()[0]
+        processing = conn.execute("SELECT COUNT(*) FROM dockets WHERE status IN ('PROCESSING', 'UPLOADED') AND is_archived = 0").fetchone()[0]
+        verified = conn.execute("SELECT COUNT(*) FROM dockets WHERE status = 'VERIFIED' AND is_archived = 0").fetchone()[0]
+        review = conn.execute("SELECT COUNT(*) FROM dockets WHERE (status = 'REVIEW_REQUIRED' OR status = 'MODIFIED_REVERIFICATION_REQUIRED') AND is_archived = 0").fetchone()[0]
+        rejected = conn.execute("SELECT COUNT(*) FROM dockets WHERE status = 'REJECTED' AND is_archived = 0").fetchone()[0]
+        failed = conn.execute("SELECT COUNT(*) FROM dockets WHERE status = 'FAILED' AND is_archived = 0").fetchone()[0]
     
     # Pipeline Jobs
-    # Pipeline Jobs: Admin sees all, others see only their own
     if session.get('role') == 'ADMIN':
         jobs = conn.execute("SELECT * FROM processing_jobs ORDER BY created_at DESC LIMIT 5").fetchall()
     else:
         jobs = conn.execute("SELECT * FROM processing_jobs WHERE created_by = ? ORDER BY created_at DESC LIMIT 5", (session['username'],)).fetchall()
     
     # Recent dockets
-    dockets = conn.execute("SELECT * FROM dockets WHERE is_archived = 0 ORDER BY uploaded_at DESC LIMIT 10").fetchall()
+    if date_filter:
+        dockets = conn.execute(f"SELECT * FROM dockets WHERE is_archived = 0 {date_filter} ORDER BY uploaded_at DESC LIMIT 10", date_params).fetchall()
+    else:
+        dockets = conn.execute("SELECT * FROM dockets WHERE is_archived = 0 ORDER BY uploaded_at DESC LIMIT 10").fetchall()
     
     conn.close()
     
     return render_template('dashboard.html', 
                            stats={'today': today, 'processing': processing, 'verified': verified, 'review': review, 'rejected': rejected, 'failed': failed},
-                           jobs=jobs, dockets=dockets)
+                           jobs=jobs, dockets=dockets, start_date=start_date, end_date=end_date, period_label=period_label)
 
 @ops_bp.route('/upload', methods=['GET', 'POST'])
 @login_required
@@ -301,14 +342,18 @@ def processing():
 def dockets():
     status_filter = request.args.get('status', 'ALL')
     search_query = request.args.get('search', '').strip()
+    start_date = request.args.get('start_date')
+    end_date = request.args.get('end_date')
+    
     conn = get_db_connection()
     
     query = "SELECT * FROM dockets WHERE is_archived = 0"
     params = []
     
     if search_query:
-        query += " AND docket_number = ?"
-        params.append(search_query)
+        # Better search - exact docket number or partial match
+        query += " AND (docket_number = ? OR filename LIKE ?)"
+        params.extend([search_query, f"%{search_query}%"])
         
     if status_filter != 'ALL':
         if status_filter == 'REVIEW':
@@ -317,11 +362,24 @@ def dockets():
             query += " AND status = ?"
             params.append(status_filter)
             
+    if start_date and end_date:
+        try:
+            from datetime import datetime, timedelta, timezone
+            ist = timezone(timedelta(hours=5, minutes=30))
+            start_dt = datetime.strptime(start_date, '%Y-%m-%d').replace(tzinfo=ist)
+            end_dt = datetime.strptime(end_date, '%Y-%m-%d').replace(hour=23, minute=59, second=59, tzinfo=ist)
+            start_utc = start_dt.astimezone(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+            end_utc = end_dt.astimezone(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+            query += " AND uploaded_at >= ? AND uploaded_at <= ?"
+            params.extend([start_utc, end_utc])
+        except Exception as e:
+            pass
+            
     query += " ORDER BY uploaded_at DESC LIMIT 100"
     
     rows = conn.execute(query, params).fetchall()
     conn.close()
-    return render_template('dockets.html', dockets=rows, current_filter=status_filter, search_query=search_query)
+    return render_template('dockets.html', dockets=rows, current_filter=status_filter, search_query=search_query, start_date=start_date, end_date=end_date)
 
 @ops_bp.route('/review_center')
 @login_required

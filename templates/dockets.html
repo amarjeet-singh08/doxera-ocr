@@ -2,9 +2,25 @@
 {% block header_title %}All Dockets{% endblock %}
 
 {% block content %}
-<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
     <h1 class="text-xl sm:text-2xl font-bold text-navy-900">Docket Registry</h1>
-    <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full sm:w-auto">
+    
+    <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
+        <form action="{{ url_for('ops.dockets') }}" method="GET" class="flex items-center gap-2 bg-white rounded-md border border-slate-300 p-1">
+            <input type="hidden" name="status" value="{{ current_filter }}">
+            <input type="date" name="start_date" value="{{ start_date or '' }}" class="text-sm border-none bg-transparent focus:ring-0 text-slate-700 max-w-[120px]" required>
+            <span class="text-slate-400 text-sm">to</span>
+            <input type="date" name="end_date" value="{{ end_date or '' }}" class="text-sm border-none bg-transparent focus:ring-0 text-slate-700 max-w-[120px]" required>
+            <button type="submit" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition-colors" title="Filter by date">
+                <i data-lucide="filter" class="h-4 w-4"></i>
+            </button>
+            {% if start_date %}
+            <a href="{{ url_for('ops.dockets', status=current_filter) }}" class="p-1.5 text-rose-500 hover:bg-rose-50 rounded transition-colors" title="Clear filter">
+                <i data-lucide="x" class="h-4 w-4"></i>
+            </a>
+            {% endif %}
+        </form>
+        
         {% if session.role == 'ADMIN' %}
         <form method="POST" action="{{ url_for('ops.delete_all_dockets') }}" onsubmit="return confirm('WARNING: Are you sure you want to permanently delete ALL dockets currently shown in this filter? This cannot be undone!');">
             <input type="hidden" name="status" value="{{ current_filter }}">
@@ -34,7 +50,7 @@
         
         {% for val, label, color in statuses %}
             {% set is_active = current_filter == val %}
-            <a href="{{ url_for('ops.dockets', status=val) }}" 
+            <a href="{{ url_for('ops.dockets', status=val, start_date=start_date, end_date=end_date) }}" 
                class="whitespace-nowrap px-3 py-1 rounded-md text-xs font-medium border transition-colors
                {% if is_active %} bg-{{color}}-100 text-{{color}}-800 border-{{color}}-200
                {% else %} bg-white text-slate-600 border-slate-200 hover:bg-slate-100 {% endif %}">
