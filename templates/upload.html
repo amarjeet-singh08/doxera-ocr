@@ -208,7 +208,7 @@
                 
                 // Add a beautiful non-intrusive banner on top of the Scanning UI
                 const successBanner = document.createElement('div');
-                successBanner.className = 'absolute top-6 left-1/2 transform -translate-x-1/2 bg-emerald-500/90 text-white px-6 py-3 rounded-full shadow-lg backdrop-blur-sm z-50 flex items-center space-x-3 border border-emerald-400 animate-fade-in-down';
+                successBanner.className = 'absolute top-6 left-1/2 transform -translate-x-1/2 bg-emerald-500/90 text-white px-6 py-3 rounded-full shadow-lg backdrop-blur-sm z-50 flex items-center space-x-3 border border-emerald-400 animate-fade-in-down transition-opacity duration-500';
                 successBanner.innerHTML = `
                     <i data-lucide="check-circle" class="h-5 w-5"></i>
                     <div>
@@ -218,6 +218,12 @@
                 `;
                 scanningUi.appendChild(successBanner);
                 lucide.createIcons();
+                
+                // Make the banner disappear after 3 seconds
+                setTimeout(() => {
+                    successBanner.style.opacity = '0';
+                    setTimeout(() => successBanner.remove(), 500); // Wait for fade transition before removing
+                }, 3000);
                 
                 // Background polling
                 const checkStatus = () => {
