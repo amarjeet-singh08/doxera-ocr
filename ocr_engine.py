@@ -172,8 +172,32 @@ class OCREngine:
         self.last_model_tier = None
 
     def encode_image(self, image_path):
-        with open(image_path, "rb") as image_file:
-            return base64.b64encode(image_file.read()).decode('utf-8')
+        from PIL import Image
+        import io
+        
+        with Image.open(image_path) as img:
+            # Convert to RGB to ensure JPEG compatibility
+            if img.mode != 'RGB':
+                img = img.convert('RGB')
+                
+            # Aggressively resize to max 1200px. 
+            # A 4K phone photo takes 3-4 minutes for free AI to process. 
+            # A 1200px photo takes 10-15 seconds and retains text legibility.
+            max_size = 1200
+            if max(img.size) > max_size:
+                ratio = max_size / max(img.size)
+                new_size = (int(img.size[0] * ratio), int(img.size[1] * ratio))
+                img = img.resize(new_size, Image.Resampling.LANCZOS)
+                
+            # Optional: converting to grayscale ('L') removes color channels, 
+            # reducing complexity for some Vision models and speeding up processing.
+            img = img.convert('L')
+            
+            # Compress to highly optimized JPEG
+            buffer = io.BytesIO()
+            img.save(buffer, format="JPEG", quality=75, optimize=True)
+            
+            return base64.b64encode(buffer.getvalue()).decode('utf-8')
 
     def _call_model(self, model_config, base64_image):
         """
