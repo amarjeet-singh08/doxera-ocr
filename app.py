@@ -68,14 +68,22 @@ def create_app():
     
     existing = conn.execute('SELECT * FROM users WHERE role = ?', ('ADMIN',)).fetchone()
     pw_hash = bcrypt.hashpw(Config.ADMIN_PASSWORD.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
-    if not existing:
-        conn.execute("INSERT INTO users (username, password_hash, role) VALUES (?, ?, 'ADMIN')",
-                     (Config.ADMIN_USERNAME, pw_hash))
-    else:
-        # Force sync admin credentials with environment variables to allow easy password changes
-        conn.execute("UPDATE users SET username = ?, password_hash = ? WHERE role = 'ADMIN'",
-                     (Config.ADMIN_USERNAME, pw_hash))
-    conn.commit()
+    try:
+        if not existing:
+            conn.execute("INSERT INTO users (username, password_hash, role) VALUES (?, ?, 'ADMIN')",
+                         (Config.ADMIN_USERNAME, pw_hash))
+        else:
+            # Force sync admin credentials with environment variables to allow easy password changes
+            conn.execute("UPDATE users SET username = ?, password_hash = ? WHERE role = 'ADMIN'",
+                         (Config.ADMIN_USERNAME, pw_hash))
+        conn.commit()
+    except Exception as e:
+        import sys
+        print(f"CRITICAL WARNING: Failed to sync ADMIN credentials on startup! Ensure the username '{Config.ADMIN_USERNAME}' doesn't already exist as a normal user. Error: {e}", file=sys.stderr)
+        try:
+            conn.rollback()
+        except:
+            pass
     conn.close()
     
     # Register Blueprints
