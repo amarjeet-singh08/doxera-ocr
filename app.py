@@ -62,6 +62,10 @@ def create_app():
     # Auto-initialize database and admin user on startup
     init_db()
     conn = get_db_connection()
+    
+    # Reset any dockets that were stuck in PROCESSING due to a server restart
+    conn.execute("UPDATE dockets SET status = 'FAILED', rejection_reasons = '[\"Server restarted unexpectedly during processing.\"]' WHERE status = 'PROCESSING'")
+    
     existing = conn.execute('SELECT * FROM users WHERE role = ?', ('ADMIN',)).fetchone()
     if not existing:
         pw_hash = bcrypt.hashpw(Config.ADMIN_PASSWORD.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')

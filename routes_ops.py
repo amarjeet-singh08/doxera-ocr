@@ -131,16 +131,25 @@ def process_docket_async(docket_id, filepath, app_context):
                 os.remove(processed_path)
                 
         except Exception as e:
-            try:
-                conn = get_db_connection()
-                conn.execute("UPDATE dockets SET status = 'FAILED', rejection_reasons = ? WHERE id = ?", (json.dumps([str(e)]), docket_id))
-                docket = conn.execute("SELECT job_id FROM dockets WHERE id = ?", (docket_id,)).fetchone()
-                if docket:
-                    conn.execute('UPDATE processing_jobs SET processed_count = processed_count + 1, failed_count = failed_count + 1 WHERE id = ?', (docket['job_id'],))
-                log_audit('SYSTEM', 'OCR_FAILED', docket_id, f"Error: {str(e)}", conn=conn)
-                conn.commit()
-            finally:
-                conn.close()
+            import traceback, sys, time
+            print(f"Exception in process_docket_async: {e}", file=sys.stderr)
+            traceback.print_exc(file=sys.stderr)
+            for attempt in range(5):
+                try:
+                    conn = get_db_connection()
+                    conn.execute("UPDATE dockets SET status = 'FAILED', rejection_reasons = ? WHERE id = ?", (json.dumps([str(e)]), docket_id))
+                    docket = conn.execute("SELECT job_id FROM dockets WHERE id = ?", (docket_id,)).fetchone()
+                    if docket:
+                        conn.execute('UPDATE processing_jobs SET processed_count = processed_count + 1, failed_count = failed_count + 1 WHERE id = ?', (docket['job_id'],))
+                    log_audit('SYSTEM', 'OCR_FAILED', docket_id, f"Error: {str(e)}", conn=conn)
+                    conn.commit()
+                    break
+                except Exception as db_err:
+                    print(f"DB locked during fail state (attempt {attempt}): {db_err}", file=sys.stderr)
+                    time.sleep(1)
+                finally:
+                    if 'conn' in locals() and hasattr(conn, 'close'):
+                        conn.close()
 
 
 @ops_bp.route('/')
