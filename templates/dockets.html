@@ -98,7 +98,7 @@
                             Open
                         </a>
                         {% else %}
-                        <span class="inline-flex items-center px-3 py-1 bg-slate-100 text-slate-400 border border-slate-200 text-xs font-medium rounded shadow-sm cursor-not-allowed" title="Processing in background">
+                        <span class="processing-docket-badge inline-flex items-center px-3 py-1 bg-slate-100 text-slate-400 border border-slate-200 text-xs font-medium rounded shadow-sm cursor-not-allowed" title="Processing in background">
                             Wait
                         </span>
                         {% endif %}
@@ -180,7 +180,7 @@
     }
 
     // Auto-refresh if there are any processing dockets on the screen
-    if (document.body.innerHTML.includes('Wait</span>') || document.body.innerHTML.includes('>PROCESSING<')) {
+    if (document.querySelector('.processing-docket-badge')) {
         setTimeout(() => window.location.reload(), 5000);
     }
 </script>
