@@ -206,29 +206,43 @@
             .then(data => {
                 if (!data || !data.job_id) return;
                 
+                // GREAT UI SUCCESS MESSAGE - The upload is done, safe to close!
+                scanningUi.classList.add('hidden');
+                
+                const successUi = document.createElement('div');
+                successUi.className = 'absolute inset-0 w-full h-full bg-slate-900 flex flex-col items-center justify-center z-50 p-6';
+                successUi.innerHTML = `
+                    <div class="bg-emerald-50 text-emerald-700 border border-emerald-200 p-6 rounded-lg max-w-md w-full text-center shadow-lg">
+                        <i data-lucide="check-circle" class="h-12 w-12 text-emerald-500 mx-auto mb-4"></i>
+                        <h3 class="text-xl font-bold mb-2">Upload Complete!</h3>
+                        <p class="text-emerald-600 mb-6 font-medium">All ${data.count} dockets have been successfully uploaded to the server.</p>
+                        <p class="text-slate-600 text-sm mb-6">DOXERA AI is now processing them in the background. <b>You can safely close the app</b> or click below to return to the dashboard.</p>
+                        <a href="${'{{ url_for("ops.dashboard") }}'}" class="inline-block bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-md shadow transition-colors">Go to Dashboard</a>
+                    </div>
+                `;
+                document.getElementById('drop-zone').appendChild(successUi);
+                lucide.createIcons();
+                
+                // Background polling to catch rate limits if they leave it open
                 const checkStatus = () => {
                     fetch('/api/job_status/' + data.job_id)
                     .then(res => res.json())
                     .then(statusData => {
                         if (statusData.rate_limited) {
-                            scanningUi.classList.add('hidden');
+                            successUi.remove();
                             document.getElementById('limit-ui').classList.remove('hidden');
                             uploadBtn.innerHTML = '<i data-lucide="alert-triangle" class="h-4 w-4 mr-2"></i> OUT OF LIMIT';
                             lucide.createIcons();
                         } else if (statusData.processed > 0 || statusData.complete) {
-                            window.location.href = '{{ url_for("ops.dashboard") }}';
+                            // Only redirect if they haven't clicked Go to Dashboard
                         } else {
-                            setTimeout(checkStatus, 1000);
+                            setTimeout(checkStatus, 2000);
                         }
                     })
-                    .catch(() => {
-                        // Error checking status, fallback to dashboard
-                        window.location.href = '{{ url_for("ops.dashboard") }}';
-                    });
+                    .catch(() => {});
                 };
                 
-                // Start polling instead of blindly redirecting
-                setTimeout(checkStatus, 1500);
+                setTimeout(checkStatus, 2000);
             })
             .catch(err => {
                 // Error — hide scanner and show error
