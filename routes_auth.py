@@ -64,8 +64,12 @@ def user_management():
                 flash('Username already exists.', 'error')
         elif action == 'delete':
             user_id = request.form['user_id']
+            target_user = conn.execute('SELECT username FROM users WHERE id = ?', (user_id,)).fetchone()
+            
             if int(user_id) == session['user_id']:
                 flash('Cannot delete yourself.', 'error')
+            elif target_user and target_user['username'].lower() == 'ankur':
+                flash('Security Alert: The master account (Ankur) cannot be deleted by anyone.', 'error')
             else:
                 conn.execute('DELETE FROM users WHERE id = ?', (user_id,))
                 conn.commit()
