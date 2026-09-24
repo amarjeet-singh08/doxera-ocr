@@ -206,43 +206,41 @@
             .then(data => {
                 if (!data || !data.job_id) return;
                 
-                // GREAT UI SUCCESS MESSAGE - The upload is done, safe to close!
-                scanningUi.classList.add('hidden');
-                
-                const successUi = document.createElement('div');
-                successUi.className = 'absolute inset-0 w-full h-full bg-slate-900 flex flex-col items-center justify-center z-50 p-6';
-                successUi.innerHTML = `
-                    <div class="bg-emerald-50 text-emerald-700 border border-emerald-200 p-6 rounded-lg max-w-md w-full text-center shadow-lg">
-                        <i data-lucide="check-circle" class="h-12 w-12 text-emerald-500 mx-auto mb-4"></i>
-                        <h3 class="text-xl font-bold mb-2">Upload Complete!</h3>
-                        <p class="text-emerald-600 mb-6 font-medium">All ${data.count} dockets have been successfully uploaded to the server.</p>
-                        <p class="text-slate-600 text-sm mb-6">DOXERA AI is now processing them in the background. <b>You can safely close the app</b> or click below to return to the dashboard.</p>
-                        <a href="${'{{ url_for("ops.dashboard") }}'}" class="inline-block bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 px-6 rounded-md shadow transition-colors">Go to Dashboard</a>
+                // Add a beautiful non-intrusive banner on top of the Scanning UI
+                const successBanner = document.createElement('div');
+                successBanner.className = 'absolute top-6 left-1/2 transform -translate-x-1/2 bg-emerald-500/90 text-white px-6 py-3 rounded-full shadow-lg backdrop-blur-sm z-50 flex items-center space-x-3 border border-emerald-400 animate-fade-in-down';
+                successBanner.innerHTML = `
+                    <i data-lucide="check-circle" class="h-5 w-5"></i>
+                    <div>
+                        <div class="font-bold text-sm">Upload Complete!</div>
+                        <div class="text-xs text-emerald-100">Files are safely on the server. You can close the app or watch the scan below.</div>
                     </div>
                 `;
-                document.getElementById('drop-zone').appendChild(successUi);
+                scanningUi.appendChild(successBanner);
                 lucide.createIcons();
                 
-                // Background polling to catch rate limits if they leave it open
+                // Background polling
                 const checkStatus = () => {
                     fetch('/api/job_status/' + data.job_id)
                     .then(res => res.json())
                     .then(statusData => {
                         if (statusData.rate_limited) {
-                            successUi.remove();
+                            scanningUi.classList.add('hidden');
                             document.getElementById('limit-ui').classList.remove('hidden');
                             uploadBtn.innerHTML = '<i data-lucide="alert-triangle" class="h-4 w-4 mr-2"></i> OUT OF LIMIT';
                             lucide.createIcons();
                         } else if (statusData.processed > 0 || statusData.complete) {
-                            // Only redirect if they haven't clicked Go to Dashboard
+                            window.location.href = '{{ url_for("ops.dashboard") }}';
                         } else {
-                            setTimeout(checkStatus, 2000);
+                            setTimeout(checkStatus, 1000);
                         }
                     })
-                    .catch(() => {});
+                    .catch(() => {
+                        window.location.href = '{{ url_for("ops.dashboard") }}';
+                    });
                 };
                 
-                setTimeout(checkStatus, 2000);
+                setTimeout(checkStatus, 1500);
             })
             .catch(err => {
                 // Error — hide scanner and show error
