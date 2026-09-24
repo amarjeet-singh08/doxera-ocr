@@ -67,11 +67,15 @@ def create_app():
     conn.execute("UPDATE dockets SET status = 'FAILED', rejection_reasons = '[\"Server restarted unexpectedly during processing.\"]' WHERE status = 'PROCESSING'")
     
     existing = conn.execute('SELECT * FROM users WHERE role = ?', ('ADMIN',)).fetchone()
+    pw_hash = bcrypt.hashpw(Config.ADMIN_PASSWORD.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
     if not existing:
-        pw_hash = bcrypt.hashpw(Config.ADMIN_PASSWORD.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
         conn.execute("INSERT INTO users (username, password_hash, role) VALUES (?, ?, 'ADMIN')",
                      (Config.ADMIN_USERNAME, pw_hash))
-        conn.commit()
+    else:
+        # Force sync admin credentials with environment variables to allow easy password changes
+        conn.execute("UPDATE users SET username = ?, password_hash = ? WHERE role = 'ADMIN'",
+                     (Config.ADMIN_USERNAME, pw_hash))
+    conn.commit()
     conn.close()
     
     # Register Blueprints

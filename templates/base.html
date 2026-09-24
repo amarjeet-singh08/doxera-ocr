@@ -133,13 +133,13 @@
                 </h2>
             </div>
             <div class="flex items-center space-x-2 lg:space-x-4">
-                <div class="relative hidden sm:block">
-                    <form action="{{ url_for('ops.dockets') }}" method="GET">
-                        <i data-lucide="search" class="h-4 w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" name="search" placeholder="Global search..." class="pl-9 pr-4 py-1.5 text-sm border border-slate-300 rounded-md bg-slate-50 focus:bg-white focus:ring-1 focus:ring-nexpress-blue focus:border-nexpress-blue transition-colors w-40 lg:w-64" required>
+                <div class="relative flex-1">
+                    <form action="{{ url_for('ops.dockets') }}" method="GET" class="flex items-center">
+                        <i data-lucide="search" class="h-4 w-4 absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" name="search" placeholder="Search..." class="pl-7 sm:pl-9 pr-2 sm:pr-4 py-1.5 text-xs sm:text-sm border border-slate-300 rounded-md bg-slate-50 focus:bg-white focus:ring-1 focus:ring-nexpress-blue focus:border-nexpress-blue transition-colors w-28 sm:w-40 lg:w-64" required>
                     </form>
                 </div>
-                <div class="relative group">
+                <div class="relative group shrink-0">
                     <button type="button" class="text-slate-400 hover:text-slate-600 p-2 relative">
                         <i data-lucide="bell" class="h-5 w-5"></i>
                         {% if notif_total and notif_total > 0 %}
