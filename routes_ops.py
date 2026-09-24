@@ -224,6 +224,11 @@ def dashboard():
                            stats={'today': today, 'processing': processing, 'verified': verified, 'review': review, 'rejected': rejected, 'failed': failed},
                            jobs=jobs, dockets=dockets, start_date=start_date, end_date=end_date, period_label=period_label)
 
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'webp', 'bmp', 'tiff', 'heic'}
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 @ops_bp.route('/upload', methods=['GET', 'POST'])
 @login_required
 @role_required(['ADMIN', 'REVIEWER'])
@@ -244,6 +249,10 @@ def upload():
         
         for file in files:
             if file:
+                if not allowed_file(file.filename):
+                    flash(f"Skipped {file.filename}: Security policy strictly blocks non-image files.", "error")
+                    continue
+                    
                 filename = secure_filename(file.filename)
                 timestamp = datetime.now().strftime("%Y%m%d%H%M%S%f")
                 saved_filename = f"{timestamp}_{filename}"

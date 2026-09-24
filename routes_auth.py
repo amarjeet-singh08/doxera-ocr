@@ -2,7 +2,12 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash,
 import bcrypt
 from database import get_db_connection, log_audit
 
+import time
+
 auth_bp = Blueprint('auth', __name__)
+
+# Simple in-memory rate limiter for login brute-force protection
+LOGIN_ATTEMPTS = {}
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
 def login():
@@ -10,6 +15,16 @@ def login():
         return redirect(url_for('ops.dashboard'))
         
     if request.method == 'POST':
+        ip = request.headers.get('X-Forwarded-For', request.remote_addr).split(',')[0].strip()
+        now = time.time()
+        
+        # Cleanup old attempts (5 minute window)
+        LOGIN_ATTEMPTS[ip] = [t for t in LOGIN_ATTEMPTS.get(ip, []) if now - t < 300]
+        
+        if len(LOGIN_ATTEMPTS[ip]) >= 10:
+            flash('Security Alert: Too many failed login attempts. Please try again in 5 minutes.', 'error')
+            return render_template('login.html')
+
         username = request.form['username']
         password = request.form['password'].encode('utf-8')
         
@@ -22,12 +37,16 @@ def login():
                 session['username'] = user['username']
                 session['role'] = user['role']
                 
+                if ip in LOGIN_ATTEMPTS:
+                    del LOGIN_ATTEMPTS[ip]
+                
                 conn.execute('UPDATE users SET last_login = CURRENT_TIMESTAMP WHERE id = ?', (user['id'],))
                 conn.commit()
                 log_audit(username, 'LOGIN', details='User logged in successfully')
                 
                 return redirect(url_for('ops.dashboard'))
             else:
+                LOGIN_ATTEMPTS[ip].append(now)
                 flash('Invalid username or password, or account disabled.', 'error')
         finally:
             conn.close()
