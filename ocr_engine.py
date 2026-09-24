@@ -24,25 +24,32 @@ from config import Config
 # ═══════════════════════════════════════════════════════════════
 MODEL_CHAIN = [
     {
-        "id": "openrouter/free",
-        "name": "OpenRouter Auto Free",
+        "id": "qwen/qwen3.8-27b:free",
+        "name": "Qwen 3.8 27B Vision",
         "free": True,
         "max_tokens": 4000,
         "tier": "PRIMARY"
+    },
+    {
+        "id": "google/gemma-4-26b-a4b-it:free",
+        "name": "Gemma 4 26B Vision",
+        "free": True,
+        "max_tokens": 4000,
+        "tier": "SECONDARY"
     },
     {
         "id": "nvidia/nemotron-3-nano-omni-30b-a3b-reasoning:free",
         "name": "Nemotron Nano Omni",
         "free": True,
         "max_tokens": 4000,
-        "tier": "SECONDARY"
+        "tier": "FALLBACK"
     },
     {
-        "id": "qwen/qwen3.8-27b:free",
-        "name": "Qwen 3.8 27B Vision",
+        "id": "dots-studio/dots-3-note-preview:free",
+        "name": "Dots Studio Vision",
         "free": True,
         "max_tokens": 4000,
-        "tier": "FALLBACK"
+        "tier": "FALLBACK2"
     }
 ]
 
