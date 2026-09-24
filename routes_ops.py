@@ -576,6 +576,49 @@ def edit_all(docket_id):
         conn.close()
     return redirect(url_for('ops.docket_detail', docket_id=docket_id))
 
+@ops_bp.route('/dockets/<int:docket_id>/retry', methods=['POST'])
+@login_required
+@role_required(['ADMIN', 'REVIEWER'])
+def retry_docket(docket_id):
+    from app import get_openrouter_quota
+    if get_openrouter_quota() <= 0:
+        return {"rate_limited": True}, 429
+        
+    conn = get_db_connection()
+    docket = conn.execute("SELECT * FROM dockets WHERE id = ? AND status = 'FAILED'", (docket_id,)).fetchone()
+    
+    if not docket:
+        conn.close()
+        return {"error": "Not found or not FAILED"}, 404
+        
+    import os
+    saved_filename = docket['image_filename']
+    filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], saved_filename)
+    
+    # Recover image from database if physical file was lost (e.g. Render restart)
+    if not os.path.exists(filepath):
+        img_row = conn.execute("SELECT image_base64 FROM docket_images WHERE filename = ?", (saved_filename,)).fetchone()
+        if img_row and img_row['image_base64']:
+            import base64
+            img_data = base64.b64decode(img_row['image_base64'])
+            with open(filepath, 'wb') as f:
+                f.write(img_data)
+        else:
+            conn.close()
+            return {"error": "Image file lost from database"}, 404
+            
+    conn.execute("UPDATE dockets SET status = 'PROCESSING', rejection_reasons = NULL, processed_at = NULL WHERE id = ?", (docket_id,))
+    conn.execute("UPDATE processing_jobs SET failed_count = failed_count - 1, processed_count = processed_count - 1 WHERE id = ?", (docket['job_id'],))
+    conn.commit()
+    conn.close()
+    
+    app_context = current_app.app_context()
+    import threading
+    thread = threading.Thread(target=process_docket_async, args=(docket_id, filepath, app_context))
+    thread.start()
+    
+    return {"success": True}
+
 @ops_bp.route('/dockets/<int:docket_id>/delete', methods=['POST'])
 @login_required
 def delete_docket(docket_id):
