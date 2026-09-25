@@ -5,7 +5,14 @@ load_dotenv()
 
 class Config:
     SECRET_KEY = os.environ.get('SECRET_KEY', 'dev-secret-key-do-not-use-in-prod')
-    ROUTER_API_KEY = os.environ.get('ROUTER_API_KEY')
+    
+    # Support multiple comma-separated keys for pooling
+    _raw_keys = os.environ.get('ROUTER_API_KEY', '')
+    ROUTER_API_KEYS = [k.strip() for k in _raw_keys.split(',') if k.strip()]
+    
+    # Keep the first key as the default for fallback
+    ROUTER_API_KEY = ROUTER_API_KEYS[0] if ROUTER_API_KEYS else None
+    
     ADMIN_USERNAME = os.environ.get('ADMIN_USERNAME', 'admin')
     ADMIN_PASSWORD = os.environ.get('ADMIN_PASSWORD', 'admin')
     

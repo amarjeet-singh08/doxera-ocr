@@ -19,6 +19,8 @@ import time
 import requests
 from config import Config
 
+EXHAUSTED_KEYS = set()
+
 # ═══════════════════════════════════════════════════════════════
 # MODEL CHAIN — ordered by quality. All free. All vision-capable.
 # ═══════════════════════════════════════════════════════════════
@@ -206,13 +208,13 @@ class OCREngine:
             
             return base64.b64encode(buffer.getvalue()).decode('utf-8')
 
-    def _call_model(self, model_config, base64_image):
+    def _call_model(self, model_config, base64_image, api_key):
         """
         Call a single model via OpenRouter API.
         Returns (result_dict, None) on success, or (None, error_string) on failure.
         """
         headers = {
-            "Authorization": f"Bearer {self.api_key}",
+            "Authorization": f"Bearer {api_key}",
             "Content-Type": "application/json"
         }
 
@@ -242,11 +244,17 @@ class OCREngine:
                 timeout=25
             )
             
-            # Check for payment/rate-limit errors — these trigger fallback
+            # Check for payment/rate-limit errors
+            if response.status_code in (401, 403):
+                return None, "KEY_UNAUTHORIZED"
+                
             if response.status_code in (402, 429):
                 try:
                     err_json = response.json()
-                    if 'error' in err_json and 'metadata' in err_json['error'] and err_json['error']['metadata'].get('limit_source') == 'upstream_provider_shared_pool':
+                    limit_source = err_json.get('error', {}).get('metadata', {}).get('limit_source')
+                    if limit_source == 'openrouter_free_tier_daily':
+                        return None, "KEY_EXHAUSTED"
+                    if limit_source == 'upstream_provider_shared_pool':
                         return None, f"UPSTREAM_OVERLOADED: {model_config['name']} pool exhausted"
                 except:
                     pass
@@ -350,8 +358,8 @@ class OCREngine:
         Falls back to secondary (Qwen) ONLY for difficult/uncertain cases or API failures.
         Rate-aware with exponential backoff for 429s.
         """
-        if not self.api_key:
-            return {"error": "Router API key not configured. Please set ROUTER_API_KEY in .env"}
+        if not Config.ROUTER_API_KEYS:
+            return {"error": "Router API keys not configured. Please set ROUTER_API_KEY in .env"}
 
         base64_image = self.encode_image(image_path)
         
@@ -367,13 +375,39 @@ class OCREngine:
             error = None
             
             import random
-            # Attempt 1
-            result, error = self._call_model(model_config, base64_image)
             
-            # If we get a LOCAL rate limit (429 but not UPSTREAM), do ONE quick retry with jitter
-            if result is None and error and "429" in error and "UPSTREAM_OVERLOADED" not in error:
-                time.sleep(1.5 + random.uniform(0, 1))
-                result, error = self._call_model(model_config, base64_image)
+            # API Key rotation loop
+            key_attempts = 0
+            while key_attempts < len(Config.ROUTER_API_KEYS):
+                api_key = None
+                for key in Config.ROUTER_API_KEYS:
+                    if key not in EXHAUSTED_KEYS:
+                        api_key = key
+                        break
+                        
+                if not api_key:
+                    return {"error": "All configured OpenRouter API keys have exhausted their daily free quota."}
+                    
+                key_attempts += 1
+                
+                # Attempt 1
+                result, error = self._call_model(model_config, base64_image, api_key)
+                
+                if error in ("KEY_EXHAUSTED", "KEY_UNAUTHORIZED"):
+                    EXHAUSTED_KEYS.add(api_key)
+                    continue # Rotate to next key
+                
+                # If we get a LOCAL rate limit (429 but not UPSTREAM), do ONE quick retry with jitter
+                if result is None and error and "429" in error and "UPSTREAM_OVERLOADED" not in error:
+                    time.sleep(1.5 + random.uniform(0, 1))
+                    result, error = self._call_model(model_config, base64_image, api_key)
+                    if error in ("KEY_EXHAUSTED", "KEY_UNAUTHORIZED"):
+                        EXHAUSTED_KEYS.add(api_key)
+                        continue # Rotate to next key
+                
+                # If we get here, we either succeeded or got a non-key-related error (Timeout, UPSTREAM_OVERLOADED, etc.)
+                # In either case, we break out of the API key rotation loop
+                break
             
             # For all other errors (Timeout, 502, 503, UPSTREAM_OVERLOADED), we instantly failover to the next model in the chain!
             # No pointless retries on dead/overloaded endpoints!

@@ -35,21 +35,41 @@ _quota_cache = {'remaining': 50, 'last_checked': 0}
 def get_openrouter_quota():
     import time, requests
     from config import Config
+    
+    # Import inside function to avoid circular imports if any
+    from ocr_engine import EXHAUSTED_KEYS
+    
     global _quota_cache
     
     # Cache for 60 seconds to avoid spamming OpenRouter API on every page load
     if time.time() - _quota_cache['last_checked'] > 60:
-        try:
-            headers = {'Authorization': f'Bearer {Config.ROUTER_API_KEY}'}
-            res = requests.get('https://openrouter.ai/api/v1/auth/key', headers=headers, timeout=5)
-            if res.status_code == 200:
-                data = res.json().get('data', {})
-                free_reqs = data.get('free_model_daily_requests')
-                if free_reqs and 'remaining' in free_reqs:
-                    _quota_cache['remaining'] = free_reqs['remaining']
-            _quota_cache['last_checked'] = time.time()
-        except Exception:
-            pass
+        total_remaining = 0
+        all_keys_failed = True
+        
+        for key in Config.ROUTER_API_KEYS:
+            if key in EXHAUSTED_KEYS:
+                continue
+                
+            try:
+                headers = {'Authorization': f'Bearer {key}'}
+                res = requests.get('https://openrouter.ai/api/v1/auth/key', headers=headers, timeout=5)
+                if res.status_code == 200:
+                    data = res.json().get('data', {})
+                    free_reqs = data.get('free_model_daily_requests')
+                    if free_reqs and 'remaining' in free_reqs:
+                        total_remaining += free_reqs['remaining']
+                        all_keys_failed = False
+                elif res.status_code in (401, 403):
+                    EXHAUSTED_KEYS.add(key)
+            except Exception:
+                pass
+                
+        if not all_keys_failed:
+            _quota_cache['remaining'] = total_remaining
+        elif not Config.ROUTER_API_KEYS:
+             _quota_cache['remaining'] = 0
+             
+        _quota_cache['last_checked'] = time.time()
             
     return _quota_cache['remaining']
 
