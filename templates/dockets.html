@@ -29,6 +29,13 @@
             </button>
         </form>
         {% endif %}
+        
+        {% if session.role in ['ADMIN', 'REVIEWER'] and current_filter == 'FAILED' %}
+        <button type="button" onclick="retryAllFailed(this)" class="inline-flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium rounded-md shadow-sm transition-colors">
+            <i data-lucide="refresh-cw" class="h-4 w-4 mr-2"></i> Retry All Failed
+        </button>
+        {% endif %}
+        
         <a href="{{ url_for('ops.upload') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors">
             <i data-lucide="plus" class="h-4 w-4 mr-1.5"></i> New Upload
         </a>
@@ -140,6 +147,55 @@
 </div>
 
 <script>
+    function retryAllFailed(btnElement) {
+        if (!confirm("This will attempt to retry all failed dockets using your remaining quota. Continue?")) return;
+        
+        const originalContent = btnElement.innerHTML;
+        btnElement.innerHTML = '<i data-lucide="loader-2" class="h-4 w-4 mr-2 animate-spin"></i> Processing...';
+        btnElement.disabled = true;
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+        
+        fetch(`/dockets/retry-all`, {
+            method: 'POST',
+            headers: { 'Accept': 'application/json' }
+        })
+        .then(res => {
+            if (res.status === 429) {
+                document.getElementById('limit-ui').classList.remove('hidden');
+                btnElement.innerHTML = originalContent;
+                btnElement.disabled = false;
+                throw new Error("Rate limited");
+            }
+            if (res.status === 404) {
+                alert("No failed dockets found.");
+                window.location.reload();
+                throw new Error("Not found");
+            }
+            if (!res.ok) throw new Error("Retry failed");
+            return res.json();
+        })
+        .then(data => {
+            if (data.rate_limited) {
+                document.getElementById('limit-ui').classList.remove('hidden');
+                btnElement.innerHTML = originalContent;
+                btnElement.disabled = false;
+            } else {
+                if (data.skipped_due_to_quota > 0) {
+                    alert(`Successfully retried ${data.retried_count} dockets. Skipped ${data.skipped_due_to_quota} dockets due to insufficient API quota.`);
+                }
+                window.location.reload();
+            }
+        })
+        .catch(err => {
+            if (err.message !== "Rate limited" && err.message !== "Not found") {
+                alert("Error retrying dockets.");
+                btnElement.innerHTML = originalContent;
+                btnElement.disabled = false;
+                if (typeof lucide !== 'undefined') lucide.createIcons();
+            }
+        });
+    }
+
     function retryDocket(docketId, btnElement) {
         const originalContent = btnElement.innerHTML;
         btnElement.innerHTML = '<i data-lucide="loader-2" class="h-3 w-3 mr-1 animate-spin"></i> Wait...';

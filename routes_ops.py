@@ -619,6 +619,59 @@ def retry_docket(docket_id):
     
     return {"success": True}
 
+@ops_bp.route('/dockets/retry-all', methods=['POST'])
+@login_required
+@role_required(['ADMIN', 'REVIEWER'])
+def retry_all_failed():
+    from app import get_openrouter_quota
+    quota = get_openrouter_quota()
+    if quota <= 0:
+        return {"rate_limited": True}, 429
+        
+    conn = get_db_connection()
+    failed_dockets = conn.execute("SELECT * FROM dockets WHERE status = 'FAILED' AND is_archived = 0 ORDER BY uploaded_at DESC").fetchall()
+    
+    if not failed_dockets:
+        conn.close()
+        return {"error": "No failed dockets found"}, 404
+        
+    retried_count = 0
+    import os, base64, threading
+    
+    # We can only retry up to the remaining quota
+    dockets_to_retry = failed_dockets[:quota]
+    app_context = current_app.app_context()
+    
+    for docket in dockets_to_retry:
+        saved_filename = docket['image_filename']
+        filepath = os.path.join(current_app.config['UPLOAD_FOLDER'], saved_filename)
+        
+        # Recover image if lost
+        if not os.path.exists(filepath):
+            img_row = conn.execute("SELECT image_base64 FROM docket_images WHERE filename = ?", (saved_filename,)).fetchone()
+            if img_row and img_row['image_base64']:
+                img_data = base64.b64decode(img_row['image_base64'])
+                with open(filepath, 'wb') as f:
+                    f.write(img_data)
+            else:
+                continue # Skip this one if unrecoverable
+                
+        # Update database statuses
+        conn.execute("UPDATE dockets SET status = 'PROCESSING', rejection_reasons = NULL, processed_at = NULL WHERE id = ?", (docket['id'],))
+        if docket['job_id']:
+            conn.execute("UPDATE processing_jobs SET failed_count = failed_count - 1, processed_count = processed_count - 1 WHERE id = ?", (docket['job_id'],))
+            
+        retried_count += 1
+        
+        # Start background thread
+        thread = threading.Thread(target=process_docket_async, args=(docket['id'], filepath, app_context))
+        thread.start()
+        
+    conn.commit()
+    conn.close()
+    
+    return {"success": True, "retried_count": retried_count, "skipped_due_to_quota": len(failed_dockets) - retried_count}
+
 @ops_bp.route('/dockets/<int:docket_id>/delete', methods=['POST'])
 @login_required
 def delete_docket(docket_id):
