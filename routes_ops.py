@@ -361,7 +361,7 @@ def dockets():
     
     if search_query:
         # Better search - exact docket number or partial match
-        query += " AND (docket_number = ? OR filename LIKE ?)"
+        query += " AND (docket_number = ? OR original_filename LIKE ?)"
         params.extend([search_query, f"%{search_query}%"])
         
     if status_filter != 'ALL':
