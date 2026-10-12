@@ -1,9 +1,10 @@
 # DOXERA Sales Intelligence & Analytics Engine
 # =========================================================
-# Processes Billed and Unbilled MIS spreadsheets, correlates
-# records via AWB numbers, matches customer codes with the
-# sales representative master database, and generates
-# executive-grade analytics, PDF reports, and PowerPoint presentations.
+# Processes Billed MIS, Unbilled MIS, and Booking Master Register,
+# cross-references consignments via foreign-key AWB numbers,
+# extracts exact transport modes (Air, Surface, Train),
+# correlates revenue against client sales managers, and
+# generates executive boardroom reports, PDF, and PowerPoint presentations.
 
 import os
 import re
@@ -39,32 +40,75 @@ def format_inr(number):
     return f"{'-' if is_negative else ''}₹ {formatted_int}.{dec_part}"
 
 def normalize_column_name(col_str):
-    """Normalize messy Excel column names to clean internal keys."""
+    """
+    Intelligently map messy, variable logistics ERP column names
+    to clean, unique internal dictionary keys without naming collisions.
+    """
     raw = str(col_str).strip().lower()
     clean = re.sub(r"[^a-z0-9]", "", raw)
     
-    if "awb" in clean or "docket" in clean:
+    # Coloader
+    if "coloader" in clean:
+        return "coloader_awb" if "awb" in clean else "coloader_name"
+    # Booking & Service Modes
+    if "bookingmode" in clean:
+        return "booking_mode"
+    if "servicemode" in clean:
+        return "service_mode"
+    # Handover
+    if "handover" in clean:
+        return "handover_weight" if ("wt" in clean or "weight" in clean) else "handover_date"
+    # Entry
+    if "entry" in clean:
+        if "modified" in clean:
+            return "entry_modified_by" if "by" in clean else "entry_modified_date"
+        return "entry_done_by" if "by" in clean else "entry_date"
+    # Billing & Invoices
+    if "bill" in clean:
+        return "bill_date" if "date" in clean else "bill_no"
+    if "invoiceno" in clean:
+        return "invoice_no"
+    if "invoicevalue" in clean or "invval" in clean:
+        return "invoice_value"
+    # AWB / Docket number (Foreign Key)
+    if "awb" in clean or "docket" in clean or "cnno" in clean or "consignment" in clean:
         return "awb_no"
+    # Customer
     if "customercode" in clean or "custcode" in clean:
         return "customer_code"
-    if "customer" in clean or "party" in clean:
+    if "customer" in clean or "party" in clean or "client" in clean:
         return "customer_name"
-    if "servicemode" in clean or "transportmode" in clean or "mode" in clean:
-        return "mode"
-    if "totalamt" in clean or "amount" in clean or "totalamount" in clean or "freight" in clean:
+    # Financial Freight Amount
+    if "totalamt" in clean or "totalamount" in clean or "freight" in clean or clean == "amount" or "netamount" in clean:
         return "total_amt"
+    # Weights & Packages
+    if "chargabl" in clean or "chargable" in clean:
+        return "chargeable_weight"
+    if "volweight" in clean or "volumetric" in clean:
+        return "vol_weight"
+    if "boxes" in clean or "pkgs" in clean or "packages" in clean:
+        return "boxes"
     if "weight" in clean or "wt" in clean:
         return "weight"
+    # Geographics
     if "origin" in clean:
-        return "origin"
+        return "origin_pincode" if "pin" in clean else "origin"
     if "destination" in clean or "dest" in clean:
-        return "destination"
+        return "dest_pincode" if "pin" in clean else "destination"
+    # Parties & Locations
     if "shipper" in clean:
         return "shipper"
-    if "consignee" in clean:
-        return "consignee"
+    if "consignee" in clean or "cnee" in clean:
+        return "consignee_address" if "address" in clean else "consignee"
+    if "cnor" in clean or "consignor" in clean:
+        return "consignor"
+    # Operational Dates & Status
     if "appoint" in clean:
         return "appoint_date"
+    if "status" in clean:
+        return "status_date" if "date" in clean else "delivery_status"
+    if "curlocation" in clean:
+        return "current_location"
     if "date" in clean:
         return "date"
     return clean
@@ -72,13 +116,8 @@ def normalize_column_name(col_str):
 def read_mis_file(file_storage_or_path, original_filename=""):
     """
     Intelligent ERP File Preprocessor:
-    Automatically handles files downloaded directly from logistics software
-    without requiring the user to open in Excel, convert format, or adjust rows/columns!
-    
-    1. Handles text/TSV/CSV disguised as .xls (fixes Excel format mismatch warning).
-    2. Sniffs lines to locate the real header row, skipping title banners/dates.
-    3. Trims summary/total footer rows automatically.
-    4. Auto-cleans column headers and strips whitespace.
+    Handles raw files downloaded directly from logistics software
+    without requiring manual Excel conversion, text-to-columns, or row adjustments.
     """
     if isinstance(file_storage_or_path, str):
         with open(file_storage_or_path, "rb") as fp:
@@ -92,27 +131,25 @@ def read_mis_file(file_storage_or_path, original_filename=""):
     df = None
     errors = []
 
-    # Check file signature
     is_zip = content_bytes.startswith(b"PK\x03\x04")
     is_ole = content_bytes.startswith(b"\xd0\xcf\x11\xe0")
 
-    # 1. If real OpenXML (.xlsx)
+    # 1. Binary XLSX
     if is_zip:
         try:
             df = pd.read_excel(io.BytesIO(content_bytes), engine="openpyxl")
         except Exception as e:
             errors.append(f"openpyxl failed: {e}")
 
-    # 2. If real binary OLE (.xls)
+    # 2. Binary XLS
     elif is_ole:
         try:
             df = pd.read_excel(io.BytesIO(content_bytes))
         except Exception as e:
             errors.append(f"Legacy xls reader failed: {e}")
 
-    # 3. Text-based files (TSV, CSV, HTML disguised as .xls)
+    # 3. Text / TSV / HTML disguised as XLS
     if df is None:
-        # Check if HTML table disguised as .xls
         sample_head = content_bytes[:2048].lower()
         if b"<html" in sample_head or b"<table" in sample_head:
             try:
@@ -122,9 +159,7 @@ def read_mis_file(file_storage_or_path, original_filename=""):
             except Exception as e:
                 errors.append(f"HTML table reader failed: {e}")
 
-        # Text/TSV parsing with smart header sniffer
         if df is None:
-            # Try multiple text encodings
             text_content = ""
             for enc in ("utf-8-sig", "utf-8", "cp1252", "latin1", "iso-8859-1"):
                 try:
@@ -135,11 +170,10 @@ def read_mis_file(file_storage_or_path, original_filename=""):
 
             if text_content:
                 lines = text_content.splitlines()
-                
-                # Scan first 35 lines to locate the real header row
                 header_idx = -1
                 detected_sep = '\t'
                 
+                # Sniff header row within first 35 lines
                 for idx, line in enumerate(lines[:35]):
                     l_lower = line.lower()
                     if ("awb" in l_lower or "docket" in l_lower) and (
@@ -147,7 +181,6 @@ def read_mis_file(file_storage_or_path, original_filename=""):
                         "amount" in l_lower or "weight" in l_lower or "dest" in l_lower or "mode" in l_lower
                     ):
                         header_idx = idx
-                        # Sniff delimiter
                         if "\t" in line: detected_sep = "\t"
                         elif "," in line: detected_sep = ","
                         elif ";" in line: detected_sep = ";"
@@ -156,11 +189,9 @@ def read_mis_file(file_storage_or_path, original_filename=""):
 
                 try:
                     if header_idx != -1:
-                        # Slice from real header row onwards
                         valid_text = "\n".join(lines[header_idx:])
                         df = pd.read_csv(io.StringIO(valid_text), sep=detected_sep, engine="python")
                     else:
-                        # Fallback to auto-detect
                         df = pd.read_csv(io.StringIO(text_content), sep=None, engine="python")
                 except Exception as e:
                     errors.append(f"Smart text parser failed: {e}")
@@ -168,7 +199,7 @@ def read_mis_file(file_storage_or_path, original_filename=""):
     if df is None or df.empty:
         raise ValueError(f"Could not parse file '{filename}'. Details: {'; '.join(errors)}")
 
-    # 4. Auto Row Adjustment (If header is hidden inside DataFrame rows)
+    # 4. Auto Row Adjustment (if header row is nested inside data rows)
     cols_str = " ".join(str(c).lower() for c in df.columns)
     if "awb" not in cols_str and "docket" not in cols_str:
         for idx in range(min(len(df), 25)):
@@ -182,15 +213,19 @@ def read_mis_file(file_storage_or_path, original_filename=""):
                 df.columns = new_cols
                 break
 
-    # 5. Standardize column headers
+    # 5. Standardize column headers without name collisions
     col_mapping = {}
     for col in df.columns:
         norm = normalize_column_name(col)
         col_mapping[col] = norm
     df = df.rename(columns=col_mapping)
 
-    # 6. Auto-Clean Footer Rows (remove total, subtotal, and summary rows)
+    # 6. Auto-Clean Footer Rows (totals, end-of-report markers)
     if "awb_no" in df.columns:
+        # If duplicate awb_no columns exist, take the first one
+        if isinstance(df["awb_no"], pd.DataFrame):
+            df["awb_no"] = df["awb_no"].iloc[:, 0]
+
         def is_valid_awb(val):
             if pd.isna(val): return False
             s = str(val).strip().lower()
@@ -221,145 +256,24 @@ def get_customer_sales_rep_map():
 
     return code_map, name_map
 
-def parse_and_process_sales(billed_file, unbilled_file, billed_name, unbilled_name, created_by="admin", report_title=""):
+
+# ═════════════════════════════════════════════════════════════════════
+# 3-WAY CORRELATION & ANALYTICS PIPELINE
+# ═════════════════════════════════════════════════════════════════════
+
+def compute_segment_metrics(shipment_list):
     """
-    Main ingestion and correlation workflow.
-    Validates both sheets, correlates AWBs, assigns sales reps, and calculates analytics.
+    Computes all aggregates (summary, sales reps, customers, daily trend, modes, destinations)
+    for a given list of shipments (used for All, Billed, and Unbilled segments).
     """
-    # 1. Parse both sheets
-    try:
-        billed_df = read_mis_file(billed_file, billed_name)
-    except Exception as e:
-        return None, f"Failed to read Billed Sheet ({billed_name}): {str(e)}"
-
-    try:
-        unbilled_df = read_mis_file(unbilled_file, unbilled_name)
-    except Exception as e:
-        return None, f"Failed to read Unbilled Sheet ({unbilled_name}): {str(e)}"
-
-    # 2. Validate mandatory columns
-    for df, label in [(billed_df, "Billed"), (unbilled_df, "Unbilled")]:
-        missing = []
-        if "awb_no" not in df.columns:
-            missing.append("AWB / Docket Number")
-        if "total_amt" not in df.columns:
-            missing.append("Total Amount / Freight")
-        if missing:
-            return None, f"The {label} sheet is missing essential column(s): {', '.join(missing)}. Please verify the column headers."
-
-    code_to_rep, name_to_rep = get_customer_sales_rep_map()
-
-    # Helper function to extract and clean records
-    def extract_records(df, source_label):
-        records = []
-        for _, row in df.iterrows():
-            awb = str(row.get("awb_no", "")).strip()
-            if not awb or awb.lower() in ("nan", "none", "0"):
-                continue
-
-            # Amount
-            try:
-                amt = float(row.get("total_amt", 0) or 0)
-            except Exception:
-                amt = 0.0
-
-            # Weight
-            try:
-                wt = float(row.get("weight", 0) or 0)
-            except Exception:
-                wt = 0.0
-
-            # Date formatting
-            raw_date = str(row.get("date", "")).strip()
-            clean_date = ""
-            if raw_date and raw_date.lower() != "nan":
-                clean_date = raw_date.split(" ")[0]
-
-            code = str(row.get("customer_code", "")).strip().upper()
-            if code == "NAN": code = ""
-            name = str(row.get("customer_name", "")).strip()
-            if name == "NAN": name = ""
-
-            # Assign sales person
-            rep = "NEL"
-            if code in code_to_rep:
-                rep = code_to_rep[code]
-            elif name.upper() in name_to_rep:
-                rep = name_to_rep[name.upper()]
-
-            mode = str(row.get("mode", "")).strip().upper()
-            if mode == "NAN": mode = "SURFACE"
-
-            records.append({
-                "awb_no": awb,
-                "date": clean_date,
-                "customer_code": code,
-                "customer_name": name or code or "General Customer",
-                "sales_person": rep,
-                "shipper": str(row.get("shipper", "")).strip(),
-                "consignee": str(row.get("consignee", "")).strip(),
-                "origin": str(row.get("origin", "")).strip(),
-                "destination": str(row.get("destination", "")).strip() or "Unknown",
-                "service_mode": mode,
-                "transport_mode": mode,
-                "weight": wt,
-                "appoint_date": str(row.get("appoint_date", "")).strip(),
-                "total_amt": amt,
-                "source": source_label
-            })
-        return records
-
-    billed_records = extract_records(billed_df, "BILLED")
-    unbilled_records = extract_records(unbilled_df, "UNBILLED")
-
-    if not billed_records and not unbilled_records:
-        return None, "Both uploaded files appear to have zero valid shipments. Please check the file contents."
-
-    # 3. Merge by AWB Number
-    merged_map = {}
-    
-    # Process Billed records first
-    for rec in billed_records:
-        merged_map[rec["awb_no"]] = {
-            **rec,
-            "billed_amt": rec["total_amt"],
-            "unbilled_amt": 0.0,
-            "source_type": "BILLED"
-        }
-
-    # Merge or Append Unbilled records
-    for rec in unbilled_records:
-        awb = rec["awb_no"]
-        if awb in merged_map:
-            # Common AWB in both sheets!
-            merged_map[awb]["unbilled_amt"] = rec["total_amt"]
-            # If billed didn't have customer details but unbilled does:
-            if not merged_map[awb]["customer_name"] or merged_map[awb]["customer_name"] == "General Customer":
-                merged_map[awb]["customer_name"] = rec["customer_name"]
-                merged_map[awb]["customer_code"] = rec["customer_code"]
-                merged_map[awb]["sales_person"] = rec["sales_person"]
-            merged_map[awb]["source_type"] = "COMBINED"
-        else:
-            merged_map[awb] = {
-                **rec,
-                "billed_amt": 0.0,
-                "unbilled_amt": rec["total_amt"],
-                "source_type": "UNBILLED"
-            }
-
-    all_shipments = list(merged_map.values())
-
-    # 4. Aggregations & Metrics
-    total_sales = sum(s["total_amt"] for s in all_shipments)
-    billed_sales = sum(s.get("billed_amt", 0.0) for s in all_shipments)
-    unbilled_sales = sum(s.get("unbilled_amt", 0.0) for s in all_shipments)
-    total_weight = sum(s["weight"] for s in all_shipments)
-    total_count = len(all_shipments)
+    total_sales = sum(s["total_amt"] for s in shipment_list)
+    total_weight = sum(s["weight"] for s in shipment_list)
+    total_count = len(shipment_list)
     avg_ticket = (total_sales / total_count) if total_count > 0 else 0.0
 
-    # Sales by Sales Person
+    # Sales by Sales Rep
     rep_stats = {}
-    for s in all_shipments:
+    for s in shipment_list:
         rep = s["sales_person"]
         if rep not in rep_stats:
             rep_stats[rep] = {"sales": 0.0, "shipments": 0, "weight": 0.0, "customers": set()}
@@ -384,7 +298,7 @@ def parse_and_process_sales(billed_file, unbilled_file, billed_name, unbilled_na
 
     # Sales by Customer
     cust_stats = {}
-    for s in all_shipments:
+    for s in shipment_list:
         cname = s["customer_name"]
         if cname not in cust_stats:
             cust_stats[cname] = {
@@ -413,16 +327,15 @@ def parse_and_process_sales(billed_file, unbilled_file, billed_name, unbilled_na
     customers_list.sort(key=lambda x: x["sales"], reverse=True)
     top_customer = customers_list[0]["name"] if customers_list else "None"
 
-    # Sales by Date (Chronological)
+    # Sales by Date
     date_stats = {}
-    for s in all_shipments:
+    for s in shipment_list:
         d = s["date"] or "Undated"
         if d not in date_stats:
             date_stats[d] = {"sales": 0.0, "shipments": 0}
         date_stats[d]["sales"] += s["total_amt"]
         date_stats[d]["shipments"] += 1
 
-    # Attempt sorting dates
     def parse_dt(d_str):
         for fmt in ("%d-%m-%Y", "%Y-%m-%d", "%d/%m/%Y", "%m/%d/%Y"):
             try: return datetime.strptime(d_str, fmt)
@@ -436,10 +349,11 @@ def parse_and_process_sales(billed_file, unbilled_file, billed_name, unbilled_na
         "shipments": date_stats[d]["shipments"]
     } for d in sorted_dates]
 
-    # Service / Transport Mode breakdown
+    # Service / Transport Mode breakdown (Air, Surface, Train)
     mode_stats = {}
-    for s in all_shipments:
-        m = s["service_mode"] or "SURFACE"
+    for s in shipment_list:
+        m = s["transport_mode"] or s.get("service_mode") or "Surface"
+        m = m.capitalize()
         if m not in mode_stats:
             mode_stats[m] = {"sales": 0.0, "shipments": 0}
         mode_stats[m]["sales"] += s["total_amt"]
@@ -456,9 +370,9 @@ def parse_and_process_sales(billed_file, unbilled_file, billed_name, unbilled_na
         })
     mode_list.sort(key=lambda x: x["sales"], reverse=True)
 
-    # Destination Breakdown (Top hubs)
+    # Destination Breakdown
     dest_stats = {}
-    for s in all_shipments:
+    for s in shipment_list:
         dest = s["destination"] or "Unknown"
         if dest not in dest_stats:
             dest_stats[dest] = {"sales": 0.0, "shipments": 0}
@@ -471,50 +385,229 @@ def parse_and_process_sales(billed_file, unbilled_file, billed_name, unbilled_na
         "shipments": stat["shipments"]
     } for dest, stat in sorted(dest_stats.items(), key=lambda x: x[1]["sales"], reverse=True)]
 
-    # Determine period label from dates
-    period_label = "Current Month"
-    valid_dates = [parse_dt(d) for d in sorted_dates if parse_dt(d) != datetime.min]
-    if valid_dates:
-        earliest = min(valid_dates)
-        period_label = earliest.strftime("%B %Y")
-
-    if not report_title:
-        report_title = f"North Express Logistics - Sales Report ({period_label})"
-
-    # Consolidated JSON payload for instant dashboard rendering
-    report_data = {
+    return {
         "summary": {
             "total_sales": round(total_sales, 2),
-            "billed_sales": round(billed_sales, 2),
-            "unbilled_sales": round(unbilled_sales, 2),
             "total_shipments": total_count,
             "total_weight": round(total_weight, 2),
             "avg_ticket": round(avg_ticket, 2),
             "top_rep": top_rep,
-            "top_customer": top_customer,
-            "period_label": period_label
+            "top_customer": top_customer
         },
         "sales_reps": sales_reps_list,
         "customers": customers_list,
         "daily_sales": daily_sales_list,
         "modes": mode_list,
-        "destinations": dest_list[:20],
-        "shipments_sample": all_shipments[:200]
+        "destinations": dest_list[:20]
     }
 
-    # 5. Save to database
+def parse_and_process_sales_3way(billed_file, unbilled_file, booking_file, billed_name, unbilled_name, booking_name, created_by="admin", report_title=""):
+    """
+    3-Way Ingestion and Correlation Pipeline:
+    1. Billed MIS -> provides Billed amounts per AWB.
+    2. Unbilled MIS -> provides Unbilled amounts per AWB.
+    3. Booking Master Register -> provides BookingMode (Air, Surface, Train),
+       BillNo, Delivery Status, Boxes, Origin, Destination for all shipments!
+    """
+    try:
+        billed_df = read_mis_file(billed_file, billed_name)
+    except Exception as e:
+        return None, f"Could not parse Billed MIS Sheet ({billed_name}): {str(e)}"
+
+    try:
+        unbilled_df = read_mis_file(unbilled_file, unbilled_name)
+    except Exception as e:
+        return None, f"Could not parse Unbilled MIS Sheet ({unbilled_name}): {str(e)}"
+
+    try:
+        booking_df = read_mis_file(booking_file, booking_name)
+    except Exception as e:
+        return None, f"Could not parse Booking Master Register ({booking_name}): {str(e)}"
+
+    # Validate AWB in all 3 sheets
+    if "awb_no" not in billed_df.columns:
+        return None, f"Billed sheet ({billed_name}) is missing the 'AWB / Docket Number' column."
+    if "awb_no" not in unbilled_df.columns:
+        return None, f"Unbilled sheet ({unbilled_name}) is missing the 'AWB / Docket Number' column."
+    if "awb_no" not in booking_df.columns:
+        return None, f"Booking Master Register ({booking_name}) is missing the 'AWB / Docket Number' column."
+
+    code_to_rep, name_to_rep = get_customer_sales_rep_map()
+
+    # 1. Build lookup dictionaries for Billed & Unbilled amounts
+    def build_amt_map(df):
+        m = {}
+        for _, row in df.iterrows():
+            awb = str(row.get("awb_no", "")).strip()
+            if not awb or awb.lower() in ("nan", "none", "0"):
+                continue
+            try: amt = float(row.get("total_amt", 0) or 0)
+            except: amt = 0.0
+            m[awb] = amt
+        return m
+
+    billed_amt_map = build_amt_map(billed_df)
+    unbilled_amt_map = build_amt_map(unbilled_df)
+
+    # 2. Iterate through Booking Master Register as the source of truth
+    all_shipments = []
+    seen_awbs = set()
+
+    for _, row in booking_df.iterrows():
+        awb = str(row.get("awb_no", "")).strip()
+        if not awb or awb.lower() in ("nan", "none", "0") or awb in seen_awbs:
+            continue
+        seen_awbs.add(awb)
+
+        # Date
+        raw_date = str(row.get("date", "")).strip()
+        clean_date = raw_date.split(" ")[0] if raw_date and raw_date.lower() != "nan" else ""
+
+        # Customer Code & Name
+        code = str(row.get("customer_code", "")).strip().upper()
+        if code == "NAN": code = ""
+        cname = str(row.get("customer_name", "")).strip()
+        if cname == "NAN": cname = ""
+
+        # Assign Sales Representative
+        rep = "NEL"
+        if code in code_to_rep:
+            rep = code_to_rep[code]
+        elif cname.upper() in name_to_rep:
+            rep = name_to_rep[cname.upper()]
+
+        # Mode of Transport (Air, Surface, Train)
+        mode = str(row.get("booking_mode", "") or row.get("mode", "") or "Surface").strip()
+        if mode.lower() in ("nan", "none", ""): mode = "Surface"
+        mode = mode.capitalize()
+
+        # Weight
+        try: wt = float(row.get("weight", 0) or 0)
+        except: wt = 0.0
+
+        # Chargeable weight
+        try: chg_wt = float(row.get("chargeable_weight", 0) or 0)
+        except: chg_wt = wt
+
+        # Boxes
+        try: boxes = int(float(row.get("boxes", 1) or 1))
+        except: boxes = 1
+
+        # Bill Number & Delivery Status
+        bill_no = str(row.get("bill_no", "")).strip()
+        if bill_no.lower() in ("nan", "none", "0"): bill_no = ""
+        delivery_status = str(row.get("delivery_status", "") or row.get("status", "")).strip()
+
+        # Amounts from Billed and Unbilled sheets
+        b_amt = billed_amt_map.get(awb, 0.0)
+        u_amt = unbilled_amt_map.get(awb, 0.0)
+
+        # Determine billing status
+        if awb in billed_amt_map and awb in unbilled_amt_map:
+            billing_tag = "COMBINED"
+            total_amt = b_amt + u_amt
+        elif awb in billed_amt_map:
+            billing_tag = "BILLED"
+            total_amt = b_amt
+        elif awb in unbilled_amt_map:
+            billing_tag = "UNBILLED"
+            total_amt = u_amt
+        else:
+            # Fallback based on BillNo
+            if bill_no:
+                billing_tag = "BILLED"
+                total_amt = 0.0
+            else:
+                billing_tag = "UNBILLED"
+                total_amt = 0.0
+
+        all_shipments.append({
+            "awb_no": awb,
+            "date": clean_date,
+            "customer_code": code,
+            "customer_name": cname or code or "General Customer",
+            "sales_person": rep,
+            "shipper": str(row.get("shipper", "")).strip(),
+            "consignee": str(row.get("consignee", "")).strip(),
+            "origin": str(row.get("origin", "")).strip(),
+            "destination": str(row.get("destination", "")).strip() or "Unknown",
+            "service_mode": str(row.get("service_mode", mode)),
+            "transport_mode": mode,
+            "weight": wt,
+            "chargeable_weight": chg_wt,
+            "boxes": boxes,
+            "appoint_date": str(row.get("appoint_date", "")).strip(),
+            "bill_no": bill_no,
+            "delivery_status": delivery_status,
+            "billed_amt": round(b_amt, 2),
+            "unbilled_amt": round(u_amt, 2),
+            "total_amt": round(total_amt, 2),
+            "source_type": billing_tag
+        })
+
+    if not all_shipments:
+        return None, "Zero valid shipments correlated. Please verify that AWB docket numbers match across sheets."
+
+    # Separate segments for dashboard tabs
+    billed_shipments = [s for s in all_shipments if s["source_type"] in ("BILLED", "COMBINED")]
+    unbilled_shipments = [s for s in all_shipments if s["source_type"] in ("UNBILLED", "COMBINED")]
+
+    # 3. Compute Metrics for All, Billed, and Unbilled Segments
+    metrics_all = compute_segment_metrics(all_shipments)
+    metrics_billed = compute_segment_metrics(billed_shipments)
+    metrics_unbilled = compute_segment_metrics(unbilled_shipments)
+
+    # Determine period label
+    sorted_dates = metrics_all["daily_sales"]
+    period_label = "Current Month"
+    if sorted_dates:
+        for fmt in ("%d-%m-%Y", "%Y-%m-%d", "%d/%m/%Y"):
+            try:
+                dt = datetime.strptime(sorted_dates[0]["date"], fmt)
+                period_label = dt.strftime("%B %Y")
+                break
+            except: pass
+
+    if not report_title:
+        report_title = f"North Express Logistics - Executive Sales Intelligence ({period_label})"
+
+    # Consolidated JSON bundle for instant client-side switching
+    report_data = {
+        "summary": {
+            "period_label": period_label,
+            "total_sales": metrics_all["summary"]["total_sales"],
+            "billed_sales": metrics_billed["summary"]["total_sales"],
+            "unbilled_sales": metrics_unbilled["summary"]["total_sales"],
+            "total_shipments": metrics_all["summary"]["total_shipments"],
+            "billed_shipments": metrics_billed["summary"]["total_shipments"],
+            "unbilled_shipments": metrics_unbilled["summary"]["total_shipments"],
+            "total_weight": metrics_all["summary"]["total_weight"],
+            "avg_ticket": metrics_all["summary"]["avg_ticket"],
+            "top_rep": metrics_all["summary"]["top_rep"],
+            "top_customer": metrics_all["summary"]["top_customer"]
+        },
+        "all": metrics_all,
+        "billed": metrics_billed,
+        "unbilled": metrics_unbilled,
+        "shipments_sample": all_shipments[:250]
+    }
+
+    # 4. Save to SQLite database
     report_id = f"SR-{datetime.now().strftime('%Y%m%d%H%M%S')}"
     conn = get_db_connection()
     c = conn.execute('''
         INSERT INTO sales_reports (
-            report_id, title, period_label, billed_filename, unbilled_filename,
+            report_id, title, period_label, billed_filename, unbilled_filename, booking_filename,
             total_sales, billed_sales, unbilled_sales, total_shipments, total_weight,
             avg_shipment_value, top_sales_person, top_customer, report_data_json, created_by
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', (
-        report_id, report_title, period_label, billed_name, unbilled_name,
-        total_sales, billed_sales, unbilled_sales, total_count, total_weight,
-        avg_ticket, top_rep, top_customer, json.dumps(report_data), created_by
+        report_id, report_title, period_label, billed_name, unbilled_name, booking_name,
+        metrics_all["summary"]["total_sales"], metrics_billed["summary"]["total_sales"],
+        metrics_unbilled["summary"]["total_sales"], metrics_all["summary"]["total_shipments"],
+        metrics_all["summary"]["total_weight"], metrics_all["summary"]["avg_ticket"],
+        metrics_all["summary"]["top_rep"], metrics_all["summary"]["top_customer"],
+        json.dumps(report_data), created_by
     ))
     db_report_id = c.lastrowid
 
@@ -524,15 +617,18 @@ def parse_and_process_sales(billed_file, unbilled_file, billed_name, unbilled_na
         shipment_rows.append((
             db_report_id, s["awb_no"], s["date"], s["customer_code"], s["customer_name"],
             s["sales_person"], s["shipper"], s["consignee"], s["origin"], s["destination"],
-            s["service_mode"], s["transport_mode"], s["weight"], s["appoint_date"],
+            s["service_mode"], s["transport_mode"], s["weight"], s["chargeable_weight"],
+            s["boxes"], s["appoint_date"], s["bill_no"], s["delivery_status"],
             s["total_amt"], s["source_type"]
         ))
+
     conn.executemany('''
         INSERT INTO sales_shipments (
             report_id, awb_no, booking_date, customer_code, customer_name,
             sales_person, shipper, consignee, origin, destination,
-            service_mode, transport_mode, weight, appoint_date, total_amt, source_type
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            service_mode, transport_mode, weight, chargeable_weight, boxes,
+            appoint_date, bill_no, delivery_status, total_amt, source_type
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ''', shipment_rows)
 
     conn.commit()
@@ -547,17 +643,17 @@ def parse_and_process_sales(billed_file, unbilled_file, billed_name, unbilled_na
 
 def generate_sales_pptx(report_row, report_data):
     """
-    Generate an executive 16:9 PowerPoint presentation with 5 distinct slides:
-    Slide 1: Title & Overall Executive Summary
-    Slide 2: Sales Person Leaderboard & Performance Analysis
-    Slide 3: Top Customer Accounts & Contribution
-    Slide 4: Service & Transport Mode Breakdown
-    Slide 5: Geographic Distribution & Lane Volumes
+    Generate an executive 16:9 PowerPoint presentation with 6 distinct slides:
+    Slide 1: Executive Overview (Combined Turnovers)
+    Slide 2: Billed vs Unbilled Comparative Analysis
+    Slide 3: Transport Modes Breakdown (Air vs Surface vs Train)
+    Slide 4: Sales Team Leaderboard & Contribution
+    Slide 5: Top Client Accounts Ranking
+    Slide 6: Major Delivery Hubs & Destination Volumes
     """
     import pptx
     from pptx.util import Inches, Pt
     from pptx.dml.color import RGBColor
-    from pptx.enum.text import PP_ALIGN
     from pptx.enum.shapes import MSO_SHAPE
 
     prs = pptx.Presentation()
@@ -566,23 +662,20 @@ def generate_sales_pptx(report_row, report_data):
     blank_layout = prs.slide_layouts[6]
 
     # Brand Colors
-    C_NAVY = RGBColor(11, 19, 43)        # #0B132B
-    C_BLUE = RGBColor(37, 99, 235)       # #2563EB
-    C_LIGHT_BG = RGBColor(248, 250, 252) # #F8FAFC
+    C_NAVY = RGBColor(11, 19, 43)
+    C_BLUE = RGBColor(37, 99, 235)
     C_WHITE = RGBColor(255, 255, 255)
-    C_SLATE = RGBColor(100, 116, 139)    # #64748B
-    C_DARK = RGBColor(15, 23, 42)        # #0F172A
+    C_SLATE = RGBColor(100, 116, 139)
+    C_DARK = RGBColor(15, 23, 42)
 
     logo_path = os.path.join(Config.BASE_DIR, "static", "doxera_logo.png")
 
     def add_header(slide, title_text, category="SALES INTELLIGENCE"):
-        # Header background banner
         header_shape = slide.shapes.add_shape(MSO_SHAPE.RECTANGLE, Inches(0), Inches(0), Inches(13.333), Inches(1.1))
         header_shape.fill.solid()
         header_shape.fill.fore_color.rgb = C_NAVY
         header_shape.line.fill.background()
 
-        # Title text
         tx = slide.shapes.add_textbox(Inches(0.8), Inches(0.18), Inches(9.5), Inches(0.8))
         tf = tx.text_frame
         tf.word_wrap = True
@@ -598,23 +691,22 @@ def generate_sales_pptx(report_row, report_data):
         p2.font.bold = True
         p2.font.color.rgb = C_WHITE
 
-        # Add Logo if present
         if os.path.exists(logo_path):
             slide.shapes.add_picture(logo_path, Inches(11.2), Inches(0.2), width=Inches(1.5))
 
     summary = report_data.get("summary", {})
+    all_metrics = report_data.get("all", {})
+    billed_metrics = report_data.get("billed", {})
+    unbilled_metrics = report_data.get("unbilled", {})
 
-    # ─────────────────────────────────────────────────────────────
-    # SLIDE 1: EXECUTIVE SUMMARY
-    # ─────────────────────────────────────────────────────────────
+    # SLIDE 1: EXECUTIVE OVERVIEW
     slide1 = prs.slides.add_slide(blank_layout)
     add_header(slide1, f"Executive Overview • {summary.get('period_label', 'Report')}")
 
-    # Stat Card Helper
     cards_data = [
-        ("TOTAL REVENUE", format_inr(summary.get("total_sales", 0)), RGBColor(37, 99, 235)),
-        ("TOTAL SHIPMENTS", f"{summary.get('total_shipments', 0):,} AWBs", RGBColor(16, 185, 129)),
-        ("TOTAL WEIGHT", f"{summary.get('total_weight', 0):,.1f} Kg", RGBColor(245, 158, 11)),
+        ("GRAND TOTAL REVENUE", format_inr(summary.get("total_sales", 0)), RGBColor(37, 99, 235)),
+        ("TOTAL CONSIGNMENTS", f"{summary.get('total_shipments', 0):,} AWBs", RGBColor(16, 185, 129)),
+        ("TOTAL CARGO MOVED", f"{summary.get('total_weight', 0):,.1f} Kg", RGBColor(245, 158, 11)),
         ("TOP SALES REP", str(summary.get("top_rep", "NEL")), RGBColor(139, 92, 246))
     ]
 
@@ -645,7 +737,6 @@ def generate_sales_pptx(report_row, report_data):
         p2.font.bold = True
         p2.font.color.rgb = accent
 
-    # Summary Insights Box
     info_box = slide1.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, Inches(0.8), Inches(3.5), Inches(11.733), Inches(3.4))
     info_box.fill.solid()
     info_box.fill.fore_color.rgb = RGBColor(241, 245, 249)
@@ -656,33 +747,96 @@ def generate_sales_pptx(report_row, report_data):
     tf_info.word_wrap = True
 
     h = tf_info.paragraphs[0]
-    h.text = "Key Operational Highlights & Metrics"
+    h.text = "Executive Highlights & Segment Breakdown"
     h.font.size = Pt(16)
     h.font.bold = True
     h.font.color.rgb = C_NAVY
 
     highlights = [
-        f"• Grand Total Revenue: {format_inr(summary.get('total_sales', 0))} across {summary.get('total_shipments', 0):,} verified freight shipments.",
-        f"• Average Revenue Per Docket: {format_inr(summary.get('avg_ticket', 0))} with {summary.get('total_weight', 0):,.1f} Kg cargo moved.",
-        f"• Leading Account Contribution: {summary.get('top_customer', 'N/A')} represents the largest revenue driver.",
-        f"• Sales Force Top Performer: {summary.get('top_rep', 'N/A')} generated the highest turnover during this billing period.",
-        f"• Data Sources: Correlated from Billed ({report_row['billed_filename']}) & Unbilled ({report_row['unbilled_filename']}) MIS files."
+        f"• Grand Turnover: {format_inr(summary.get('total_sales', 0))} across {summary.get('total_shipments', 0):,} verified freight consignments.",
+        f"• Billed Freight Revenue: {format_inr(summary.get('billed_sales', 0))} ({summary.get('billed_shipments', 0):,} dockets invoiced).",
+        f"• Unbilled Freight Revenue: {format_inr(summary.get('unbilled_sales', 0))} ({summary.get('unbilled_shipments', 0):,} dockets pending billing).",
+        f"• Leading Sales Rep: {summary.get('top_rep', 'NEL')} drove the primary turnover during this period.",
+        f"• Tri-Factor Correlation: Synthesized across Billed MIS, Unbilled MIS, and Operations Booking Register."
     ]
     for bullet in highlights:
         p = tf_info.add_paragraph()
         p.text = bullet
         p.font.size = Pt(13)
         p.font.color.rgb = C_DARK
-        p.space_before = Pt(8)
+        p.space_before = Pt(7)
 
-    # ─────────────────────────────────────────────────────────────
-    # SLIDE 2: SALES PERSON LEADERBOARD
-    # ─────────────────────────────────────────────────────────────
+    # SLIDE 2: BILLED VS UNBILLED COMPARISON
     slide2 = prs.slides.add_slide(blank_layout)
-    add_header(slide2, "Sales Team Performance & Contribution Analysis")
+    add_header(slide2, "Billed vs Unbilled Comparative Analysis")
 
-    reps = report_data.get("sales_reps", [])
-    table_shape = slide2.shapes.add_table(min(len(reps) + 1, 9), 5, Inches(0.8), Inches(1.5), Inches(11.733), Inches(5.2))
+    comp_table_shape = slide2.shapes.add_table(4, 5, Inches(0.8), Inches(1.8), Inches(11.733), Inches(4.5))
+    comp_table = comp_table_shape.table
+
+    comp_headers = ["Billing Classification", "Total Revenue (INR)", "Consignments", "Cargo Weight (Kg)", "Share %"]
+    for col_idx, ch in enumerate(comp_headers):
+        cell = comp_table.cell(0, col_idx)
+        cell.text = ch
+        cell.fill.solid()
+        cell.fill.fore_color.rgb = C_NAVY
+        for p in cell.text_frame.paragraphs:
+            p.font.bold = True
+            p.font.size = Pt(13)
+            p.font.color.rgb = C_WHITE
+
+    tot_s = summary.get("total_sales", 1)
+    comp_rows = [
+        ["BILLED REVENUE", format_inr(summary.get("billed_sales", 0)), f"{summary.get('billed_shipments', 0):,}", f"{billed_metrics.get('summary', {}).get('total_weight', 0):,.1f} Kg", f"{(summary.get('billed_sales', 0)/tot_s*100):.1f}%"],
+        ["UNBILLED REVENUE", format_inr(summary.get("unbilled_sales", 0)), f"{summary.get('unbilled_shipments', 0):,}", f"{unbilled_metrics.get('summary', {}).get('total_weight', 0):,.1f} Kg", f"{(summary.get('unbilled_sales', 0)/tot_s*100):.1f}%"],
+        ["GRAND TOTAL", format_inr(tot_s), f"{summary.get('total_shipments', 0):,}", f"{summary.get('total_weight', 0):,.1f} Kg", "100.0%"]
+    ]
+    for row_idx, r in enumerate(comp_rows, start=1):
+        for col_idx, v in enumerate(r):
+            cell = comp_table.cell(row_idx, col_idx)
+            cell.text = v
+            cell.fill.solid()
+            cell.fill.fore_color.rgb = C_WHITE if row_idx < 3 else RGBColor(241, 245, 249)
+            for p in cell.text_frame.paragraphs:
+                p.font.bold = (row_idx == 3)
+                p.font.size = Pt(13)
+                p.font.color.rgb = C_DARK
+
+    # SLIDE 3: TRANSPORT MODES BREAKDOWN
+    slide3 = prs.slides.add_slide(blank_layout)
+    add_header(slide3, "Mode of Transport Breakdown (Air, Surface, Train)")
+
+    modes = all_metrics.get("modes", [])
+    mode_table_shape = slide3.shapes.add_table(min(len(modes) + 1, 6), 4, Inches(0.8), Inches(1.8), Inches(11.733), Inches(4.0))
+    mode_table = mode_table_shape.table
+
+    m_headers = ["Mode of Transport", "Consignments Moved", "Freight Turnover (INR)", "Revenue Share %"]
+    for col_idx, mh in enumerate(m_headers):
+        cell = mode_table.cell(0, col_idx)
+        cell.text = mh
+        cell.fill.solid()
+        cell.fill.fore_color.rgb = C_NAVY
+        for p in cell.text_frame.paragraphs:
+            p.font.bold = True
+            p.font.size = Pt(13)
+            p.font.color.rgb = C_WHITE
+
+    for row_idx, m in enumerate(modes, start=1):
+        vals = [m["mode"], f"{m['shipments']:,}", format_inr(m["sales"]), f"{m['share_pct']}%"]
+        for col_idx, v in enumerate(vals):
+            cell = mode_table.cell(row_idx, col_idx)
+            cell.text = v
+            cell.fill.solid()
+            cell.fill.fore_color.rgb = C_WHITE if row_idx % 2 == 1 else RGBColor(248, 250, 252)
+            for p in cell.text_frame.paragraphs:
+                p.font.size = Pt(12)
+                p.font.color.rgb = C_DARK
+
+    # SLIDE 4: SALES TEAM LEADERBOARD
+    slide4 = prs.slides.add_slide(blank_layout)
+    add_header(slide4, "Sales Team Performance & Contribution Analysis")
+
+    reps = all_metrics.get("sales_reps", [])
+    table_shape = slide4.shapes.add_table(min(len(reps) + 1, 9), 5, Inches(0.8), Inches(1.5), Inches(11.733), Inches(5.2))
     table = table_shape.table
 
     headers = ["Sales Representative", "Assigned Accounts", "Total Shipments", "Total Freight (INR)", "Share of Total"]
@@ -707,19 +861,17 @@ def generate_sales_pptx(report_row, report_data):
                 p.font.size = Pt(12)
                 p.font.color.rgb = C_DARK
 
-    # ─────────────────────────────────────────────────────────────
-    # SLIDE 3: TOP CUSTOMER ACCOUNTS
-    # ─────────────────────────────────────────────────────────────
-    slide3 = prs.slides.add_slide(blank_layout)
-    add_header(slide3, "Top Client Accounts & Volume Contribution")
+    # SLIDE 5: TOP CLIENT ACCOUNTS
+    slide5 = prs.slides.add_slide(blank_layout)
+    add_header(slide5, "Top Client Accounts & Volume Concentration")
 
-    custs = report_data.get("customers", [])
-    table_shape = slide3.shapes.add_table(min(len(custs) + 1, 11), 5, Inches(0.8), Inches(1.5), Inches(11.733), Inches(5.3))
-    table = table_shape.table
+    custs = all_metrics.get("customers", [])
+    table_shape5 = slide5.shapes.add_table(min(len(custs) + 1, 11), 5, Inches(0.8), Inches(1.5), Inches(11.733), Inches(5.3))
+    table5 = table_shape5.table
 
-    headers = ["Customer Account Name", "Account Code", "Account Manager", "Total Shipments", "Total Freight (INR)"]
-    for col_idx, h in enumerate(headers):
-        cell = table.cell(0, col_idx)
+    cust_headers = ["Customer Account Name", "Account Code", "Account Manager", "Total Shipments", "Total Freight (INR)"]
+    for col_idx, h in enumerate(cust_headers):
+        cell = table5.cell(0, col_idx)
         cell.text = h
         cell.fill.solid()
         cell.fill.fore_color.rgb = C_NAVY
@@ -731,71 +883,7 @@ def generate_sales_pptx(report_row, report_data):
     for row_idx, c in enumerate(custs[:10], start=1):
         vals = [c["name"][:35], c["code"] or "---", c["sales_person"], f"{c['shipments']:,}", format_inr(c["sales"])]
         for col_idx, v in enumerate(vals):
-            cell = table.cell(row_idx, col_idx)
-            cell.text = v
-            cell.fill.solid()
-            cell.fill.fore_color.rgb = C_WHITE if row_idx % 2 == 1 else RGBColor(248, 250, 252)
-            for p in cell.text_frame.paragraphs:
-                p.font.size = Pt(11)
-                p.font.color.rgb = C_DARK
-
-    # ─────────────────────────────────────────────────────────────
-    # SLIDE 4: TRANSPORT & SERVICE MODES
-    # ─────────────────────────────────────────────────────────────
-    slide4 = prs.slides.add_slide(blank_layout)
-    add_header(slide4, "Logistics Modes & Service Type Breakdown")
-
-    modes = report_data.get("modes", [])
-    table_shape = slide4.shapes.add_table(min(len(modes) + 1, 6), 4, Inches(0.8), Inches(1.5), Inches(11.733), Inches(3.5))
-    table = table_shape.table
-
-    headers = ["Service / Transport Mode", "Total Dockets", "Total Revenue (INR)", "Share of Total"]
-    for col_idx, h in enumerate(headers):
-        cell = table.cell(0, col_idx)
-        cell.text = h
-        cell.fill.solid()
-        cell.fill.fore_color.rgb = C_NAVY
-        for p in cell.text_frame.paragraphs:
-            p.font.bold = True
-            p.font.size = Pt(13)
-            p.font.color.rgb = C_WHITE
-
-    for row_idx, m in enumerate(modes, start=1):
-        vals = [m["mode"], f"{m['shipments']:,}", format_inr(m["sales"]), f"{m['share_pct']}%"]
-        for col_idx, v in enumerate(vals):
-            cell = table.cell(row_idx, col_idx)
-            cell.text = v
-            cell.fill.solid()
-            cell.fill.fore_color.rgb = C_WHITE if row_idx % 2 == 1 else RGBColor(248, 250, 252)
-            for p in cell.text_frame.paragraphs:
-                p.font.size = Pt(12)
-                p.font.color.rgb = C_DARK
-
-    # ─────────────────────────────────────────────────────────────
-    # SLIDE 5: TOP DESTINATIONS / LANES
-    # ─────────────────────────────────────────────────────────────
-    slide5 = prs.slides.add_slide(blank_layout)
-    add_header(slide5, "Geographic Hubs & Destination Volumes")
-
-    dests = report_data.get("destinations", [])
-    table_shape = slide5.shapes.add_table(min(len(dests) + 1, 11), 3, Inches(0.8), Inches(1.5), Inches(11.733), Inches(5.3))
-    table = table_shape.table
-
-    headers = ["Destination Hub / City", "Shipments Delivered", "Total Freight Billed (INR)"]
-    for col_idx, h in enumerate(headers):
-        cell = table.cell(0, col_idx)
-        cell.text = h
-        cell.fill.solid()
-        cell.fill.fore_color.rgb = C_NAVY
-        for p in cell.text_frame.paragraphs:
-            p.font.bold = True
-            p.font.size = Pt(13)
-            p.font.color.rgb = C_WHITE
-
-    for row_idx, d in enumerate(dests[:10], start=1):
-        vals = [d["city"], f"{d['shipments']:,}", format_inr(d["sales"])]
-        for col_idx, v in enumerate(vals):
-            cell = table.cell(row_idx, col_idx)
+            cell = table5.cell(row_idx, col_idx)
             cell.text = v
             cell.fill.solid()
             cell.fill.fore_color.rgb = C_WHITE if row_idx % 2 == 1 else RGBColor(248, 250, 252)
@@ -816,8 +904,7 @@ def generate_sales_pptx(report_row, report_data):
 def generate_sales_pdf(report_row, report_data):
     """
     Generate an executive multi-page PDF report with Doxera branding,
-    typography, distinct pages for executive summary, sales team,
-    top customer accounts, and transit breakdown.
+    typography, and separate comparative pages for Billed and Unbilled.
     """
     from reportlab.lib.pagesizes import A4
     from reportlab.lib import colors
@@ -838,32 +925,15 @@ def generate_sales_pdf(report_row, report_data):
 
     styles = getSampleStyleSheet()
 
-    # Custom styles
-    title_style = ParagraphStyle(
-        'DocTitle',
-        parent=styles['Normal'],
-        fontName='Helvetica-Bold',
-        fontSize=20,
-        leading=24,
-        textColor=colors.HexColor('#0B132B')
-    )
-    subtitle_style = ParagraphStyle(
-        'DocSubtitle',
-        parent=styles['Normal'],
-        fontName='Helvetica-Bold',
-        fontSize=10,
-        leading=13,
-        textColor=colors.HexColor('#2563EB')
-    )
     h2_style = ParagraphStyle(
         'SectionH2',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=14,
-        leading=18,
+        fontSize=13,
+        leading=16,
         textColor=colors.HexColor('#0B132B'),
         spaceBefore=10,
-        spaceAfter=8
+        spaceAfter=6
     )
     body_style = ParagraphStyle(
         'BodyDark',
@@ -885,13 +955,16 @@ def generate_sales_pdf(report_row, report_data):
         'CardVal',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=14,
-        leading=18,
+        fontSize=13,
+        leading=16,
         textColor=colors.HexColor('#0B132B')
     )
 
     logo_path = os.path.join(Config.BASE_DIR, "static", "doxera_logo.png")
     summary = report_data.get("summary", {})
+    all_metrics = report_data.get("all", {})
+    billed_metrics = report_data.get("billed", {})
+    unbilled_metrics = report_data.get("unbilled", {})
 
     story = []
 
@@ -910,26 +983,23 @@ def generate_sales_pdf(report_row, report_data):
             ('ALIGN', (0,0), (0,0), 'LEFT'),
             ('ALIGN', (1,0), (1,0), 'RIGHT'),
         ]))
-        return [t, HRFlowable(width="100%", thickness=1.5, color=colors.HexColor("#0B132B"), spaceBefore=8, spaceAfter=14), Paragraph(section_title, h2_style)]
+        return [t, HRFlowable(width="100%", thickness=1.5, color=colors.HexColor("#0B132B"), spaceBefore=6, spaceAfter=10), Paragraph(section_title, h2_style)]
 
-    # ─────────────────────────────────────────────────────────────
     # PAGE 1: EXECUTIVE SUMMARY
-    # ─────────────────────────────────────────────────────────────
     story.extend(make_header_block(f"Executive Sales Report: {summary.get('period_label', '')}"))
 
-    # KPI 4-Card Table
     cards_table = [
         [
             Paragraph("TOTAL REVENUE", card_label),
-            Paragraph("TOTAL SHIPMENTS", card_label),
-            Paragraph("TOTAL WEIGHT", card_label),
-            Paragraph("TOP SALES REP", card_label)
+            Paragraph("BILLED REVENUE", card_label),
+            Paragraph("UNBILLED REVENUE", card_label),
+            Paragraph("TOTAL CONSIGNMENTS", card_label)
         ],
         [
             Paragraph(format_inr(summary.get("total_sales", 0)), card_val),
-            Paragraph(f"{summary.get('total_shipments', 0):,} AWBs", card_val),
-            Paragraph(f"{summary.get('total_weight', 0):,.1f} Kg", card_val),
-            Paragraph(str(summary.get("top_rep", "NEL")), card_val)
+            Paragraph(format_inr(summary.get("billed_sales", 0)), card_val),
+            Paragraph(format_inr(summary.get("unbilled_sales", 0)), card_val),
+            Paragraph(f"{summary.get('total_shipments', 0):,} AWBs", card_val)
         ]
     ]
     t_cards = Table(cards_table, colWidths=[130, 130, 130, 130])
@@ -937,36 +1007,18 @@ def generate_sales_pdf(report_row, report_data):
         ('BACKGROUND', (0,0), (-1,-1), colors.HexColor('#F8FAFC')),
         ('BOX', (0,0), (-1,-1), 1, colors.HexColor('#CBD5E1')),
         ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor('#E2E8F0')),
-        ('TOPPADDING', (0,0), (-1,-1), 8),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 8),
-        ('LEFTPADDING', (0,0), (-1,-1), 10),
-        ('RIGHTPADDING', (0,0), (-1,-1), 10),
+        ('TOPPADDING', (0,0), (-1,-1), 6),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('LEFTPADDING', (0,0), (-1,-1), 8),
+        ('RIGHTPADDING', (0,0), (-1,-1), 8),
     ]))
     story.append(t_cards)
-    story.append(Spacer(1, 16))
+    story.append(Spacer(1, 12))
 
-    # Executive Summary Paragraphs
-    story.append(Paragraph("<b>Executive Highlights</b>", h2_style))
-    story.append(Paragraph(
-        f"This report consolidates freight transactions from the Billed ({report_row['billed_filename']}) "
-        f"and Unbilled ({report_row['unbilled_filename']}) MIS datasets. "
-        f"A total of <b>{summary.get('total_shipments', 0):,} consignments</b> were moved, producing "
-        f"<b>{format_inr(summary.get('total_sales', 0))}</b> in total freight revenue.",
-        body_style
-    ))
-    story.append(Spacer(1, 8))
-    story.append(Paragraph(
-        f"• Average freight value per consignment: <b>{format_inr(summary.get('avg_ticket', 0))}</b>.<br/>"
-        f"• Highest grossing sales representative: <b>{summary.get('top_rep', 'NEL')}</b>.<br/>"
-        f"• Key account leader: <b>{summary.get('top_customer', 'N/A')}</b>.",
-        body_style
-    ))
-    story.append(Spacer(1, 16))
-
-    # Service Mode Breakdown Table
-    story.append(Paragraph("<b>Service / Transport Mode Breakdown</b>", h2_style))
-    modes = report_data.get("modes", [])
-    mode_table_data = [["Mode", "Shipments", "Revenue (INR)", "Share %"]]
+    # Transport Modes Breakdown Table
+    story.append(Paragraph("<b>Transport Mode Performance (Air vs Surface vs Train)</b>", h2_style))
+    modes = all_metrics.get("modes", [])
+    mode_table_data = [["Transport Mode", "Shipments Moved", "Freight Turnover (INR)", "Share %"]]
     for m in modes:
         mode_table_data.append([m["mode"], f"{m['shipments']:,}", format_inr(m["sales"]), f"{m['share_pct']}%"])
 
@@ -975,21 +1027,41 @@ def generate_sales_pdf(report_row, report_data):
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#0B132B')),
         ('TEXTCOLOR', (0,0), (-1,0), colors.white),
         ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
-        ('BOTTOMPADDING', (0,0), (-1,0), 6),
+        ('BOTTOMPADDING', (0,0), (-1,0), 5),
         ('BACKGROUND', (0,1), (-1,-1), colors.HexColor('#F8FAFC')),
         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#CBD5E1')),
         ('FONTNAME', (0,1), (-1,-1), 'Helvetica'),
-        ('FONTSIZE', (0,0), (-1,-1), 9),
+        ('FONTSIZE', (0,0), (-1,-1), 8.5),
     ]))
     story.append(t_mode)
+    story.append(Spacer(1, 14))
 
-    # ─────────────────────────────────────────────────────────────
+    # Comparative Billed vs Unbilled Summary
+    story.append(Paragraph("<b>Billed vs Unbilled Segmentation</b>", h2_style))
+    tot_s = summary.get("total_sales", 1)
+    comp_pdf_data = [
+        ["Classification", "Freight Revenue (INR)", "Dockets", "Share %"],
+        ["Billed Shipments", format_inr(summary.get("billed_sales", 0)), f"{summary.get('billed_shipments', 0):,}", f"{(summary.get('billed_sales', 0)/tot_s*100):.1f}%"],
+        ["Unbilled Shipments", format_inr(summary.get("unbilled_sales", 0)), f"{summary.get('unbilled_shipments', 0):,}", f"{(summary.get('unbilled_sales', 0)/tot_s*100):.1f}%"],
+        ["Grand Total", format_inr(tot_s), f"{summary.get('total_shipments', 0):,}", "100.0%"]
+    ]
+    t_comp = Table(comp_pdf_data, colWidths=[150, 160, 110, 100])
+    t_comp.setStyle(TableStyle([
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#0B132B')),
+        ('TEXTCOLOR', (0,0), (-1,0), colors.white),
+        ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#CBD5E1')),
+        ('FONTSIZE', (0,0), (-1,-1), 8.5),
+        ('FONTNAME', (0,-1), (-1,-1), 'Helvetica-Bold'),
+        ('BACKGROUND', (0,-1), (-1,-1), colors.HexColor('#E2E8F0')),
+    ]))
+    story.append(t_comp)
+
     # PAGE 2: SALES TEAM PERFORMANCE
-    # ─────────────────────────────────────────────────────────────
     story.append(PageBreak())
-    story.extend(make_header_block("Sales Team Performance & Contribution"))
+    story.extend(make_header_block("Sales Team Performance & Contribution Analysis"))
 
-    reps = report_data.get("sales_reps", [])
+    reps = all_metrics.get("sales_reps", [])
     rep_table_data = [["Sales Representative", "Accounts", "Shipments", "Freight Revenue (INR)", "Share %"]]
     for r in reps:
         rep_table_data.append([
@@ -1006,19 +1078,17 @@ def generate_sales_pdf(report_row, report_data):
         ('TEXTCOLOR', (0,0), (-1,0), colors.white),
         ('FONTNAME', (0,0), (-1,0), 'Helvetica-Bold'),
         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#CBD5E1')),
-        ('FONTSIZE', (0,0), (-1,-1), 9),
+        ('FONTSIZE', (0,0), (-1,-1), 8.5),
         ('TOPPADDING', (0,0), (-1,-1), 5),
         ('BOTTOMPADDING', (0,0), (-1,-1), 5),
     ]))
     story.append(t_rep)
 
-    # ─────────────────────────────────────────────────────────────
-    # PAGE 3: TOP CUSTOMERS
-    # ─────────────────────────────────────────────────────────────
+    # PAGE 3: TOP CLIENT ACCOUNTS
     story.append(PageBreak())
-    story.extend(make_header_block("Top Customer Accounts & Revenue Leaders"))
+    story.extend(make_header_block("Top Client Accounts & Volume Concentration"))
 
-    custs = report_data.get("customers", [])
+    custs = all_metrics.get("customers", [])
     cust_table_data = [["Customer Name", "Code", "Sales Rep", "Dockets", "Revenue (INR)"]]
     for c in custs[:18]:
         cust_table_data.append([

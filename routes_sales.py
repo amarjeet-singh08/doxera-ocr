@@ -12,7 +12,7 @@ from flask import (
 from decorators import login_required, role_required
 from database import get_db_connection, log_audit
 from sales_engine import (
-    parse_and_process_sales, generate_sales_pptx, generate_sales_pdf, format_inr
+    parse_and_process_sales_3way, generate_sales_pptx, generate_sales_pdf, format_inr
 )
 
 sales_bp = Blueprint('sales', __name__)
@@ -67,10 +67,11 @@ def view_report(report_id):
 @login_required
 @role_required(['ADMIN', 'AUDITOR'])
 def upload_page():
-    """Upload both Billed and Unbilled MIS spreadsheets."""
+    """Upload Billed MIS, Unbilled MIS, and Booking Master spreadsheets."""
     if request.method == 'POST':
         billed_file = request.files.get('billed_file')
         unbilled_file = request.files.get('unbilled_file')
+        booking_file = request.files.get('booking_file')
         report_title = request.form.get('report_title', '').strip()
 
         if not billed_file or not billed_file.filename:
@@ -81,12 +82,18 @@ def upload_page():
             flash("Validation Failed: Please upload the Unbilled MIS spreadsheet.", "error")
             return render_template('sales_upload.html')
 
-        # Process and correlate both sheets
-        new_report_id, err = parse_and_process_sales(
+        if not booking_file or not booking_file.filename:
+            flash("Validation Failed: Please upload the Operations Booking Master Register.", "error")
+            return render_template('sales_upload.html')
+
+        # Process and correlate all 3 sheets
+        new_report_id, err = parse_and_process_sales_3way(
             billed_file=billed_file,
             unbilled_file=unbilled_file,
+            booking_file=booking_file,
             billed_name=billed_file.filename,
             unbilled_name=unbilled_file.filename,
+            booking_name=booking_file.filename,
             created_by=session.get('username', 'Admin'),
             report_title=report_title
         )

@@ -175,6 +175,7 @@ def init_db():
             period_label TEXT,
             billed_filename TEXT,
             unbilled_filename TEXT,
+            booking_filename TEXT,
             total_sales REAL DEFAULT 0,
             billed_sales REAL DEFAULT 0,
             unbilled_sales REAL DEFAULT 0,
@@ -205,12 +206,30 @@ def init_db():
             service_mode TEXT,
             transport_mode TEXT,
             weight REAL DEFAULT 0,
+            chargeable_weight REAL DEFAULT 0,
+            boxes INTEGER DEFAULT 1,
             appoint_date TEXT,
+            bill_no TEXT,
+            delivery_status TEXT,
             total_amt REAL DEFAULT 0,
             source_type TEXT,
             FOREIGN KEY (report_id) REFERENCES sales_reports(id) ON DELETE CASCADE
         )
     ''')
+    
+    # Safe upgrade check
+    try:
+        conn.execute("ALTER TABLE sales_reports ADD COLUMN booking_filename TEXT")
+    except Exception:
+        pass
+    try:
+        conn.execute("ALTER TABLE sales_shipments ADD COLUMN bill_no TEXT")
+    except Exception:
+        pass
+    try:
+        conn.execute("ALTER TABLE sales_shipments ADD COLUMN delivery_status TEXT")
+    except Exception:
+        pass
     
     # Auto-seed sales customers if empty
     try:
