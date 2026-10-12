@@ -2,7 +2,7 @@
 {% block header_title %}Sales Intelligence Dashboard{% endblock %}
 
 {% block extra_head %}
-<!-- Local ApexCharts for Guaranteed Offline / Secure Rendering -->
+<!-- Local ApexCharts for Guaranteed Offline / Secure Enterprise Rendering -->
 <script src="{{ url_for('static', filename='js/apexcharts.min.js') }}"></script>
 <script>
     if (typeof ApexCharts === 'undefined') {
@@ -11,138 +11,112 @@
 </script>
 
 <style>
-    /* Executive Glassmorphism & High-Contrast Typography */
-    .glass-card {
-        background: #ffffff;
+    /* Clean Enterprise UI - Disciplined Spacing & High Data Density */
+    .ent-card {
+        background: #FFFFFF;
         border: 1px solid #E2E8F0;
-        box-shadow: 0 4px 16px -2px rgba(15, 23, 42, 0.04), 0 2px 4px -1px rgba(15, 23, 42, 0.02);
-        transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+        border-radius: 0.75rem;
+        box-shadow: 0 1px 3px 0 rgba(15, 23, 42, 0.04);
+        transition: border-color 0.15s ease;
     }
-    .glass-card:hover {
-        box-shadow: 0 10px 24px -3px rgba(15, 23, 42, 0.07), 0 4px 8px -2px rgba(15, 23, 42, 0.03);
+    .ent-card:hover {
+        border-color: #CBD5E1;
     }
-    .metric-badge {
+    .metric-num {
         font-feature-settings: "tnum";
         font-variant-numeric: tabular-nums;
     }
-    .segment-tab {
-        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Segmented Navigation Buttons */
+    .seg-pill {
+        transition: all 0.15s ease;
     }
-    .segment-tab.active-all {
-        background-color: #1E293B;
+    .seg-pill.active-all {
+        background-color: #0F172A;
         color: #FFFFFF;
-        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
     }
-    .segment-tab.active-billed {
-        background-color: #059669;
+    .seg-pill.active-billed {
+        background-color: #047857;
         color: #FFFFFF;
-        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.25);
+        box-shadow: 0 1px 2px rgba(4, 120, 87, 0.15);
     }
-    .segment-tab.active-unbilled {
-        background-color: #D97706;
+    .seg-pill.active-unbilled {
+        background-color: #B45309;
         color: #FFFFFF;
-        box-shadow: 0 4px 12px rgba(217, 119, 6, 0.25);
-    }
-
-    /* 3D Map Canvas Container */
-    #connectivity-canvas-container {
-        position: relative;
-        background: radial-gradient(circle at 50% 40%, #0F172A 0%, #020617 100%);
-        border-radius: 1rem;
-        overflow: hidden;
-        border: 1px solid #1E293B;
-    }
-    #connectivity-canvas {
-        display: block;
-        width: 100%;
-        height: 100%;
-        cursor: crosshair;
-    }
-    .map-hud-tooltip {
-        position: absolute;
-        pointer-events: none;
-        z-index: 40;
-        background: rgba(15, 23, 42, 0.92);
-        backdrop-filter: blur(8px);
-        border: 1px solid rgba(56, 189, 248, 0.4);
-        border-radius: 0.75rem;
-        padding: 0.65rem 0.85rem;
-        color: #F8FAFC;
-        font-size: 11px;
-        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
-        transition: opacity 0.15s ease;
-        display: none;
+        box-shadow: 0 1px 2px rgba(180, 83, 9, 0.15);
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="space-y-6 pb-12">
+<div class="space-y-4 pb-10">
 
-    <!-- TOP CONTROL BAR: Saved Reports Selector + Export Buttons -->
-    <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 rounded-2xl p-5 sm:p-6 text-white shadow-lg border border-slate-700/50 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5">
+    <!-- 1. COMPACT EXECUTIVE HEADER BAR -->
+    <div class="ent-card p-4 sm:p-5 bg-white flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 border-slate-200">
         
         <div class="space-y-1">
-            <div class="flex items-center gap-2">
-                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-blue-500/20 text-blue-300 border border-blue-400/30 uppercase tracking-wider">
-                    Executive Sales Audit
+            <div class="flex flex-wrap items-center gap-2">
+                <span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-bold bg-slate-900 text-white tracking-wide">
+                    SALES AUDIT
                 </span>
-                <span class="text-xs text-slate-300 font-medium">
-                    Report ID: <span class="font-mono text-white">{{ current_report.report_id }}</span>
+                <span class="text-xs font-semibold text-slate-500">
+                    ID: <span class="font-mono text-slate-900 font-bold">{{ current_report.report_id }}</span>
+                </span>
+                <span class="text-slate-300">•</span>
+                <span class="text-xs font-medium text-slate-600 flex items-center">
+                    <i data-lucide="calendar" class="inline h-3.5 w-3.5 mr-1 text-slate-400"></i>
+                    {{ report_data.summary.period_label }}
+                </span>
+                <span class="text-slate-300">•</span>
+                <span class="text-xs font-medium text-slate-600">
+                    Reconciled: <b class="text-slate-900">{{ current_report.total_shipments }} AWBs</b>
                 </span>
             </div>
-            <h1 class="text-xl sm:text-2xl font-extrabold tracking-tight text-white flex items-center">
+            <h1 class="text-lg sm:text-xl font-bold text-slate-900 tracking-tight">
                 {{ current_report.title }}
             </h1>
-            <p class="text-xs text-slate-300 flex flex-wrap items-center gap-2 pt-0.5">
-                <span><i data-lucide="calendar" class="inline h-3.5 w-3.5 mr-1 text-blue-400"></i>{{ report_data.summary.period_label }}</span>
-                <span>•</span>
-                <span>Auditor: <b class="text-white">{{ current_report.created_by }}</b></span>
-                <span>•</span>
-                <span>Correlated via <span class="font-mono text-blue-300 font-bold">{{ current_report.total_shipments }} AWBs</span></span>
-            </p>
         </div>
 
-        <!-- Right Controls: Switch Report + Export Buttons -->
-        <div class="flex flex-wrap items-center gap-2.5 sm:gap-3">
+        <!-- Controls: Report Selector & Export Buttons -->
+        <div class="flex flex-wrap items-center gap-2">
             
             <!-- Switch Report Dropdown -->
             <div class="relative">
                 <select onchange="window.location.href='/sales/report/' + this.value" 
-                    class="bg-slate-800/90 text-white text-xs font-semibold rounded-xl border border-slate-700 focus:ring-2 focus:ring-blue-500 py-2.5 pl-3.5 pr-8 appearance-none shadow-sm cursor-pointer hover:bg-slate-800 transition-colors">
+                    class="bg-slate-50 text-slate-800 text-xs font-semibold rounded-lg border border-slate-300 focus:ring-1 focus:ring-slate-900 py-2 pl-3 pr-8 appearance-none cursor-pointer hover:bg-slate-100 transition-colors">
                     {% for rep in reports %}
                     <option value="{{ rep.id }}" {% if rep.id == current_report.id %}selected{% endif %}>
-                        📂 {{ rep.title[:30] }} ({{ rep.period_label }})
+                        {{ rep.title[:32] }} ({{ rep.period_label }})
                     </option>
                     {% endfor %}
                 </select>
-                <i data-lucide="chevron-down" class="h-3.5 w-3.5 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                <i data-lucide="chevron-down" class="h-3.5 w-3.5 text-slate-400 absolute right-2.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
             </div>
 
             <!-- PDF Export Button -->
             <a href="{{ url_for('sales.export_pdf', report_id=current_report.id) }}"
-                class="inline-flex items-center px-3.5 py-2.5 bg-rose-600 hover:bg-rose-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all hover:scale-105 active:scale-95"
-                title="Download Executive PDF Boardroom Report">
-                <i data-lucide="file-text" class="h-4 w-4 mr-1.5"></i> Export PDF
+                class="inline-flex items-center px-3 py-2 bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold rounded-lg shadow-2xs transition-colors"
+                title="Download Executive PDF Audit Report (6 Pages)">
+                <i data-lucide="file-text" class="h-3.5 w-3.5 mr-1.5"></i> Export PDF
             </a>
 
             <!-- PPTX Export Button -->
             <a href="{{ url_for('sales.export_pptx', report_id=current_report.id) }}"
-                class="inline-flex items-center px-3.5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all hover:scale-105 active:scale-95"
-                title="Download 16:9 Widescreen PowerPoint Presentation">
-                <i data-lucide="presentation" class="h-4 w-4 mr-1.5"></i> Export PPTX
+                class="inline-flex items-center px-3 py-2 bg-amber-700 hover:bg-amber-800 text-white text-xs font-bold rounded-lg shadow-2xs transition-colors"
+                title="Download Boardroom PowerPoint (7 Slides)">
+                <i data-lucide="presentation" class="h-3.5 w-3.5 mr-1.5"></i> Export PPTX
             </a>
 
-            <!-- New Upload Button -->
+            <!-- New MIS Upload Button -->
             <a href="{{ url_for('sales.upload_page') }}"
-                class="inline-flex items-center px-3.5 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold rounded-xl shadow-sm transition-all hover:scale-105 active:scale-95">
-                <i data-lucide="plus" class="h-4 w-4 mr-1"></i> New MIS
+                class="inline-flex items-center px-3 py-2 bg-slate-900 hover:bg-slate-800 text-white text-xs font-bold rounded-lg shadow-2xs transition-colors">
+                <i data-lucide="plus" class="h-3.5 w-3.5 mr-1"></i> New Analysis
             </a>
 
             {% if session.get('role') == 'ADMIN' %}
             <form action="{{ url_for('sales.delete_report', report_id=current_report.id) }}" method="POST" class="inline"
-                onsubmit="return confirm('Are you sure you want to permanently delete this saved sales report?');">
-                <button type="submit" class="p-2.5 text-slate-400 hover:text-rose-400 rounded-xl hover:bg-slate-800 transition-colors" title="Delete Report">
+                onsubmit="return confirm('Permanently delete this saved sales report?');">
+                <button type="submit" class="p-2 text-slate-400 hover:text-rose-600 rounded-lg hover:bg-slate-100 transition-colors" title="Delete Report">
                     <i data-lucide="trash-2" class="h-4 w-4"></i>
                 </button>
             </form>
@@ -151,417 +125,220 @@
         </div>
     </div>
 
-    <!-- 📅 DYNAMIC MULTI-MONTH SEPARATOR & FILTER SLICER 📅 -->
-    {% if report_data.months and report_data.months|length > 0 %}
-    <div class="bg-white rounded-2xl p-3 border border-slate-200 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-3">
-        <div class="flex items-center gap-2 overflow-x-auto py-0.5" id="month-slicer-container">
-            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 pl-2 shrink-0">
-                <i data-lucide="calendar-range" class="h-4 w-4 text-blue-600"></i> Month Filter:
-            </span>
-            <button onclick="switchMonth('ALL')" id="month-pill-ALL"
-                class="month-filter-pill active px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-xs bg-blue-600 text-white shrink-0 flex items-center gap-1.5">
-                <span>All Months</span>
-                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-white/20 text-white">{{ report_data.summary.total_shipments }}</span>
-            </button>
-            {% for m in report_data.months %}
-            <button onclick="switchMonth('{{ m.key }}')" id="month-pill-{{ m.key }}"
-                class="month-filter-pill px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/80 shrink-0 flex items-center gap-1.5">
-                <span>{{ m.label }}</span>
-                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-white text-slate-600 shadow-xs">{{ m.count }}</span>
-            </button>
-            {% endfor %}
-        </div>
-        <div class="text-xs text-slate-500 font-medium px-2 shrink-0 flex items-center gap-1.5">
-            <span>Viewing:</span>
-            <span id="active-month-text" class="text-slate-900 font-bold px-2.5 py-0.5 bg-slate-100 rounded-md border border-slate-200">All Months</span>
-        </div>
-    </div>
-    {% endif %}
-
-    <!-- 🌟 SEPARATE DASHBOARDS SEGMENT SWITCHER (Combined, Billed Only, Unbilled Only) 🌟 -->
-    <div class="bg-slate-100 p-2 rounded-2xl flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 border border-slate-200">
-        <div class="flex flex-wrap items-center gap-2" id="segment-tabs">
+    <!-- 2. UNIFIED AUDIT CONTROL & SEGMENT TOOLBAR -->
+    <div class="ent-card p-2 bg-slate-100 flex flex-col md:flex-row md:items-center justify-between gap-3 border-slate-200">
+        
+        <!-- View Tabs: Combined vs Billed vs Unbilled -->
+        <div class="flex items-center gap-1.5 w-full md:w-auto overflow-x-auto pb-1 md:pb-0" id="segment-tabs">
             <button onclick="switchSegment('all')" id="tab-all"
-                class="segment-tab active-all px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2">
-                <i data-lucide="layers" class="h-4 w-4"></i>
+                class="seg-pill active-all px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shrink-0">
+                <i data-lucide="layers" class="h-3.5 w-3.5"></i>
                 <span>Combined Overview</span>
-                <span class="text-[11px] px-2 py-0.5 rounded-full bg-white/20 text-white font-mono" id="badge-all-count">{{ report_data.summary.total_shipments }} AWBs</span>
+                <span class="text-[10px] font-mono px-1.5 py-0.2 bg-white/20 text-white rounded">{{ report_data.summary.total_shipments }}</span>
             </button>
 
             <button onclick="switchSegment('billed')" id="tab-billed"
-                class="segment-tab px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 bg-white text-slate-700 hover:text-emerald-700 hover:bg-emerald-50/50 border border-slate-200/80">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
-                <span>Billed Dashboard</span>
-                <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-mono" id="badge-billed-count">{{ report_data.summary.billed_shipments }} AWBs</span>
+                class="seg-pill px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 bg-white text-slate-700 hover:text-emerald-700 hover:bg-emerald-50/50 border border-slate-200 shrink-0">
+                <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                <span>Billed Realization</span>
+                <span class="text-[10px] font-mono px-1.5 py-0.2 bg-emerald-100 text-emerald-800 rounded">{{ report_data.summary.billed_shipments }}</span>
             </button>
 
             <button onclick="switchSegment('unbilled')" id="tab-unbilled"
-                class="segment-tab px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 bg-white text-slate-700 hover:text-amber-700 hover:bg-amber-50/50 border border-slate-200/80">
-                <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
-                <span>Unbilled Dashboard</span>
-                <span class="text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-mono" id="badge-unbilled-count">{{ report_data.summary.unbilled_shipments }} AWBs</span>
+                class="seg-pill px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 bg-white text-slate-700 hover:text-amber-700 hover:bg-amber-50/50 border border-slate-200 shrink-0">
+                <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                <span>Unbilled Exposure</span>
+                <span class="text-[10px] font-mono px-1.5 py-0.2 bg-amber-100 text-amber-800 rounded">{{ report_data.summary.unbilled_shipments }}</span>
             </button>
         </div>
 
-        <!-- Comparative Ratio Metric Pill -->
-        <div class="flex items-center gap-3 px-3 py-1.5 text-xs font-semibold text-slate-600 bg-white rounded-xl border border-slate-200 self-start lg:self-auto">
-            <span>Billed: <b class="text-emerald-700" id="ratio-billed-val">{{ format_inr(report_data.summary.billed_sales) }}</b></span>
-            <span class="text-slate-300">|</span>
-            <span>Unbilled: <b class="text-amber-700" id="ratio-unbilled-val">{{ format_inr(report_data.summary.unbilled_sales) }}</b></span>
+        <!-- Month Filter Slicer (Compact Dropdown / Pills) -->
+        <div class="flex items-center gap-2 self-start md:self-auto shrink-0">
+            {% if report_data.months and report_data.months|length > 0 %}
+            <span class="text-[11px] font-bold text-slate-500 uppercase">Month:</span>
+            <div class="relative">
+                <select id="month-select" onchange="switchMonth(this.value)"
+                    class="bg-white text-slate-800 text-xs font-semibold rounded-lg border border-slate-300 focus:ring-1 focus:ring-slate-900 py-1.5 pl-2.5 pr-7 appearance-none cursor-pointer">
+                    <option value="ALL">All Billing Months ({{ report_data.summary.total_shipments }} AWBs)</option>
+                    {% for m in report_data.months %}
+                    <option value="{{ m.key }}">{{ m.label }} ({{ m.count }} AWBs)</option>
+                    {% endfor %}
+                </select>
+                <i data-lucide="chevron-down" class="h-3 w-3 text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+            </div>
+            {% endif %}
+
+            <!-- Quick Financial Ratio Summary Pill -->
+            <div class="hidden sm:flex items-center gap-2 text-xs font-semibold px-2.5 py-1 bg-white rounded-lg border border-slate-200">
+                <span class="text-emerald-700">Billed: <b id="ratio-billed-val">{{ format_inr(report_data.summary.billed_sales) }}</b></span>
+                <span class="text-slate-300">|</span>
+                <span class="text-amber-700">Unbilled: <b id="ratio-unbilled-val">{{ format_inr(report_data.summary.unbilled_sales) }}</b></span>
+            </div>
         </div>
+
     </div>
 
-    <!-- DYNAMIC DASHBOARD MODE BANNER (Switches between Combined, Billed Audit, and Unbilled Alert) -->
-    <div id="mode-banner-container" class="rounded-2xl p-4 transition-all duration-300 bg-gradient-to-r from-slate-900 to-blue-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
-        <div class="flex items-center gap-3">
-            <div id="mode-banner-icon" class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center text-white shrink-0">
-                <i data-lucide="layers" class="h-5 w-5"></i>
-            </div>
-            <div>
-                <h2 id="mode-banner-title" class="text-sm font-extrabold tracking-tight uppercase">Executive Consolidated Perspective</h2>
-                <p id="mode-banner-desc" class="text-xs text-slate-300">Macro overview synthesized across Billed, Unbilled, and Booking Master operations datasets.</p>
-            </div>
-        </div>
-        <div id="mode-banner-badge" class="self-start sm:self-auto px-3 py-1 rounded-full text-xs font-bold bg-white/15 text-white border border-white/20 font-mono">
-            100% Correlated
-        </div>
-    </div>
-
-    <!-- HIGH-ALERT UNBILLED REVENUE LEAKAGE AUDIT WARNING (Shown when Unbilled tab is active) -->
-    <div id="unbilled-leakage-alert" class="hidden rounded-2xl p-5 bg-rose-50 border-2 border-rose-300 text-rose-950 space-y-3">
-        <div class="flex items-start justify-between gap-3">
-            <div class="flex items-start gap-3">
-                <div class="p-2 bg-rose-600 text-white rounded-xl shrink-0 mt-0.5">
-                    <i data-lucide="alert-octagon" class="h-5 w-5"></i>
-                </div>
-                <div>
-                    <h3 class="text-sm font-black uppercase tracking-wider text-rose-900 flex items-center gap-2">
-                        <span>Revenue Leakage & Cash Realization Risk Alert</span>
-                        <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-rose-600 text-white">AUDIT ATTENTION</span>
-                    </h3>
-                    <p class="text-xs text-rose-800 mt-1 leading-relaxed">
-                        The operations register confirms that consignments have been successfully delivered to consignees, but <b>freight bills have not yet been generated</b>. Unbilled cargo holds immediate working capital exposure.
-                    </p>
+    <!-- 3. DYNAMIC REVENUE LEAKAGE AUDIT WARNING (Only active in Unbilled view) -->
+    <div id="unbilled-leakage-alert" class="hidden ent-card p-3.5 bg-rose-50 border-rose-300 text-rose-950">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <div class="flex items-start sm:items-center gap-2.5">
+                <i data-lucide="alert-triangle" class="h-4 w-4 text-rose-600 shrink-0 mt-0.5 sm:mt-0"></i>
+                <div class="text-xs">
+                    <span class="font-bold text-rose-900 uppercase">Revenue Leakage Alert:</span>
+                    <span class="text-rose-800 ml-1">
+                        Consignments confirmed as delivered by operations without freight invoices raised.
+                    </span>
                 </div>
             </div>
-            <div class="text-right shrink-0">
-                <p class="text-xs font-bold uppercase text-rose-600">Delivered But Unbilled</p>
-                <p class="text-xl font-black text-rose-900 font-mono" id="alert-unbilled-amt">{{ format_inr(report_data.summary.delivered_unbilled_amt) }}</p>
-                <p class="text-[11px] text-rose-700" id="alert-unbilled-count">{{ report_data.summary.delivered_unbilled_count }} Delivered AWBs Pending Bill</p>
+            <div class="text-xs font-semibold text-rose-900 shrink-0 bg-white/80 px-2.5 py-1 rounded-md border border-rose-200">
+                Delivered but Unbilled: <b class="font-bold text-rose-700" id="alert-unbilled-amt">{{ format_inr(report_data.summary.delivered_unbilled_amt) }}</b>
+                <span class="text-rose-500 font-normal ml-1">({{ report_data.summary.delivered_unbilled_count }} AWBs)</span>
             </div>
         </div>
     </div>
 
-    <!-- 4 TAILORED KPI STATS CARDS -->
-    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
+    <!-- 4. FOUR PRECISE EXECUTIVE KPI CARDS (Single Balanced Row) -->
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         
         <!-- Card 1: Revenue -->
-        <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
-            <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
+        <div class="ent-card p-4">
+            <div class="flex items-center justify-between text-xs font-semibold text-slate-500 mb-1">
                 <span id="kpi-sales-label">Total Freight Turnover</span>
-                <span id="kpi-sales-icon" class="p-1.5 rounded-lg bg-blue-50 text-blue-600">
-                    <i data-lucide="indian-rupee" class="h-4 w-4"></i>
-                </span>
+                <i data-lucide="indian-rupee" class="h-3.5 w-3.5 text-slate-400"></i>
             </div>
-            <div class="text-2xl sm:text-3xl font-black text-slate-900 metric-badge tracking-tight" id="kpi-total-sales">
+            <div class="text-xl sm:text-2xl font-bold text-slate-900 metric-num" id="kpi-total-sales">
                 {{ format_inr(report_data.all.summary.total_sales) }}
             </div>
-            <div class="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500" id="kpi-sales-sub">
+            <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500" id="kpi-sales-sub">
                 <span>Billed: <b class="text-slate-800">{{ format_inr(report_data.summary.billed_sales) }}</b></span>
                 <span>Unbilled: <b class="text-slate-800">{{ format_inr(report_data.summary.unbilled_sales) }}</b></span>
             </div>
         </div>
 
-        <!-- Card 2: Consignments & Tickets -->
-        <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
-            <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-                <span id="kpi-shipments-label">Consignments Moved</span>
-                <span id="kpi-shipments-icon" class="p-1.5 rounded-lg bg-emerald-50 text-emerald-600">
-                    <i data-lucide="box" class="h-4 w-4"></i>
-                </span>
+        <!-- Card 2: Consignments -->
+        <div class="ent-card p-4">
+            <div class="flex items-center justify-between text-xs font-semibold text-slate-500 mb-1">
+                <span id="kpi-shipments-label">Total Consignments Moved</span>
+                <i data-lucide="package" class="h-3.5 w-3.5 text-slate-400"></i>
             </div>
-            <div class="text-2xl sm:text-3xl font-black text-slate-900 metric-badge tracking-tight" id="kpi-total-shipments">
-                {{ "{:,}".format(report_data.all.summary.total_shipments) }} <span class="text-sm font-semibold text-slate-500">AWBs</span>
+            <div class="text-xl sm:text-2xl font-bold text-slate-900 metric-num" id="kpi-total-shipments">
+                {{ "{:,}".format(report_data.all.summary.total_shipments) }} <span class="text-xs font-semibold text-slate-500">AWBs</span>
             </div>
-            <div class="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500" id="kpi-shipments-sub">
-                <span>Avg Docket Ticket:</span>
-                <b class="text-emerald-700 font-bold" id="kpi-avg-ticket">{{ format_inr(report_data.all.summary.avg_ticket) }}</b>
+            <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500" id="kpi-shipments-sub">
+                <span>Avg Ticket Value:</span>
+                <b class="text-slate-900 font-bold" id="kpi-avg-ticket">{{ format_inr(report_data.all.summary.avg_ticket) }}</b>
             </div>
         </div>
 
         <!-- Card 3: Weight & Yield -->
-        <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
-            <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-                <span id="kpi-weight-label">Total Cargo Weight</span>
-                <span id="kpi-weight-icon" class="p-1.5 rounded-lg bg-amber-50 text-amber-600">
-                    <i data-lucide="scale" class="h-4 w-4"></i>
-                </span>
+        <div class="ent-card p-4">
+            <div class="flex items-center justify-between text-xs font-semibold text-slate-500 mb-1">
+                <span id="kpi-weight-label">Cargo Tonnage Moved</span>
+                <i data-lucide="scale" class="h-3.5 w-3.5 text-slate-400"></i>
             </div>
-            <div class="text-2xl sm:text-3xl font-black text-slate-900 metric-badge tracking-tight" id="kpi-total-weight">
-                {{ "{:,.1f}".format(report_data.all.summary.total_weight) }} <span class="text-sm font-semibold text-slate-500">Kg</span>
+            <div class="text-xl sm:text-2xl font-bold text-slate-900 metric-num" id="kpi-total-weight">
+                {{ "{:,.1f}".format(report_data.all.summary.total_weight) }} <span class="text-xs font-semibold text-slate-500">Kg</span>
             </div>
-            <div class="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500" id="kpi-weight-sub">
+            <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500" id="kpi-weight-sub">
                 <span>Metric Tons:</span>
-                <b class="text-slate-800 font-bold" id="kpi-total-mt">{{ "{:,.2f}".format(report_data.all.summary.total_weight / 1000) }} MT</b>
+                <b class="text-slate-900 font-bold" id="kpi-total-mt">{{ "{:,.2f}".format(report_data.all.summary.total_weight / 1000) }} MT</b>
             </div>
         </div>
 
-        <!-- Card 4: Leader / Accountability -->
-        <div class="glass-card rounded-2xl p-5 relative overflow-hidden group">
-            <div class="flex items-center justify-between text-xs font-bold uppercase tracking-wider text-slate-500 mb-2">
-                <span id="kpi-rep-label">Leading Sales Rep</span>
-                <span id="kpi-rep-icon" class="p-1.5 rounded-lg bg-purple-50 text-purple-600">
-                    <i data-lucide="trophy" class="h-4 w-4"></i>
-                </span>
+        <!-- Card 4: Top Account Manager / Risk Account -->
+        <div class="ent-card p-4">
+            <div class="flex items-center justify-between text-xs font-semibold text-slate-500 mb-1">
+                <span id="kpi-rep-label">Top Account Manager</span>
+                <i data-lucide="user-check" class="h-3.5 w-3.5 text-slate-400"></i>
             </div>
-            <div class="text-xl sm:text-2xl font-black text-slate-900 truncate" id="kpi-top-rep" title="{{ report_data.all.summary.top_rep }}">
+            <div class="text-lg sm:text-xl font-bold text-slate-900 truncate" id="kpi-top-rep" title="{{ report_data.all.summary.top_rep }}">
                 {{ report_data.all.summary.top_rep }}
             </div>
-            <div class="mt-2.5 pt-2.5 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500" id="kpi-rep-sub">
-                <span>Key Client:</span>
-                <b class="text-slate-800 font-semibold truncate max-w-[150px]" id="kpi-top-cust" title="{{ report_data.all.summary.top_customer }}">{{ report_data.all.summary.top_customer }}</b>
+            <div class="mt-2 pt-2 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-500" id="kpi-rep-sub">
+                <span>Top Client:</span>
+                <b class="text-slate-900 font-medium truncate max-w-[150px]" id="kpi-top-cust" title="{{ report_data.all.summary.top_customer }}">
+                    {{ report_data.all.summary.top_customer }}
+                </b>
             </div>
         </div>
 
     </div>
 
-    <!-- 🇮🇳 3D ALL-INDIA CONNECTIVITY & FREIGHT CORRIDORS VISUALIZER 🇮🇳 -->
-    <div class="glass-card rounded-2xl p-5 sm:p-6 space-y-5 bg-white border border-slate-200">
-        <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-            <div>
-                <div class="flex items-center gap-2 mb-1">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-extrabold bg-blue-100 text-blue-800 border border-blue-200 uppercase tracking-wider">
-                        Logistics Topology
-                    </span>
-                    <h2 class="text-base sm:text-lg font-bold text-slate-900 tracking-tight flex items-center">
-                        <i data-lucide="compass" class="h-5 w-5 text-blue-600 mr-2"></i>
-                        All-India 3D Logistics Connectivity & Delivery Routes
-                    </h2>
-                </div>
-                <p class="text-xs text-slate-500">
-                    Curved 3D trajectory arcs mapped from exact booking origins to final delivery cities across the Indian subcontinent.
-                </p>
-            </div>
-
-            <!-- Route Map Controls: Dual Month Toggle & Legend -->
-            <div class="flex flex-wrap items-center gap-3">
-                
-                <!-- Dual Month Comparison Toggle -->
-                {% if report_data.months and report_data.months|length > 1 %}
-                <button onclick="toggleDualMonthCompare()" id="btn-dual-month"
-                    class="inline-flex items-center px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300">
-                    <i data-lucide="git-compare" class="h-3.5 w-3.5 mr-1.5 text-blue-600"></i>
-                    <span id="dual-month-btn-text">Dual-Month Route Comparison</span>
-                </button>
-                {% endif %}
-
-                <!-- Legend Indicator -->
-                <div class="flex items-center gap-2 text-xs font-semibold px-3 py-1.5 bg-slate-50 rounded-xl border border-slate-200" id="map-legend">
-                    <span class="flex items-center gap-1.5">
-                        <span class="w-3 h-1 rounded-full bg-cyan-400"></span>
-                        <span class="text-slate-700" id="legend-p1-label">Active Routes</span>
-                    </span>
-                    <span id="legend-p2-group" class="hidden items-center gap-1.5 border-l border-slate-200 pl-2">
-                        <span class="w-3 h-1 rounded-full bg-amber-500"></span>
-                        <span class="text-slate-700" id="legend-p2-label">Prior Month</span>
-                    </span>
-                </div>
-
-                <button onclick="resetMapView()" class="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition-colors" title="Center Map View">
-                    <i data-lucide="refresh-cw" class="h-4 w-4"></i>
-                </button>
-            </div>
-        </div>
-
-        <!-- Dual Month Selectors Panel (Visible when comparison mode is ON) -->
-        <div id="dual-month-selector-panel" class="hidden p-3.5 bg-slate-900 text-white rounded-xl flex flex-col sm:flex-row items-center justify-between gap-3">
-            <div class="text-xs text-slate-300 flex items-center gap-2">
-                <i data-lucide="info" class="h-4 w-4 text-cyan-400"></i>
-                <span>Comparing delivery corridors between two billing periods:</span>
-            </div>
-            <div class="flex items-center gap-3">
-                <div class="flex items-center gap-1.5">
-                    <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
-                    <span class="text-xs text-slate-400">Month A:</span>
-                    <select id="compare-month-a" onchange="updateDualMonthMap()" class="bg-slate-800 text-cyan-300 text-xs font-bold rounded-lg border border-slate-700 px-2.5 py-1">
-                        {% for m in report_data.months %}
-                        <option value="{{ m.key }}" {% if loop.first %}selected{% endif %}>{{ m.label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                <span class="text-slate-500 text-xs">vs</span>
-                <div class="flex items-center gap-1.5">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
-                    <span class="text-xs text-slate-400">Month B:</span>
-                    <select id="compare-month-b" onchange="updateDualMonthMap()" class="bg-slate-800 text-amber-300 text-xs font-bold rounded-lg border border-slate-700 px-2.5 py-1">
-                        {% for m in report_data.months %}
-                        <option value="{{ m.key }}" {% if loop.index == 2 or (loop.first and loop.length == 1) %}selected{% endif %}>{{ m.label }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3D Canvas Visualizer & Top Corridors Grid -->
-        <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-            
-            <!-- Map Canvas (8 Cols) -->
-            <div class="lg:col-span-8 h-[440px] sm:h-[480px] relative rounded-2xl overflow-hidden" id="connectivity-canvas-container">
-                <canvas id="connectivity-canvas"></canvas>
-
-                <!-- HUD Tooltip on Hover -->
-                <div id="map-tooltip" class="map-hud-tooltip">
-                    <div class="font-extrabold text-cyan-400 text-xs mb-1" id="tip-lane">ORIGIN → DESTINATION</div>
-                    <div class="grid grid-cols-2 gap-x-3 gap-y-0.5 text-[10px] text-slate-300">
-                        <div>Consignments:</div>
-                        <div class="font-bold text-white text-right" id="tip-awbs">0 AWBs</div>
-                        <div>Cargo Weight:</div>
-                        <div class="font-bold text-white text-right" id="tip-weight">0 Kg</div>
-                        <div>Freight Value:</div>
-                        <div class="font-bold text-emerald-400 text-right" id="tip-freight">₹ 0</div>
-                        <div>Primary Mode:</div>
-                        <div class="font-bold text-cyan-300 text-right" id="tip-mode">Surface</div>
-                    </div>
-                </div>
-
-                <!-- Sub-HUD Overlay Badge -->
-                <div class="absolute bottom-3 left-3 bg-slate-900/80 backdrop-blur-md px-3 py-1.5 rounded-lg border border-slate-800 text-[10px] text-slate-400 pointer-events-none flex items-center gap-3">
-                    <span><i data-lucide="radio" class="inline h-3 w-3 text-emerald-400 animate-pulse mr-1"></i> Subcontinent Geo-Mesh</span>
-                    <span>•</span>
-                    <span id="canvas-active-lanes-badge">{{ report_data.connectivity.total_active_lanes }} Active Corridors</span>
-                </div>
-            </div>
-
-            <!-- Top 10 Busiest Delivery Corridors Table (4 Cols) -->
-            <div class="lg:col-span-4 glass-card rounded-2xl p-4 sm:p-5 flex flex-col justify-between border border-slate-200">
-                <div>
-                    <div class="flex items-center justify-between mb-1">
-                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center">
-                            <i data-lucide="zap" class="h-4 w-4 text-amber-500 mr-1.5"></i>
-                            Top Freight Corridors
-                        </h3>
-                        <span class="text-[10px] font-bold text-slate-400">By AWBs Moved</span>
-                    </div>
-                    <p class="text-[11px] text-slate-500 mb-3">Busiest origin-to-destination delivery routes across India</p>
-
-                    <div class="overflow-y-auto max-h-[360px] space-y-2 pr-1" id="top-lanes-container">
-                        {% for lane in report_data.connectivity.top_lanes[:10] %}
-                        <div class="p-2.5 rounded-xl bg-slate-50 hover:bg-blue-50/60 border border-slate-100 hover:border-blue-200 transition-all cursor-pointer group"
-                            onclick="highlightLaneOnMap('{{ lane.origin }}', '{{ lane.destination }}')">
-                            <div class="flex items-center justify-between text-xs mb-1">
-                                <span class="font-bold text-slate-800 group-hover:text-blue-700 flex items-center gap-1.5">
-                                    <span class="text-[10px] text-slate-400 font-mono">#{{ loop.index }}</span>
-                                    <span>{{ lane.origin }}</span>
-                                    <i data-lucide="arrow-right" class="h-3 w-3 text-slate-400"></i>
-                                    <span>{{ lane.destination }}</span>
-                                </span>
-                                <span class="px-1.5 py-0.5 rounded text-[10px] font-bold {% if lane.primary_mode == 'Air' %}bg-blue-100 text-blue-800{% else %}bg-slate-200 text-slate-800{% endif %}">
-                                    {{ lane.primary_mode }}
-                                </span>
-                            </div>
-                            <div class="flex items-center justify-between text-[11px] text-slate-500">
-                                <span>{{ lane.awb_count }} AWBs • {{ lane.total_weight }} Kg</span>
-                                <span class="font-bold text-slate-900">{{ format_inr(lane.total_freight) }}</span>
-                            </div>
-                        </div>
-                        {% endfor %}
-                    </div>
-                </div>
-
-                <div class="pt-3 border-t border-slate-100 text-[11px] text-slate-400 text-center">
-                    Click any corridor to highlight its trajectory on the 3D map
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <!-- INTERACTIVE POWER BI SLICERS / REAL-TIME FILTERS -->
-    <div class="glass-card rounded-2xl p-4 sm:p-5 space-y-3 bg-white">
-        <div class="flex items-center justify-between">
-            <div class="flex items-center space-x-2 text-xs font-bold uppercase tracking-wider text-slate-700">
-                <i data-lucide="sliders-horizontal" class="h-4 w-4 text-blue-600"></i>
-                <span>Interactive Power BI Slicers & Filters</span>
-            </div>
-            <button onclick="resetFilters()" class="text-xs font-semibold text-blue-600 hover:text-blue-800 hover:underline flex items-center">
-                <i data-lucide="rotate-ccw" class="h-3 w-3 mr-1"></i> Reset Slicers
-            </button>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-            
-            <!-- Slicer 1: Sales Representative -->
-            <div>
-                <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filter by Sales Person</label>
-                <select id="filter-rep" onchange="applyFilters()" class="w-full text-xs sm:text-sm border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-1 focus:ring-blue-600 py-2">
-                    <option value="ALL">All Sales Representatives (Everyone)</option>
-                    {% for r in report_data.all.sales_reps %}
-                    <option value="{{ r.name }}">{{ r.name }} ({{ r.share_pct }}% • {{ format_inr(r.sales) }})</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <!-- Slicer 2: Transport Mode (Air / Surface / Train) -->
-            <div>
-                <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filter by Transport Mode (Air / Surface / Train)</label>
-                <select id="filter-mode" onchange="applyFilters()" class="w-full text-xs sm:text-sm border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-1 focus:ring-blue-600 py-2">
-                    <option value="ALL">All Modes of Transport</option>
-                    {% for m in report_data.all.modes %}
-                    <option value="{{ m.mode }}">{{ m.mode }} ({{ m.share_pct }}% • {{ format_inr(m.sales) }})</option>
-                    {% endfor %}
-                </select>
-            </div>
-
-            <!-- Slicer 3: Customer Search -->
-            <div>
-                <label class="block text-[11px] font-bold text-slate-500 uppercase mb-1">Filter by Client Account</label>
-                <input type="text" id="filter-customer" oninput="applyFilters()" placeholder="Type to filter client name or code..."
-                    class="w-full text-xs sm:text-sm border-slate-200 rounded-xl bg-slate-50 focus:bg-white focus:ring-1 focus:ring-blue-600 py-2">
-            </div>
-
-        </div>
-    </div>
-
-    <!-- MAIN CHART: Daily Revenue Progression (Timeline Area Spline) -->
-    <div class="glass-card rounded-2xl p-5 sm:p-6 space-y-4">
-        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
-            <div>
-                <h2 class="text-base font-bold text-slate-900 tracking-tight flex items-center">
-                    <i data-lucide="trending-up" class="h-5 w-5 text-blue-600 mr-2"></i>
-                    <span id="timeline-chart-title">Daily Freight Sales Trend (By Booking Date)</span>
-                </h2>
-                <p class="text-xs text-slate-500">Day-by-day revenue progression and consignment volume trends</p>
-            </div>
-            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-50 text-blue-700 self-start sm:self-auto" id="timeline-badge">
-                {{ report_data.all.daily_sales|length }} Active Days
+    <!-- 5. INLINE SLICER FILTER TOOLBAR -->
+    <div class="ent-card p-3 bg-white flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div class="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+            <span class="text-xs font-bold text-slate-500 uppercase flex items-center gap-1">
+                <i data-lucide="filter" class="h-3.5 w-3.5 text-slate-400"></i> Filters:
             </span>
+
+            <!-- Filter 1: Sales Person -->
+            <select id="filter-rep" onchange="applyFilters()" class="text-xs border-slate-300 rounded-lg py-1.5 px-2.5 bg-slate-50 focus:bg-white focus:ring-1 focus:ring-slate-900">
+                <option value="ALL">All Sales Representatives</option>
+                {% for r in report_data.all.sales_reps %}
+                <option value="{{ r.name }}">{{ r.name }} ({{ r.share_pct }}% • {{ format_inr(r.sales) }})</option>
+                {% endfor %}
+            </select>
+
+            <!-- Filter 2: Mode -->
+            <select id="filter-mode" onchange="applyFilters()" class="text-xs border-slate-300 rounded-lg py-1.5 px-2.5 bg-slate-50 focus:bg-white focus:ring-1 focus:ring-slate-900">
+                <option value="ALL">All Modes (Air, Surface, Train)</option>
+                {% for m in report_data.all.modes %}
+                <option value="{{ m.mode }}">{{ m.mode }} ({{ m.share_pct }}% • {{ format_inr(m.sales) }})</option>
+                {% endfor %}
+            </select>
+
+            <!-- Filter 3: Customer Search Input -->
+            <div class="relative flex-1 sm:w-56">
+                <i data-lucide="search" class="h-3.5 w-3.5 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2"></i>
+                <input type="text" id="filter-customer" oninput="applyFilters()" placeholder="Filter client name/code..."
+                    class="w-full text-xs pl-8 pr-3 py-1.5 border-slate-300 rounded-lg bg-slate-50 focus:bg-white focus:ring-1 focus:ring-slate-900">
+            </div>
         </div>
 
-        <div id="timeline-chart" class="w-full h-72 sm:h-80"></div>
+        <button onclick="resetFilters()" class="text-xs font-semibold text-slate-600 hover:text-slate-900 hover:underline flex items-center self-end sm:self-auto shrink-0">
+            <i data-lucide="rotate-ccw" class="h-3 w-3 mr-1 text-slate-400"></i> Clear Filters
+        </button>
     </div>
 
-    <!-- SECOND ROW: Sales Person Leaderboard & Top Accounts -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- 6. ROW 1 ANALYTICS: DAILY REVENUE TREND & SALES TEAM LEADERBOARD (7 / 5 Grid) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
         
-        <!-- Sales Reps Leaderboard (7 Cols) -->
-        <div class="lg:col-span-7 glass-card rounded-2xl p-5 sm:p-6 space-y-4 flex flex-col justify-between">
+        <!-- Left: Daily Trend Chart (7 Cols) -->
+        <div class="lg:col-span-7 ent-card p-4 flex flex-col justify-between">
             <div>
                 <div class="flex items-center justify-between mb-1">
-                    <h2 class="text-base font-bold text-slate-900 tracking-tight flex items-center">
-                        <i data-lucide="users" class="h-5 w-5 text-indigo-600 mr-2"></i>
-                        Sales Person Revenue Contribution
+                    <h2 class="text-sm font-bold text-slate-900 flex items-center">
+                        <i data-lucide="trending-up" class="h-4 w-4 text-slate-600 mr-1.5"></i>
+                        <span id="timeline-chart-title">Daily Freight Revenue Progression</span>
                     </h2>
-                    <span class="text-xs font-semibold text-slate-400">Ranked Leaderboard</span>
+                    <span class="text-[11px] font-semibold text-slate-500 bg-slate-100 px-2 py-0.5 rounded" id="timeline-badge">
+                        {{ report_data.all.daily_sales|length }} Days Active
+                    </span>
                 </div>
-                <p class="text-xs text-slate-500">Turnover achieved by each representative and assigned account portfolio</p>
+                <p class="text-xs text-slate-500 mb-3">Freight booking turnover by calendar date</p>
+                <div id="timeline-chart" class="w-full h-64"></div>
+            </div>
+        </div>
+
+        <!-- Right: Sales Team Contribution (5 Cols) -->
+        <div class="lg:col-span-5 ent-card p-4 flex flex-col justify-between">
+            <div>
+                <div class="flex items-center justify-between mb-1">
+                    <h2 class="text-sm font-bold text-slate-900 flex items-center">
+                        <i data-lucide="users" class="h-4 w-4 text-slate-600 mr-1.5"></i>
+                        Sales Representative Turnover
+                    </h2>
+                    <span class="text-[11px] font-semibold text-slate-400">Ranked</span>
+                </div>
+                <p class="text-xs text-slate-500 mb-2">Portfolio turnover achieved by each sales manager</p>
                 
-                <div id="sales-rep-chart" class="w-full h-80 mt-4"></div>
+                <div id="sales-rep-chart" class="w-full h-44"></div>
             </div>
 
-            <!-- Mini Summary table for Sales Reps -->
+            <!-- Mini Summary Table for Sales Reps -->
             <div class="overflow-x-auto pt-2 border-t border-slate-100">
-                <table class="w-full text-left text-xs text-slate-600">
-                    <thead class="text-slate-400 text-[10px] uppercase font-bold">
+                <table class="w-full text-left text-xs">
+                    <thead class="text-slate-400 text-[10px] uppercase font-bold border-b border-slate-100">
                         <tr>
                             <th class="py-1">Representative</th>
                             <th class="py-1 text-center">Accounts</th>
@@ -570,14 +347,14 @@
                             <th class="py-1 text-right">Share</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 font-medium" id="sales-rep-tbody">
+                    <tbody class="divide-y divide-slate-50 font-medium" id="sales-rep-tbody">
                         {% for r in report_data.all.sales_reps %}
-                        <tr class="hover:bg-slate-50/60 cursor-pointer" onclick="selectRepFilter('{{ r.name }}')">
+                        <tr class="hover:bg-slate-50 cursor-pointer" onclick="selectRepFilter('{{ r.name }}')">
                             <td class="py-1.5 font-bold text-slate-800">{{ r.name }}</td>
-                            <td class="py-1.5 text-center">{{ r.customer_count }}</td>
-                            <td class="py-1.5 text-center">{{ r.shipments }}</td>
+                            <td class="py-1.5 text-center text-slate-600">{{ r.customer_count }}</td>
+                            <td class="py-1.5 text-center text-slate-600">{{ r.shipments }}</td>
                             <td class="py-1.5 text-right font-semibold text-slate-900">{{ format_inr(r.sales) }}</td>
-                            <td class="py-1.5 text-right text-blue-600 font-bold">{{ r.share_pct }}%</td>
+                            <td class="py-1.5 text-right text-slate-700 font-bold">{{ r.share_pct }}%</td>
                         </tr>
                         {% endfor %}
                     </tbody>
@@ -585,61 +362,28 @@
             </div>
         </div>
 
-        <!-- Top Accounts & Customer Share (5 Cols) -->
-        <div class="lg:col-span-5 glass-card rounded-2xl p-5 sm:p-6 space-y-4 flex flex-col justify-between">
-            <div>
-                <div class="flex items-center justify-between mb-1">
-                    <h2 class="text-base font-bold text-slate-900 tracking-tight flex items-center">
-                        <i data-lucide="pie-chart" class="h-5 w-5 text-emerald-600 mr-2"></i>
-                        Top Client Accounts
-                    </h2>
-                    <span class="text-xs font-semibold text-slate-400">Concentration</span>
-                </div>
-                <p class="text-xs text-slate-500">Revenue split across your largest client accounts</p>
-
-                <div id="customers-donut-chart" class="w-full h-72 mt-2"></div>
-            </div>
-
-            <!-- Top Accounts List -->
-            <div class="space-y-2 pt-2 border-t border-slate-100" id="top-customers-list">
-                <p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Leading Accounts</p>
-                {% for c in report_data.all.customers[:5] %}
-                <div class="flex items-center justify-between text-xs p-2 rounded-lg bg-slate-50/70 hover:bg-slate-100 transition-colors">
-                    <div class="truncate max-w-[200px]">
-                        <p class="font-bold text-slate-900 truncate">{{ c.name }}</p>
-                        <p class="text-[10px] text-slate-500">Rep: {{ c.sales_person }} • {{ c.shipments }} AWBs</p>
-                    </div>
-                    <div class="text-right shrink-0">
-                        <p class="font-bold text-slate-900">{{ format_inr(c.sales) }}</p>
-                        <p class="text-[10px] font-semibold text-blue-600">{{ c.share_pct }}%</p>
-                    </div>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-
     </div>
 
-    <!-- THIRD ROW: Mode of Transport & Destination Hubs -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- 7. ROW 2 ANALYTICS: TRANSPORT MODES & TOP ACCOUNTS (5 / 7 Grid) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4">
         
-        <!-- Mode of Transport: Air vs Surface vs Train (4 Cols) -->
-        <div class="lg:col-span-4 glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+        <!-- Left: Mode of Transport (Air / Surface / Train) (5 Cols) -->
+        <div class="lg:col-span-5 ent-card p-4 space-y-3">
             <div>
-                <h2 class="text-base font-bold text-slate-900 tracking-tight flex items-center">
-                    <i data-lucide="plane-takeoff" class="h-5 w-5 text-blue-600 mr-2"></i>
-                    Mode of Transport
+                <h2 class="text-sm font-bold text-slate-900 flex items-center">
+                    <i data-lucide="plane-takeoff" class="h-4 w-4 text-slate-600 mr-1.5"></i>
+                    Transport Mode Share (Air / Surface / Train)
                 </h2>
-                <p class="text-xs text-slate-500">Air, Surface, and Train breakdown from Booking Register</p>
+                <p class="text-xs text-slate-500">True transport modes extracted from Booking Master Register</p>
             </div>
 
-            <div id="modes-pie-chart" class="w-full h-64"></div>
+            <div id="modes-pie-chart" class="w-full h-48"></div>
 
             <div class="space-y-1.5 pt-2 border-t border-slate-100" id="modes-legend-list">
                 {% for m in report_data.all.modes %}
                 <div class="flex items-center justify-between text-xs py-1">
                     <span class="font-semibold text-slate-700 flex items-center">
-                        <span class="w-2.5 h-2.5 rounded-full mr-2 {% if m.mode == 'Air' %}bg-blue-600{% elif m.mode == 'Surface' %}bg-slate-800{% else %}bg-rose-500{% endif %}"></span>
+                        <span class="w-2.5 h-2.5 rounded-full mr-2 {% if m.mode == 'Air' %}bg-blue-600{% elif m.mode == 'Surface' %}bg-slate-800{% else %}bg-rose-600{% endif %}"></span>
                         {{ m.mode }}
                     </span>
                     <span class="text-slate-900 font-bold">{{ format_inr(m.sales) }} <span class="text-slate-400 font-normal">({{ m.share_pct }}% • {{ m.shipments }} AWBs)</span></span>
@@ -648,78 +392,159 @@
             </div>
         </div>
 
-        <!-- Major Destination Hubs (8 Cols) -->
-        <div class="lg:col-span-8 glass-card rounded-2xl p-5 sm:p-6 space-y-4">
+        <!-- Right: Top Client Accounts Ranking (7 Cols) -->
+        <div class="lg:col-span-7 ent-card p-4 space-y-3">
             <div class="flex items-center justify-between">
                 <div>
-                    <h2 class="text-base font-bold text-slate-900 tracking-tight flex items-center">
-                        <i data-lucide="map-pin" class="h-5 w-5 text-rose-600 mr-2"></i>
-                        Top Destination Delivery Hubs
+                    <h2 class="text-sm font-bold text-slate-900 flex items-center">
+                        <i data-lucide="building-2" class="h-4 w-4 text-slate-600 mr-1.5"></i>
+                        Top Corporate Client Accounts
                     </h2>
-                    <p class="text-xs text-slate-500">Highest volume freight destinations across India</p>
+                    <p class="text-xs text-slate-500">Highest volume revenue clients during this audit window</p>
                 </div>
-                <span class="text-xs font-semibold text-slate-400">By Freight Turnover</span>
+                <span class="text-[11px] font-semibold text-slate-400">By Total Turnover</span>
             </div>
 
-            <div id="destinations-chart" class="w-full h-72"></div>
+            <!-- Top Accounts Table with zero text cutting -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="text-slate-400 text-[10px] uppercase font-bold border-b border-slate-100">
+                        <tr>
+                            <th class="py-1.5">Client Account Name</th>
+                            <th class="py-1.5">Account Manager</th>
+                            <th class="py-1.5 text-center">AWBs</th>
+                            <th class="py-1.5 text-right">Freight Turnover (INR)</th>
+                            <th class="py-1.5 text-right">Share</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 font-medium" id="top-customers-tbody">
+                        {% for c in report_data.all.customers[:8] %}
+                        <tr class="hover:bg-slate-50">
+                            <td class="py-2 font-bold text-slate-900 max-w-[220px] truncate" title="{{ c.name }}">
+                                {{ c.name }}
+                            </td>
+                            <td class="py-2 text-slate-600">
+                                {{ c.sales_person }}
+                            </td>
+                            <td class="py-2 text-center text-slate-600 font-mono">
+                                {{ c.shipments }}
+                            </td>
+                            <td class="py-2 text-right font-bold text-slate-900 font-mono">
+                                {{ format_inr(c.sales) }}
+                            </td>
+                            <td class="py-2 text-right text-slate-700 font-semibold">
+                                {{ c.share_pct }}%
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
     </div>
 
-    <!-- RECENT CONSIGNMENTS DATA AUDIT TABLE -->
-    <div class="glass-card rounded-2xl overflow-hidden shadow-sm">
-        <div class="px-6 py-4 bg-slate-50/80 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+    <!-- 8. ROW 3: ALL-INDIA BUSIEST FREIGHT CORRIDORS SCHEDULE (Clean Structured Grid) -->
+    <div class="ent-card p-4 space-y-3">
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
             <div>
-                <h3 class="text-sm font-bold text-slate-900 flex items-center">
-                    <i data-lucide="layers" class="h-4 w-4 text-blue-600 mr-2"></i>
-                    Correlated Freight Dockets (Detailed Register)
-                </h3>
-                <p class="text-[11px] text-slate-500 mt-0.5">Showing correlated consignments with exact Transport Mode & Billing Classification</p>
+                <h2 class="text-sm font-bold text-slate-900 flex items-center">
+                    <i data-lucide="navigation" class="h-4 w-4 text-slate-600 mr-1.5"></i>
+                    All-India Top Freight Corridors (Busiest Delivery Lanes)
+                </h2>
+                <p class="text-xs text-slate-500">Origin booking hub to destination delivery city traffic matrix</p>
             </div>
-            <span class="text-xs font-semibold text-slate-500 bg-white px-3 py-1 rounded-full border border-slate-200">
+            <span class="text-xs font-semibold text-slate-500 bg-slate-100 px-2.5 py-1 rounded-md self-start sm:self-auto">
+                {{ report_data.connectivity.total_active_lanes }} Active Freight Lanes Mapped
+            </span>
+        </div>
+
+        <div class="overflow-x-auto">
+            <table class="w-full text-left text-xs">
+                <thead class="text-slate-400 text-[10px] uppercase font-bold border-b border-slate-100 bg-slate-50/60">
+                    <tr>
+                        <th class="py-2 px-3"># Rank</th>
+                        <th class="py-2 px-3">Origin Hub</th>
+                        <th class="py-2 px-3">Destination City</th>
+                        <th class="py-2 px-3 text-center">Primary Mode</th>
+                        <th class="py-2 px-3 text-right">Consignments (AWBs)</th>
+                        <th class="py-2 px-3 text-right">Cargo Weight (Kg)</th>
+                        <th class="py-2 px-3 text-right">Total Freight (INR)</th>
+                    </tr>
+                </thead>
+                <tbody class="divide-y divide-slate-100 font-medium" id="corridors-tbody">
+                    {% for lane in report_data.connectivity.top_lanes[:10] %}
+                    <tr class="hover:bg-slate-50">
+                        <td class="py-2 px-3 font-mono text-slate-400 font-bold">#{{ loop.index }}</td>
+                        <td class="py-2 px-3 font-bold text-slate-900">{{ lane.origin }}</td>
+                        <td class="py-2 px-3 font-bold text-slate-900">{{ lane.destination }}</td>
+                        <td class="py-2 px-3 text-center">
+                            <span class="inline-block px-2 py-0.5 rounded text-[10px] font-bold {% if lane.primary_mode == 'Air' %}bg-blue-100 text-blue-800{% else %}bg-slate-100 text-slate-800{% endif %}">
+                                {{ lane.primary_mode }}
+                            </span>
+                        </td>
+                        <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">{{ lane.awb_count }}</td>
+                        <td class="py-2 px-3 text-right font-mono text-slate-600">{{ lane.total_weight }} Kg</td>
+                        <td class="py-2 px-3 text-right font-mono font-bold text-slate-900">{{ format_inr(lane.total_freight) }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- 9. ROW 4: CORRELATED FREIGHT CONSIGNMENTS REGISTER (Master Audit Table) -->
+    <div class="ent-card overflow-hidden">
+        <div class="px-4 py-3 bg-slate-50 border-b border-slate-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div>
+                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-900 flex items-center">
+                    <i data-lucide="layers" class="h-3.5 w-3.5 text-slate-600 mr-1.5"></i>
+                    Correlated Freight Dockets Register
+                </h3>
+                <p class="text-[11px] text-slate-500">Cross-referenced records from Billed MIS, Unbilled MIS, and Operations Register</p>
+            </div>
+            <span class="text-xs font-semibold text-slate-600 bg-white px-2.5 py-1 rounded border border-slate-200 self-start sm:self-auto">
                 <span id="filtered-table-count">{{ report_data.shipments_sample|length }}</span> Dockets
             </span>
         </div>
 
         <div class="overflow-x-auto max-h-96 overflow-y-auto">
-            <table class="w-full text-left text-xs text-slate-600">
-                <thead class="bg-slate-50/90 text-[10px] font-bold uppercase tracking-wider text-slate-500 sticky top-0 border-b border-slate-200 z-10">
+            <table class="w-full text-left text-xs">
+                <thead class="bg-slate-100/80 text-[10px] font-bold uppercase tracking-wider text-slate-500 sticky top-0 border-b border-slate-200 z-10">
                     <tr>
-                        <th class="px-4 py-3">AWB No.</th>
-                        <th class="px-4 py-3">Date</th>
-                        <th class="px-4 py-3">Customer Account</th>
-                        <th class="px-4 py-3">Sales Person</th>
-                        <th class="px-4 py-3">Mode</th>
-                        <th class="px-4 py-3">Destination</th>
-                        <th class="px-4 py-3 text-right">Weight (Kg)</th>
-                        <th class="px-4 py-3 text-right">Freight Amount</th>
-                        <th class="px-4 py-3 text-center">Status</th>
+                        <th class="px-3.5 py-2.5">AWB No.</th>
+                        <th class="px-3.5 py-2.5">Date</th>
+                        <th class="px-3.5 py-2.5">Customer Account</th>
+                        <th class="px-3.5 py-2.5">Sales Person</th>
+                        <th class="px-3.5 py-2.5 text-center">Mode</th>
+                        <th class="px-3.5 py-2.5">Destination</th>
+                        <th class="px-3.5 py-2.5 text-right">Weight (Kg)</th>
+                        <th class="px-3.5 py-2.5 text-right">Freight Amount</th>
+                        <th class="px-3.5 py-2.5 text-center">Classification</th>
                     </tr>
                 </thead>
                 <tbody class="divide-y divide-slate-100 font-medium" id="shipments-tbody">
                     {% for s in report_data.shipments_sample %}
-                    <tr class="hover:bg-slate-50/80 transition-colors shipment-row" 
+                    <tr class="hover:bg-slate-50 shipment-row" 
                         data-rep="{{ s.sales_person }}" data-mode="{{ s.transport_mode }}" data-source="{{ s.source_type }}" data-month="{{ s.month_key }}" data-customer="{{ s.customer_name|lower }} {{ s.customer_code|lower }}">
-                        <td class="px-4 py-2.5 font-mono font-bold text-blue-600">{{ s.awb_no }}</td>
-                        <td class="px-4 py-2.5 text-slate-500">{{ s.date or '---' }}</td>
-                        <td class="px-4 py-2.5 font-semibold text-slate-900 max-w-[180px] truncate" title="{{ s.customer_name }}">
+                        <td class="px-3.5 py-2 font-mono font-bold text-slate-900">{{ s.awb_no }}</td>
+                        <td class="px-3.5 py-2 text-slate-500">{{ s.date or '---' }}</td>
+                        <td class="px-3.5 py-2 font-semibold text-slate-900 max-w-[200px] truncate" title="{{ s.customer_name }}">
                             {{ s.customer_name }}
                         </td>
-                        <td class="px-4 py-2.5">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-100 text-slate-700">
-                                {{ s.sales_person }}
-                            </span>
+                        <td class="px-3.5 py-2 text-slate-700">
+                            {{ s.sales_person }}
                         </td>
-                        <td class="px-4 py-2.5 font-bold">
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold {% if s.transport_mode == 'Air' %}bg-blue-100 text-blue-800 border border-blue-200{% elif s.transport_mode == 'Surface' %}bg-slate-100 text-slate-800 border border-slate-200{% else %}bg-rose-100 text-rose-800 border border-rose-200{% endif %}">
+                        <td class="px-3.5 py-2 text-center">
+                            <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold {% if s.transport_mode == 'Air' %}bg-blue-100 text-blue-800{% else %}bg-slate-100 text-slate-800{% endif %}">
                                 {{ s.transport_mode }}
                             </span>
                         </td>
-                        <td class="px-4 py-2.5 text-slate-700">{{ s.destination }}</td>
-                        <td class="px-4 py-2.5 text-right font-mono">{{ s.weight }}</td>
-                        <td class="px-4 py-2.5 text-right font-bold text-slate-900 font-mono">{{ format_inr(s.total_amt) }}</td>
-                        <td class="px-4 py-2.5 text-center">
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold {% if s.source_type == 'BILLED' %}bg-emerald-100 text-emerald-800{% elif s.source_type == 'UNBILLED' %}bg-amber-100 text-amber-800{% else %}bg-blue-100 text-blue-800{% endif %}">
+                        <td class="px-3.5 py-2 text-slate-700">{{ s.destination }}</td>
+                        <td class="px-3.5 py-2 text-right font-mono">{{ s.weight }}</td>
+                        <td class="px-3.5 py-2 text-right font-bold text-slate-900 font-mono">{{ format_inr(s.total_amt) }}</td>
+                        <td class="px-3.5 py-2 text-center">
+                            <span class="px-2 py-0.5 rounded text-[10px] font-bold {% if s.source_type == 'BILLED' %}bg-emerald-100 text-emerald-800{% elif s.source_type == 'UNBILLED' %}bg-amber-100 text-amber-800{% else %}bg-slate-100 text-slate-800{% endif %}">
                                 {{ s.source_type }}
                             </span>
                         </td>
@@ -741,9 +566,6 @@
     const reportData = JSON.parse(document.getElementById('raw-report-data').textContent);
     let currentSegment = 'all'; // 'all', 'billed', or 'unbilled'
     let currentMonth = 'ALL';   // 'ALL' or 'YYYY-MM'
-    let dualMonthMode = false;
-    let compareMonthA = '';
-    let compareMonthB = '';
 
     function formatInr(val) {
         if (!val && val !== 0) return '₹ 0.00';
@@ -765,25 +587,19 @@
     }
 
     // ─────────────────────────────────────────────────────────────
-    // INITIALIZE CHARTS
+    // CHARTS CONTROLLER
     // ─────────────────────────────────────────────────────────────
-    let timelineChart, repChart, custChart, modeChart, destChart;
+    let timelineChart, repChart, modeChart;
 
     function renderCharts(segmentKey) {
         currentSegment = segmentKey;
         const seg = getActiveDataset();
         const summary = getActiveSummary();
 
-        // Color palettes tailored for each mode
-        let primaryColor = '#2563EB'; // All
-        let gradientEnd = '#93C5FD';
-        if (segmentKey === 'billed') {
-            primaryColor = '#059669'; // Emerald
-            gradientEnd = '#6EE7B7';
-        } else if (segmentKey === 'unbilled') {
-            primaryColor = '#D97706'; // Amber
-            gradientEnd = '#FCD34D';
-        }
+        // Theme colors: Classic Dark Slate for All, Forest Emerald for Billed, Warm Amber for Unbilled
+        let primaryColor = '#0F172A';
+        if (segmentKey === 'billed') primaryColor = '#047857';
+        else if (segmentKey === 'unbilled') primaryColor = '#B45309';
 
         // 1. Timeline Chart
         const timelineDates = seg.daily_sales.map(d => d.date);
@@ -792,27 +608,27 @@
         if (timelineChart) timelineChart.destroy();
         try {
             timelineChart = new ApexCharts(document.querySelector("#timeline-chart"), {
-                series: [{ name: 'Freight Revenue (₹)', data: timelineSales }],
-                chart: { type: 'area', height: 300, toolbar: { show: false }, zoom: { enabled: true }, fontFamily: 'inherit' },
+                series: [{ name: 'Freight Turnover (₹)', data: timelineSales }],
+                chart: { type: 'area', height: 250, toolbar: { show: false }, zoom: { enabled: false }, fontFamily: 'inherit' },
                 colors: [primaryColor],
                 dataLabels: { enabled: false },
-                stroke: { curve: 'smooth', width: 3 },
+                stroke: { curve: 'straight', width: 2 },
                 fill: {
                     type: 'gradient',
-                    gradient: { shadeIntensity: 1, opacityFrom: 0.45, opacityTo: 0.05, stops: [0, 95, 100] }
+                    gradient: { shadeIntensity: 1, opacityFrom: 0.35, opacityTo: 0.05, stops: [0, 95, 100] }
                 },
                 xaxis: {
                     categories: timelineDates,
-                    labels: { style: { colors: '#64748B', fontSize: '11px', fontWeight: 500 }, rotate: -45 }
+                    labels: { style: { colors: '#64748B', fontSize: '10px' }, rotate: -45 }
                 },
                 yaxis: {
                     labels: {
                         formatter: (val) => '₹ ' + (val >= 100000 ? (val / 100000).toFixed(1) + 'L' : Math.round(val).toLocaleString('en-IN')),
-                        style: { colors: '#64748B', fontSize: '11px' }
+                        style: { colors: '#64748B', fontSize: '10px' }
                     }
                 },
                 tooltip: { y: { formatter: (val) => formatInr(val) } },
-                grid: { borderColor: '#F1F5F9', strokeDashArray: 4 }
+                grid: { borderColor: '#F1F5F9' }
             });
             timelineChart.render();
         } catch(e) { console.error("Timeline chart error:", e); }
@@ -825,76 +641,27 @@
         try {
             repChart = new ApexCharts(document.querySelector("#sales-rep-chart"), {
                 series: [{ name: 'Turnover (₹)', data: repSales }],
-                chart: { type: 'bar', height: 300, toolbar: { show: false }, fontFamily: 'inherit' },
+                chart: { type: 'bar', height: 180, toolbar: { show: false }, fontFamily: 'inherit' },
                 plotOptions: {
-                    bar: { horizontal: true, borderRadius: 6, barHeight: '65%', distributed: true, dataLabels: { position: 'bottom' } }
+                    bar: { horizontal: true, borderRadius: 3, barHeight: '60%' }
                 },
-                colors: segmentKey === 'billed' ? 
-                    ['#059669', '#10B981', '#34D399', '#6EE7B7', '#047857', '#065F46', '#94A3B8'] :
-                    (segmentKey === 'unbilled' ? 
-                        ['#D97706', '#F59E0B', '#FBBF24', '#FCD34D', '#B45309', '#92400E', '#94A3B8'] :
-                        ['#2563EB', '#3B82F6', '#60A5FA', '#818CF8', '#A78BFA', '#C084FC', '#94A3B8']),
-                dataLabels: {
-                    enabled: true,
-                    textAnchor: 'start',
-                    style: { colors: ['#ffffff'], fontSize: '11px', fontWeight: 700 },
-                    formatter: (val) => formatInr(val),
-                    offsetX: 10
-                },
+                colors: [primaryColor],
+                dataLabels: { enabled: false },
                 xaxis: {
                     categories: repNames,
                     labels: {
                         formatter: (val) => '₹ ' + (val >= 100000 ? (val / 100000).toFixed(0) + 'L' : Math.round(val).toLocaleString('en-IN')),
-                        style: { colors: '#64748B', fontSize: '10px' }
+                        style: { colors: '#64748B', fontSize: '9px' }
                     }
                 },
-                yaxis: { labels: { style: { colors: '#1E293B', fontSize: '11px', fontWeight: 600 } } },
-                legend: { show: false },
+                yaxis: { labels: { style: { colors: '#0F172A', fontSize: '11px', fontWeight: 600 } } },
                 tooltip: { y: { formatter: (val) => formatInr(val) } },
                 grid: { borderColor: '#F1F5F9' }
             });
             repChart.render();
         } catch(e) { console.error("Rep chart error:", e); }
 
-        // 3. Top Customers Donut
-        const top5Custs = seg.customers.slice(0, 5);
-        const custNames = top5Custs.map(c => c.name.length > 20 ? c.name.substring(0, 20) + '...' : c.name);
-        const custSales = top5Custs.map(c => c.sales);
-
-        if (custChart) custChart.destroy();
-        try {
-            custChart = new ApexCharts(document.querySelector("#customers-donut-chart"), {
-                series: custSales,
-                labels: custNames,
-                chart: { type: 'donut', height: 280, fontFamily: 'inherit' },
-                colors: segmentKey === 'billed' ?
-                    ['#064E3B', '#059669', '#10B981', '#34D399', '#6EE7B7'] :
-                    (segmentKey === 'unbilled' ?
-                        ['#78350F', '#B45309', '#D97706', '#F59E0B', '#FCD34D'] :
-                        ['#0B132B', '#2563EB', '#10B981', '#F59E0B', '#8B5CF6']),
-                plotOptions: {
-                    pie: {
-                        donut: {
-                            size: '68%',
-                            labels: {
-                                show: true,
-                                total: {
-                                    show: true,
-                                    label: 'Top 5 Total',
-                                    formatter: () => formatInr(custSales.reduce((a, b) => a + b, 0))
-                                }
-                            }
-                        }
-                    }
-                },
-                dataLabels: { enabled: false },
-                legend: { position: 'bottom', fontSize: '11px' },
-                tooltip: { y: { formatter: (val) => formatInr(val) } }
-            });
-            custChart.render();
-        } catch(e) { console.error("Cust chart error:", e); }
-
-        // 4. Mode of Transport (Air vs Surface vs Train)
+        // 3. Mode of Transport Donut Chart
         const modeNames = seg.modes.map(m => m.mode);
         const modeSales = seg.modes.map(m => m.sales);
 
@@ -903,9 +670,9 @@
             modeChart = new ApexCharts(document.querySelector("#modes-pie-chart"), {
                 series: modeSales,
                 labels: modeNames,
-                chart: { type: 'donut', height: 260, fontFamily: 'inherit' },
-                colors: ['#2563EB', '#0F172A', '#E11D48', '#64748B'],
-                plotOptions: { pie: { donut: { size: '60%' } } },
+                chart: { type: 'donut', height: 190, fontFamily: 'inherit' },
+                colors: ['#2563EB', '#0F172A', '#E11D48'],
+                plotOptions: { pie: { donut: { size: '65%' } } },
                 dataLabels: { enabled: true, formatter: (val) => val.toFixed(1) + "%" },
                 legend: { position: 'bottom', fontSize: '11px' },
                 tooltip: { y: { formatter: (val) => formatInr(val) } }
@@ -913,155 +680,92 @@
             modeChart.render();
         } catch(e) { console.error("Mode chart error:", e); }
 
-        // 5. Destination Hubs Bar Chart
-        const topDests = seg.destinations.slice(0, 10);
-        const destNames = topDests.map(d => d.city);
-        const destSales = topDests.map(d => d.sales);
-
-        if (destChart) destChart.destroy();
-        try {
-            destChart = new ApexCharts(document.querySelector("#destinations-chart"), {
-                series: [{ name: 'Freight Delivered (₹)', data: destSales }],
-                chart: { type: 'bar', height: 280, toolbar: { show: false }, fontFamily: 'inherit' },
-                plotOptions: { bar: { borderRadius: 4, columnWidth: '50%' } },
-                colors: [primaryColor],
-                dataLabels: { enabled: false },
-                xaxis: {
-                    categories: destNames,
-                    labels: { style: { colors: '#64748B', fontSize: '10px', fontWeight: 600 }, rotate: -35 }
-                },
-                yaxis: {
-                    labels: {
-                        formatter: (val) => '₹ ' + (val >= 100000 ? (val / 100000).toFixed(1) + 'L' : Math.round(val).toLocaleString('en-IN')),
-                        style: { colors: '#64748B', fontSize: '10px' }
-                    }
-                },
-                tooltip: { y: { formatter: (val) => formatInr(val) } },
-                grid: { borderColor: '#F1F5F9' }
-            });
-            destChart.render();
-        } catch(e) { console.error("Dest chart error:", e); }
-
         // ─────────────────────────────────────────────────────────────
-        // UPDATE DYNAMIC TAILORED KPIS & AUDIT BANNERS
+        // UPDATE DYNAMIC KPIS & TAILORED CARDS
         // ─────────────────────────────────────────────────────────────
-        const bannerContainer = document.getElementById('mode-banner-container');
-        const bannerTitle = document.getElementById('mode-banner-title');
-        const bannerDesc = document.getElementById('mode-banner-desc');
-        const bannerBadge = document.getElementById('mode-banner-badge');
-        const bannerIcon = document.getElementById('mode-banner-icon');
         const unbilledAlert = document.getElementById('unbilled-leakage-alert');
 
         if (segmentKey === 'billed') {
-            bannerContainer.className = "rounded-2xl p-4 transition-all duration-300 bg-gradient-to-r from-emerald-900 to-teal-950 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs border border-emerald-700/50";
-            bannerIcon.innerHTML = '<i data-lucide="check-check" class="h-5 w-5 text-emerald-300"></i>';
-            bannerTitle.textContent = "Billed Freight Revenue Realization Audit";
-            bannerDesc.textContent = "Verified invoiced turnover, bill sequence adherence, and freight realization across client portfolios.";
-            bannerBadge.textContent = "100% Invoiced";
-            bannerBadge.className = "self-start sm:self-auto px-3 py-1 rounded-full text-xs font-bold bg-emerald-500/20 text-emerald-200 border border-emerald-400/40 font-mono";
             unbilledAlert.classList.add('hidden');
-
-            // Tailored KPIs for Billed
             document.getElementById('kpi-sales-label').textContent = 'Billed Freight Turnover';
             document.getElementById('kpi-sales-sub').innerHTML = '<span>Coverage: <b class="text-emerald-700">100% Invoiced</b></span>';
             document.getElementById('kpi-shipments-label').textContent = 'Invoiced Consignments';
-            document.getElementById('kpi-shipments-sub').innerHTML = '<span>Bill No. Adherence:</span><b class="text-emerald-700 font-bold">' + (seg.summary.bill_no_rate || 100) + '% Verified</b>';
+            document.getElementById('kpi-shipments-sub').innerHTML = '<span>Bill No Compliance:</span><b class="text-emerald-700 font-bold">' + (seg.summary.bill_no_rate || 100) + '% Verified</b>';
             document.getElementById('kpi-weight-label').textContent = 'Billed Cargo Weight';
             document.getElementById('kpi-weight-sub').innerHTML = '<span>Freight Yield:</span><b class="text-emerald-700 font-bold">₹ ' + (seg.summary.freight_yield || 0) + ' / Kg</b>';
-            document.getElementById('kpi-rep-label').textContent = 'Top Billed Account Manager';
-            document.getElementById('kpi-rep-sub').innerHTML = '<span>Leading Invoiced Client:</span><b class="text-slate-800 font-semibold truncate max-w-[150px]">' + seg.summary.top_customer + '</b>';
-            document.getElementById('timeline-chart-title').textContent = 'Daily Billed Freight Sales Trend';
-
+            document.getElementById('kpi-rep-label').textContent = 'Leading Invoiced Rep';
+            document.getElementById('kpi-rep-sub').innerHTML = '<span>Top Invoiced Client:</span><b class="text-slate-900 font-medium truncate max-w-[150px]">' + seg.summary.top_customer + '</b>';
+            document.getElementById('timeline-chart-title').textContent = 'Daily Billed Freight Trend';
         } else if (segmentKey === 'unbilled') {
-            bannerContainer.className = "rounded-2xl p-4 transition-all duration-300 bg-gradient-to-r from-amber-900 via-rose-950 to-amber-950 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs border border-amber-600/50";
-            bannerIcon.innerHTML = '<i data-lucide="alert-triangle" class="h-5 w-5 text-amber-300"></i>';
-            bannerTitle.textContent = "Unbilled Exposure & Revenue Leakage Audit";
-            bannerDesc.textContent = "Consignments moving through network or already delivered with pending billing. Immediate invoicing required.";
-            bannerBadge.textContent = "Audit Action Required";
-            bannerBadge.className = "self-start sm:self-auto px-3 py-1 rounded-full text-xs font-bold bg-rose-500/30 text-rose-200 border border-rose-400/50 font-mono animate-pulse";
             unbilledAlert.classList.remove('hidden');
-
-            // Tailored KPIs for Unbilled
             document.getElementById('kpi-sales-label').textContent = 'Unbilled Revenue Exposure';
             document.getElementById('kpi-sales-sub').innerHTML = '<span class="text-rose-700 font-bold">Pending Invoice Generation</span>';
             document.getElementById('kpi-shipments-label').textContent = 'Unbilled Consignments';
             document.getElementById('kpi-shipments-sub').innerHTML = '<span>Delivered Unbilled:</span><b class="text-rose-700 font-bold">' + (seg.summary.delivered_unbilled_count || 0) + ' AWBs</b>';
             document.getElementById('kpi-weight-label').textContent = 'Unbilled Cargo Weight';
             document.getElementById('kpi-weight-sub').innerHTML = '<span>Unbilled Yield:</span><b class="text-amber-800 font-bold">₹ ' + (seg.summary.freight_yield || 0) + ' / Kg</b>';
-            document.getElementById('kpi-rep-label').textContent = 'Highest Unbilled Portfolio Rep';
-            document.getElementById('kpi-rep-sub').innerHTML = '<span>Highest Pending Client:</span><b class="text-rose-900 font-bold truncate max-w-[150px]">' + seg.summary.top_customer + '</b>';
+            document.getElementById('kpi-rep-label').textContent = 'Pending Balance Lead Rep';
+            document.getElementById('kpi-rep-sub').innerHTML = '<span>Pending Client:</span><b class="text-rose-900 font-bold truncate max-w-[150px]">' + seg.summary.top_customer + '</b>';
             document.getElementById('timeline-chart-title').textContent = 'Daily Unbilled Freight Trend';
-
         } else {
-            // Combined Overview
-            bannerContainer.className = "rounded-2xl p-4 transition-all duration-300 bg-gradient-to-r from-slate-900 to-blue-900 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs";
-            bannerIcon.innerHTML = '<i data-lucide="layers" class="h-5 w-5 text-blue-300"></i>';
-            bannerTitle.textContent = "Executive Consolidated Perspective";
-            bannerDesc.textContent = "Macro overview synthesized across Billed, Unbilled, and Booking Master operations datasets.";
-            bannerBadge.textContent = "100% Correlated";
-            bannerBadge.className = "self-start sm:self-auto px-3 py-1 rounded-full text-xs font-bold bg-white/15 text-white border border-white/20 font-mono";
             unbilledAlert.classList.add('hidden');
-
             document.getElementById('kpi-sales-label').textContent = 'Total Freight Turnover';
             document.getElementById('kpi-sales-sub').innerHTML = '<span>Billed: <b class="text-slate-800">' + formatInr(summary.billed_sales) + '</b></span><span>Unbilled: <b class="text-slate-800">' + formatInr(summary.unbilled_sales) + '</b></span>';
-            document.getElementById('kpi-shipments-label').textContent = 'Consignments Moved';
-            document.getElementById('kpi-shipments-sub').innerHTML = '<span>Avg Docket Ticket:</span><b class="text-emerald-700 font-bold">' + formatInr(seg.summary.avg_ticket) + '</b>';
-            document.getElementById('kpi-weight-label').textContent = 'Total Cargo Weight';
-            document.getElementById('kpi-weight-sub').innerHTML = '<span>Metric Tons:</span><b class="text-slate-800 font-bold">' + (seg.summary.total_weight / 1000).toLocaleString('en-IN', { maximumFractionDigits: 2 }) + ' MT</b>';
-            document.getElementById('kpi-rep-label').textContent = 'Leading Sales Rep';
-            document.getElementById('kpi-rep-sub').innerHTML = '<span>Key Client:</span><b class="text-slate-800 font-semibold truncate max-w-[150px]">' + seg.summary.top_customer + '</b>';
-            document.getElementById('timeline-chart-title').textContent = 'Daily Freight Sales Trend (By Booking Date)';
+            document.getElementById('kpi-shipments-label').textContent = 'Total Consignments Moved';
+            document.getElementById('kpi-shipments-sub').innerHTML = '<span>Avg Ticket Value:</span><b class="text-slate-900 font-bold">' + formatInr(seg.summary.avg_ticket) + '</b>';
+            document.getElementById('kpi-weight-label').textContent = 'Cargo Tonnage Moved';
+            document.getElementById('kpi-weight-sub').innerHTML = '<span>Metric Tons:</span><b class="text-slate-900 font-bold">' + (seg.summary.total_weight / 1000).toLocaleString('en-IN', { maximumFractionDigits: 2 }) + ' MT</b>';
+            document.getElementById('kpi-rep-label').textContent = 'Top Account Manager';
+            document.getElementById('kpi-rep-sub').innerHTML = '<span>Top Client:</span><b class="text-slate-900 font-medium truncate max-w-[150px]">' + seg.summary.top_customer + '</b>';
+            document.getElementById('timeline-chart-title').textContent = 'Daily Freight Revenue Progression';
         }
 
-        // Update Card Raw Values
+        // Update Card Values
         document.getElementById('kpi-total-sales').textContent = formatInr(seg.summary.total_sales);
-        document.getElementById('kpi-total-shipments').innerHTML = Number(seg.summary.total_shipments).toLocaleString('en-IN') + ' <span class="text-sm font-semibold text-slate-500">AWBs</span>';
-        document.getElementById('kpi-total-weight').innerHTML = Number(seg.summary.total_weight).toLocaleString('en-IN', { maximumFractionDigits: 1 }) + ' <span class="text-sm font-semibold text-slate-500">Kg</span>';
+        document.getElementById('kpi-total-shipments').innerHTML = Number(seg.summary.total_shipments).toLocaleString('en-IN') + ' <span class="text-xs font-semibold text-slate-500">AWBs</span>';
+        document.getElementById('kpi-total-weight').innerHTML = Number(seg.summary.total_weight).toLocaleString('en-IN', { maximumFractionDigits: 1 }) + ' <span class="text-xs font-semibold text-slate-500">Kg</span>';
         document.getElementById('kpi-top-rep').textContent = seg.summary.top_rep;
         document.getElementById('kpi-top-rep').title = seg.summary.top_rep;
-        document.getElementById('timeline-badge').textContent = seg.daily_sales.length + ' Active Days';
+        document.getElementById('timeline-badge').textContent = seg.daily_sales.length + ' Days Active';
 
-        // Update Sales Rep mini-table
+        // Update Sales Rep Table
         const repTbody = document.getElementById('sales-rep-tbody');
         repTbody.innerHTML = '';
         seg.sales_reps.forEach(r => {
             const tr = document.createElement('tr');
-            tr.className = 'hover:bg-slate-50/60 cursor-pointer';
+            tr.className = 'hover:bg-slate-50 cursor-pointer';
             tr.onclick = () => selectRepFilter(r.name);
             tr.innerHTML = `
                 <td class="py-1.5 font-bold text-slate-800">${r.name}</td>
-                <td class="py-1.5 text-center">${r.customer_count}</td>
-                <td class="py-1.5 text-center">${r.shipments}</td>
+                <td class="py-1.5 text-center text-slate-600">${r.customer_count}</td>
+                <td class="py-1.5 text-center text-slate-600">${r.shipments}</td>
                 <td class="py-1.5 text-right font-semibold text-slate-900">${formatInr(r.sales)}</td>
-                <td class="py-1.5 text-right text-blue-600 font-bold">${r.share_pct}%</td>
+                <td class="py-1.5 text-right text-slate-700 font-bold">${r.share_pct}%</td>
             `;
             repTbody.appendChild(tr);
         });
 
-        // Update Top Customers list
-        const custList = document.getElementById('top-customers-list');
-        custList.innerHTML = '<p class="text-[11px] font-bold uppercase tracking-wider text-slate-400">Leading Accounts</p>';
-        seg.customers.slice(0, 5).forEach(c => {
-            const div = document.createElement('div');
-            div.className = 'flex items-center justify-between text-xs p-2 rounded-lg bg-slate-50/70 hover:bg-slate-100 transition-colors';
-            div.innerHTML = `
-                <div class="truncate max-w-[200px]">
-                    <p class="font-bold text-slate-900 truncate" title="${c.name}">${c.name}</p>
-                    <p class="text-[10px] text-slate-500">Rep: ${c.sales_person} • ${c.shipments} AWBs</p>
-                </div>
-                <div class="text-right shrink-0">
-                    <p class="font-bold text-slate-900">${formatInr(c.sales)}</p>
-                    <p class="text-[10px] font-semibold text-blue-600">${c.share_pct}%</p>
-                </div>
+        // Update Top Customers Table
+        const custTbody = document.getElementById('top-customers-tbody');
+        custTbody.innerHTML = '';
+        seg.customers.slice(0, 8).forEach(c => {
+            const tr = document.createElement('tr');
+            tr.className = 'hover:bg-slate-50';
+            tr.innerHTML = `
+                <td class="py-2 font-bold text-slate-900 max-w-[220px] truncate" title="${c.name}">${c.name}</td>
+                <td class="py-2 text-slate-600">${c.sales_person}</td>
+                <td class="py-2 text-center text-slate-600 font-mono">${c.shipments}</td>
+                <td class="py-2 text-right font-bold text-slate-900 font-mono">${formatInr(c.sales)}</td>
+                <td class="py-2 text-right text-slate-700 font-semibold">${c.share_pct}%</td>
             `;
-            custList.appendChild(div);
+            custTbody.appendChild(tr);
         });
 
-        // Update Modes list
+        // Update Modes List
         const modeList = document.getElementById('modes-legend-list');
         modeList.innerHTML = '';
         seg.modes.forEach(m => {
-            const colorClass = m.mode === 'Air' ? 'bg-blue-600' : (m.mode === 'Surface' ? 'bg-slate-800' : 'bg-rose-500');
+            const colorClass = m.mode === 'Air' ? 'bg-blue-600' : (m.mode === 'Surface' ? 'bg-slate-800' : 'bg-rose-600');
             const div = document.createElement('div');
             div.className = 'flex items-center justify-between text-xs py-1';
             div.innerHTML = `
@@ -1087,16 +791,16 @@
         const tabBilled = document.getElementById('tab-billed');
         const tabUnbilled = document.getElementById('tab-unbilled');
 
-        tabAll.className = "segment-tab px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 bg-white text-slate-700 hover:text-slate-900 border border-slate-200/80";
-        tabBilled.className = "segment-tab px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 bg-white text-slate-700 hover:text-emerald-700 hover:bg-emerald-50/50 border border-slate-200/80";
-        tabUnbilled.className = "segment-tab px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 bg-white text-slate-700 hover:text-amber-700 hover:bg-amber-50/50 border border-slate-200/80";
+        tabAll.className = "seg-pill px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 bg-white text-slate-700 hover:text-slate-900 border border-slate-200 shrink-0";
+        tabBilled.className = "seg-pill px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 bg-white text-slate-700 hover:text-emerald-700 hover:bg-emerald-50/50 border border-slate-200 shrink-0";
+        tabUnbilled.className = "seg-pill px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 bg-white text-slate-700 hover:text-amber-700 hover:bg-amber-50/50 border border-slate-200 shrink-0";
 
         if (seg === 'all') {
-            tabAll.className = "segment-tab active-all px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2";
+            tabAll.className = "seg-pill active-all px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shrink-0";
         } else if (seg === 'billed') {
-            tabBilled.className = "segment-tab active-billed px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2";
+            tabBilled.className = "seg-pill active-billed px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shrink-0";
         } else if (seg === 'unbilled') {
-            tabUnbilled.className = "segment-tab active-unbilled px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2";
+            tabUnbilled.className = "seg-pill active-unbilled px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 shrink-0";
         }
 
         renderCharts(seg);
@@ -1107,26 +811,11 @@
     // ─────────────────────────────────────────────────────────────
     function switchMonth(mKey) {
         currentMonth = mKey;
-        document.querySelectorAll('.month-filter-pill').forEach(btn => {
-            btn.classList.remove('active', 'bg-blue-600', 'text-white', 'shadow-xs');
-            btn.classList.add('bg-slate-100', 'text-slate-700');
-        });
-        const activeBtn = document.getElementById('month-pill-' + mKey);
-        if (activeBtn) {
-            activeBtn.classList.remove('bg-slate-100', 'text-slate-700');
-            activeBtn.classList.add('active', 'bg-blue-600', 'text-white', 'shadow-xs');
-        }
-        const activeTextEl = document.getElementById('active-month-text');
-        if (activeTextEl) {
-            if (mKey === 'ALL') {
-                activeTextEl.textContent = 'All Months';
-            } else {
-                const found = (reportData.months || []).find(m => m.key === mKey);
-                activeTextEl.textContent = found ? found.label : mKey;
-            }
+        const monthSelect = document.getElementById('month-select');
+        if (monthSelect && monthSelect.value !== mKey) {
+            monthSelect.value = mKey;
         }
         renderCharts(currentSegment);
-        renderMap();
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -1179,327 +868,9 @@
         applyFilters();
     }
 
-    // ═════════════════════════════════════════════════════════════
-    // 🇮🇳 ALL-INDIA 3D LOGISTICS ROUTE & CONNECTIVITY VISUALIZER 🇮🇳
-    // ═════════════════════════════════════════════════════════════
-    const canvas = document.getElementById('connectivity-canvas');
-    const ctx = canvas.getContext('2d');
-    const mapTooltip = document.getElementById('map-tooltip');
-    let hoveredRoute = null;
-    let animFrameId = null;
-    let animProgress = 0;
-    let highlightedOrigin = null;
-    let highlightedDest = null;
-
-    // Subcontinent Projection Bounds
-    const MAP_BOUNDS = {
-        minLat: 7.0,
-        maxLat: 36.5,
-        minLon: 68.0,
-        maxLon: 97.5
-    };
-
-    function resizeCanvas() {
-        const rect = canvas.parentElement.getBoundingClientRect();
-        const dpr = window.devicePixelRatio || 1;
-        canvas.width = rect.width * dpr;
-        canvas.height = rect.height * dpr;
-        ctx.resetTransform();
-        ctx.scale(dpr, dpr);
-    }
-
-    function projectCoords(lat, lon, width, height) {
-        const padX = width * 0.08;
-        const padY = height * 0.08;
-        const availW = width - (2 * padX);
-        const availH = height - (2 * padY);
-
-        const xNorm = (lon - MAP_BOUNDS.minLon) / (MAP_BOUNDS.maxLon - MAP_BOUNDS.minLon);
-        const yNorm = 1.0 - ((lat - MAP_BOUNDS.minLat) / (MAP_BOUNDS.maxLat - MAP_BOUNDS.minLat));
-
-        return {
-            x: padX + (xNorm * availW),
-            y: padY + (yNorm * availH)
-        };
-    }
-
-    // Major India Hub Background Nodes
-    const REGIONAL_HUBS = [
-        { name: "Delhi NCR", lat: 28.6139, lon: 77.2090 },
-        { name: "Mumbai", lat: 19.0760, lon: 72.8777 },
-        { name: "Bengaluru", lat: 12.9716, lon: 77.5946 },
-        { name: "Chennai", lat: 13.0827, lon: 80.2707 },
-        { name: "Kolkata", lat: 22.5726, lon: 88.3639 },
-        { name: "Hyderabad", lat: 17.3850, lon: 78.4867 },
-        { name: "Ahmedabad", lat: 23.0225, lon: 72.5714 },
-        { name: "Guwahati", lat: 26.1445, lon: 91.7362 },
-        { name: "Kochi", lat: 9.9312, lon: 76.2673 },
-        { name: "Nagpur", lat: 21.1458, lon: 79.0882 }
-    ];
-
-    function drawIndiaBackground(w, h) {
-        // Draw Subtle Radar / Longitude / Latitude Coordinate Grid
-        ctx.strokeStyle = 'rgba(51, 65, 85, 0.35)';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([3, 6]);
-
-        for (let lon = 72; lon <= 96; lon += 6) {
-            const p1 = projectCoords(8, lon, w, h);
-            const p2 = projectCoords(36, lon, w, h);
-            ctx.beginPath();
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
-        }
-        for (let lat = 10; lat <= 34; lat += 6) {
-            const p1 = projectCoords(lat, 70, w, h);
-            const p2 = projectCoords(lat, 96, w, h);
-            ctx.beginPath();
-            ctx.moveTo(p1.x, p1.y);
-            ctx.lineTo(p2.x, p2.y);
-            ctx.stroke();
-        }
-        ctx.setLineDash([]);
-
-        // Regional Hub Nodes (Backbone network)
-        REGIONAL_HUBS.forEach(hub => {
-            const pt = projectCoords(hub.lat, hub.lon, w, h);
-            ctx.beginPath();
-            ctx.arc(pt.x, pt.y, 3, 0, Math.PI * 2);
-            ctx.fillStyle = 'rgba(148, 163, 184, 0.4)';
-            ctx.fill();
-
-            ctx.font = '9px system-ui, sans-serif';
-            ctx.fillStyle = 'rgba(148, 163, 184, 0.55)';
-            ctx.fillText(hub.name, pt.x + 6, pt.y + 3);
-        });
-    }
-
-    function getActiveRoutes() {
-        const conn = reportData.connectivity || {};
-        if (dualMonthMode) {
-            const mA = compareMonthA || (reportData.months && reportData.months[0] ? reportData.months[0].key : '');
-            const mB = compareMonthB || (reportData.months && reportData.months[1] ? reportData.months[1].key : mA);
-            const routesA = (conn.by_month && conn.by_month[mA]) || [];
-            const routesB = (conn.by_month && conn.by_month[mB]) || [];
-            return { dual: true, routesA, routesB, monthAKey: mA, monthBKey: mB };
-        } else {
-            if (currentMonth !== 'ALL' && conn.by_month && conn.by_month[currentMonth]) {
-                return { dual: false, routes: conn.by_month[currentMonth] };
-            }
-            return { dual: false, routes: conn.all_routes || [] };
-        }
-    }
-
-    function renderMap() {
-        if (!canvas) return;
-        const rect = canvas.parentElement.getBoundingClientRect();
-        const w = rect.width;
-        const h = rect.height;
-
-        ctx.clearRect(0, 0, w, h);
-        drawIndiaBackground(w, h);
-
-        const routeData = getActiveRoutes();
-
-        animProgress = (animProgress + 0.008) % 1;
-
-        if (routeData.dual) {
-            // Draw Month B routes (Amber/Orange)
-            drawRouteSet(routeData.routesB, '#F59E0B', '#FB923C', w, h, 'B');
-            // Draw Month A routes (Cyan/Blue)
-            drawRouteSet(routeData.routesA, '#38BDF8', '#0284C7', w, h, 'A');
-        } else {
-            const singleRoutes = routeData.routes || [];
-            drawRouteSet(singleRoutes, '#38BDF8', '#2563EB', w, h, 'NORMAL');
-        }
-
-        animFrameId = requestAnimationFrame(renderMap);
-    }
-
-    function drawRouteSet(routes, baseColor, glowColor, w, h, tag) {
-        routes.forEach(r => {
-            if (!r.origin_coords || !r.dest_coords) return;
-            const p1 = projectCoords(r.origin_coords[0], r.origin_coords[1], w, h);
-            const p2 = projectCoords(r.dest_coords[0], r.dest_coords[1], w, h);
-
-            const dx = p2.x - p1.x;
-            const dy = p2.y - p1.y;
-            const dist = Math.hypot(dx, dy);
-            if (dist < 2) return;
-
-            // 3D Arc Height & Curved Control Point
-            const arcH = Math.min(dist * 0.35, 110);
-            const mx = (p1.x + p2.x) / 2;
-            const my = (p1.y + p2.y) / 2;
-            const nx = -dy / dist;
-            const ny = dx / dist;
-            const cx = mx + (nx * arcH * 0.4);
-            const cy = my + (ny * arcH * 0.4) - (arcH * 0.5);
-
-            const isHovered = (hoveredRoute && hoveredRoute.key === r.key);
-            const isHighlighted = (highlightedOrigin === r.origin && highlightedDest === r.destination);
-
-            // Draw Curved Trajectory Line
-            ctx.save();
-            ctx.beginPath();
-            ctx.moveTo(p1.x, p1.y);
-            ctx.quadraticCurveTo(cx, cy, p2.x, p2.y);
-
-            if (isHighlighted || isHovered) {
-                ctx.strokeStyle = '#FFFFFF';
-                ctx.lineWidth = 3.5;
-                ctx.shadowColor = glowColor;
-                ctx.shadowBlur = 15;
-            } else {
-                ctx.strokeStyle = baseColor;
-                ctx.lineWidth = Math.min(Math.max((r.awb_count / 15), 1.2), 3.2);
-                ctx.globalAlpha = 0.55;
-            }
-            ctx.stroke();
-            ctx.restore();
-
-            // Draw Animated Flowing Pulse along the trajectory
-            const t = (animProgress + (dist % 10) / 10) % 1;
-            const invT = 1 - t;
-            const px = (invT * invT * p1.x) + (2 * invT * t * cx) + (t * t * p2.x);
-            const py = (invT * invT * p1.y) + (2 * invT * t * cy) + (t * t * p2.y);
-
-            ctx.beginPath();
-            ctx.arc(px, py, isHighlighted ? 3.5 : 2, 0, Math.PI * 2);
-            ctx.fillStyle = '#FFFFFF';
-            ctx.shadowColor = glowColor;
-            ctx.shadowBlur = 8;
-            ctx.fill();
-            ctx.shadowBlur = 0;
-
-            // Draw Origin Node (Glowing Circle)
-            ctx.beginPath();
-            ctx.arc(p1.x, p1.y, 4, 0, Math.PI * 2);
-            ctx.fillStyle = baseColor;
-            ctx.fill();
-
-            // Draw Destination Node (Glowing Ring)
-            ctx.beginPath();
-            ctx.arc(p2.x, p2.y, 3.5, 0, Math.PI * 2);
-            ctx.fillStyle = '#FFFFFF';
-            ctx.fill();
-        });
-    }
-
-    function highlightLaneOnMap(origin, dest) {
-        highlightedOrigin = origin;
-        highlightedDest = dest;
-        const found = (reportData.connectivity.all_routes || []).find(r => r.origin === origin && r.destination === dest);
-        if (found) {
-            showHudTooltip(found, null);
-        }
-    }
-
-    function resetMapView() {
-        highlightedOrigin = null;
-        highlightedDest = null;
-        mapTooltip.style.display = 'none';
-    }
-
-    function toggleDualMonthCompare() {
-        dualMonthMode = !dualMonthMode;
-        const btn = document.getElementById('btn-dual-month');
-        const btnText = document.getElementById('dual-month-btn-text');
-        const panel = document.getElementById('dual-month-selector-panel');
-        const p2Group = document.getElementById('legend-p2-group');
-        const p1Label = document.getElementById('legend-p1-label');
-
-        if (dualMonthMode) {
-            btn.className = "inline-flex items-center px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-blue-600 text-white shadow-xs";
-            btnText.textContent = "Exit Comparison Mode";
-            panel.classList.remove('hidden');
-            p2Group.classList.remove('hidden');
-            p2Group.classList.add('flex');
-            p1Label.textContent = "Month A (Blue)";
-            updateDualMonthMap();
-        } else {
-            btn.className = "inline-flex items-center px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300";
-            btnText.textContent = "Dual-Month Route Comparison";
-            panel.classList.add('hidden');
-            p2Group.classList.add('hidden');
-            p2Group.classList.remove('flex');
-            p1Label.textContent = "Active Routes";
-        }
-        renderMap();
-    }
-
-    function updateDualMonthMap() {
-        compareMonthA = document.getElementById('compare-month-a').value;
-        compareMonthB = document.getElementById('compare-month-b').value;
-        const mAObj = (reportData.months || []).find(m => m.key === compareMonthA);
-        const mBObj = (reportData.months || []).find(m => m.key === compareMonthB);
-        document.getElementById('legend-p1-label').textContent = (mAObj ? mAObj.label : compareMonthA) + ' (Blue)';
-        document.getElementById('legend-p2-label').textContent = (mBObj ? mBObj.label : compareMonthB) + ' (Orange)';
-        renderMap();
-    }
-
-    function showHudTooltip(route, e) {
-        document.getElementById('tip-lane').textContent = `${route.origin} → ${route.destination}`;
-        document.getElementById('tip-awbs').textContent = `${route.awb_count} AWBs`;
-        document.getElementById('tip-weight').textContent = `${route.total_weight} Kg`;
-        document.getElementById('tip-freight').textContent = formatInr(route.total_freight);
-        document.getElementById('tip-mode').textContent = route.primary_mode || 'Surface';
-
-        mapTooltip.style.display = 'block';
-        if (e) {
-            const rect = canvas.getBoundingClientRect();
-            mapTooltip.style.left = `${e.clientX - rect.left + 15}px`;
-            mapTooltip.style.top = `${e.clientY - rect.top - 20}px`;
-        } else {
-            mapTooltip.style.left = '20px';
-            mapTooltip.style.top = '20px';
-        }
-    }
-
-    // Canvas Mouse Interaction for Corridors
-    canvas.addEventListener('mousemove', (e) => {
-        const rect = canvas.getBoundingClientRect();
-        const mx = e.clientX - rect.left;
-        const my = e.clientY - rect.top;
-        const w = rect.width;
-        const h = rect.height;
-
-        const routes = (reportData.connectivity && reportData.connectivity.all_routes) || [];
-        let hitRoute = null;
-
-        for (let r of routes) {
-            if (!r.origin_coords || !r.dest_coords) continue;
-            const p1 = projectCoords(r.origin_coords[0], r.origin_coords[1], w, h);
-            const p2 = projectCoords(r.dest_coords[0], r.dest_coords[1], w, h);
-
-            // Check proximity to origin or destination
-            if (Math.hypot(mx - p1.x, my - p1.y) < 12 || Math.hypot(mx - p2.x, my - p2.y) < 12) {
-                hitRoute = r;
-                break;
-            }
-        }
-
-        if (hitRoute) {
-            hoveredRoute = hitRoute;
-            showHudTooltip(hitRoute, e);
-        } else {
-            hoveredRoute = null;
-            if (!highlightedOrigin) {
-                mapTooltip.style.display = 'none';
-            }
-        }
-    });
-
-    window.addEventListener('resize', () => {
-        resizeCanvas();
-    });
-
     // Render default on load
     document.addEventListener('DOMContentLoaded', () => {
-        resizeCanvas();
         renderCharts('all');
-        renderMap();
     });
 </script>
 {% endblock %}
