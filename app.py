@@ -86,20 +86,48 @@ def create_app():
     # Reset any dockets that were stuck in PROCESSING due to a server restart
     conn.execute("UPDATE dockets SET status = 'FAILED', rejection_reasons = '[\"Server restarted unexpectedly during processing.\"]' WHERE status = 'PROCESSING'")
     
-    existing = conn.execute('SELECT * FROM users WHERE role = ?', ('ADMIN',)).fetchone()
     pw_hash = bcrypt.hashpw(Config.ADMIN_PASSWORD.encode('utf-8'), bcrypt.gensalt()).decode('utf-8')
+    admin_user = (Config.ADMIN_USERNAME or 'admin').strip()
     try:
-        if not existing:
-            conn.execute("INSERT INTO users (username, password_hash, role) VALUES (?, ?, 'ADMIN')",
-                         (Config.ADMIN_USERNAME, pw_hash))
+        # 1. First check if a user with the configured admin username already exists (case-insensitive)
+        existing_by_name = conn.execute(
+            'SELECT id, username, role FROM users WHERE LOWER(username) = LOWER(?)',
+            (admin_user,)
+        ).fetchone()
+
+        if existing_by_name:
+            # User already exists: update password and ensure ADMIN role is present without touching username
+            raw_roles = str(existing_by_name['role'] or '')
+            current_roles = [r.strip().upper() for r in raw_roles.split(',') if r.strip()]
+            if 'ADMIN' not in current_roles:
+                current_roles.append('ADMIN')
+            roles_str = ', '.join(sorted(set(current_roles)))
+            conn.execute(
+                "UPDATE users SET password_hash = ?, role = ? WHERE id = ?",
+                (pw_hash, roles_str, existing_by_name['id'])
+            )
         else:
-            # Force sync admin credentials with environment variables to allow easy password changes
-            conn.execute("UPDATE users SET username = ?, password_hash = ? WHERE role = 'ADMIN'",
-                         (Config.ADMIN_USERNAME, pw_hash))
+            # 2. Check if a legacy 'admin' account exists that should be renamed
+            legacy_admin = conn.execute(
+                "SELECT id, username FROM users WHERE LOWER(username) = 'admin'"
+            ).fetchone()
+
+            if legacy_admin and admin_user.lower() != 'admin':
+                # Safely rename legacy admin to the configured ADMIN_USERNAME
+                conn.execute(
+                    "UPDATE users SET username = ?, password_hash = ?, role = 'ADMIN' WHERE id = ?",
+                    (admin_user, pw_hash, legacy_admin['id'])
+                )
+            else:
+                # 3. Create fresh admin account
+                conn.execute(
+                    "INSERT INTO users (username, password_hash, role) VALUES (?, ?, 'ADMIN')",
+                    (admin_user, pw_hash)
+                )
         conn.commit()
     except Exception as e:
         import sys
-        print(f"CRITICAL WARNING: Failed to sync ADMIN credentials on startup! Ensure the username '{Config.ADMIN_USERNAME}' doesn't already exist as a normal user. Error: {e}", file=sys.stderr)
+        print(f"CRITICAL WARNING: Failed to sync ADMIN credentials on startup! Error: {e}", file=sys.stderr)
         try:
             conn.rollback()
         except:
