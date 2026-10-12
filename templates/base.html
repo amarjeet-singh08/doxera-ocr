@@ -50,6 +50,7 @@
         }
         .sidebar-icon { margin-right: 0.75rem; width: 1.25rem; height: 1.25rem; }
     </style>
+    {% block extra_head %}{% endblock %}
 </head>
 <body class="min-h-screen text-slate-800 antialiased flex overflow-hidden bg-slate-50">
     
@@ -229,5 +230,6 @@
             backdrop.classList.toggle('hidden');
         }
     </script>
+    {% block extra_scripts %}{% endblock %}
 </body>
 </html>

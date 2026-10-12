@@ -118,69 +118,69 @@ def create_app():
     @app.route('/')
     def index():
         return redirect(url_for('ops.dashboard'))
+
+    @app.context_processor
+    def inject_notifications():
+        try:
+            from database import get_db_connection
+            from datetime import datetime, timezone
+            conn = get_db_connection()
+            today_start = datetime.now(timezone.utc).strftime("%Y-%m-%d 00:00:00")
+            
+            pending = conn.execute("SELECT COUNT(*) FROM dockets WHERE is_archived = 0 AND status IN ('REVIEW_REQUIRED', 'MODIFIED_REVERIFICATION_REQUIRED')").fetchone()[0]
+            failed = conn.execute("SELECT COUNT(*) FROM dockets WHERE is_archived = 0 AND status = 'FAILED'").fetchone()[0]
+            rejected = conn.execute("SELECT COUNT(*) FROM dockets WHERE is_archived = 0 AND status = 'REJECTED'").fetchone()[0]
+            
+            # Calculate rate limit remaining using OpenRouter actual API limit
+            rate_limit_left = get_openrouter_quota()
+            
+            conn.close()
+
+            def user_has_role(*required_roles):
+                try:
+                    raw_role = session.get('role', 'VIEWER')
+                except Exception:
+                    raw_role = 'VIEWER'
+                if isinstance(raw_role, list):
+                    u_roles = {str(r).strip().upper() for r in raw_role}
+                else:
+                    u_roles = {str(r).strip().upper() for r in str(raw_role).split(',') if str(r).strip()}
+                if 'ADMIN' in u_roles:
+                    return True
+                req_set = {str(r).strip().upper() for r in required_roles}
+                return bool(u_roles.intersection(req_set))
+
+            return dict(
+                notif_pending=pending,
+                notif_failed=failed,
+                notif_rejected=rejected,
+                notif_limit=rate_limit_left,
+                notif_total=pending + failed + rejected,
+                user_has_role=user_has_role
+            )
+        except Exception as e:
+            def user_has_role(*required_roles):
+                try:
+                    raw_role = session.get('role', 'VIEWER')
+                except Exception:
+                    raw_role = 'VIEWER'
+                u_roles = {str(r).strip().upper() for r in str(raw_role).split(',') if str(r).strip()}
+                if 'ADMIN' in u_roles:
+                    return True
+                return bool(u_roles.intersection({str(r).strip().upper() for r in required_roles}))
+            return dict(notif_total=0, user_has_role=user_has_role)
+
+    @app.errorhandler(500)
+    def internal_error(error):
+        return render_template('500.html'), 500
+
+    @app.errorhandler(403)
+    def forbidden_error(error):
+        return render_template('403.html'), 403
         
     return app
 
 app = create_app()
-
-
-@app.context_processor
-def inject_notifications():
-    try:
-        from database import get_db_connection
-        from datetime import datetime
-        conn = get_db_connection()
-        from datetime import timezone
-        today_start = datetime.now(timezone.utc).strftime("%Y-%m-%d 00:00:00")
-        
-        pending = conn.execute("SELECT COUNT(*) FROM dockets WHERE is_archived = 0 AND status IN ('REVIEW_REQUIRED', 'MODIFIED_REVERIFICATION_REQUIRED')").fetchone()[0]
-        failed = conn.execute("SELECT COUNT(*) FROM dockets WHERE is_archived = 0 AND status = 'FAILED'").fetchone()[0]
-        rejected = conn.execute("SELECT COUNT(*) FROM dockets WHERE is_archived = 0 AND status = 'REJECTED'").fetchone()[0]
-        
-        # Calculate rate limit remaining using OpenRouter actual API limit
-        rate_limit_left = get_openrouter_quota()
-        
-        conn.close()
-
-        def user_has_role(*required_roles):
-            raw_role = session.get('role', 'VIEWER')
-            if isinstance(raw_role, list):
-                u_roles = {str(r).strip().upper() for r in raw_role}
-            else:
-                u_roles = {str(r).strip().upper() for r in str(raw_role).split(',') if str(r).strip()}
-            if 'ADMIN' in u_roles:
-                return True
-            req_set = {str(r).strip().upper() for r in required_roles}
-            return bool(u_roles.intersection(req_set))
-
-        return dict(
-            notif_pending=pending,
-            notif_failed=failed,
-            notif_rejected=rejected,
-            notif_limit=rate_limit_left,
-            notif_total=pending + failed + rejected,
-            user_has_role=user_has_role
-        )
-    except Exception as e:
-        def user_has_role(*required_roles):
-            raw_role = session.get('role', 'VIEWER')
-            u_roles = {str(r).strip().upper() for r in str(raw_role).split(',') if str(r).strip()}
-            if 'ADMIN' in u_roles:
-                return True
-            return bool(u_roles.intersection({str(r).strip().upper() for r in required_roles}))
-        return dict(notif_total=0, user_has_role=user_has_role)
-
-
-
-@app.errorhandler(500)
-def internal_error(error):
-    from flask import render_template
-    return render_template('500.html'), 500
-
-@app.errorhandler(403)
-def forbidden_error(error):
-    from flask import render_template
-    return render_template('403.html'), 403
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000, threaded=True)

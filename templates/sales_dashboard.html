@@ -2,10 +2,13 @@
 {% block header_title %}North Express Logistics - Executive Sales Dashboard{% endblock %}
 
 {% block extra_head %}
-<!-- Local High-Performance Enterprise Charting & Mapping Libraries -->
+<!-- Local & CDN High-Performance Enterprise Charting & Mapping Libraries -->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/leaflet.css') }}">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 <script src="{{ url_for('static', filename='js/leaflet.js') }}"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="{{ url_for('static', filename='js/apexcharts.min.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
 
 <style>
     /* Executive Power BI Typography & Layout */
@@ -172,14 +175,17 @@
             <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-stretch">
                 
                 <!-- Black High-Contrast Total Sale Card (5 Cols) -->
-                <div class="sm:col-span-5 bg-black rounded-xl p-5 text-white flex flex-col justify-center items-center text-center shadow-md">
-                    <div class="text-2xl sm:text-3xl font-black text-cyan-400 font-mono tracking-tight" id="kpi-total-sales">
-                        {{ format_inr(report_data.summary.unbilled_sales) }}
+                <div class="sm:col-span-5 bg-black rounded-xl p-3.5 sm:p-4 text-white flex flex-col justify-center items-center text-center shadow-md overflow-hidden">
+                    <div class="w-full px-1 flex flex-col items-center">
+                        <span class="text-[10px] font-bold text-cyan-500 uppercase tracking-widest mb-1">INR (₹)</span>
+                        <div class="text-xl sm:text-2xl font-black text-cyan-400 font-mono tracking-tight leading-none break-all" id="kpi-total-sales">
+                            {{ "{:,.2f}".format(report_data.summary.unbilled_sales) }}
+                        </div>
                     </div>
-                    <div class="text-sm font-bold text-slate-300 mt-1 uppercase tracking-wider">
+                    <div class="text-xs font-bold text-slate-300 mt-2 uppercase tracking-wider">
                         Total Sale
                     </div>
-                    <div class="mt-4 pt-3 border-t border-slate-800 text-[11px] text-slate-400 w-full flex justify-around font-mono">
+                    <div class="mt-3 pt-2.5 border-t border-slate-800 text-[10px] text-slate-400 w-full flex justify-around font-mono">
                         <span><b class="text-white" id="kpi-total-awbs">{{ report_data.summary.unbilled_shipments }}</b> AWBs</span>
                         <span>•</span>
                         <span><b class="text-white" id="kpi-total-wt">{{ "{:,.1f}".format(report_data.unbilled.summary.total_weight) }}</b> Kg</span>
@@ -325,6 +331,12 @@
 
 </div>
 
+<!-- Charting & Mapping Libraries (Guaranteed Body Execution) -->
+<script src="{{ url_for('static', filename='js/apexcharts.min.js') }}"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+<script src="{{ url_for('static', filename='js/leaflet.js') }}"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
 <!-- EMBEDDED RAW DATA -->
 <script id="raw-report-data" type="application/json">
 {{ report_data | tojson }}
@@ -360,67 +372,115 @@
     }
 
     // ─────────────────────────────────────────────────────────────
-    // MAP CONTROLLER (Leaflet India Bubble Map)
+    // MAP CONTROLLER (Leaflet India Bubble Map with City Coordinates)
     // ─────────────────────────────────────────────────────────────
+    const INDIA_COORDS_FALLBACK = {
+        "DELHI": [28.6139, 77.2090], "NEW DELHI": [28.6139, 77.2090], "GURGAON": [28.4595, 77.0266],
+        "GURUGRAM": [28.4595, 77.0266], "NOIDA": [28.5355, 77.3910], "GREATER NOIDA": [28.4744, 77.5040],
+        "FARIDABAD": [28.4089, 77.3178], "GHAZIABAD": [28.6692, 77.4538],
+        "MUMBAI": [19.0760, 72.8777], "BOMBAY": [19.0760, 72.8777], "THANE": [19.2183, 72.9781],
+        "NAVI MUMBAI": [19.0330, 73.0297], "PUNE": [18.5204, 73.8567], "NASHIK": [19.9975, 73.7898],
+        "NAGPUR": [21.1458, 79.0882], "AHMEDABAD": [23.0225, 72.5714], "SURAT": [21.1702, 72.8311],
+        "VADODARA": [22.3072, 73.1812], "BARODA": [22.3072, 73.1812], "RAJKOT": [22.3039, 70.8022],
+        "INDORE": [22.7196, 75.8577], "BHOPAL": [23.2599, 77.4126], "JAIPUR": [26.9124, 75.7873],
+        "BENGALURU": [12.9716, 77.5946], "BANGALORE": [12.9716, 77.5946], "BELAGAVI": [15.8497, 74.4977],
+        "BELGAUM": [15.8497, 74.4977], "CHENNAI": [13.0827, 80.2707], "MADRAS": [13.0827, 80.2707],
+        "COIMBATORE": [11.0168, 76.9558], "HYDERABAD": [17.3850, 78.4867], "MEDCHAL": [17.6297, 78.4814],
+        "MEDCHAL MALKAJGIRI": [17.6297, 78.4814], "RANGAREDDY": [17.4399, 78.4983],
+        "KOCHI": [9.9312, 76.2673], "COCHIN": [9.9312, 76.2673], "KOLKATA": [22.5726, 88.3639],
+        "CALCUTTA": [22.5726, 88.3639], "PATNA": [25.5941, 85.1376], "RANCHI": [23.3441, 85.3096],
+        "BHUBANESWAR": [20.2961, 85.8245], "GUWAHATI": [26.1445, 91.7362], "LUCKNOW": [26.8467, 80.9462],
+        "KANPUR": [26.4499, 80.3319], "CHANDIGARH": [30.7333, 76.7794], "LUDHIANA": [30.9010, 75.8573]
+    };
+
     let map = null;
     let markersLayer = null;
 
     function initMap() {
         if (map) return;
-        
-        map = L.map('destination-map', {
-            zoomControl: true,
-            attributionControl: false
-        }).setView([22.0, 79.0], 4);
+        if (typeof L === 'undefined') {
+            console.warn("Leaflet library (L) not available yet for map initialization.");
+            return;
+        }
 
-        // Dark Matter tiles for professional aesthetics
-        L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-            maxZoom: 9,
-            minZoom: 3,
-            subdomains: 'abcd'
-        }).addTo(map);
+        const mapEl = document.getElementById('destination-map');
+        if (!mapEl) return;
 
-        markersLayer = L.layerGroup().addTo(map);
-        renderMapBubbles();
+        try {
+            map = L.map('destination-map', {
+                zoomControl: true,
+                attributionControl: false
+            }).setView([22.0, 79.0], 4);
+
+            // Dark Matter tiles for professional aesthetics
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+                maxZoom: 9,
+                minZoom: 3,
+                subdomains: 'abcd'
+            }).addTo(map);
+
+            markersLayer = L.layerGroup().addTo(map);
+            renderMapBubbles();
+
+            // Refresh dimensions in case container was rendered in flex layout
+            setTimeout(() => {
+                if (map) map.invalidateSize();
+            }, 300);
+        } catch (err) {
+            console.error("Map initialization failed:", err);
+        }
     }
 
     function renderMapBubbles() {
-        if (!markersLayer) return;
-        markersLayer.clearLayers();
+        if (!map || !markersLayer || typeof L === 'undefined') return;
+        try {
+            markersLayer.clearLayers();
 
-        const seg = getActiveDataset();
-        const dests = seg.destinations || [];
+            const seg = getActiveDataset() || {};
+            const dests = seg.destinations || [];
 
-        // Find max shipment count for scaling
-        const maxShipments = Math.max(...dests.map(d => d.shipments || 1), 1);
+            // Find max shipment count for scaling
+            const maxShipments = Math.max(...dests.map(d => d.shipments || 1), 1);
 
-        dests.forEach(d => {
-            if (!d.coords || !d.coords[0] || !d.coords[1]) return;
-            const lat = d.coords[0];
-            const lon = d.coords[1];
+            dests.forEach(d => {
+                let lat = null, lon = null;
+                if (d.coords && d.coords[0] && d.coords[1]) {
+                    lat = d.coords[0];
+                    lon = d.coords[1];
+                } else {
+                    const cleanCity = (d.city || '').toUpperCase().trim();
+                    if (INDIA_COORDS_FALLBACK[cleanCity]) {
+                        [lat, lon] = INDIA_COORDS_FALLBACK[cleanCity];
+                    }
+                }
 
-            // Radius scaled proportionally
-            const radius = Math.min(Math.max((d.shipments / maxShipments) * 22, 4.5), 24);
+                if (!lat || !lon) return;
 
-            const circle = L.circleMarker([lat, lon], {
-                radius: radius,
-                fillColor: '#38BDF8',
-                color: '#60A5FA',
-                weight: 1.5,
-                opacity: 0.9,
-                fillOpacity: 0.65
+                // Radius scaled proportionally
+                const radius = Math.min(Math.max(((d.shipments || 1) / maxShipments) * 22, 4.5), 24);
+
+                const circle = L.circleMarker([lat, lon], {
+                    radius: radius,
+                    fillColor: '#38BDF8',
+                    color: '#60A5FA',
+                    weight: 1.5,
+                    opacity: 0.9,
+                    fillOpacity: 0.65
+                });
+
+                circle.bindTooltip(`
+                    <div style="font-family: inherit; font-size: 11px; padding: 2px;">
+                        <b style="color: #38BDF8; font-size: 12px; text-transform: uppercase;">${d.city || 'City'}</b><br/>
+                        <b>Consignments:</b> ${d.shipments || 0} AWBs<br/>
+                        <b>Total Sale:</b> ₹ ${formatPlainNumber(d.sales || 0)}
+                    </div>
+                `, { direction: 'top', className: 'custom-map-tooltip' });
+
+                markersLayer.addLayer(circle);
             });
-
-            circle.bindTooltip(`
-                <div style="font-family: inherit; font-size: 11px; padding: 2px;">
-                    <b style="color: #38BDF8; font-size: 12px; text-transform: uppercase;">${d.city}</b><br/>
-                    <b>Consignments:</b> ${d.shipments} AWBs<br/>
-                    <b>Total Sale:</b> ₹ ${formatPlainNumber(d.sales)}
-                </div>
-            `, { direction: 'top', className: 'custom-map-tooltip' });
-
-            markersLayer.addLayer(circle);
-        });
+        } catch (err) {
+            console.error("Failed to render map bubbles:", err);
+        }
     }
 
     function resetMap() {
@@ -436,178 +496,221 @@
     let custChart = null;
 
     function renderCharts() {
-        const seg = getActiveDataset();
-        const summary = getActiveSummary();
+        const seg = getActiveDataset() || {};
+        const summary = getActiveSummary() || {};
+        const segSummary = seg.summary || {};
 
         // 1. UPDATE HEADING & TOTAL SALE TILE
         const headingEl = document.getElementById('report-mode-heading');
+        const salesEl = document.getElementById('kpi-total-sales');
+        const awbsEl = document.getElementById('kpi-total-awbs');
+        const wtEl = document.getElementById('kpi-total-wt');
+
         if (currentSegment === 'unbilled') {
-            headingEl.textContent = 'SALES REPORT (UNBILLED)';
-            document.getElementById('kpi-total-sales').textContent = formatPlainNumber(summary.unbilled_sales);
-            document.getElementById('kpi-total-awbs').textContent = summary.unbilled_shipments;
-            document.getElementById('kpi-total-wt').textContent = Number(seg.summary.total_weight).toLocaleString('en-IN', { maximumFractionDigits: 1 });
+            if (headingEl) headingEl.textContent = 'SALES REPORT (UNBILLED)';
+            if (salesEl) salesEl.textContent = formatPlainNumber(summary.unbilled_sales ?? segSummary.total_sales ?? 0);
+            if (awbsEl) awbsEl.textContent = summary.unbilled_shipments ?? segSummary.total_shipments ?? 0;
+            if (wtEl) wtEl.textContent = Number(segSummary.total_weight || 0).toLocaleString('en-IN', { maximumFractionDigits: 1 });
         } else if (currentSegment === 'billed') {
-            headingEl.textContent = 'SALES REPORT (BILLED)';
-            document.getElementById('kpi-total-sales').textContent = formatPlainNumber(summary.billed_sales);
-            document.getElementById('kpi-total-awbs').textContent = summary.billed_shipments;
-            document.getElementById('kpi-total-wt').textContent = Number(seg.summary.total_weight).toLocaleString('en-IN', { maximumFractionDigits: 1 });
+            if (headingEl) headingEl.textContent = 'SALES REPORT (BILLED)';
+            if (salesEl) salesEl.textContent = formatPlainNumber(summary.billed_sales ?? segSummary.total_sales ?? 0);
+            if (awbsEl) awbsEl.textContent = summary.billed_shipments ?? segSummary.total_shipments ?? 0;
+            if (wtEl) wtEl.textContent = Number(segSummary.total_weight || 0).toLocaleString('en-IN', { maximumFractionDigits: 1 });
         } else {
-            headingEl.textContent = 'SALES REPORT (CONSOLIDATED)';
-            document.getElementById('kpi-total-sales').textContent = formatPlainNumber(summary.total_sales);
-            document.getElementById('kpi-total-awbs').textContent = summary.total_shipments;
-            document.getElementById('kpi-total-wt').textContent = Number(seg.summary.total_weight).toLocaleString('en-IN', { maximumFractionDigits: 1 });
+            if (headingEl) headingEl.textContent = 'SALES REPORT (CONSOLIDATED)';
+            if (salesEl) salesEl.textContent = formatPlainNumber(summary.total_sales ?? segSummary.total_sales ?? 0);
+            if (awbsEl) awbsEl.textContent = summary.total_shipments ?? segSummary.total_shipments ?? 0;
+            if (wtEl) wtEl.textContent = Number(segSummary.total_weight || 0).toLocaleString('en-IN', { maximumFractionDigits: 1 });
+        }
+
+        if (typeof ApexCharts === 'undefined') {
+            console.warn("ApexCharts library not available yet.");
+            return;
         }
 
         // 2. SALE GRAPH BY DATE (Line Spline with peak labels)
-        const dateCategories = seg.daily_sales.map(d => {
-            const parts = d.date.split('-');
-            return parts.length >= 2 ? `${parts[0]} ${getMonthAbbr(parts[1])}` : d.date;
-        });
-        const dateValues = seg.daily_sales.map(d => Math.round(d.sales));
+        try {
+            const daily = seg.daily_sales || [];
+            const dateCategories = daily.map(d => {
+                const parts = (d.date || '').split('-');
+                return parts.length >= 2 ? `${parts[0]} ${getMonthAbbr(parts[1])}` : (d.date || '');
+            });
+            const dateValues = daily.map(d => Math.round(d.sales || 0));
 
-        if (dateChart) dateChart.destroy();
-        dateChart = new ApexCharts(document.querySelector("#date-trend-chart"), {
-            series: [{ name: 'Sale Graph', data: dateValues }],
-            chart: { type: 'line', height: 175, toolbar: { show: false }, fontFamily: 'inherit' },
-            colors: ['#0284C7'],
-            stroke: { width: 2.5, curve: 'smooth' },
-            dataLabels: {
-                enabled: true,
-                formatter: function (val, opt) {
-                    // Show numbers on peaks
-                    const series = opt.w.config.series[0].data;
-                    const idx = opt.dataPointIndex;
-                    if (idx > 0 && idx < series.length - 1) {
-                        if (series[idx] >= series[idx - 1] && series[idx] >= series[idx + 1]) {
-                            return val;
+            if (dateChart) dateChart.destroy();
+            const dateContainer = document.querySelector("#date-trend-chart");
+            if (dateContainer) {
+                dateChart = new ApexCharts(dateContainer, {
+                    series: [{ name: 'Sale Graph', data: dateValues }],
+                    chart: { type: 'line', height: 175, toolbar: { show: false }, fontFamily: 'inherit' },
+                    colors: ['#0284C7'],
+                    stroke: { width: 2.5, curve: 'smooth' },
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function (val, opt) {
+                            const series = opt.w.config.series[0].data;
+                            const idx = opt.dataPointIndex;
+                            if (idx > 0 && idx < series.length - 1) {
+                                if (series[idx] >= series[idx - 1] && series[idx] >= series[idx + 1]) {
+                                    return val;
+                                }
+                            }
+                            if (idx === series.length - 1) return val;
+                            return '';
+                        },
+                        offsetY: -5,
+                        style: { fontSize: '9px', fontWeight: 700, colors: ['#0284C7'] }
+                    },
+                    xaxis: {
+                        categories: dateCategories,
+                        tickAmount: Math.min(dateCategories.length, 6),
+                        labels: { style: { colors: '#0F172A', fontSize: '10px', fontWeight: 600 } }
+                    },
+                    yaxis: {
+                        labels: {
+                            formatter: (val) => Number(val).toLocaleString('en-IN'),
+                            style: { colors: '#DC2626', fontSize: '9px', fontWeight: 600 }
                         }
-                    }
-                    if (idx === series.length - 1) return val;
-                    return '';
-                },
-                offsetY: -5,
-                style: { fontSize: '9px', fontWeight: 700, colors: ['#0284C7'] }
-            },
-            xaxis: {
-                categories: dateCategories,
-                tickAmount: 4,
-                labels: { style: { colors: '#0F172A', fontSize: '10px', fontWeight: 600 } }
-            },
-            yaxis: {
-                labels: {
-                    formatter: (val) => Number(val).toLocaleString('en-IN'),
-                    style: { colors: '#DC2626', fontSize: '9px', fontWeight: 600 } // Red axis numbers like reference
-                }
-            },
-            grid: { borderColor: '#E2E8F0', strokeDashArray: 2 },
-            tooltip: { y: { formatter: (val) => '₹ ' + formatPlainNumber(val) } }
-        });
-        dateChart.render();
+                    },
+                    grid: { borderColor: '#E2E8F0', strokeDashArray: 2 },
+                    tooltip: { y: { formatter: (val) => '₹ ' + formatPlainNumber(val) } }
+                });
+                dateChart.render();
+            }
+        } catch (err) {
+            console.error("Failed to render Date Trend chart:", err);
+        }
 
         // 3. TOTAL SALE BY SALES PERSON (Horizontal Bar Chart)
-        const repNames = seg.sales_reps.map(r => r.name);
-        const repSales = seg.sales_reps.map(r => r.sales);
+        try {
+            const reps = seg.sales_reps || [];
+            const repNames = reps.map(r => r.name || 'Unknown');
+            const repSales = reps.map(r => r.sales || 0);
 
-        if (repChart) repChart.destroy();
-        repChart = new ApexCharts(document.querySelector("#sales-person-chart"), {
-            series: [{ name: 'Total Sale', data: repSales }],
-            chart: { type: 'bar', height: 280, toolbar: { show: false }, fontFamily: 'inherit' },
-            plotOptions: {
-                bar: {
-                    horizontal: true,
-                    borderRadius: 2,
-                    barHeight: '55%',
-                    dataLabels: { position: 'top' }
-                }
-            },
-            colors: ['#000000'], // Solid black bar like reference image
-            dataLabels: {
-                enabled: true,
-                textAnchor: 'start',
-                formatter: (val) => formatPlainNumber(val),
-                offsetX: 8,
-                style: { fontSize: '10px', fontWeight: 700, colors: ['#1E3A8A'] }
-            },
-            xaxis: {
-                categories: repNames,
-                labels: {
-                    formatter: (val) => Number(val).toLocaleString('en-IN'),
-                    style: { colors: '#DC2626', fontSize: '10px', fontWeight: 600 } // Red axis numbers like reference
-                }
-            },
-            yaxis: {
-                labels: { style: { colors: '#1E3A8A', fontSize: '11px', fontWeight: 700 } }
-            },
-            grid: { borderColor: '#E2E8F0' },
-            tooltip: { y: { formatter: (val) => '₹ ' + formatPlainNumber(val) } }
-        });
-        repChart.render();
+            if (repChart) repChart.destroy();
+            const repContainer = document.querySelector("#sales-person-chart");
+            if (repContainer) {
+                repChart = new ApexCharts(repContainer, {
+                    series: [{ name: 'Total Sale', data: repSales }],
+                    chart: { type: 'bar', height: 280, toolbar: { show: false }, fontFamily: 'inherit' },
+                    plotOptions: {
+                        bar: {
+                            horizontal: true,
+                            borderRadius: 2,
+                            barHeight: '55%',
+                            dataLabels: { position: 'top' }
+                        }
+                    },
+                    colors: ['#000000'],
+                    dataLabels: {
+                        enabled: true,
+                        textAnchor: 'start',
+                        formatter: (val) => formatPlainNumber(val),
+                        offsetX: 8,
+                        style: { fontSize: '10px', fontWeight: 700, colors: ['#1E3A8A'] }
+                    },
+                    xaxis: {
+                        categories: repNames,
+                        labels: {
+                            formatter: (val) => Number(val).toLocaleString('en-IN'),
+                            style: { colors: '#DC2626', fontSize: '10px', fontWeight: 600 }
+                        }
+                    },
+                    yaxis: {
+                        labels: { style: { colors: '#1E3A8A', fontSize: '11px', fontWeight: 700 } }
+                    },
+                    grid: { borderColor: '#E2E8F0' },
+                    tooltip: { y: { formatter: (val) => '₹ ' + formatPlainNumber(val) } }
+                });
+                repChart.render();
+            }
+        } catch (err) {
+            console.error("Failed to render Sales Rep chart:", err);
+        }
 
         // 4. TOTAL SALE BY SERVICEMODE (Pie Chart: Air, Surface, Train)
-        const modeLabels = seg.modes.map(m => m.mode);
-        const modeValues = seg.modes.map(m => m.sales);
+        try {
+            const modes = seg.modes || [];
+            const modeLabels = modes.map(m => m.mode || 'Other');
+            const modeValues = modes.map(m => m.sales || 0);
 
-        if (modeChart) modeChart.destroy();
-        modeChart = new ApexCharts(document.querySelector("#servicemode-pie-chart"), {
-            series: modeValues,
-            labels: modeLabels,
-            chart: { type: 'pie', height: 220, fontFamily: 'inherit' },
-            colors: ['#1D4ED8', '#000000', '#991B1B'], // Blue (Air), Black (Surface), Red/Brown (Train)
-            dataLabels: {
-                enabled: true,
-                formatter: (val, opts) => {
-                    const amt = opts.w.config.series[opts.seriesIndex];
-                    return formatPlainNumber(amt);
-                },
-                style: { fontSize: '9px', fontWeight: 700, colors: ['#DC2626'] }
-            },
-            legend: {
-                position: 'right',
-                fontSize: '11px',
-                fontWeight: 600,
-                labels: { colors: '#0F172A' }
-            },
-            tooltip: { y: { formatter: (val) => '₹ ' + formatPlainNumber(val) } }
-        });
-        modeChart.render();
+            if (modeChart) modeChart.destroy();
+            const modeContainer = document.querySelector("#servicemode-pie-chart");
+            if (modeContainer) {
+                modeChart = new ApexCharts(modeContainer, {
+                    series: modeValues,
+                    labels: modeLabels,
+                    chart: { type: 'pie', height: 220, fontFamily: 'inherit' },
+                    colors: ['#1D4ED8', '#000000', '#991B1B'],
+                    dataLabels: {
+                        enabled: true,
+                        formatter: (val, opts) => {
+                            const amt = opts.w.config.series[opts.seriesIndex];
+                            return formatPlainNumber(amt);
+                        },
+                        style: { fontSize: '9px', fontWeight: 700, colors: ['#DC2626'] }
+                    },
+                    legend: {
+                        position: 'right',
+                        fontSize: '11px',
+                        fontWeight: 600,
+                        labels: { colors: '#0F172A' }
+                    },
+                    tooltip: { y: { formatter: (val) => '₹ ' + formatPlainNumber(val) } }
+                });
+                modeChart.render();
+            }
+        } catch (err) {
+            console.error("Failed to render Service Mode chart:", err);
+        }
 
         // 5. TOP 5 CUSTOMER BY SALE (Donut Chart)
-        const top5Custs = seg.customers.slice(0, 5);
-        const custLabels = top5Custs.map(c => c.name.length > 20 ? c.name.substring(0, 20) + '...' : c.name);
-        const custValues = top5Custs.map(c => c.sales);
+        try {
+            const top5Custs = (seg.customers || []).slice(0, 5);
+            const custLabels = top5Custs.map(c => {
+                const n = c.name || 'Unknown';
+                return n.length > 20 ? n.substring(0, 20) + '...' : n;
+            });
+            const custValues = top5Custs.map(c => c.sales || 0);
 
-        if (custChart) custChart.destroy();
-        custChart = new ApexCharts(document.querySelector("#top-customer-donut-chart"), {
-            series: custValues,
-            labels: custLabels,
-            chart: { type: 'donut', height: 220, fontFamily: 'inherit' },
-            colors: ['#000000', '#0284C7', '#1D4ED8', '#EA580C', '#7C3AED'],
-            plotOptions: {
-                pie: {
-                    donut: { size: '60%' }
-                }
-            },
-            dataLabels: {
-                enabled: true,
-                formatter: (val, opts) => {
-                    const amt = opts.w.config.series[opts.seriesIndex];
-                    return formatPlainNumber(amt);
-                },
-                style: { fontSize: '8.5px', fontWeight: 700, colors: ['#1D4ED8'] }
-            },
-            legend: {
-                position: 'right',
-                fontSize: '10px',
-                fontWeight: 600,
-                labels: { colors: '#0F172A' }
-            },
-            tooltip: { y: { formatter: (val) => '₹ ' + formatPlainNumber(val) } }
-        });
-        custChart.render();
+            if (custChart) custChart.destroy();
+            const custContainer = document.querySelector("#top-customer-donut-chart");
+            if (custContainer) {
+                custChart = new ApexCharts(custContainer, {
+                    series: custValues,
+                    labels: custLabels,
+                    chart: { type: 'donut', height: 220, fontFamily: 'inherit' },
+                    colors: ['#000000', '#0284C7', '#1D4ED8', '#EA580C', '#7C3AED'],
+                    plotOptions: {
+                        pie: {
+                            donut: { size: '60%' }
+                        }
+                    },
+                    dataLabels: {
+                        enabled: true,
+                        formatter: (val, opts) => {
+                            const amt = opts.w.config.series[opts.seriesIndex];
+                            return formatPlainNumber(amt);
+                        },
+                        style: { fontSize: '8.5px', fontWeight: 700, colors: ['#1D4ED8'] }
+                    },
+                    legend: {
+                        position: 'right',
+                        fontSize: '10px',
+                        fontWeight: 600,
+                        labels: { colors: '#0F172A' }
+                    },
+                    tooltip: { y: { formatter: (val) => '₹ ' + formatPlainNumber(val) } }
+                });
+                custChart.render();
+            }
+        } catch (err) {
+            console.error("Failed to render Top Customer chart:", err);
+        }
 
-        // Refresh Map Bubbles
-        renderMapBubbles();
-        applyFilters();
+        // Refresh Map Bubbles & Table Filters
+        try { renderMapBubbles(); } catch (e) { console.error("Map bubble update error:", e); }
+        try { applyFilters(); } catch (e) { console.error("Apply filters error:", e); }
     }
 
     function getMonthAbbr(mStr) {
@@ -623,10 +726,12 @@
         currentSegment = seg;
         ['all', 'billed', 'unbilled'].forEach(s => {
             const btn = document.getElementById('tab-' + s);
-            if (s === seg) {
-                btn.className = "px-3.5 py-1.5 rounded-md text-xs font-bold transition-all bg-slate-900 text-white shadow-xs";
-            } else {
-                btn.className = "px-3.5 py-1.5 rounded-md text-xs font-bold transition-all text-slate-700 hover:text-slate-900";
+            if (btn) {
+                if (s === seg) {
+                    btn.className = "px-3.5 py-1.5 rounded-md text-xs font-bold transition-all bg-slate-900 text-white shadow-xs";
+                } else {
+                    btn.className = "px-3.5 py-1.5 rounded-md text-xs font-bold transition-all text-slate-700 hover:text-slate-900";
+                }
             }
         });
         renderCharts();
@@ -648,9 +753,14 @@
     // CLIENT-SIDE FILTERS
     // ─────────────────────────────────────────────────────────────
     function applyFilters() {
-        const selectedRep = document.getElementById('filter-rep').value;
-        const selectedMode = document.getElementById('filter-mode').value;
-        const customerSearch = document.getElementById('filter-customer').value.toLowerCase().trim();
+        const repEl = document.getElementById('filter-rep');
+        const modeEl = document.getElementById('filter-mode');
+        const custEl = document.getElementById('filter-customer');
+        if (!repEl || !modeEl || !custEl) return;
+
+        const selectedRep = repEl.value;
+        const selectedMode = modeEl.value;
+        const customerSearch = custEl.value.toLowerCase().trim();
 
         const rows = document.querySelectorAll('.shipment-row');
         let visibleCount = 0;
@@ -668,8 +778,8 @@
 
             const matchMonth = (currentMonth === 'ALL') || (rowMonth === currentMonth);
             const matchRep = (selectedRep === 'ALL' || rowRep === selectedRep);
-            const matchMode = (selectedMode === 'ALL' || rowMode.toLowerCase() === selectedMode.toLowerCase());
-            const matchCust = (!customerSearch || rowCust.includes(customerSearch));
+            const matchMode = (selectedMode === 'ALL' || (rowMode && rowMode.toLowerCase() === selectedMode.toLowerCase()));
+            const matchCust = (!customerSearch || (rowCust && rowCust.includes(customerSearch)));
 
             if (matchSegment && matchMonth && matchRep && matchMode && matchCust) {
                 row.style.display = '';
@@ -684,9 +794,12 @@
     }
 
     function resetFilters() {
-        document.getElementById('filter-rep').value = 'ALL';
-        document.getElementById('filter-mode').value = 'ALL';
-        document.getElementById('filter-customer').value = '';
+        const repEl = document.getElementById('filter-rep');
+        const modeEl = document.getElementById('filter-mode');
+        const custEl = document.getElementById('filter-customer');
+        if (repEl) repEl.value = 'ALL';
+        if (modeEl) modeEl.value = 'ALL';
+        if (custEl) custEl.value = '';
         applyFilters();
     }
 
@@ -694,20 +807,36 @@
         const drawer = document.getElementById('records-drawer');
         const icon = document.getElementById('drawer-icon');
         const toggleText = document.getElementById('drawer-toggle-text');
+        if (!drawer) return;
         if (drawer.classList.contains('hidden')) {
             drawer.classList.remove('hidden');
-            toggleText.firstElementChild.textContent = 'Hide Records';
-            icon.classList.add('rotate-180');
+            if (toggleText && toggleText.firstElementChild) toggleText.firstElementChild.textContent = 'Hide Records';
+            if (icon) icon.classList.add('rotate-180');
         } else {
             drawer.classList.add('hidden');
-            toggleText.firstElementChild.textContent = 'View Records';
-            icon.classList.remove('rotate-180');
+            if (toggleText && toggleText.firstElementChild) toggleText.firstElementChild.textContent = 'View Records';
+            if (icon) icon.classList.remove('rotate-180');
         }
     }
 
+    // ─────────────────────────────────────────────────────────────
+    // ROBUST BOOTSTRAP WITH RETRY POLLING
+    // ─────────────────────────────────────────────────────────────
+    function ensureLibrariesAndRender(retries = 15) {
+        const hasApex = typeof ApexCharts !== 'undefined';
+        const hasLeaflet = typeof L !== 'undefined';
+
+        if ((!hasApex || !hasLeaflet) && retries > 0) {
+            setTimeout(() => ensureLibrariesAndRender(retries - 1), 100);
+            return;
+        }
+
+        try { renderCharts(); } catch (e) { console.error("renderCharts error on startup:", e); }
+        try { initMap(); } catch (e) { console.error("initMap error on startup:", e); }
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
-        initMap();
-        renderCharts();
+        ensureLibrariesAndRender();
         if (typeof lucide !== 'undefined') lucide.createIcons();
     });
 </script>
