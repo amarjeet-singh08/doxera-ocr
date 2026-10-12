@@ -925,16 +925,8 @@ def parse_and_process_sales_3way(billed_file, unbilled_file, booking_file, bille
 # ═════════════════════════════════════════════════════════════════════
 
 def generate_sales_pptx(report_row, report_data):
-    """
-    Generate an executive 16:9 PowerPoint presentation with 7 boardroom-ready audit slides:
-    Slide 1: Executive Audit Overview (Combined Turnovers)
-    Slide 2: Tri-Factor Financial Reconciliation (Billed vs Unbilled)
-    Slide 3: Revenue Leakage Audit & Unbilled Risk Register
-    Slide 4: Transport Modes Breakdown & Freight Yield Dynamics
-    Slide 5: Sales Team Accountability & Portfolio Matrix
-    Slide 6: Top Client Accounts Concentration Schedule
-    Slide 7: All-India Busiest Freight Delivery Corridors
-    """
+    from sales_exports import generate_sales_pptx as _real_pptx
+    return _real_pptx(report_row, report_data)
     import pptx
     from pptx.util import Inches, Pt
     from pptx.dml.color import RGBColor
@@ -1275,10 +1267,8 @@ def generate_sales_pptx(report_row, report_data):
 # ═════════════════════════════════════════════════════════════════════
 
 def generate_sales_pdf(report_row, report_data):
-    """
-    Generate an executive multi-page Big-4 style PDF audit report with NumberedCanvas
-    (Page X of Y), running headers, Doxera branding, and thorough financial schedules.
-    """
+    from sales_exports import generate_sales_pdf as _real_pdf
+    return _real_pdf(report_row, report_data)
     from reportlab.lib.pagesizes import A4
     from reportlab.lib import colors
     from reportlab.platypus import (

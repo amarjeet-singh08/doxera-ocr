@@ -12,7 +12,10 @@ from flask import (
 from decorators import login_required, role_required
 from database import get_db_connection, log_audit
 from sales_engine import (
-    parse_and_process_sales_3way, generate_sales_pptx, generate_sales_pdf, format_inr
+    parse_and_process_sales_3way, format_inr
+)
+from sales_exports import (
+    generate_sales_pptx, generate_sales_pdf
 )
 
 sales_bp = Blueprint('sales', __name__)
