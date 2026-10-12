@@ -1,185 +1,338 @@
 {% extends "base.html" %}
-{% block header_title %}Upload Sales MIS Spreadsheets{% endblock %}
+{% block header_title %}Upload Sales MIS Spreadsheets - DOXERA Enterprise{% endblock %}
+
+{% block extra_head %}
+<style>
+    /* Premium Glass & Enterprise Surface Utility Styles */
+    .drop-surface {
+        background: #FFFFFF;
+        border: 1.5px dashed #CBD5E1;
+        transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .drop-surface:hover {
+        border-color: #0284C7;
+        background: #F8FAFC;
+        box-shadow: 0 4px 14px -2px rgba(2, 132, 199, 0.08);
+    }
+    .drop-surface.dragover {
+        border-color: #0284C7 !important;
+        background: #F0F9FF !important;
+        box-shadow: 0 0 0 4px rgba(2, 132, 199, 0.15) !important;
+        transform: translateY(-2px);
+    }
+    .drop-surface.is-filled {
+        border-style: solid;
+        border-color: #0284C7;
+        background: #FFFFFF;
+        box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.06);
+    }
+
+    /* DOXERA Authentic Scanning Laser Sweep */
+    .scanner-sweep-line {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 2.5px;
+        background: linear-gradient(90deg, transparent 0%, #38BDF8 30%, #60A5FA 70%, transparent 100%);
+        box-shadow: 0 0 16px #38BDF8, 0 0 32px #2563EB;
+        animation: doxera-laser-sweep 2.4s infinite ease-in-out alternate;
+        z-index: 20;
+    }
+    @keyframes doxera-laser-sweep {
+        0% { top: 4%; opacity: 0.6; }
+        50% { opacity: 1; }
+        100% { top: 96%; opacity: 0.6; }
+    }
+
+    @keyframes beam-shimmer {
+        0% { transform: translateX(-150%) skewX(-20deg); }
+        100% { transform: translateX(250%) skewX(-20deg); }
+    }
+    .beam-shimmer-effect {
+        animation: beam-shimmer 3.2s infinite ease-in-out;
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="max-w-6xl mx-auto space-y-6">
+<div class="max-w-6xl mx-auto space-y-6 pb-12">
 
-    <!-- Header & Breadcrumbs -->
+    <!-- 1. BREADCRUMBS & TOP BAR -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <nav class="flex items-center space-x-2 text-xs text-slate-500 mb-1">
-                <a href="{{ url_for('sales.dashboard') }}" class="hover:text-blue-600 transition-colors">Sales Intelligence</a>
+            <div class="flex items-center space-x-2 text-xs text-slate-500 font-medium mb-1">
+                <a href="{{ url_for('sales.dashboard') }}" class="hover:text-blue-700 transition-colors">Sales Intelligence</a>
                 <span>/</span>
-                <span class="text-slate-800 font-medium">New Analysis</span>
-            </nav>
-            <h1 class="text-2xl font-bold text-slate-900 tracking-tight flex items-center">
-                <i data-lucide="file-spreadsheet" class="h-6 w-6 text-blue-600 mr-2.5"></i>
-                Upload 3-Sheet MIS Data
+                <span class="text-slate-800 font-semibold">MIS Data Intake</span>
+            </div>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
+                <span class="p-2 rounded-lg bg-blue-50 text-blue-700 border border-blue-100 flex items-center justify-center">
+                    <i data-lucide="file-spreadsheet" class="h-5 w-5"></i>
+                </span>
+                Logistics MIS Correlation Portal
             </h1>
-            <p class="text-sm text-slate-500 mt-0.5">
-                Upload Billed MIS, Unbilled MIS, and Booking Master sheets to automatically correlate AWBs and extract exact Transport Modes.
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                Securely ingest Billed MIS, Unbilled MIS, and Booking Master sheets to execute 3-way correlation and generate audit-ready dashboards.
             </p>
         </div>
 
-        <a href="{{ url_for('sales.dashboard') }}" class="inline-flex items-center px-3.5 py-2 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 shadow-sm transition-colors self-start sm:self-auto">
-            <i data-lucide="arrow-left" class="h-3.5 w-3.5 mr-1.5"></i> Back to Dashboard
-        </a>
+        <div class="flex items-center gap-2 self-start sm:self-auto">
+            <a href="{{ url_for('sales.dashboard') }}" 
+                class="inline-flex items-center px-3.5 py-2 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 shadow-xs transition-colors">
+                <i data-lucide="arrow-left" class="h-3.5 w-3.5 mr-1.5"></i> Return to Dashboard
+            </a>
+        </div>
     </div>
 
-    <!-- Upload Card -->
-    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-        <div class="px-6 py-5 bg-gradient-to-r from-slate-900 via-slate-800 to-blue-950 text-white flex items-center justify-between">
-            <div>
-                <h2 class="text-base font-semibold tracking-wide">3-Way Logistics Correlation Intake</h2>
-                <p class="text-xs text-slate-300 mt-0.5">Directly upload your raw downloaded software files without manual conversion or column adjustments!</p>
+    <!-- 2. MAIN WORKSPACE CARD -->
+    <div class="bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
+        
+        <!-- Header Banner (Clean Enterprise Slate/Navy) -->
+        <div class="px-6 py-4 bg-slate-900 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-800">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 rounded-lg bg-blue-500/20 border border-blue-400/30 flex items-center justify-center text-blue-300">
+                    <i data-lucide="layers" class="h-4 w-4"></i>
+                </div>
+                <div>
+                    <h2 class="text-sm font-bold tracking-wide">3-Way Dataset Reconciliation Setup</h2>
+                    <p class="text-[11px] text-slate-400">Zero-conversion intake &bull; Auto header skipping &bull; Raw ERP export support</p>
+                </div>
             </div>
-            <span class="hidden sm:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium bg-blue-500/20 text-blue-200 border border-blue-400/30">
-                <i data-lucide="shield-check" class="h-3 w-3 mr-1"></i> Auto Row & Column Adjuster Active
-            </span>
+
+            <div class="flex items-center gap-2">
+                <span class="inline-flex items-center px-2.5 py-1 rounded-md text-[11px] font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                    <i data-lucide="shield-check" class="h-3 w-3 text-cyan-400 mr-1.5"></i> Strict Role Access: Admin & Auditor
+                </span>
+            </div>
         </div>
 
-        <form id="mis-upload-form" action="{{ url_for('sales.upload_page') }}" method="POST" enctype="multipart/form-data" class="p-6 sm:p-8 space-y-6">
+        <form id="mis-upload-form" action="{{ url_for('sales.upload_page') }}" method="POST" enctype="multipart/form-data" class="p-6 sm:p-8 space-y-7">
+            
+            <!-- SECTION 1: REPORT TITLE & PERIOD DEFINITION -->
+            <div class="bg-slate-50/70 rounded-xl p-4 sm:p-5 border border-slate-200">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
+                    <label for="report_title" class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                        <i data-lucide="tag" class="h-3.5 w-3.5 text-blue-600"></i>
+                        Audit Report Identifier / Billing Period <span class="text-rose-500">*</span>
+                    </label>
+                    <span class="text-[11px] text-slate-400 font-mono">Displayed across executive exports & dashboards</span>
+                </div>
 
-            <!-- Report Title Input -->
-            <div>
-                <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1.5">
-                    Report Title / Billing Period <span class="text-rose-500">*</span>
-                </label>
                 <div class="relative">
-                    <i data-lucide="calendar" class="h-4 w-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
+                    <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
+                        <i data-lucide="calendar" class="h-4 w-4"></i>
+                    </div>
                     <input type="text" name="report_title" id="report_title" required
-                        placeholder="e.g. North Express Logistics - September 2026 Executive Sales Analysis"
-                        class="pl-10 w-full text-sm border-slate-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500 py-2.5">
+                        placeholder="e.g. North Express Logistics - September 2026 Executive Sales Audit"
+                        class="pl-10 w-full text-xs sm:text-sm bg-white border border-slate-300 rounded-lg shadow-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 py-2.5 text-slate-900 font-medium placeholder-slate-400">
                 </div>
             </div>
 
-            <!-- THREE Dropzones Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-5 pt-2">
+            <!-- SECTION 2: 3-WAY INTAKE DROPZONES -->
+            <div>
+                <div class="flex items-center justify-between mb-3">
+                    <div>
+                        <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
+                            <i data-lucide="upload-cloud" class="h-3.5 w-3.5 text-blue-600"></i>
+                            Select or Drop All Three Mandatory Spreadsheets
+                        </h3>
+                        <p class="text-[11px] text-slate-400 mt-0.5">All 3 sheets are verified prior to proceeding to ensure zero missing correlation dimensions.</p>
+                    </div>
+                    <span id="files-attached-counter" class="text-xs font-bold px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 border border-slate-200">
+                        0 / 3 Attached
+                    </span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+                    <!-- DROPZONE 1: BILLED MIS -->
+                    <div class="flex flex-col">
+                        <div class="flex items-center justify-between pb-1.5">
+                            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                <span class="w-4 h-4 rounded-full bg-slate-800 text-white text-[10px] flex items-center justify-center font-bold">1</span>
+                                Billed MIS Sheet
+                            </span>
+                            <span id="billed-badge" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-500">
+                                Pending
+                            </span>
+                        </div>
+
+                        <div id="billed-dropzone" class="drop-surface rounded-xl p-5 text-center relative flex-1 flex flex-col justify-center items-center min-h-[175px] cursor-pointer group">
+                            <input type="file" name="billed_file" id="billed_file" accept=".xlsx,.xls,.csv,.tsv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" required>
+
+                            <!-- Default State -->
+                            <div id="billed-empty-view" class="space-y-2 pointer-events-none w-full">
+                                <div class="w-10 h-10 mx-auto rounded-xl bg-slate-100 text-slate-600 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors flex items-center justify-center border border-slate-200">
+                                    <i data-lucide="file-check" class="h-5 w-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-800">Billed MIS Data</p>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">Invoiced dockets & amounts</p>
+                                </div>
+                                <span class="inline-block text-[10px] font-semibold text-blue-600 bg-blue-50/80 px-2 py-0.5 rounded border border-blue-100">
+                                    Browse or Drag .XLS / .XLSX
+                                </span>
+                            </div>
+
+                            <!-- Attached State -->
+                            <div id="billed-filled-view" class="hidden space-y-2 pointer-events-none w-full">
+                                <div class="w-10 h-10 mx-auto rounded-xl bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center">
+                                    <i data-lucide="check-circle" class="h-5 w-5"></i>
+                                </div>
+                                <div class="px-2">
+                                    <p id="billed-filename" class="text-xs font-bold text-slate-900 truncate max-w-[210px] mx-auto"></p>
+                                    <p id="billed-filesize" class="text-[11px] text-slate-500 font-mono mt-0.5"></p>
+                                </div>
+                                <span class="inline-flex items-center text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">
+                                    Ready for Parsing
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DROPZONE 2: UNBILLED MIS -->
+                    <div class="flex flex-col">
+                        <div class="flex items-center justify-between pb-1.5">
+                            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                <span class="w-4 h-4 rounded-full bg-slate-800 text-white text-[10px] flex items-center justify-center font-bold">2</span>
+                                Unbilled MIS Sheet
+                            </span>
+                            <span id="unbilled-badge" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-500">
+                                Pending
+                            </span>
+                        </div>
+
+                        <div id="unbilled-dropzone" class="drop-surface rounded-xl p-5 text-center relative flex-1 flex flex-col justify-center items-center min-h-[175px] cursor-pointer group">
+                            <input type="file" name="unbilled_file" id="unbilled_file" accept=".xlsx,.xls,.csv,.tsv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" required>
+
+                            <!-- Default State -->
+                            <div id="unbilled-empty-view" class="space-y-2 pointer-events-none w-full">
+                                <div class="w-10 h-10 mx-auto rounded-xl bg-slate-100 text-slate-600 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors flex items-center justify-center border border-slate-200">
+                                    <i data-lucide="clock" class="h-5 w-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-800">Unbilled MIS Data</p>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">Pending billing revenue & dockets</p>
+                                </div>
+                                <span class="inline-block text-[10px] font-semibold text-blue-600 bg-blue-50/80 px-2 py-0.5 rounded border border-blue-100">
+                                    Browse or Drag .XLS / .XLSX
+                                </span>
+                            </div>
+
+                            <!-- Attached State -->
+                            <div id="unbilled-filled-view" class="hidden space-y-2 pointer-events-none w-full">
+                                <div class="w-10 h-10 mx-auto rounded-xl bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center">
+                                    <i data-lucide="check-circle" class="h-5 w-5"></i>
+                                </div>
+                                <div class="px-2">
+                                    <p id="unbilled-filename" class="text-xs font-bold text-slate-900 truncate max-w-[210px] mx-auto"></p>
+                                    <p id="unbilled-filesize" class="text-[11px] text-slate-500 font-mono mt-0.5"></p>
+                                </div>
+                                <span class="inline-flex items-center text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">
+                                    Ready for Parsing
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- DROPZONE 3: BOOKING MASTER REGISTER -->
+                    <div class="flex flex-col">
+                        <div class="flex items-center justify-between pb-1.5">
+                            <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                                <span class="w-4 h-4 rounded-full bg-slate-800 text-white text-[10px] flex items-center justify-center font-bold">3</span>
+                                Booking Register
+                            </span>
+                            <span id="booking-badge" class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-500">
+                                Pending
+                            </span>
+                        </div>
+
+                        <div id="booking-dropzone" class="drop-surface rounded-xl p-5 text-center relative flex-1 flex flex-col justify-center items-center min-h-[175px] cursor-pointer group">
+                            <input type="file" name="booking_file" id="booking_file" accept=".xlsx,.xls,.csv,.tsv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" required>
+
+                            <!-- Default State -->
+                            <div id="booking-empty-view" class="space-y-2 pointer-events-none w-full">
+                                <div class="w-10 h-10 mx-auto rounded-xl bg-slate-100 text-slate-600 group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors flex items-center justify-center border border-slate-200">
+                                    <i data-lucide="plane" class="h-5 w-5"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs font-bold text-slate-800">Booking Master Register</p>
+                                    <p class="text-[11px] text-slate-400 mt-0.5">Air / Surface / Train mode source</p>
+                                </div>
+                                <span class="inline-block text-[10px] font-semibold text-blue-600 bg-blue-50/80 px-2 py-0.5 rounded border border-blue-100">
+                                    Browse or Drag .XLS / .XLSX
+                                </span>
+                            </div>
+
+                            <!-- Attached State -->
+                            <div id="booking-filled-view" class="hidden space-y-2 pointer-events-none w-full">
+                                <div class="w-10 h-10 mx-auto rounded-xl bg-blue-50 text-blue-700 border border-blue-200 flex items-center justify-center">
+                                    <i data-lucide="check-circle" class="h-5 w-5"></i>
+                                </div>
+                                <div class="px-2">
+                                    <p id="booking-filename" class="text-xs font-bold text-slate-900 truncate max-w-[210px] mx-auto"></p>
+                                    <p id="booking-filesize" class="text-[11px] text-slate-500 font-mono mt-0.5"></p>
+                                </div>
+                                <span class="inline-flex items-center text-[10px] font-bold text-blue-700 bg-blue-50 px-2 py-0.5 rounded">
+                                    Ready for Parsing
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- SECTION 3: AUTOMATION ARCHITECTURE EXPLANATION (Professional Clean Grid) -->
+            <div class="rounded-xl border border-slate-200 bg-slate-50/60 p-4 sm:p-5">
+                <div class="flex items-center gap-2 mb-3">
+                    <i data-lucide="cpu" class="h-4 w-4 text-slate-700"></i>
+                    <h4 class="text-xs font-bold uppercase tracking-wider text-slate-800">Automated Intake Architecture</h4>
+                </div>
                 
-                <!-- DROPZONE 1: BILLED MIS -->
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                        <label class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center">
-                            <span class="inline-flex items-center justify-center h-4 w-4 rounded-full bg-emerald-600 text-white text-[10px] font-bold mr-1.5">1</span>
-                            Billed MIS Sheet <span class="text-rose-500 ml-0.5">*</span>
-                        </label>
-                        <span id="billed-status-badge" class="text-[11px] font-semibold text-slate-400">Required</span>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+                    <div class="bg-white p-3.5 rounded-lg border border-slate-200 shadow-2xs space-y-1">
+                        <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                            Raw Format Resilience
+                        </div>
+                        <p class="text-[11px] text-slate-500 leading-relaxed">
+                            Upload directly without Excel popups or manual conversions. The engine automatically handles HTML-table spreadsheets, TSV streams, and legacy BI export encodings.
+                        </p>
                     </div>
 
-                    <div id="billed-dropzone" 
-                        class="relative border-2 border-dashed border-slate-300 hover:border-emerald-500 rounded-xl p-5 text-center transition-all duration-200 bg-slate-50/50 hover:bg-emerald-50/20 cursor-pointer group min-h-[160px] flex flex-col justify-center">
-                        <input type="file" name="billed_file" id="billed_file" accept=".xlsx,.xls,.csv,.tsv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" required>
-                        
-                        <div id="billed-empty-view" class="space-y-2 pointer-events-none">
-                            <div class="w-10 h-10 mx-auto rounded-full bg-emerald-50 group-hover:bg-emerald-100 flex items-center justify-center text-emerald-600 transition-colors">
-                                <i data-lucide="check-circle" class="h-5 w-5"></i>
-                            </div>
-                            <div>
-                                <p class="text-xs font-bold text-slate-700">Billed MIS File</p>
-                                <p class="text-[11px] text-slate-400">Contains Billed Amounts</p>
-                            </div>
+                    <div class="bg-white p-3.5 rounded-lg border border-slate-200 shadow-2xs space-y-1">
+                        <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                            Auto Header Detection
                         </div>
-
-                        <div id="billed-selected-view" class="hidden space-y-1.5 pointer-events-none">
-                            <div class="w-9 h-9 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
-                                <i data-lucide="check" class="h-4 w-4"></i>
-                            </div>
-                            <p id="billed-filename" class="text-xs font-bold text-slate-800 truncate max-w-[200px] mx-auto"></p>
-                            <p id="billed-filesize" class="text-[10px] text-slate-500"></p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- DROPZONE 2: UNBILLED MIS -->
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                        <label class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center">
-                            <span class="inline-flex items-center justify-center h-4 w-4 rounded-full bg-amber-600 text-white text-[10px] font-bold mr-1.5">2</span>
-                            Unbilled MIS Sheet <span class="text-rose-500 ml-0.5">*</span>
-                        </label>
-                        <span id="unbilled-status-badge" class="text-[11px] font-semibold text-slate-400">Required</span>
+                        <p class="text-[11px] text-slate-500 leading-relaxed">
+                            Skips top company banners, trailing summaries, and blank spacers. Automatically aligns columns (AWB No, Date, Customer, Amount, Weight) via fuzzy keyword matching.
+                        </p>
                     </div>
 
-                    <div id="unbilled-dropzone" 
-                        class="relative border-2 border-dashed border-slate-300 hover:border-amber-500 rounded-xl p-5 text-center transition-all duration-200 bg-slate-50/50 hover:bg-amber-50/20 cursor-pointer group min-h-[160px] flex flex-col justify-center">
-                        <input type="file" name="unbilled_file" id="unbilled_file" accept=".xlsx,.xls,.csv,.tsv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" required>
-                        
-                        <div id="unbilled-empty-view" class="space-y-2 pointer-events-none">
-                            <div class="w-10 h-10 mx-auto rounded-full bg-amber-50 group-hover:bg-amber-100 flex items-center justify-center text-amber-600 transition-colors">
-                                <i data-lucide="clock-4" class="h-5 w-5"></i>
-                            </div>
-                            <div>
-                                <p class="text-xs font-bold text-slate-700">Unbilled MIS File</p>
-                                <p class="text-[11px] text-slate-400">Contains Unbilled Amounts</p>
-                            </div>
+                    <div class="bg-white p-3.5 rounded-lg border border-slate-200 shadow-2xs space-y-1">
+                        <div class="font-bold text-slate-900 flex items-center gap-1.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                            3-Way Key Correlation
                         </div>
-
-                        <div id="unbilled-selected-view" class="hidden space-y-1.5 pointer-events-none">
-                            <div class="w-9 h-9 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
-                                <i data-lucide="check" class="h-4 w-4"></i>
-                            </div>
-                            <p id="unbilled-filename" class="text-xs font-bold text-slate-800 truncate max-w-[200px] mx-auto"></p>
-                            <p id="unbilled-filesize" class="text-[10px] text-slate-500"></p>
-                        </div>
+                        <p class="text-[11px] text-slate-500 leading-relaxed">
+                            Resolves exact transport modes (Air, Surface, Train) from the Booking Register and matches customers against their respective sales person portfolio.
+                        </p>
                     </div>
-                </div>
-
-                <!-- DROPZONE 3: BOOKING MASTER REGISTER -->
-                <div class="space-y-2">
-                    <div class="flex items-center justify-between">
-                        <label class="text-xs font-bold uppercase tracking-wider text-slate-800 flex items-center">
-                            <span class="inline-flex items-center justify-center h-4 w-4 rounded-full bg-blue-600 text-white text-[10px] font-bold mr-1.5">3</span>
-                            Booking Register <span class="text-rose-500 ml-0.5">*</span>
-                        </label>
-                        <span id="booking-status-badge" class="text-[11px] font-semibold text-slate-400">Required</span>
-                    </div>
-
-                    <div id="booking-dropzone" 
-                        class="relative border-2 border-dashed border-slate-300 hover:border-blue-500 rounded-xl p-5 text-center transition-all duration-200 bg-slate-50/50 hover:bg-blue-50/20 cursor-pointer group min-h-[160px] flex flex-col justify-center">
-                        <input type="file" name="booking_file" id="booking_file" accept=".xlsx,.xls,.csv,.tsv" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" required>
-                        
-                        <div id="booking-empty-view" class="space-y-2 pointer-events-none">
-                            <div class="w-10 h-10 mx-auto rounded-full bg-blue-50 group-hover:bg-blue-100 flex items-center justify-center text-blue-600 transition-colors">
-                                <i data-lucide="plane" class="h-5 w-5"></i>
-                            </div>
-                            <div>
-                                <p class="text-xs font-bold text-slate-700">Booking Master Register</p>
-                                <p class="text-[11px] text-slate-400">Air / Surface / Train Modes</p>
-                            </div>
-                        </div>
-
-                        <div id="booking-selected-view" class="hidden space-y-1.5 pointer-events-none">
-                            <div class="w-9 h-9 mx-auto rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center">
-                                <i data-lucide="check" class="h-4 w-4"></i>
-                            </div>
-                            <p id="booking-filename" class="text-xs font-bold text-slate-800 truncate max-w-[200px] mx-auto"></p>
-                            <p id="booking-filesize" class="text-[10px] text-slate-500"></p>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
-            <!-- Intelligent Automation Note -->
-            <div id="validation-banner" class="bg-blue-50/70 border border-blue-200 rounded-xl p-4 flex items-start gap-3">
-                <i data-lucide="sparkles" class="h-5 w-5 text-blue-600 shrink-0 mt-0.5"></i>
-                <div class="text-xs text-blue-900 leading-relaxed space-y-1">
-                    <p class="font-bold">Zero-Conversion Automated Preprocessing</p>
-                    <p class="text-blue-700">
-                        Upload raw software exports directly! The engine automatically fixes Excel format warnings, skips company title banners, normalizes columns, removes totals, and extracts true <b>Air, Surface, and Train</b> modes from the Booking Register while attributing revenue to sales managers.
-                    </p>
                 </div>
             </div>
 
-            <!-- Action Buttons -->
-            <div class="pt-4 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-                <span id="ready-status-text" class="text-xs font-semibold text-slate-400 flex items-center">
-                    <i data-lucide="lock" class="h-3.5 w-3.5 mr-1.5"></i> Waiting for all 3 spreadsheets to unlock proceed...
-                </span>
+            <!-- SECTION 4: ACTIONS & PROCEED GATEWAY -->
+            <div class="pt-2 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div id="ready-status-container" class="flex items-center text-xs font-semibold text-slate-500">
+                    <i data-lucide="lock" class="h-4 w-4 mr-2 text-slate-400"></i>
+                    <span id="ready-status-text">Attach all three files above to unlock the correlation pipeline.</span>
+                </div>
 
                 <button type="submit" id="submit-btn" disabled
-                    class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-bold shadow-sm transition-all duration-300 opacity-50 cursor-not-allowed bg-slate-300 text-slate-500">
-                    <i data-lucide="sparkles" class="h-4 w-4 mr-2"></i> Proceed & Correlate All 3 Sheets
+                    class="w-full sm:w-auto inline-flex items-center justify-center px-7 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 opacity-40 cursor-not-allowed bg-slate-200 text-slate-500 border border-slate-300">
+                    <i data-lucide="play" class="h-3.5 w-3.5 mr-2"></i> Execute 3-Way Reconciliation
                 </button>
             </div>
 
@@ -188,84 +341,58 @@
 
 </div>
 
-<!-- DOXERA DARK SCANNING PROCESSING MODAL -->
-<div id="processing-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-    <style>
-        .scanner-beam {
-            position: absolute;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, #38bdf8, #60a5fa, #38bdf8, transparent);
-            box-shadow: 0 0 15px #38bdf8, 0 0 30px #2563eb;
-            animation: doxera-scan 2.2s infinite ease-in-out alternate;
-            z-index: 25;
-        }
-        @keyframes doxera-scan {
-            0% { top: 0%; opacity: 0.7; }
-            50% { opacity: 1; }
-            100% { top: 100%; opacity: 0.7; }
-        }
-        @keyframes doxera-shine {
-            0% { left: -100%; }
-            100% { left: 200%; }
-        }
-        @keyframes doxera-pulse {
-            0%, 100% { transform: scale(1); opacity: 0.9; }
-            50% { transform: scale(1.05); opacity: 1; }
-        }
-    </style>
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<!-- DOXERA DARK SCANNING PROCESSING MODAL (Exact Scanner Animation)    -->
+<!-- ═══════════════════════════════════════════════════════════════════ -->
+<div id="processing-modal" class="fixed inset-0 bg-slate-950/85 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    
+    <div class="relative bg-slate-900 border border-slate-700 rounded-2xl p-8 sm:p-10 max-w-md w-full text-center shadow-2xl overflow-hidden">
+        
+        <!-- Active Laser Beam -->
+        <div class="scanner-sweep-line"></div>
 
-    <div class="relative bg-slate-900 border border-slate-700/80 rounded-3xl p-8 sm:p-10 max-w-lg w-full text-center shadow-2xl overflow-hidden">
-        <!-- Sweeping laser line -->
-        <div class="scanner-beam"></div>
-
-        <!-- Ambient diagonal shine beam -->
-        <div class="absolute top-0 bottom-0 pointer-events-none" 
-            style="background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent); transform: skewX(-25deg); width: 180px; animation: doxera-shine 3s infinite ease-in-out;"></div>
-
-        <!-- Background ambient glow -->
-        <div class="absolute -top-24 -left-24 w-48 h-48 rounded-full bg-blue-600/15 blur-3xl pointer-events-none"></div>
-        <div class="absolute -bottom-24 -right-24 w-48 h-48 rounded-full bg-cyan-600/15 blur-3xl pointer-events-none"></div>
+        <!-- Ambient diagonal shine shimmer -->
+        <div class="absolute top-0 bottom-0 pointer-events-none beam-shimmer-effect" 
+            style="background: linear-gradient(90deg, transparent, rgba(255,255,255,0.05), transparent); width: 140px;"></div>
 
         <!-- DOXERA Brand Header -->
         <div class="relative z-30 flex flex-col items-center">
-            <div class="p-3 bg-white/5 rounded-2xl border border-white/10 mb-5 shadow-inner">
-                <img src="{{ url_for('static', filename='doxera_logo.png') }}" class="h-10 object-contain brightness-0 invert" alt="DOXERA AI" onerror="this.style.display='none'; document.getElementById('fallback-logo-text').classList.remove('hidden');">
-                <span id="fallback-logo-text" class="hidden font-mono font-black text-xl tracking-wider text-white">DOXERA AI</span>
+            <div class="p-3 bg-white/5 rounded-xl border border-white/10 mb-4">
+                <img src="{{ url_for('static', filename='doxera_logo.png') }}" class="h-9 object-contain brightness-0 invert" alt="DOXERA" onerror="this.style.display='none'; document.getElementById('fallback-logo-text').classList.remove('hidden');">
+                <span id="fallback-logo-text" class="hidden font-mono font-black text-lg tracking-wider text-white">DOXERA</span>
             </div>
 
-            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-300 text-[11px] font-bold uppercase tracking-wider mb-3">
-                <span class="w-2 h-2 rounded-full bg-blue-400 animate-ping"></span>
-                Tri-Factor Correlation Engine Active
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-400/20 text-cyan-300 text-[10px] font-bold uppercase tracking-wider mb-2">
+                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>
+                Reconciliation Pipeline Active
             </div>
 
-            <h3 class="text-xl font-extrabold text-white tracking-tight" id="scan-step-title">Normalizing Excel Stream & Offsets</h3>
-            <p class="text-xs text-slate-400 mt-1.5 max-w-sm" id="scan-step-desc">Auto-repairing legacy software formats, skipping title banners, and aligning column indexes...</p>
+            <h3 class="text-lg font-bold text-white tracking-tight" id="scan-step-title">Normalizing Excel Offsets</h3>
+            <p class="text-xs text-slate-400 mt-1 max-w-xs" id="scan-step-desc">Auto-repairing legacy software formats and locating data tables...</p>
         </div>
 
         <!-- Dynamic Animated Audit Checklist -->
-        <div class="relative z-30 mt-6 pt-5 border-t border-slate-800/80 text-left space-y-2.5 max-w-xs mx-auto">
+        <div class="relative z-30 mt-6 pt-5 border-t border-slate-800 text-left space-y-2.5 max-w-xs mx-auto">
             <div class="flex items-center gap-2.5 text-xs font-semibold" id="audit-step-1">
-                <i data-lucide="loader-2" class="h-4 w-4 text-blue-400 animate-spin shrink-0"></i>
-                <span class="text-slate-300">1. Preprocessing raw sheets</span>
+                <i data-lucide="loader-2" class="h-3.5 w-3.5 text-blue-400 animate-spin shrink-0"></i>
+                <span class="text-slate-300">1. Normalizing raw file streams</span>
             </div>
             <div class="flex items-center gap-2.5 text-xs font-semibold text-slate-500" id="audit-step-2">
-                <i data-lucide="circle" class="h-4 w-4 text-slate-600 shrink-0"></i>
-                <span>2. Cross-matching AWB dockets</span>
+                <i data-lucide="circle" class="h-3.5 w-3.5 text-slate-600 shrink-0"></i>
+                <span>2. Cross-matching AWB keys</span>
             </div>
             <div class="flex items-center gap-2.5 text-xs font-semibold text-slate-500" id="audit-step-3">
-                <i data-lucide="circle" class="h-4 w-4 text-slate-600 shrink-0"></i>
+                <i data-lucide="circle" class="h-3.5 w-3.5 text-slate-600 shrink-0"></i>
                 <span>3. Extracting Air/Surface modes</span>
             </div>
             <div class="flex items-center gap-2.5 text-xs font-semibold text-slate-500" id="audit-step-4">
-                <i data-lucide="circle" class="h-4 w-4 text-slate-600 shrink-0"></i>
-                <span>4. Computing Billed/Unbilled audit</span>
+                <i data-lucide="circle" class="h-3.5 w-3.5 text-slate-600 shrink-0"></i>
+                <span>4. Compiling Executive Dashboard</span>
             </div>
         </div>
 
-        <!-- Glowing Progress Bar -->
-        <div class="relative z-30 mt-6 w-full bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-700/50">
+        <!-- Progress Track -->
+        <div class="relative z-30 mt-6 w-full bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-700">
             <div id="scan-progress-bar" class="bg-gradient-to-r from-blue-500 to-cyan-400 h-1.5 rounded-full transition-all duration-700" style="width: 25%"></div>
         </div>
     </div>
@@ -276,12 +403,14 @@
     const unbilledInput = document.getElementById('unbilled_file');
     const bookingInput = document.getElementById('booking_file');
     const submitBtn = document.getElementById('submit-btn');
+    const readyStatusContainer = document.getElementById('ready-status-container');
     const readyStatusText = document.getElementById('ready-status-text');
     const form = document.getElementById('mis-upload-form');
     const procModal = document.getElementById('processing-modal');
+    const counterBadge = document.getElementById('files-attached-counter');
 
     function formatBytes(bytes) {
-        if (bytes === 0) return '0 Bytes';
+        if (!bytes || bytes === 0) return '0 Bytes';
         const k = 1024;
         const sizes = ['Bytes', 'KB', 'MB', 'GB'];
         const i = Math.floor(Math.log(bytes) / Math.log(k));
@@ -293,64 +422,96 @@
         const hasUnbilled = unbilledInput.files && unbilledInput.files.length > 0;
         const hasBooking = bookingInput.files && bookingInput.files.length > 0;
 
+        let attachedCount = 0;
+        if (hasBilled) attachedCount++;
+        if (hasUnbilled) attachedCount++;
+        if (hasBooking) attachedCount++;
+
+        counterBadge.textContent = `${attachedCount} / 3 Attached`;
+        if (attachedCount === 3) {
+            counterBadge.className = "text-xs font-bold px-2.5 py-1 rounded-md bg-emerald-50 text-emerald-700 border border-emerald-200";
+        } else {
+            counterBadge.className = "text-xs font-bold px-2.5 py-1 rounded-md bg-slate-100 text-slate-600 border border-slate-200";
+        }
+
         if (hasBilled && hasUnbilled && hasBooking) {
             submitBtn.disabled = false;
-            submitBtn.className = "w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-bold text-white shadow-lg shadow-blue-600/30 transition-all duration-300 bg-blue-600 hover:bg-blue-700 active:scale-95 cursor-pointer";
-            readyStatusText.innerHTML = '<i data-lucide="check-circle-2" class="h-4 w-4 mr-1.5 text-emerald-600"></i> <span class="text-emerald-700 font-semibold">All 3 files verified & ready to correlate!</span>';
-            readyStatusText.className = "text-xs flex items-center";
+            submitBtn.className = "w-full sm:w-auto inline-flex items-center justify-center px-7 py-3 rounded-xl text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-blue-600/20 transition-all duration-200 bg-blue-600 hover:bg-blue-700 active:scale-98 cursor-pointer border border-blue-600";
+            readyStatusContainer.className = "flex items-center text-xs font-semibold text-emerald-700";
+            readyStatusContainer.innerHTML = '<i data-lucide="check-circle-2" class="h-4 w-4 mr-2 text-emerald-600"></i> All three mandatory MIS files attached and validated.';
         } else {
             submitBtn.disabled = true;
-            submitBtn.className = "w-full sm:w-auto inline-flex items-center justify-center px-6 py-3 rounded-xl text-sm font-bold shadow-sm transition-all duration-300 opacity-50 cursor-not-allowed bg-slate-300 text-slate-500";
-            readyStatusText.innerHTML = '<i data-lucide="lock" class="h-3.5 w-3.5 mr-1.5"></i> Waiting for all 3 spreadsheets to unlock proceed...';
-            readyStatusText.className = "text-xs font-semibold text-slate-400 flex items-center";
+            submitBtn.className = "w-full sm:w-auto inline-flex items-center justify-center px-7 py-3 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 opacity-40 cursor-not-allowed bg-slate-200 text-slate-500 border border-slate-300";
+            readyStatusContainer.className = "flex items-center text-xs font-semibold text-slate-500";
+            readyStatusContainer.innerHTML = '<i data-lucide="lock" class="h-4 w-4 mr-2 text-slate-400"></i> Attach all three files above to unlock the correlation pipeline.';
         }
         if (typeof lucide !== 'undefined') lucide.createIcons();
     }
 
-    billedInput.addEventListener('change', (e) => {
-        if (e.target.files && e.target.files[0]) {
-            const f = e.target.files[0];
-            document.getElementById('billed-empty-view').classList.add('hidden');
-            document.getElementById('billed-selected-view').classList.remove('hidden');
-            document.getElementById('billed-filename').textContent = f.name;
-            document.getElementById('billed-filesize').textContent = formatBytes(f.size);
-            document.getElementById('billed-status-badge').innerHTML = '<span class="text-emerald-600 font-bold">Attached</span>';
-            document.getElementById('billed-dropzone').classList.add('border-emerald-500', 'bg-emerald-50/20');
-        }
-        checkReadyState();
-    });
+    // Attach UI handlers for each dropzone
+    function setupDropzone(inputEl, dropzoneId, emptyViewId, filledViewId, filenameId, filesizeId, badgeId) {
+        const dropzone = document.getElementById(dropzoneId);
+        const emptyView = document.getElementById(emptyViewId);
+        const filledView = document.getElementById(filledViewId);
+        const filenameEl = document.getElementById(filenameId);
+        const filesizeEl = document.getElementById(filesizeId);
+        const badgeEl = document.getElementById(badgeId);
 
-    unbilledInput.addEventListener('change', (e) => {
-        if (e.target.files && e.target.files[0]) {
-            const f = e.target.files[0];
-            document.getElementById('unbilled-empty-view').classList.add('hidden');
-            document.getElementById('unbilled-selected-view').classList.remove('hidden');
-            document.getElementById('unbilled-filename').textContent = f.name;
-            document.getElementById('unbilled-filesize').textContent = formatBytes(f.size);
-            document.getElementById('unbilled-status-badge').innerHTML = '<span class="text-emerald-600 font-bold">Attached</span>';
-            document.getElementById('unbilled-dropzone').classList.add('border-amber-500', 'bg-amber-50/20');
-        }
-        checkReadyState();
-    });
+        // Drag events
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropzone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzone.classList.add('dragover');
+            }, false);
+        });
 
-    bookingInput.addEventListener('change', (e) => {
-        if (e.target.files && e.target.files[0]) {
-            const f = e.target.files[0];
-            document.getElementById('booking-empty-view').classList.add('hidden');
-            document.getElementById('booking-selected-view').classList.remove('hidden');
-            document.getElementById('booking-filename').textContent = f.name;
-            document.getElementById('booking-filesize').textContent = formatBytes(f.size);
-            document.getElementById('booking-status-badge').innerHTML = '<span class="text-emerald-600 font-bold">Attached</span>';
-            document.getElementById('booking-dropzone').classList.add('border-blue-500', 'bg-blue-50/20');
-        }
-        checkReadyState();
-    });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropzone.addEventListener(eventName, (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                dropzone.classList.remove('dragover');
+            }, false);
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            if (e.dataTransfer && e.dataTransfer.files.length > 0) {
+                inputEl.files = e.dataTransfer.files;
+                const event = new Event('change');
+                inputEl.dispatchEvent(event);
+            }
+        });
+
+        inputEl.addEventListener('change', (e) => {
+            if (e.target.files && e.target.files[0]) {
+                const f = e.target.files[0];
+                emptyView.classList.add('hidden');
+                filledView.classList.remove('hidden');
+                filenameEl.textContent = f.name;
+                filesizeEl.textContent = formatBytes(f.size);
+                
+                badgeEl.textContent = 'Attached';
+                badgeEl.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200';
+                dropzone.classList.add('is-filled');
+            } else {
+                emptyView.classList.remove('hidden');
+                filledView.classList.add('hidden');
+                badgeEl.textContent = 'Pending';
+                badgeEl.className = 'text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-slate-100 text-slate-500';
+                dropzone.classList.remove('is-filled');
+            }
+            checkReadyState();
+        });
+    }
+
+    setupDropzone(billedInput, 'billed-dropzone', 'billed-empty-view', 'billed-filled-view', 'billed-filename', 'billed-filesize', 'billed-badge');
+    setupDropzone(unbilledInput, 'unbilled-dropzone', 'unbilled-empty-view', 'unbilled-filled-view', 'unbilled-filename', 'unbilled-filesize', 'unbilled-badge');
+    setupDropzone(bookingInput, 'booking-dropzone', 'booking-empty-view', 'booking-filled-view', 'booking-filename', 'booking-filesize', 'booking-badge');
 
     form.addEventListener('submit', () => {
         procModal.classList.remove('hidden');
         if (typeof lucide !== 'undefined') lucide.createIcons();
 
-        // Realistic sequential progress animation
         const titleEl = document.getElementById('scan-step-title');
         const descEl = document.getElementById('scan-step-desc');
         const pBar = document.getElementById('scan-progress-bar');
@@ -359,43 +520,47 @@
             const el = document.getElementById(stepId);
             if (el) {
                 el.className = "flex items-center gap-2.5 text-xs font-semibold text-emerald-400";
-                el.innerHTML = `<i data-lucide="check-circle" class="h-4 w-4 text-emerald-400 shrink-0"></i> <span>${label}</span>`;
+                el.innerHTML = `<i data-lucide="check-circle" class="h-3.5 w-3.5 text-emerald-400 shrink-0"></i> <span>${label}</span>`;
             }
         }
         function markActive(stepId, label) {
             const el = document.getElementById(stepId);
             if (el) {
-                el.className = "flex items-center gap-2.5 text-xs font-semibold text-blue-300";
-                el.innerHTML = `<i data-lucide="loader-2" class="h-4 w-4 text-blue-400 animate-spin shrink-0"></i> <span>${label}</span>`;
+                el.className = "flex items-center gap-2.5 text-xs font-semibold text-cyan-300";
+                el.innerHTML = `<i data-lucide="loader-2" class="h-3.5 w-3.5 text-cyan-400 animate-spin shrink-0"></i> <span>${label}</span>`;
             }
         }
 
         setTimeout(() => {
             pBar.style.width = '50%';
             titleEl.textContent = 'Cross-Referencing AWB Consignments';
-            descEl.textContent = 'Matching docket keys across Billed, Unbilled, and Booking Master...';
-            markDone('audit-step-1', '1. Preprocessed raw sheets');
-            markActive('audit-step-2', '2. Cross-matching AWB dockets');
+            descEl.textContent = 'Reconciling docket numbers across Billed, Unbilled, and Booking Master...';
+            markDone('audit-step-1', '1. Normalized raw file streams');
+            markActive('audit-step-2', '2. Cross-matching AWB keys');
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }, 1200);
 
         setTimeout(() => {
             pBar.style.width = '75%';
-            titleEl.textContent = 'Resolving Transport Modes & Routes';
-            descEl.textContent = 'Mapping Air, Surface, Train, boxes and GPS delivery hubs...';
-            markDone('audit-step-2', '2. Matched all AWB dockets');
+            titleEl.textContent = 'Resolving Transport Modes & Rep Attribution';
+            descEl.textContent = 'Extracting Air, Surface, Train, and linking accounts to sales personnel...';
+            markDone('audit-step-2', '2. Cross-matched all dockets');
             markActive('audit-step-3', '3. Extracting Air/Surface modes');
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }, 2600);
 
         setTimeout(() => {
-            pBar.style.width = '92%';
-            titleEl.textContent = 'Synthesizing Executive Sales Intelligence';
-            descEl.textContent = 'Computing Billed vs Unbilled leakage, yields, and leaderboard...';
+            pBar.style.width = '94%';
+            titleEl.textContent = 'Generating Executive Audit Metrics';
+            descEl.textContent = 'Synthesizing Power BI visual metrics and geographic coordinates...';
             markDone('audit-step-3', '3. Extracted Air/Surface modes');
-            markActive('audit-step-4', '4. Generating Executive Audit Intelligence');
+            markActive('audit-step-4', '4. Compiling Executive Dashboard');
             if (typeof lucide !== 'undefined') lucide.createIcons();
         }, 4200);
+    });
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof lucide !== 'undefined') lucide.createIcons();
     });
 </script>
 {% endblock %}
