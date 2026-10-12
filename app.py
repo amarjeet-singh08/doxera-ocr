@@ -1,6 +1,6 @@
 import os
 import bcrypt
-from flask import Flask, redirect, url_for
+from flask import Flask, redirect, url_for, session, render_template, request
 from config import Config
 from database import init_db, get_db_connection
 
