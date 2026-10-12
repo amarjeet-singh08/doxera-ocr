@@ -570,11 +570,16 @@ def compute_segment_metrics(shipment_list):
         dest_stats[dest]["sales"] += s["total_amt"]
         dest_stats[dest]["shipments"] += 1
 
-    dest_list = [{
-        "city": dest,
-        "sales": round(stat["sales"], 2),
-        "shipments": stat["shipments"]
-    } for dest, stat in sorted(dest_stats.items(), key=lambda x: x[1]["sales"], reverse=True)]
+    dest_list = []
+    for dest, stat in sorted(dest_stats.items(), key=lambda x: x[1]["sales"], reverse=True):
+        norm_city = normalize_city_name(dest)
+        coords = INDIA_CITY_COORDINATES.get(norm_city, (28.6139, 77.2090))
+        dest_list.append({
+            "city": dest,
+            "sales": round(stat["sales"], 2),
+            "shipments": stat["shipments"],
+            "coords": [coords[0], coords[1]]
+        })
 
     # Audit & Compliance Metrics (for Billed & Unbilled audit)
     bill_no_count = sum(1 for s in shipment_list if str(s.get("bill_no", "")).strip() not in ("", "0", "nan", "None"))
