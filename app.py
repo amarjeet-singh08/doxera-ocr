@@ -141,15 +141,34 @@ def inject_notifications():
         rate_limit_left = get_openrouter_quota()
         
         conn.close()
+
+        def user_has_role(*required_roles):
+            raw_role = session.get('role', 'VIEWER')
+            if isinstance(raw_role, list):
+                u_roles = {str(r).strip().upper() for r in raw_role}
+            else:
+                u_roles = {str(r).strip().upper() for r in str(raw_role).split(',') if str(r).strip()}
+            if 'ADMIN' in u_roles:
+                return True
+            req_set = {str(r).strip().upper() for r in required_roles}
+            return bool(u_roles.intersection(req_set))
+
         return dict(
             notif_pending=pending,
             notif_failed=failed,
             notif_rejected=rejected,
             notif_limit=rate_limit_left,
-            notif_total=pending + failed + rejected
+            notif_total=pending + failed + rejected,
+            user_has_role=user_has_role
         )
     except Exception as e:
-        return dict(notif_total=0)
+        def user_has_role(*required_roles):
+            raw_role = session.get('role', 'VIEWER')
+            u_roles = {str(r).strip().upper() for r in str(raw_role).split(',') if str(r).strip()}
+            if 'ADMIN' in u_roles:
+                return True
+            return bool(u_roles.intersection({str(r).strip().upper() for r in required_roles}))
+        return dict(notif_total=0, user_has_role=user_has_role)
 
 
 

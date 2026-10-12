@@ -1,99 +1,335 @@
 {% extends "base.html" %}
-{% block header_title %}User Management{% endblock %}
+{% block header_title %}User & Access Management - DOXERA Enterprise{% endblock %}
 
 {% block content %}
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- Add User Form -->
-    <div class="lg:col-span-1 bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden h-fit">
-        <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center">
-            <i data-lucide="user-plus" class="h-5 w-5 mr-2 text-slate-500"></i>
-            <h2 class="text-sm font-bold text-slate-800">Create New User</h2>
-        </div>
-        <div class="p-5">
-            <form action="{{ url_for('auth.user_management') }}" method="POST" class="space-y-4">
-                <input type="hidden" name="action" value="create">
-                
-                <div>
-                    <label class="block text-xs font-medium text-slate-700 mb-1">Username</label>
-                    <input type="text" name="username" required class="w-full text-sm border-slate-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                
-                <div>
-                    <label class="block text-xs font-medium text-slate-700 mb-1">Password</label>
-                    <input type="password" name="password" required class="w-full text-sm border-slate-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                </div>
-                
-                <div>
-                    <label class="block text-xs font-medium text-slate-700 mb-1">Access Level (Role)</label>
-                    <select name="role" required class="w-full text-sm border-slate-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                        <option value="VIEWER">VIEWER (Can only see things)</option>
-                        <option value="REVIEWER">REVIEWER (Can upload & edit dockets)</option>
-                        <option value="AUDITOR">AUDITOR (Can access & audit Sales Intelligence Reports)</option>
-                        <option value="ADMIN">ADMIN (Full access to all features)</option>
-                    </select>
-                </div>
-                
-                <button type="submit" class="w-full inline-flex justify-center items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md text-sm font-medium shadow-sm transition-colors mt-2">
-                    Create User
-                </button>
-            </form>
+<div class="max-w-7xl mx-auto space-y-6 pb-12">
+
+    <!-- Header & Subtitle -->
+    <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+            <div class="flex items-center space-x-2 text-xs text-slate-500 font-medium mb-1">
+                <span>Administration</span>
+                <span>/</span>
+                <span class="text-slate-800 font-semibold">Access Control</span>
+            </div>
+            <h1 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
+                <span class="p-2 rounded-lg bg-blue-50 text-blue-700 border border-blue-100 flex items-center justify-center">
+                    <i data-lucide="shield-check" class="h-5 w-5"></i>
+                </span>
+                User & Multi-Role Permissions
+            </h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+                Configure user access levels, grant multiple operational features simultaneously (e.g. Reviewer + Auditor), and enforce strict credential uniqueness.
+            </p>
         </div>
     </div>
 
-    <!-- Users List -->
-    <div class="lg:col-span-2 bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-        <div class="px-5 py-4 border-b border-slate-200 bg-slate-50 flex items-center justify-between">
-            <div class="flex items-center">
-                <i data-lucide="users" class="h-5 w-5 mr-2 text-slate-500"></i>
-                <h2 class="text-sm font-bold text-slate-800">Active Accounts</h2>
+    <!-- Main Grid: Create/Edit Card (Left) + Active Users Table (Right) -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!-- LEFT: CREATE / EDIT USER FORM (5 Columns)                   -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <div class="lg:col-span-5 bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
+            
+            <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="user-plus" class="h-4 w-4 text-cyan-400" id="form-icon"></i>
+                    <h2 class="text-sm font-bold tracking-wide" id="form-heading">Create New User</h2>
+                </div>
+                <button type="button" id="cancel-edit-btn" onclick="resetFormToCreate()" class="hidden text-xs text-slate-300 hover:text-white underline">
+                    Cancel Edit
+                </button>
             </div>
-            <span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded-full">{{ users|length }} Total</span>
+
+            <form id="user-form" action="{{ url_for('auth.user_management') }}" method="POST" class="p-5 sm:p-6 space-y-4">
+                <input type="hidden" name="action" id="form-action" value="create">
+                <input type="hidden" name="user_id" id="form-user-id" value="">
+
+                <!-- Username Input -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                        Username <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <i data-lucide="user" class="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                        <input type="text" name="username" id="input-username" required autocomplete="off"
+                            placeholder="e.g. auditor_rajesh"
+                            class="pl-9 w-full text-xs sm:text-sm bg-white border border-slate-300 rounded-lg shadow-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 py-2.5 text-slate-900 font-medium">
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-1">Unique identifier. Cannot duplicate existing IDs.</p>
+                </div>
+
+                <!-- Password Input -->
+                <div>
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1" id="label-password">
+                        Password <span class="text-rose-500">*</span>
+                    </label>
+                    <div class="relative">
+                        <i data-lucide="key" class="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
+                        <input type="password" name="password" id="input-password" required autocomplete="new-password"
+                            placeholder="Enter secure password"
+                            class="pl-9 w-full text-xs sm:text-sm bg-white border border-slate-300 rounded-lg shadow-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 py-2.5 text-slate-900 font-medium">
+                    </div>
+                    <p class="text-[11px] text-slate-400 mt-1" id="help-password">
+                        Must be unique. System rejects passwords reused across existing accounts.
+                    </p>
+                </div>
+
+                <!-- MULTI-ROLE / MULTI-FEATURE CHECKBOXES -->
+                <div class="pt-2">
+                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                        Assigned Feature Access (Select Multiple) <span class="text-rose-500">*</span>
+                    </label>
+                    
+                    <div class="space-y-2.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                        
+                        <!-- Role 1: REVIEWER -->
+                        <label class="flex items-start gap-2.5 p-2 rounded-lg bg-white border border-slate-200 hover:border-blue-400 cursor-pointer transition-all">
+                            <input type="checkbox" name="roles" value="REVIEWER" id="role-reviewer" class="mt-1 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                            <div class="text-xs">
+                                <span class="font-bold text-slate-900 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                                    REVIEWER
+                                </span>
+                                <p class="text-[11px] text-slate-500 mt-0.5">Upload dockets, verify OCR extractions, and edit corrections.</p>
+                            </div>
+                        </label>
+
+                        <!-- Role 2: AUDITOR -->
+                        <label class="flex items-start gap-2.5 p-2 rounded-lg bg-white border border-slate-200 hover:border-blue-400 cursor-pointer transition-all">
+                            <input type="checkbox" name="roles" value="AUDITOR" id="role-auditor" class="mt-1 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                            <div class="text-xs">
+                                <span class="font-bold text-slate-900 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-blue-500"></span>
+                                    AUDITOR
+                                </span>
+                                <p class="text-[11px] text-slate-500 mt-0.5">Access Sales Intelligence Dashboard, MIS spreadsheet upload & PDF/PPTX exports.</p>
+                            </div>
+                        </label>
+
+                        <!-- Role 3: VIEWER -->
+                        <label class="flex items-start gap-2.5 p-2 rounded-lg bg-white border border-slate-200 hover:border-blue-400 cursor-pointer transition-all">
+                            <input type="checkbox" name="roles" value="VIEWER" id="role-viewer" class="mt-1 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                            <div class="text-xs">
+                                <span class="font-bold text-slate-900 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                                    VIEWER
+                                </span>
+                                <p class="text-[11px] text-slate-500 mt-0.5">Read-only view for general operations and dockets listing.</p>
+                            </div>
+                        </label>
+
+                        <!-- Role 4: ADMIN -->
+                        <label class="flex items-start gap-2.5 p-2 rounded-lg bg-white border border-slate-200 hover:border-purple-400 cursor-pointer transition-all">
+                            <input type="checkbox" name="roles" value="ADMIN" id="role-admin" class="mt-1 h-4 w-4 text-purple-600 rounded border-slate-300 focus:ring-purple-500">
+                            <div class="text-xs">
+                                <span class="font-bold text-purple-900 flex items-center gap-1.5">
+                                    <span class="w-2 h-2 rounded-full bg-purple-600"></span>
+                                    ADMIN
+                                </span>
+                                <p class="text-[11px] text-purple-700 mt-0.5">Unrestricted master access: OCR, Sales Intelligence, user management & system settings.</p>
+                            </div>
+                        </label>
+
+                    </div>
+                    <p class="text-[11px] text-slate-500 mt-1.5 italic">
+                        Tip: You can check multiple access levels (e.g. <b>REVIEWER + AUDITOR</b>) for one user.
+                    </p>
+                </div>
+
+                <div class="pt-3 border-t border-slate-100 flex items-center gap-2">
+                    <button type="submit" id="btn-submit"
+                        class="w-full inline-flex justify-center items-center px-5 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-98 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-sm transition-all">
+                        <i data-lucide="user-check" class="h-4 w-4 mr-1.5"></i>
+                        <span id="btn-submit-text">Create Account</span>
+                    </button>
+                </div>
+
+            </form>
         </div>
-        
-        <div class="overflow-x-auto">
-            <table class="w-full text-left text-sm text-slate-600">
-                <thead class="bg-slate-50 text-xs uppercase text-slate-500 border-b border-slate-200">
-                    <tr>
-                        <th class="px-4 py-3 font-medium">Username</th>
-                        <th class="px-4 py-3 font-medium">Role</th>
-                        <th class="px-4 py-3 font-medium">Last Login</th>
-                        <th class="px-4 py-3 font-medium text-right">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="divide-y divide-slate-200">
-                    {% for u in users %}
-                    <tr class="hover:bg-slate-50 transition-colors">
-                        <td class="px-4 py-3 font-medium text-slate-900">{{ u['username'] }}</td>
-                        <td class="px-4 py-3">
-                            {% if u['role'] == 'ADMIN' %}
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-purple-100 text-purple-800">ADMIN</span>
-                            {% elif u['role'] == 'REVIEWER' %}
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-emerald-100 text-emerald-800">REVIEWER</span>
-                            {% else %}
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-slate-100 text-slate-800">VIEWER</span>
-                            {% endif %}
-                        </td>
-                        <td class="px-4 py-3 text-xs text-slate-500">
-                            {{ u['last_login']|localdt if u['last_login'] else 'Never' }}
-                        </td>
-                        <td class="px-4 py-3 text-right">
-                            {% if u['id'] != session['user_id'] %}
-                            <form action="{{ url_for('auth.user_management') }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete this user?');">
-                                <input type="hidden" name="action" value="delete">
-                                <input type="hidden" name="user_id" value="{{ u['id'] }}">
-                                <button type="submit" class="text-rose-600 hover:text-rose-900 p-1" title="Delete User">
-                                    <i data-lucide="trash-2" class="w-4 h-4"></i>
-                                </button>
-                            </form>
-                            {% else %}
-                            <span class="text-xs text-slate-400">Current</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <!-- RIGHT: ACTIVE USER ACCOUNTS TABLE (7 Columns)               -->
+        <!-- ══════════════════════════════════════════════════════════ -->
+        <div class="lg:col-span-7 bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
+            
+            <div class="px-5 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="users" class="h-4 w-4 text-slate-500"></i>
+                    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Registered Accounts</h2>
+                </div>
+                <span class="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                    {{ users|length }} Total Accounts
+                </span>
+            </div>
+
+            <div class="overflow-x-auto">
+                <table class="w-full text-left text-xs">
+                    <thead class="bg-slate-100 text-[10px] uppercase font-bold text-slate-600 border-b border-slate-200">
+                        <tr>
+                            <th class="px-4 py-3">User</th>
+                            <th class="px-4 py-3">Granted Access Roles</th>
+                            <th class="px-4 py-3">Last Active</th>
+                            <th class="px-4 py-3 text-right">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100 font-medium">
+                        {% for u in users %}
+                        <tr class="hover:bg-slate-50/80 transition-colors">
+                            
+                            <!-- Username & Avatar -->
+                            <td class="px-4 py-3.5">
+                                <div class="flex items-center gap-2.5">
+                                    <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs uppercase">
+                                        {{ u['username'][0] }}
+                                    </div>
+                                    <div>
+                                        <p class="font-bold text-slate-900">{{ u['username'] }}</p>
+                                        <p class="text-[10px] text-slate-400">ID #{{ u['id'] }}</p>
+                                    </div>
+                                </div>
+                            </td>
+
+                            <!-- Multi-Role Badges -->
+                            <td class="px-4 py-3.5">
+                                <div class="flex flex-wrap gap-1">
+                                    {% for r in u['role'].split(',') %}
+                                        {% set clean_r = r.strip() %}
+                                        {% if clean_r == 'ADMIN' %}
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200">
+                                                ADMIN
+                                            </span>
+                                        {% elif clean_r == 'AUDITOR' %}
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                                                AUDITOR
+                                            </span>
+                                        {% elif clean_r == 'REVIEWER' %}
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                                REVIEWER
+                                            </span>
+                                        {% else %}
+                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                                {{ clean_r }}
+                                            </span>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+                            </td>
+
+                            <!-- Last Login -->
+                            <td class="px-4 py-3.5 text-[11px] text-slate-500 font-mono">
+                                {{ u['last_login']|localdt if u['last_login'] else 'Never' }}
+                            </td>
+
+                            <!-- Actions: Edit & Delete -->
+                            <td class="px-4 py-3.5 text-right">
+                                <div class="inline-flex items-center gap-1.5">
+                                    <!-- Edit Button -->
+                                    <button type="button" 
+                                        onclick="loadUserForEdit('{{ u['id'] }}', '{{ u['username'] }}', '{{ u['role'] }}')"
+                                        class="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                                        title="Edit roles or reset password">
+                                        <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                    </button>
+
+                                    <!-- Delete Button -->
+                                    {% if u['id'] != session['user_id'] %}
+                                        {% if u['username']|lower != 'ankur' %}
+                                        <form action="{{ url_for('auth.user_management') }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete user {{ u['username'] }}?');">
+                                            <input type="hidden" name="action" value="delete">
+                                            <input type="hidden" name="user_id" value="{{ u['id'] }}">
+                                            <button type="submit" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors" title="Delete User">
+                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                            </button>
+                                        </form>
+                                        {% else %}
+                                        <span class="text-[10px] text-slate-400 italic px-1">Master</span>
+                                        {% endif %}
+                                    {% else %}
+                                        <span class="text-[10px] font-bold text-slate-400 px-1">Current</span>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
         </div>
+
     </div>
+
 </div>
+
+<script>
+    function resetFormToCreate() {
+        document.getElementById('form-action').value = 'create';
+        document.getElementById('form-user-id').value = '';
+        document.getElementById('form-heading').textContent = 'Create New User';
+        document.getElementById('form-icon').setAttribute('data-lucide', 'user-plus');
+        document.getElementById('cancel-edit-btn').classList.add('hidden');
+
+        const uInput = document.getElementById('input-username');
+        uInput.value = '';
+        uInput.readOnly = false;
+        uInput.classList.remove('bg-slate-100', 'text-slate-500');
+
+        const pInput = document.getElementById('input-password');
+        pInput.value = '';
+        pInput.required = true;
+        document.getElementById('label-password').innerHTML = 'Password <span class="text-rose-500">*</span>';
+        document.getElementById('help-password').textContent = 'Must be unique. System rejects passwords reused across existing accounts.';
+
+        document.getElementById('btn-submit-text').textContent = 'Create Account';
+
+        // Clear checkboxes
+        ['reviewer', 'auditor', 'viewer', 'admin'].forEach(r => {
+            const cb = document.getElementById('role-' + r);
+            if (cb) cb.checked = false;
+        });
+
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    function loadUserForEdit(userId, username, roleStr) {
+        document.getElementById('form-action').value = 'update';
+        document.getElementById('form-user-id').value = userId;
+        document.getElementById('form-heading').textContent = 'Edit User: ' + username;
+        document.getElementById('form-icon').setAttribute('data-lucide', 'edit-3');
+        document.getElementById('cancel-edit-btn').classList.remove('hidden');
+
+        const uInput = document.getElementById('input-username');
+        uInput.value = username;
+        uInput.readOnly = true;
+        uInput.classList.add('bg-slate-100', 'text-slate-500');
+
+        const pInput = document.getElementById('input-password');
+        pInput.value = '';
+        pInput.required = false;
+        document.getElementById('label-password').innerHTML = 'New Password (Optional)';
+        document.getElementById('help-password').textContent = 'Leave blank to keep existing password, or enter a new unique password to reset.';
+
+        document.getElementById('btn-submit-text').textContent = 'Save Changes';
+
+        // Set checkboxes
+        const rolesList = roleStr.split(',').map(r => r.trim().toUpperCase());
+        ['REVIEWER', 'AUDITOR', 'VIEWER', 'ADMIN'].forEach(r => {
+            const cb = document.getElementById('role-' + r.toLowerCase());
+            if (cb) {
+                cb.checked = rolesList.includes(r);
+            }
+        });
+
+        // Scroll form into view if on mobile
+        document.getElementById('user-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+    });
+</script>
 {% endblock %}
