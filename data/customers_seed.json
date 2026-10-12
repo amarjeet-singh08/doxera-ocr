@@ -1,0 +1,1072 @@
+[
+  {
+    "customer_code": "DL5TH",
+    "customer_name": "5TH DIMENTION",
+    "sales_person": "Jeetendra Prasad",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07BULPK9069D1Z9",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPACT",
+    "customer_name": "ACTION EARTH MOVERS",
+    "sales_person": "NEL",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09AAOFA8446N1ZN",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLACUD",
+    "customer_name": "ACUDAC LOGISTICS PVT LTD",
+    "sales_person": "NEL",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07ABDCA187B1Z1",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLAIWA",
+    "customer_name": "AIWA INDIA SALES & SERVICES PRIVATE LIMITED",
+    "sales_person": "Sarita Singh",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAUCA7228H1ZA",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPAIZ",
+    "customer_name": "Aiz Engineering Private Limited",
+    "sales_person": "NEL",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09AATCA6480E1Z9",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRAMAL",
+    "customer_name": "AMALGAMATION",
+    "sales_person": "NEL",
+    "city": "GURUGRAM",
+    "state": "HARYANA",
+    "gst_no": "06APGPG9148C1Z1",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "PBAPA",
+    "customer_name": "APA VENTURES",
+    "sales_person": "NEL",
+    "city": "S.A.S Nagar",
+    "state": "PUNJAB",
+    "gst_no": "03GWYPS5245B1Z5",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "MHARC",
+    "customer_name": "ARC LOGISTICS AND WAREHOUSING PVT LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "MUMBAI",
+    "state": "MAHARASHTRA",
+    "gst_no": "27AAYCA1602K1ZF",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLATC",
+    "customer_name": "ATC GLOBAL LOGISTICS Pvt. Ltd.",
+    "sales_person": "Kanishka Gupta",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAACA3307K1ZZ",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "ATLA",
+    "customer_name": "Atlantic International Express",
+    "sales_person": "Kamlesh Jha",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "7",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "WBAUM",
+    "customer_name": "AUM EXPRESS PRIVATE LIMITED",
+    "sales_person": "Jeetendra Prasad",
+    "city": "KOLKATA",
+    "state": "WEST BENGAL",
+    "gst_no": "19AANCA1304K1ZO",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRAVN",
+    "customer_name": "AVN PLASTICS& RUBBERS",
+    "sales_person": "Kamlesh Jha",
+    "city": "GURUGRAM",
+    "state": "HARYANA",
+    "gst_no": "06AAWPN0318G2ZM",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "IXCBAKE",
+    "customer_name": "Bake Cosmetic Pvt Ltd",
+    "sales_person": "Vijay Sheoran",
+    "city": "S.A.S Nagar",
+    "state": "PUNJAB",
+    "gst_no": "03AALCB4218M1ZN",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLBALM",
+    "customer_name": "BALMER LAWRIE AND COMPANY LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AABCB0984E1ZX",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPBEN",
+    "customer_name": "Benir E Store Solutions Pvt Ltd",
+    "sales_person": "Sarita Singh",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09AAECB7398D2ZD",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLBENIR",
+    "customer_name": "BENIR E STORE SOLUTIONS PVT LTD",
+    "sales_person": "Sarita Singh",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAECB7398D1ZI",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DELBKBP",
+    "customer_name": "BLOSSOM KOCHHAR BEAUTY PRODUCT PVT LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAACB0098G1ZX",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRBKBP",
+    "customer_name": "BLOSSOM KOCHHAR BEAUTY PRODUCTS PVT LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "REWARI",
+    "state": "HARYANA",
+    "gst_no": "06AAACB0098G1ZZ",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "KACEZEN",
+    "customer_name": "CEZEN TECHNOLOGIES PVT LTD",
+    "sales_person": "NEL",
+    "city": "BENGALURU",
+    "state": "KARNATAKA",
+    "gst_no": "29AAFCC9825R1ZP",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLCOLOM",
+    "customer_name": "Color Master Print Process Pvt Ltd",
+    "sales_person": "NEL",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAECC0990N1ZC",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRCOLOR",
+    "customer_name": "COLORBAR COSMETICS PVT LTD",
+    "sales_person": "Pooja Aggarwal",
+    "city": "FARIDABAD",
+    "state": "HARYANA",
+    "gst_no": "06AAICS2414D1ZS",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "MHCOLOR",
+    "customer_name": "COLORBAR COSMETICS PVT LTD",
+    "sales_person": "Pooja Aggarwal",
+    "city": "THANE",
+    "state": "MAHARASHTRA",
+    "gst_no": "27AAICS2414D1ZO",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "WBCOLOR",
+    "customer_name": "COLORBAR COSMETICS PVT LTD",
+    "sales_person": "Pooja Aggarwal",
+    "city": "KOLKATA",
+    "state": "WEST BENGAL",
+    "gst_no": "19AAICS2414D1ZL",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLDAFF",
+    "customer_name": "DAFFODIL ENGINEERING",
+    "sales_person": "NEL",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAVFD9412A1ZG",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLDECP",
+    "customer_name": "DECENT PLASTICS",
+    "sales_person": "Sarita Singh",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AALPA4821G1Z1",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRDESH",
+    "customer_name": "DESHWAL WASTE MANAGEMENT PVT LTD",
+    "sales_person": "Sarita Singh",
+    "city": "GURUGRAM",
+    "state": "HARYANA",
+    "gst_no": "06AAECD8629D1ZQ",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPDIC",
+    "customer_name": "DIC INDIA LIMITED",
+    "sales_person": "Jeetendra Prasad",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09AABCC0703C1ZF",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "KADRS",
+    "customer_name": "DRSLINX LOGISTICS WORLDWIDE PVT LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "BENGALURU",
+    "state": "KARNATAKA",
+    "gst_no": "29AAHCD4676R1ZN",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPDUET",
+    "customer_name": "DUET POWER",
+    "sales_person": "Jeetendra Prasad",
+    "city": "GHAZIABAD",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09DAKPK0349K2ZC",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPDUETPOWER",
+    "customer_name": "DUET POWER PRIVATE LIMITED",
+    "sales_person": "Jeetendra Prasad",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09AALCD2827J1ZC",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "IXCEXPORTZ",
+    "customer_name": "EXPORTZ KARGO ENTERPRISES",
+    "sales_person": "Jeetendra Prasad",
+    "city": "CHANDIGARH",
+    "state": "CHANDIGARH",
+    "gst_no": "03AAKFE8434A1ZU",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPGAN",
+    "customer_name": "GANESHA ECOSPHERE LTD",
+    "sales_person": "NEL",
+    "city": "KANPUR NAGAR",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09AAACG6334N1ZA",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRSUGND",
+    "customer_name": "GIESECKE & DEVRIENT INDIA PVT LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "GURUGRAM",
+    "state": "HARYANA",
+    "gst_no": "06AABCG4223D1Z8",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRARGND",
+    "customer_name": "GIESECKE & DEVRIENT INDIA PVT LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "GURUGRAM",
+    "state": "HARYANA",
+    "gst_no": "06AABCG4223D1Z8",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRCOURIERGND",
+    "customer_name": "GIESECKE & DEVRIENT INDIA PVT LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "GURUGRAM",
+    "state": "HARYANA",
+    "gst_no": "06AABCG4223D1Z8",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRMACHINEGND",
+    "customer_name": "GIESECKE & DEVRIENT INDIA PVT LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "GURUGRAM",
+    "state": "HARYANA",
+    "gst_no": "06AABCG4223D1Z8",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRCONSGND",
+    "customer_name": "GIESECKE & DEVRIENT INDIA PVT LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "GURUGRAM",
+    "state": "HARYANA",
+    "gst_no": "06AABCG4223D1Z8",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRGND",
+    "customer_name": "GIESECKE & DEVRIENT INDIA PVT LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "GURUGRAM",
+    "state": "HARYANA",
+    "gst_no": "06AABCG4223D1Z8",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "IXCGLOBATE",
+    "customer_name": "GLOBATE 360 SOLUTIONS PVT LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "CHANDIGARH",
+    "state": "CHANDIGARH",
+    "gst_no": "04AAHCG7814L1ZE",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRGRACE",
+    "customer_name": "Gracetech Services",
+    "sales_person": "NEL",
+    "city": "",
+    "state": "",
+    "gst_no": "",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "TNGURIT",
+    "customer_name": "GURIT WIND PRIVATE LIMITED",
+    "sales_person": "Himansu Pandey",
+    "city": "CHENGALPATTU",
+    "state": "TAMIL NADU",
+    "gst_no": "33AAICG4481C1ZU",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPHER",
+    "customer_name": "HERBOVEDA INDIA",
+    "sales_person": "Ramkrishna",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09AAJPM4220B1Z4",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLINGEN",
+    "customer_name": "INGENIOUS PRESS PVT LTD",
+    "sales_person": "NEL",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAGCI5004D1Z2",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLINN",
+    "customer_name": "INNOVATIVIEW INDIA LIMITED",
+    "sales_person": "NEL",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAECI6465J1Z8",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRIOTACR",
+    "customer_name": "IOTA CRAFT PVT LTD",
+    "sales_person": "Sarita Singh",
+    "city": "ROHTAK",
+    "state": "HARYANA",
+    "gst_no": "06AAHCI9243F1ZI",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLIOA",
+    "customer_name": "IOTA INTERNATIONAL",
+    "sales_person": "Sarita Singh",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAYPM2153Q1ZU",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRJINDPREFAB",
+    "customer_name": "JINDAL PREFAB PVT LTD",
+    "sales_person": "Himanshu Pandey",
+    "city": "REWARI",
+    "state": "HARYANA",
+    "gst_no": "06AADCJ1120C1ZF",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRKAFF",
+    "customer_name": "KAFF APPLIANCES (INDIA) PVT LTD",
+    "sales_person": "Sarita Singh",
+    "city": "GURUGRAM",
+    "state": "HARYANA",
+    "gst_no": "06AADCK2121Q1ZI",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "WBKAFF",
+    "customer_name": "KAFF APPLIANCES INDIA PRIVATE LIMITED",
+    "sales_person": "Sarita Singh",
+    "city": "24 PARAGANAS NORTH",
+    "state": "WEST BENGAL",
+    "gst_no": "19AADCK2121Q1ZB",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPKAV",
+    "customer_name": "KAVITA WOMEN WEAR PVT LTD",
+    "sales_person": "Sarita Singh",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09AAECK0384L1Z8",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRMADURA",
+    "customer_name": "MADURA COATS PVT LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "FARIDABAD",
+    "state": "HARYANA",
+    "gst_no": "06AABCM8279K1ZZ",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "1HRMADU",
+    "customer_name": "MADURA COATS PVT LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "FARIDABAD",
+    "state": "HARYANA",
+    "gst_no": "06AABCM8279K1ZZ",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLMAITRI",
+    "customer_name": "Maitri Environmental Services & Solutions Pvt Ltd",
+    "sales_person": "Sarita Singh",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAKCM3076H1ZA",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "GJMAX",
+    "customer_name": "MAXGREEN TRACTORS AND AGRO EQUIPMENTS PVT LTD",
+    "sales_person": "NEL",
+    "city": "AHMADABAD",
+    "state": "GUJARAT",
+    "gst_no": "24AARCM6736B1ZE",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLMED",
+    "customer_name": "MEDIART LIFESCIENCES PRIVATE LIMITED",
+    "sales_person": "Sarita Singh",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAJCM9816A1ZH",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLMEENA",
+    "customer_name": "MEENA BAZAAR",
+    "sales_person": "Jeetendra Prasad",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07ABLFM0244J1Z8",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPMODE",
+    "customer_name": "MODE RETAILS SALES AND MARKETING PVT LTD",
+    "sales_person": "NEL",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09AANCM4929Q1ZG",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRMOV",
+    "customer_name": "Movin Express Pvt Ltd",
+    "sales_person": "Jeetendra Prasad",
+    "city": "GURUGRAM",
+    "state": "HARYANA",
+    "gst_no": "06AAFCI7460Q1ZY",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLMOVIN",
+    "customer_name": "Movin Express Pvt Ltd",
+    "sales_person": "Jeetendra Prasad",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAFCI7460Q1ZW",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "IXCMOVIN",
+    "customer_name": "Movin Express Pvt Ltd",
+    "sales_person": "Jeetendra Prasad",
+    "city": "LUDHIANA",
+    "state": "PUNJAB",
+    "gst_no": "03AAFCI7460Q1Z4",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPNG",
+    "customer_name": "N G Electro Products Pvt Ltd",
+    "sales_person": "NEL",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "02AACCN5184H2ZL",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLNAZARIYA",
+    "customer_name": "Nazariya Consultants (OPS) Pvt Ltd",
+    "sales_person": "NEL",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAJCN2591F1ZC",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPNETRO",
+    "customer_name": "NETRO NETWORKS PVT LTD",
+    "sales_person": "Ramkrishna",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09AAGCN0664E1ZJ",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "KANHEXIM",
+    "customer_name": "NH EXIM INTERNATIONAL",
+    "sales_person": "Jeetendra Prasad",
+    "city": "BENGALURU",
+    "state": "KARNATAKA",
+    "gst_no": "29AAHPF4142P1ZD",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPNOTOFIRE",
+    "customer_name": "NOTOFIRE PRIVATE LIMITED",
+    "sales_person": "Jeetendra Prasad",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09AAGCN7119L1Z0",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "KANUT",
+    "customer_name": "Nutricouture",
+    "sales_person": "NEL",
+    "city": "BENGALURU",
+    "state": "KARNATAKA",
+    "gst_no": "29APIPB2643B1ZC",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPOSEL",
+    "customer_name": "OSEL DEVICES LIMITED",
+    "sales_person": "Ramkrishna",
+    "city": "",
+    "state": "",
+    "gst_no": "",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPOZIEL",
+    "customer_name": "Oziel Pharmaceuticals Pvt Ltd",
+    "sales_person": "Ramkrishna",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09AACCO1538J1ZC",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLPP",
+    "customer_name": "P P ENTERPRISE",
+    "sales_person": "NEL",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07CLLPK9726M1ZB",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLPANA",
+    "customer_name": "PANACEA BIOTEC LIMITED",
+    "sales_person": "Sarita Singh",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAACP5335J1ZE",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLPANAVAC",
+    "customer_name": "PANACEA BIOTEC LIMITED",
+    "sales_person": "Sarita Singh",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAACP5335J1ZE",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLPANPHAR",
+    "customer_name": "Panacea Biotech Pharma Limited",
+    "sales_person": "NEL",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAKCP4431B1ZQ",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRPARAM",
+    "customer_name": "PARAMOUNT BED INDIA PVT LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "GURUGRAM",
+    "state": "HARYANA",
+    "gst_no": "06AAGCP7609B1ZM",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "GTPRAV",
+    "customer_name": "PRAVEEN OVERSEAS",
+    "sales_person": "NEL",
+    "city": "SURAT",
+    "state": "GUJARAT",
+    "gst_no": "24AIRPG7955R1Z8",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLPRINT",
+    "customer_name": "PRINT MASTERS",
+    "sales_person": "NEL",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AFQPK1569M1ZS",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPQUICK",
+    "customer_name": "Quick Composites Pvt Ltd",
+    "sales_person": "NEL",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09AABCQ1236G1ZN",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPRV",
+    "customer_name": "R V Solutions Pvt Ltd",
+    "sales_person": "Ramkrishna",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09AADCR9806P1ZL",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRRAJD",
+    "customer_name": "RAJDOOT CABLES PVT LTD",
+    "sales_person": "NEL",
+    "city": "FARIDABAD",
+    "state": "HARYANA",
+    "gst_no": "06AADCR9048R1ZL",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLREPOSE",
+    "customer_name": "REPOSE MATTRESS PRIVATE LIMITED",
+    "sales_person": "Himanshu Pandey",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAGCR3967G1Z3",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "RETAIL",
+    "customer_name": "Retail",
+    "sales_person": "NEL",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07Retail",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLSHAM",
+    "customer_name": "Shamrock Material Handling & Storage System",
+    "sales_person": "NEL",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AEHFS9141P1ZA",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPSHANT",
+    "customer_name": "SHANTAM INTERNATIONAL",
+    "sales_person": "Sarita Singh",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09ACOFS3850Q1Z5",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "TLSHEELA",
+    "customer_name": "SHEELA FOAM LTD",
+    "sales_person": "Himanshu Pandey",
+    "city": "MEDCHAL MALKAJGIRI",
+    "state": "TELANGANA",
+    "gst_no": "36AAACS0189B1ZP",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLSHIFT",
+    "customer_name": "SHIFTNEX LOGISTICS",
+    "sales_person": "NEL",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AFNFS2683D1ZQ",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLSHIFTNEXPAC",
+    "customer_name": "SHIFTNEX PACKERS AND MOVERS",
+    "sales_person": "NEL",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AVEPJ8470G2ZE",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "SILVERENTER",
+    "customer_name": "SILVER ZONE ENTERPRISES INDIA PVT LTD",
+    "sales_person": "Kamlesh Jha",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAPCS4803H1Z6",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLSILVERFOUND",
+    "customer_name": "Silverzone Foundation",
+    "sales_person": "NEL",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAMTS1953Q1ZM",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLSISL",
+    "customer_name": "SISL  Infotech Pvt. Ltd",
+    "sales_person": "NEL",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAECP4330R1Z1",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPSOL",
+    "customer_name": "SOLTRIX EDGE PRIVATE LIMITED",
+    "sales_person": "NEL",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09ABQCS8946P1ZY",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRSUAS",
+    "customer_name": "SUAS CARGO & LOGISTICS PVT LTD",
+    "sales_person": "NEL",
+    "city": "GURUGRAM",
+    "state": "HARYANA",
+    "gst_no": "06ABKCS1211P1Z6",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLSYN",
+    "customer_name": "SYNERGY TELECOM PVT LTD",
+    "sales_person": "Sarita Singh",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAICS6296D1Z2",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPTATA1",
+    "customer_name": "TATA 1MG HEALTHCARE SOLUTIONS PVT LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09AAFCD7691C1ZH",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UKTATA1MG",
+    "customer_name": "TATA 1MG HEALTHCARE SOLUTIONS PVT LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "DEHRADUN",
+    "state": "UTTARAKHAND",
+    "gst_no": "05AAFCD7691C1ZP",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "RJTATA1MG",
+    "customer_name": "TATA 1MG HEALTHCARE SOLUTIONS PVT LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "JAIPUR",
+    "state": "RAJASTHAN",
+    "gst_no": "08AAFCD7691C1ZJ",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLTATA1MG",
+    "customer_name": "TATA 1MG HEALTHCARE SOLUTIONS PVT LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAFCD7691C1ZL",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRTATA1MG",
+    "customer_name": "TATA 1MG HEALTHCARE SOLUTIONS PVT LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "GURUGRAM",
+    "state": "HARYANA",
+    "gst_no": "06AAFCD7691C1ZN",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLTECHJOCKEY",
+    "customer_name": "TECHJOCKEY INFOTECH PVT LTD",
+    "sales_person": "Ramkrishna",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAFCT6332G1ZD",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "WBTEJAS",
+    "customer_name": "TEJAS INFRA",
+    "sales_person": "NEL",
+    "city": "24 PARAGANAS NORTH",
+    "state": "WEST BENGAL",
+    "gst_no": "19BDCPD0169B1Z4",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLTHEM",
+    "customer_name": "THE MANSION",
+    "sales_person": "NEL",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07ARLPK6729N2Z1",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPTIME",
+    "customer_name": "TIME MASTER WATCHES AND ACCESSORIES PVT LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09AAJCT7755K1ZJ",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPTIMEX",
+    "customer_name": "TIMEX GROUP INDIA LTD",
+    "sales_person": "Jeetendra Prasad",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09AAACT0773C1ZL",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLTH",
+    "customer_name": "Tudor Homes",
+    "sales_person": "NEL",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AAVFT3860E1ZS",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPVALUE",
+    "customer_name": "Valuecon Private Limited",
+    "sales_person": "NEL",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09AAHCV4330N1ZW",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPVINT",
+    "customer_name": "VINTAGE LINEAGE",
+    "sales_person": "NEL",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09ANFPK6289D1ZQ",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "HRVKG",
+    "customer_name": "VKG LABLES & TAGS LLP",
+    "sales_person": "NEL",
+    "city": "GURUGRAM",
+    "state": "HARYANA",
+    "gst_no": "06AASFV5188L1Z7",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "DLWAY",
+    "customer_name": "Waypoint Logistics",
+    "sales_person": "Sarita Singh",
+    "city": "DELHI",
+    "state": "DELHI",
+    "gst_no": "07AADFW0331R1ZW",
+    "location": "",
+    "reporting_manager": ""
+  },
+  {
+    "customer_code": "UPZET",
+    "customer_name": "ZET TOWN INDIA PVT LTD",
+    "sales_person": "Ramkrishna",
+    "city": "NOIDA",
+    "state": "UTTAR PRADESH",
+    "gst_no": "09AABCZ8239Q1ZC",
+    "location": "",
+    "reporting_manager": ""
+  }
+]

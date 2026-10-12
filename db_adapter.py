@@ -33,6 +33,15 @@ class DBWrapper:
             return cursor
         else:
             return self.conn.execute(query, params)
+
+    def executemany(self, query, seq_of_parameters):
+        if self.is_postgres:
+            pg_query = query.replace('?', '%s')
+            cursor = self.conn.cursor()
+            cursor.executemany(pg_query, seq_of_parameters)
+            return cursor
+        else:
+            return self.conn.executemany(query, seq_of_parameters)
             
     def commit(self):
         self.conn.commit()

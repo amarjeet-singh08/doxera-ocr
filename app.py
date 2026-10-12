@@ -109,9 +109,11 @@ def create_app():
     # Register Blueprints
     from routes_auth import auth_bp
     from routes_ops import ops_bp
+    from routes_sales import sales_bp
     
     app.register_blueprint(auth_bp)
     app.register_blueprint(ops_bp)
+    app.register_blueprint(sales_bp)
     
     @app.route('/')
     def index():

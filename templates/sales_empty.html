@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block header_title %}Sales Intelligence Reports{% endblock %}
+
+{% block content %}
+<div class="max-w-3xl mx-auto py-12 text-center space-y-6">
+    <div class="w-20 h-20 mx-auto rounded-3xl bg-gradient-to-tr from-blue-600 to-indigo-500 text-white flex items-center justify-center shadow-xl shadow-blue-500/20">
+        <i data-lucide="bar-chart-big" class="h-10 w-10"></i>
+    </div>
+
+    <div class="space-y-2">
+        <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight">No Sales Reports Generated Yet</h1>
+        <p class="text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
+            Welcome to the DOXERA Sales Intelligence Hub. Upload your monthly Billed and Unbilled MIS spreadsheets to generate executive reports, Power BI-style dashboards, and PowerPoint exports.
+        </p>
+    </div>
+
+    <div class="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+        <a href="{{ url_for('sales.upload_page') }}" class="inline-flex items-center px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-xl shadow-lg shadow-blue-600/30 transition-all hover:scale-105">
+            <i data-lucide="upload-cloud" class="h-4 w-4 mr-2"></i> Upload First MIS Sheets
+        </a>
+        <a href="{{ url_for('sales.customers_page') }}" class="inline-flex items-center px-5 py-3 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 text-sm font-semibold rounded-xl shadow-sm transition-colors">
+            <i data-lucide="users" class="h-4 w-4 mr-2 text-slate-400"></i> View Customer Master List
+        </a>
+    </div>
+
+    <!-- Feature Grid Highlights -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-10 text-left">
+        <div class="p-5 rounded-xl bg-white border border-slate-200 shadow-sm space-y-2">
+            <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
+                <i data-lucide="git-merge" class="h-4 w-4"></i>
+            </div>
+            <h3 class="text-sm font-bold text-slate-900">AWB Cross-Correlation</h3>
+            <p class="text-xs text-slate-500">Automatically matches and joins Billed and Unbilled consignments via foreign-key docket numbers.</p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-white border border-slate-200 shadow-sm space-y-2">
+            <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                <i data-lucide="user-check" class="h-4 w-4"></i>
+            </div>
+            <h3 class="text-sm font-bold text-slate-900">Sales Rep Matching</h3>
+            <p class="text-xs text-slate-500">Permanent database maps accounts directly to Jeetendra Prasad, Sarita Singh, Ramkrishna, etc.</p>
+        </div>
+
+        <div class="p-5 rounded-xl bg-white border border-slate-200 shadow-sm space-y-2">
+            <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center">
+                <i data-lucide="presentation" class="h-4 w-4"></i>
+            </div>
+            <h3 class="text-sm font-bold text-slate-900">Executive PDF & PPTX</h3>
+            <p class="text-xs text-slate-500">One-click export into widescreen PowerPoint slides and high-resolution boardroom reports.</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

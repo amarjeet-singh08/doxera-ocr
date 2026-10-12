@@ -88,6 +88,26 @@
                 </div>
             </div>
             
+            {% if session.get('role') in ['ADMIN', 'AUDITOR'] %}
+            <div>
+                <div class="px-3 text-xs font-bold text-blue-600 uppercase tracking-wider mb-2 flex items-center">
+                    <span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-600 mr-1.5"></span>
+                    Sales Intelligence
+                </div>
+                <div class="space-y-1">
+                    <a href="{{ url_for('sales.dashboard') }}" class="sidebar-link {% if request.endpoint in ['sales.dashboard', 'sales.view_report'] %}active{% endif %}">
+                        <i data-lucide="bar-chart-3" class="sidebar-icon text-blue-600"></i> Sales Dashboard
+                    </a>
+                    <a href="{{ url_for('sales.upload_page') }}" class="sidebar-link {% if request.endpoint == 'sales.upload_page' %}active{% endif %}">
+                        <i data-lucide="file-plus-2" class="sidebar-icon text-indigo-600"></i> Upload MIS Sheets
+                    </a>
+                    <a href="{{ url_for('sales.customers_page') }}" class="sidebar-link {% if request.endpoint == 'sales.customers_page' %}active{% endif %}">
+                        <i data-lucide="contact-2" class="sidebar-icon text-slate-500"></i> Customer Mapping
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+            
             <div>
                 <div class="px-3 text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Data & Settings</div>
                 <div class="space-y-1">

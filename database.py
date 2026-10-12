@@ -149,7 +149,96 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     ''')
+
+    # Sales Intelligence Tables (Isolated from OCR)
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS sales_customers (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            customer_code TEXT UNIQUE,
+            customer_name TEXT,
+            sales_person TEXT,
+            location TEXT,
+            city TEXT,
+            state TEXT,
+            gst_no TEXT,
+            reporting_manager TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
     
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS sales_reports (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            report_id TEXT UNIQUE,
+            title TEXT,
+            period_label TEXT,
+            billed_filename TEXT,
+            unbilled_filename TEXT,
+            total_sales REAL DEFAULT 0,
+            billed_sales REAL DEFAULT 0,
+            unbilled_sales REAL DEFAULT 0,
+            total_shipments INTEGER DEFAULT 0,
+            total_weight REAL DEFAULT 0,
+            avg_shipment_value REAL DEFAULT 0,
+            top_sales_person TEXT,
+            top_customer TEXT,
+            report_data_json TEXT,
+            created_by TEXT,
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    ''')
+    
+    conn.execute('''
+        CREATE TABLE IF NOT EXISTS sales_shipments (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            report_id INTEGER,
+            awb_no TEXT,
+            booking_date TEXT,
+            customer_code TEXT,
+            customer_name TEXT,
+            sales_person TEXT,
+            shipper TEXT,
+            consignee TEXT,
+            origin TEXT,
+            destination TEXT,
+            service_mode TEXT,
+            transport_mode TEXT,
+            weight REAL DEFAULT 0,
+            appoint_date TEXT,
+            total_amt REAL DEFAULT 0,
+            source_type TEXT,
+            FOREIGN KEY (report_id) REFERENCES sales_reports(id) ON DELETE CASCADE
+        )
+    ''')
+    
+    # Auto-seed sales customers if empty
+    try:
+        cust_cnt = conn.execute("SELECT COUNT(*) FROM sales_customers").fetchone()[0]
+        if cust_cnt == 0:
+            import os, json
+            seed_path = os.path.join(Config.BASE_DIR, 'data', 'customers_seed.json')
+            if os.path.exists(seed_path):
+                with open(seed_path, 'r', encoding='utf-8') as fp:
+                    seeds = json.load(fp)
+                for s in seeds:
+                    conn.execute('''
+                        INSERT OR IGNORE INTO sales_customers 
+                        (customer_code, customer_name, sales_person, location, city, state, gst_no, reporting_manager)
+                        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                    ''', (
+                        s.get('customer_code'),
+                        s.get('customer_name'),
+                        s.get('sales_person'),
+                        s.get('location'),
+                        s.get('city'),
+                        s.get('state'),
+                        s.get('gst_no'),
+                        s.get('reporting_manager')
+                    ))
+    except Exception as e:
+        print(f"Notice: sales_customers seed check: {e}")
+
 
     # Safe upgrade for existing databases
     def column_exists(table, column, conn):
