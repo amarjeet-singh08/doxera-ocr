@@ -71,85 +71,134 @@ def normalize_column_name(col_str):
 
 def read_mis_file(file_storage_or_path, original_filename=""):
     """
-    Universally parse .xlsx, .xls (binary or TSV-in-disguise), .csv, or .tsv.
-    Returns a standardized pandas DataFrame.
+    Intelligent ERP File Preprocessor:
+    Automatically handles files downloaded directly from logistics software
+    without requiring the user to open in Excel, convert format, or adjust rows/columns!
+    
+    1. Handles text/TSV/CSV disguised as .xls (fixes Excel format mismatch warning).
+    2. Sniffs lines to locate the real header row, skipping title banners/dates.
+    3. Trims summary/total footer rows automatically.
+    4. Auto-cleans column headers and strips whitespace.
     """
     if isinstance(file_storage_or_path, str):
-        filepath = file_storage_or_path
-        filename = os.path.basename(filepath)
+        with open(file_storage_or_path, "rb") as fp:
+            content_bytes = fp.read()
+        filename = os.path.basename(file_storage_or_path)
     else:
         file_storage_or_path.seek(0)
         content_bytes = file_storage_or_path.read()
         filename = original_filename or getattr(file_storage_or_path, "filename", "upload.xlsx")
-        filepath = io.BytesIO(content_bytes)
 
     df = None
     errors = []
 
-    # 1. Try reading as text/CSV/TSV if file looks like text
-    try:
-        if isinstance(filepath, io.BytesIO):
-            filepath.seek(0)
-            sample = filepath.read(2048)
-            filepath.seek(0)
-        else:
-            with open(filepath, "rb") as fp:
-                sample = fp.read(2048)
-                
-        if b"\t" in sample or b"," in sample:
-            try:
-                if isinstance(filepath, io.BytesIO):
-                    filepath.seek(0)
-                    df = pd.read_csv(filepath, sep=None, engine="python", encoding="utf-8")
-                else:
-                    df = pd.read_csv(filepath, sep=None, engine="python", encoding="utf-8")
-            except Exception:
-                if isinstance(filepath, io.BytesIO):
-                    filepath.seek(0)
-                    df = pd.read_csv(filepath, sep=None, engine="python", encoding="latin1")
-                else:
-                    df = pd.read_csv(filepath, sep=None, engine="python", encoding="latin1")
-    except Exception as e:
-        errors.append(f"Text/CSV reader failed: {e}")
+    # Check file signature
+    is_zip = content_bytes.startswith(b"PK\x03\x04")
+    is_ole = content_bytes.startswith(b"\xd0\xcf\x11\xe0")
 
-    # 2. Try openpyxl (standard XLSX)
-    if df is None:
+    # 1. If real OpenXML (.xlsx)
+    if is_zip:
         try:
-            if isinstance(filepath, io.BytesIO):
-                filepath.seek(0)
-            df = pd.read_excel(filepath, engine="openpyxl")
+            df = pd.read_excel(io.BytesIO(content_bytes), engine="openpyxl")
         except Exception as e:
             errors.append(f"openpyxl failed: {e}")
 
-    # 3. Try xlrd (legacy binary XLS)
-    if df is None:
+    # 2. If real binary OLE (.xls)
+    elif is_ole:
         try:
-            if isinstance(filepath, io.BytesIO):
-                filepath.seek(0)
-            df = pd.read_excel(filepath)
+            df = pd.read_excel(io.BytesIO(content_bytes))
         except Exception as e:
-            errors.append(f"Excel standard reader failed: {e}")
+            errors.append(f"Legacy xls reader failed: {e}")
 
-    # 4. Try HTML table (some systems export HTML inside .xls)
+    # 3. Text-based files (TSV, CSV, HTML disguised as .xls)
     if df is None:
-        try:
-            if isinstance(filepath, io.BytesIO):
-                filepath.seek(0)
-            dfs = pd.read_html(filepath)
-            if dfs:
-                df = dfs[0]
-        except Exception as e:
-            errors.append(f"HTML table reader failed: {e}")
+        # Check if HTML table disguised as .xls
+        sample_head = content_bytes[:2048].lower()
+        if b"<html" in sample_head or b"<table" in sample_head:
+            try:
+                dfs = pd.read_html(io.BytesIO(content_bytes))
+                if dfs:
+                    df = dfs[0]
+            except Exception as e:
+                errors.append(f"HTML table reader failed: {e}")
+
+        # Text/TSV parsing with smart header sniffer
+        if df is None:
+            # Try multiple text encodings
+            text_content = ""
+            for enc in ("utf-8-sig", "utf-8", "cp1252", "latin1", "iso-8859-1"):
+                try:
+                    text_content = content_bytes.decode(enc)
+                    break
+                except Exception:
+                    continue
+
+            if text_content:
+                lines = text_content.splitlines()
+                
+                # Scan first 35 lines to locate the real header row
+                header_idx = -1
+                detected_sep = '\t'
+                
+                for idx, line in enumerate(lines[:35]):
+                    l_lower = line.lower()
+                    if ("awb" in l_lower or "docket" in l_lower) and (
+                        "cust" in l_lower or "party" in l_lower or "amt" in l_lower or
+                        "amount" in l_lower or "weight" in l_lower or "dest" in l_lower or "mode" in l_lower
+                    ):
+                        header_idx = idx
+                        # Sniff delimiter
+                        if "\t" in line: detected_sep = "\t"
+                        elif "," in line: detected_sep = ","
+                        elif ";" in line: detected_sep = ";"
+                        elif "|" in line: detected_sep = "|"
+                        break
+
+                try:
+                    if header_idx != -1:
+                        # Slice from real header row onwards
+                        valid_text = "\n".join(lines[header_idx:])
+                        df = pd.read_csv(io.StringIO(valid_text), sep=detected_sep, engine="python")
+                    else:
+                        # Fallback to auto-detect
+                        df = pd.read_csv(io.StringIO(text_content), sep=None, engine="python")
+                except Exception as e:
+                    errors.append(f"Smart text parser failed: {e}")
 
     if df is None or df.empty:
         raise ValueError(f"Could not parse file '{filename}'. Details: {'; '.join(errors)}")
 
-    # Standardize column headers
+    # 4. Auto Row Adjustment (If header is hidden inside DataFrame rows)
+    cols_str = " ".join(str(c).lower() for c in df.columns)
+    if "awb" not in cols_str and "docket" not in cols_str:
+        for idx in range(min(len(df), 25)):
+            row_vals = [str(v).lower() for v in df.iloc[idx].values if pd.notna(v)]
+            row_str = " ".join(row_vals)
+            if ("awb" in row_str or "docket" in row_str) and (
+                "cust" in row_str or "amount" in row_str or "amt" in row_str or "dest" in row_str or "weight" in row_str
+            ):
+                new_cols = df.iloc[idx].values
+                df = df.iloc[idx + 1:].copy()
+                df.columns = new_cols
+                break
+
+    # 5. Standardize column headers
     col_mapping = {}
     for col in df.columns:
         norm = normalize_column_name(col)
         col_mapping[col] = norm
     df = df.rename(columns=col_mapping)
+
+    # 6. Auto-Clean Footer Rows (remove total, subtotal, and summary rows)
+    if "awb_no" in df.columns:
+        def is_valid_awb(val):
+            if pd.isna(val): return False
+            s = str(val).strip().lower()
+            if not s or s in ("nan", "none", "0"): return False
+            if "total" in s or "subtotal" in s or "end of report" in s or "page" in s: return False
+            return True
+
+        df = df[df["awb_no"].apply(is_valid_awb)].copy()
 
     return df
 

@@ -221,11 +221,16 @@ def init_db():
             if os.path.exists(seed_path):
                 with open(seed_path, 'r', encoding='utf-8') as fp:
                     seeds = json.load(fp)
+                is_pg = getattr(conn, 'is_postgres', False)
+                conflict_clause = "ON CONFLICT (customer_code) DO NOTHING" if is_pg else ""
+                insert_verb = "INSERT INTO" if is_pg else "INSERT OR IGNORE INTO"
+                
                 for s in seeds:
-                    conn.execute('''
-                        INSERT OR IGNORE INTO sales_customers 
+                    conn.execute(f'''
+                        {insert_verb} sales_customers 
                         (customer_code, customer_name, sales_person, location, city, state, gst_no, reporting_manager)
                         VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                        {conflict_clause}
                     ''', (
                         s.get('customer_code'),
                         s.get('customer_name'),
