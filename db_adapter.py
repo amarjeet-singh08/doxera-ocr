@@ -45,6 +45,12 @@ class DBWrapper:
             
     def commit(self):
         self.conn.commit()
+
+    def rollback(self):
+        try:
+            self.conn.rollback()
+        except Exception:
+            pass
         
     def close(self):
         self.conn.close()

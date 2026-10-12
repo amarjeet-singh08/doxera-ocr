@@ -216,20 +216,45 @@ def init_db():
             FOREIGN KEY (report_id) REFERENCES sales_reports(id) ON DELETE CASCADE
         )
     ''')
-    
-    # Safe upgrade check
-    try:
-        conn.execute("ALTER TABLE sales_reports ADD COLUMN booking_filename TEXT")
-    except Exception:
-        pass
-    try:
-        conn.execute("ALTER TABLE sales_shipments ADD COLUMN bill_no TEXT")
-    except Exception:
-        pass
-    try:
-        conn.execute("ALTER TABLE sales_shipments ADD COLUMN delivery_status TEXT")
-    except Exception:
-        pass
+    conn.commit()
+
+    # Safe upgrade helper for existing databases (SQLite & PostgreSQL)
+    def column_exists(table, column, conn):
+        try:
+            if getattr(conn, 'is_postgres', False):
+                c = conn.execute(
+                    "SELECT column_name FROM information_schema.columns WHERE lower(table_name)=lower(%s) AND lower(column_name)=lower(%s)",
+                    (table, column)
+                )
+                return c.fetchone() is not None
+            else:
+                c = conn.execute(f"PRAGMA table_info({table})")
+                columns = [col[1] for col in c.fetchall()]
+                return column in columns
+        except Exception:
+            if getattr(conn, 'is_postgres', False):
+                try:
+                    conn.rollback()
+                except Exception:
+                    pass
+            return False
+
+    # Safe upgrade checks
+    for tbl, col in [
+        ('sales_reports', 'booking_filename'),
+        ('sales_shipments', 'bill_no'),
+        ('sales_shipments', 'delivery_status'),
+        ('dockets', 'invoice_no'),
+        ('dockets', 'invoice_value'),
+        ('dockets', 'ai_original_invoice_no'),
+        ('dockets', 'ai_original_invoice_value'),
+    ]:
+        if not column_exists(tbl, col, conn):
+            try:
+                conn.execute(f"ALTER TABLE {tbl} ADD COLUMN {col} TEXT")
+                conn.commit()
+            except Exception:
+                conn.rollback()
     
     # Auto-seed sales customers if empty
     try:
@@ -260,28 +285,10 @@ def init_db():
                         s.get('gst_no'),
                         s.get('reporting_manager')
                     ))
+                conn.commit()
     except Exception as e:
         print(f"Notice: sales_customers seed check: {e}")
-
-
-    # Safe upgrade for existing databases
-    def column_exists(table, column, conn):
-        if getattr(conn, 'is_postgres', False):
-            c = conn.execute("SELECT column_name FROM information_schema.columns WHERE table_name=%s AND column_name=%s", (table, column))
-            return c.fetchone() is not None
-        else:
-            c = conn.execute(f"PRAGMA table_info({table})")
-            columns = [col[1] for col in c.fetchall()]
-            return column in columns
-
-    if not column_exists('dockets', 'invoice_no', conn):
-        conn.execute("ALTER TABLE dockets ADD COLUMN invoice_no TEXT")
-    if not column_exists('dockets', 'invoice_value', conn):
-        conn.execute("ALTER TABLE dockets ADD COLUMN invoice_value TEXT")
-    if not column_exists('dockets', 'ai_original_invoice_no', conn):
-        conn.execute("ALTER TABLE dockets ADD COLUMN ai_original_invoice_no TEXT")
-    if not column_exists('dockets', 'ai_original_invoice_value', conn):
-        conn.execute("ALTER TABLE dockets ADD COLUMN ai_original_invoice_value TEXT")
+        conn.rollback()
 
     conn.commit()
     conn.close()

@@ -259,7 +259,33 @@ def get_customer_sales_rep_map():
 
 # ═════════════════════════════════════════════════════════════════════
 # 3-WAY CORRELATION & ANALYTICS PIPELINE
-# ═════════════════════════════════════════════════════════════════════
+def extract_month_info(date_str):
+    """
+    Parses dates in formats like '01-09-2026 00:00', '2026-09-01', '01/09/2026', '01-Sep-2026'.
+    Returns (clean_date, month_key, month_label)
+    e.g. ('01-09-2026', '2026-09', 'September 2026')
+    """
+    if not date_str or str(date_str).strip().lower() in ('nan', 'none', '', 'nat'):
+        return '', 'Undated', 'Undated'
+    
+    clean = str(date_str).strip().split(' ')[0]
+    for fmt in ('%d-%m-%Y', '%Y-%m-%d', '%d/%m/%Y', '%m/%d/%Y', '%d-%b-%Y', '%d-%B-%Y'):
+        try:
+            dt = datetime.strptime(clean, fmt)
+            return dt.strftime('%d-%m-%Y'), dt.strftime('%Y-%m'), dt.strftime('%B %Y')
+        except Exception:
+            pass
+            
+    m = re.search(r'(\d{1,2})[-/](\d{1,2})[-/](\d{4})', clean)
+    if m:
+        d, mon, y = int(m.group(1)), int(m.group(2)), int(m.group(3))
+        try:
+            dt = datetime(y, mon, d)
+            return dt.strftime('%d-%m-%Y'), dt.strftime('%Y-%m'), dt.strftime('%B %Y')
+        except Exception:
+            pass
+            
+    return clean, 'Other', 'Other'
 
 def compute_segment_metrics(shipment_list):
     """
@@ -459,9 +485,9 @@ def parse_and_process_sales_3way(billed_file, unbilled_file, booking_file, bille
             continue
         seen_awbs.add(awb)
 
-        # Date
+        # Date & Month Detection
         raw_date = str(row.get("date", "")).strip()
-        clean_date = raw_date.split(" ")[0] if raw_date and raw_date.lower() != "nan" else ""
+        clean_date, month_key, month_label = extract_month_info(raw_date)
 
         # Customer Code & Name
         code = str(row.get("customer_code", "")).strip().upper()
@@ -524,6 +550,8 @@ def parse_and_process_sales_3way(billed_file, unbilled_file, booking_file, bille
         all_shipments.append({
             "awb_no": awb,
             "date": clean_date,
+            "month_key": month_key,
+            "month_label": month_label,
             "customer_code": code,
             "customer_name": cname or code or "General Customer",
             "sales_person": rep,
@@ -557,16 +585,52 @@ def parse_and_process_sales_3way(billed_file, unbilled_file, booking_file, bille
     metrics_billed = compute_segment_metrics(billed_shipments)
     metrics_unbilled = compute_segment_metrics(unbilled_shipments)
 
+    # Detect all unique months in the dataset
+    months_dict = {}
+    for s in all_shipments:
+        mk = s["month_key"]
+        ml = s["month_label"]
+        if mk not in ("Undated", "Other"):
+            if mk not in months_dict:
+                months_dict[mk] = {"key": mk, "label": ml, "count": 0, "sales": 0.0}
+            months_dict[mk]["count"] += 1
+            months_dict[mk]["sales"] += s["total_amt"]
+
+    sorted_months = sorted(months_dict.values(), key=lambda x: x["key"])
+    for m in sorted_months:
+        m["sales"] = round(m["sales"], 2)
+
     # Determine period label
-    sorted_dates = metrics_all["daily_sales"]
-    period_label = "Current Month"
-    if sorted_dates:
-        for fmt in ("%d-%m-%Y", "%Y-%m-%d", "%d/%m/%Y"):
-            try:
-                dt = datetime.strptime(sorted_dates[0]["date"], fmt)
-                period_label = dt.strftime("%B %Y")
-                break
-            except: pass
+    if len(sorted_months) == 1:
+        period_label = sorted_months[0]["label"]
+    elif len(sorted_months) > 1:
+        period_label = f"{sorted_months[0]['label']} – {sorted_months[-1]['label']}"
+    else:
+        period_label = "Current Period"
+
+    # Pre-compute metrics for each month separately (enables instant multi-month separation on dashboard)
+    by_month_metrics = {}
+    for m in sorted_months:
+        mk = m["key"]
+        m_shipments = [s for s in all_shipments if s["month_key"] == mk]
+        m_billed = [s for s in m_shipments if s["source_type"] in ("BILLED", "COMBINED")]
+        m_unbilled = [s for s in m_shipments if s["source_type"] in ("UNBILLED", "COMBINED")]
+        by_month_metrics[mk] = {
+            "summary": {
+                "period_label": m["label"],
+                "total_sales": round(sum(s["total_amt"] for s in m_shipments), 2),
+                "billed_sales": round(sum(s["total_amt"] for s in m_billed), 2),
+                "unbilled_sales": round(sum(s["total_amt"] for s in m_unbilled), 2),
+                "total_shipments": len(m_shipments),
+                "billed_shipments": len(m_billed),
+                "unbilled_shipments": len(m_unbilled),
+                "total_weight": round(sum(s["weight"] for s in m_shipments), 2),
+                "avg_ticket": round((sum(s["total_amt"] for s in m_shipments) / len(m_shipments)) if m_shipments else 0.0, 2),
+            },
+            "all": compute_segment_metrics(m_shipments),
+            "billed": compute_segment_metrics(m_billed),
+            "unbilled": compute_segment_metrics(m_unbilled),
+        }
 
     if not report_title:
         report_title = f"North Express Logistics - Executive Sales Intelligence ({period_label})"
@@ -586,30 +650,51 @@ def parse_and_process_sales_3way(billed_file, unbilled_file, booking_file, bille
             "top_rep": metrics_all["summary"]["top_rep"],
             "top_customer": metrics_all["summary"]["top_customer"]
         },
+        "months": sorted_months,
+        "by_month": by_month_metrics,
         "all": metrics_all,
         "billed": metrics_billed,
         "unbilled": metrics_unbilled,
         "shipments_sample": all_shipments[:250]
     }
 
-    # 4. Save to SQLite database
+    # 4. Save to database (SQLite & PostgreSQL compatible)
     report_id = f"SR-{datetime.now().strftime('%Y%m%d%H%M%S')}"
     conn = get_db_connection()
-    c = conn.execute('''
-        INSERT INTO sales_reports (
-            report_id, title, period_label, billed_filename, unbilled_filename, booking_filename,
-            total_sales, billed_sales, unbilled_sales, total_shipments, total_weight,
-            avg_shipment_value, top_sales_person, top_customer, report_data_json, created_by
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-    ''', (
-        report_id, report_title, period_label, billed_name, unbilled_name, booking_name,
-        metrics_all["summary"]["total_sales"], metrics_billed["summary"]["total_sales"],
-        metrics_unbilled["summary"]["total_sales"], metrics_all["summary"]["total_shipments"],
-        metrics_all["summary"]["total_weight"], metrics_all["summary"]["avg_ticket"],
-        metrics_all["summary"]["top_rep"], metrics_all["summary"]["top_customer"],
-        json.dumps(report_data), created_by
-    ))
-    db_report_id = c.lastrowid
+    is_pg = getattr(conn, 'is_postgres', False)
+
+    if is_pg:
+        c = conn.execute('''
+            INSERT INTO sales_reports (
+                report_id, title, period_label, billed_filename, unbilled_filename, booking_filename,
+                total_sales, billed_sales, unbilled_sales, total_shipments, total_weight,
+                avg_shipment_value, top_sales_person, top_customer, report_data_json, created_by
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id
+        ''', (
+            report_id, report_title, period_label, billed_name, unbilled_name, booking_name,
+            metrics_all["summary"]["total_sales"], metrics_billed["summary"]["total_sales"],
+            metrics_unbilled["summary"]["total_sales"], metrics_all["summary"]["total_shipments"],
+            metrics_all["summary"]["total_weight"], metrics_all["summary"]["avg_ticket"],
+            metrics_all["summary"]["top_rep"], metrics_all["summary"]["top_customer"],
+            json.dumps(report_data), created_by
+        ))
+        db_report_id = c.fetchone()[0]
+    else:
+        c = conn.execute('''
+            INSERT INTO sales_reports (
+                report_id, title, period_label, billed_filename, unbilled_filename, booking_filename,
+                total_sales, billed_sales, unbilled_sales, total_shipments, total_weight,
+                avg_shipment_value, top_sales_person, top_customer, report_data_json, created_by
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        ''', (
+            report_id, report_title, period_label, billed_name, unbilled_name, booking_name,
+            metrics_all["summary"]["total_sales"], metrics_billed["summary"]["total_sales"],
+            metrics_unbilled["summary"]["total_sales"], metrics_all["summary"]["total_shipments"],
+            metrics_all["summary"]["total_weight"], metrics_all["summary"]["avg_ticket"],
+            metrics_all["summary"]["top_rep"], metrics_all["summary"]["top_customer"],
+            json.dumps(report_data), created_by
+        ))
+        db_report_id = c.lastrowid
 
     # Batch insert shipments
     shipment_rows = []

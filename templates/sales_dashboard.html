@@ -104,6 +104,33 @@
         </div>
     </div>
 
+    <!-- 📅 DYNAMIC MULTI-MONTH SEPARATOR & FILTER SLICER 📅 -->
+    {% if report_data.months and report_data.months|length > 0 %}
+    <div class="bg-white/80 backdrop-blur rounded-2xl p-2.5 sm:p-3 border border-slate-200/90 shadow-sm flex flex-col md:flex-row md:items-center justify-between gap-3">
+        <div class="flex items-center gap-2 overflow-x-auto py-0.5" id="month-slicer-container">
+            <span class="text-xs font-bold text-slate-500 uppercase tracking-wider flex items-center gap-1.5 pl-2 shrink-0">
+                <i data-lucide="calendar-range" class="h-4 w-4 text-blue-600"></i> Month View:
+            </span>
+            <button onclick="switchMonth('ALL')" id="month-pill-ALL"
+                class="month-filter-pill active px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm bg-blue-600 text-white shrink-0 flex items-center gap-1.5">
+                <span>All Months</span>
+                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-white/20 text-white">{{ report_data.summary.total_shipments }}</span>
+            </button>
+            {% for m in report_data.months %}
+            <button onclick="switchMonth('{{ m.key }}')" id="month-pill-{{ m.key }}"
+                class="month-filter-pill px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all bg-slate-100 text-slate-700 hover:bg-slate-200 border border-slate-200/60 shrink-0 flex items-center gap-1.5">
+                <span>{{ m.label }}</span>
+                <span class="text-[10px] font-mono px-1.5 py-0.5 rounded-full bg-white text-slate-600 shadow-xs">{{ m.count }}</span>
+            </button>
+            {% endfor %}
+        </div>
+        <div class="text-xs text-slate-500 font-medium px-2 shrink-0 flex items-center gap-1.5">
+            <span>Active Range:</span>
+            <span id="active-month-text" class="text-slate-900 font-bold px-2 py-0.5 bg-slate-100 rounded-md">All Months</span>
+        </div>
+    </div>
+    {% endif %}
+
     <!-- 🌟 SEPARATE DASHBOARDS SEGMENT SWITCHER (Combined, Billed Only, Unbilled Only) 🌟 -->
     <div class="bg-slate-200/80 p-1.5 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-3 shadow-inner">
         <div class="flex items-center gap-1.5 w-full sm:w-auto" id="segment-tabs">
@@ -111,29 +138,29 @@
                 class="segment-tab active flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 text-slate-700">
                 <i data-lucide="layers" class="h-4 w-4 text-blue-600"></i>
                 <span>Combined Overview</span>
-                <span class="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono">{{ report_data.summary.total_shipments }} AWBs</span>
+                <span class="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 text-slate-700 font-mono" id="badge-all-count">{{ report_data.summary.total_shipments }} AWBs</span>
             </button>
 
             <button onclick="switchSegment('billed')" id="tab-billed"
                 class="segment-tab flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900">
                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                 <span>Billed Dashboard</span>
-                <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-mono">{{ report_data.summary.billed_shipments }} AWBs</span>
+                <span class="text-[11px] px-2 py-0.5 rounded-full bg-emerald-100 text-emerald-800 font-mono" id="badge-billed-count">{{ report_data.summary.billed_shipments }} AWBs</span>
             </button>
 
             <button onclick="switchSegment('unbilled')" id="tab-unbilled"
                 class="segment-tab flex-1 sm:flex-none px-5 py-2.5 rounded-xl text-xs sm:text-sm font-bold flex items-center justify-center gap-2 text-slate-600 hover:text-slate-900">
                 <span class="w-2 h-2 rounded-full bg-amber-500"></span>
                 <span>Unbilled Dashboard</span>
-                <span class="text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-mono">{{ report_data.summary.unbilled_shipments }} AWBs</span>
+                <span class="text-[11px] px-2 py-0.5 rounded-full bg-amber-100 text-amber-800 font-mono" id="badge-unbilled-count">{{ report_data.summary.unbilled_shipments }} AWBs</span>
             </button>
         </div>
 
         <!-- Comparative Ratio Metric Pill -->
         <div class="hidden md:flex items-center gap-3 px-4 py-1 text-xs font-semibold text-slate-600">
-            <span>Billed: <b class="text-emerald-700">{{ format_inr(report_data.summary.billed_sales) }}</b></span>
+            <span>Billed: <b class="text-emerald-700" id="ratio-billed-val">{{ format_inr(report_data.summary.billed_sales) }}</b></span>
             <span class="text-slate-300">|</span>
-            <span>Unbilled: <b class="text-amber-700">{{ format_inr(report_data.summary.unbilled_sales) }}</b></span>
+            <span>Unbilled: <b class="text-amber-700" id="ratio-unbilled-val">{{ format_inr(report_data.summary.unbilled_sales) }}</b></span>
         </div>
     </div>
 
@@ -437,7 +464,7 @@
                 <tbody class="divide-y divide-slate-100 font-medium" id="shipments-tbody">
                     {% for s in report_data.shipments_sample %}
                     <tr class="hover:bg-slate-50/80 transition-colors shipment-row" 
-                        data-rep="{{ s.sales_person }}" data-mode="{{ s.transport_mode }}" data-source="{{ s.source_type }}" data-customer="{{ s.customer_name|lower }} {{ s.customer_code|lower }}">
+                        data-rep="{{ s.sales_person }}" data-mode="{{ s.transport_mode }}" data-source="{{ s.source_type }}" data-month="{{ s.month_key }}" data-customer="{{ s.customer_name|lower }} {{ s.customer_code|lower }}">
                         <td class="px-4 py-2.5 font-mono font-bold text-blue-600">{{ s.awb_no }}</td>
                         <td class="px-4 py-2.5 text-slate-500">{{ s.date or '---' }}</td>
                         <td class="px-4 py-2.5 font-semibold text-slate-900 max-w-[180px] truncate" title="{{ s.customer_name }}">
@@ -478,10 +505,25 @@
 <script>
     const reportData = JSON.parse(document.getElementById('raw-report-data').textContent);
     let currentSegment = 'all'; // 'all', 'billed', or 'unbilled'
+    let currentMonth = 'ALL';   // 'ALL' or 'YYYY-MM'
 
     function formatInr(val) {
         if (!val && val !== 0) return '₹ 0.00';
         return '₹ ' + Number(val).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function getActiveDataset() {
+        if (currentMonth !== 'ALL' && reportData.by_month && reportData.by_month[currentMonth]) {
+            return reportData.by_month[currentMonth][currentSegment];
+        }
+        return reportData[currentSegment];
+    }
+
+    function getActiveSummary() {
+        if (currentMonth !== 'ALL' && reportData.by_month && reportData.by_month[currentMonth]) {
+            return reportData.by_month[currentMonth].summary;
+        }
+        return reportData.summary;
     }
 
     // ─────────────────────────────────────────────────────────────
@@ -490,7 +532,9 @@
     let timelineChart, repChart, custChart, modeChart, destChart;
 
     function renderCharts(segmentKey) {
-        const seg = reportData[segmentKey];
+        currentSegment = segmentKey;
+        const seg = getActiveDataset();
+        const summary = getActiveSummary();
 
         // 1. Timeline Chart
         const timelineDates = seg.daily_sales.map(d => d.date);
@@ -644,6 +688,18 @@
         document.getElementById('kpi-top-cust').textContent = seg.summary.top_customer;
         document.getElementById('timeline-badge').textContent = seg.daily_sales.length + ' Active Days';
 
+        // Update Segment tab badges and comparative ratio pills
+        const bAll = document.getElementById('badge-all-count');
+        const bBilled = document.getElementById('badge-billed-count');
+        const bUnbilled = document.getElementById('badge-unbilled-count');
+        const rBilled = document.getElementById('ratio-billed-val');
+        const rUnbilled = document.getElementById('ratio-unbilled-val');
+        if (bAll && summary.total_shipments !== undefined) bAll.textContent = summary.total_shipments + ' AWBs';
+        if (bBilled && summary.billed_shipments !== undefined) bBilled.textContent = summary.billed_shipments + ' AWBs';
+        if (bUnbilled && summary.unbilled_shipments !== undefined) bUnbilled.textContent = summary.unbilled_shipments + ' AWBs';
+        if (rBilled && summary.billed_sales !== undefined) rBilled.textContent = formatInr(summary.billed_sales);
+        if (rUnbilled && summary.unbilled_sales !== undefined) rUnbilled.textContent = formatInr(summary.unbilled_sales);
+
         if (segmentKey === 'billed') {
             document.getElementById('kpi-sales-label').textContent = 'Billed Freight Turnover';
             document.getElementById('kpi-sales-sub').innerHTML = '<span>Status: <b class="text-emerald-700">100% Invoiced</b></span>';
@@ -654,7 +710,7 @@
             document.getElementById('timeline-chart-title').textContent = 'Daily Unbilled Freight Sales Trend';
         } else {
             document.getElementById('kpi-sales-label').textContent = 'Total Freight Turnover';
-            document.getElementById('kpi-sales-sub').innerHTML = '<span>Billed: <b class="text-slate-800">' + formatInr(reportData.summary.billed_sales) + '</b></span><span>Unbilled: <b class="text-slate-800">' + formatInr(reportData.summary.unbilled_sales) + '</b></span>';
+            document.getElementById('kpi-sales-sub').innerHTML = '<span>Billed: <b class="text-slate-800">' + formatInr(summary.billed_sales) + '</b></span><span>Unbilled: <b class="text-slate-800">' + formatInr(summary.unbilled_sales) + '</b></span>';
             document.getElementById('timeline-chart-title').textContent = 'Daily Freight Sales Trend (By Booking Date)';
         }
 
@@ -725,6 +781,32 @@
     }
 
     // ─────────────────────────────────────────────────────────────
+    // SWITCH DASHBOARD MONTH (ALL, OR SPECIFIC MONTH)
+    // ─────────────────────────────────────────────────────────────
+    function switchMonth(mKey) {
+        currentMonth = mKey;
+        document.querySelectorAll('.month-filter-pill').forEach(btn => {
+            btn.classList.remove('active', 'bg-blue-600', 'text-white', 'shadow-sm');
+            btn.classList.add('bg-slate-100', 'text-slate-700');
+        });
+        const activeBtn = document.getElementById('month-pill-' + mKey);
+        if (activeBtn) {
+            activeBtn.classList.remove('bg-slate-100', 'text-slate-700');
+            activeBtn.classList.add('active', 'bg-blue-600', 'text-white', 'shadow-sm');
+        }
+        const activeTextEl = document.getElementById('active-month-text');
+        if (activeTextEl) {
+            if (mKey === 'ALL') {
+                activeTextEl.textContent = 'All Months';
+            } else {
+                const found = (reportData.months || []).find(m => m.key === mKey);
+                activeTextEl.textContent = found ? found.label : mKey;
+            }
+        }
+        renderCharts(currentSegment);
+    }
+
+    // ─────────────────────────────────────────────────────────────
     // CLIENT-SIDE SLICERS & FILTERS
     // ─────────────────────────────────────────────────────────────
     function applyFilters() {
@@ -740,16 +822,18 @@
             const rowMode = row.getAttribute('data-mode');
             const rowCust = row.getAttribute('data-customer');
             const rowSource = row.getAttribute('data-source');
+            const rowMonth = row.getAttribute('data-month');
 
             const matchSegment = (currentSegment === 'all') || 
                                  (currentSegment === 'billed' && (rowSource === 'BILLED' || rowSource === 'COMBINED')) ||
                                  (currentSegment === 'unbilled' && (rowSource === 'UNBILLED' || rowSource === 'COMBINED'));
 
+            const matchMonth = (currentMonth === 'ALL') || (rowMonth === currentMonth);
             const matchRep = (selectedRep === 'ALL' || rowRep === selectedRep);
             const matchMode = (selectedMode === 'ALL' || rowMode.toLowerCase() === selectedMode.toLowerCase());
             const matchCust = (!customerSearch || rowCust.includes(customerSearch));
 
-            if (matchSegment && matchRep && matchMode && matchCust) {
+            if (matchSegment && matchMonth && matchRep && matchMode && matchCust) {
                 row.style.display = '';
                 visibleCount++;
             } else {
