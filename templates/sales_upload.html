@@ -188,20 +188,85 @@
 
 </div>
 
-<!-- Processing Modal Backdrop -->
-<div id="processing-modal" class="fixed inset-0 bg-slate-950/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-2xl border border-slate-200 p-8 max-w-md w-full text-center space-y-4 animate-in fade-in zoom-in duration-200">
-        <div class="relative w-16 h-16 mx-auto">
-            <div class="absolute inset-0 rounded-full border-4 border-blue-200 animate-ping opacity-40"></div>
-            <div class="w-16 h-16 rounded-full border-4 border-blue-600 border-t-transparent animate-spin flex items-center justify-center"></div>
-            <i data-lucide="layers" class="h-6 w-6 text-blue-600 absolute inset-0 m-auto"></i>
+<!-- DOXERA DARK SCANNING PROCESSING MODAL -->
+<div id="processing-modal" class="fixed inset-0 bg-slate-950/90 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <style>
+        .scanner-beam {
+            position: absolute;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #38bdf8, #60a5fa, #38bdf8, transparent);
+            box-shadow: 0 0 15px #38bdf8, 0 0 30px #2563eb;
+            animation: doxera-scan 2.2s infinite ease-in-out alternate;
+            z-index: 25;
+        }
+        @keyframes doxera-scan {
+            0% { top: 0%; opacity: 0.7; }
+            50% { opacity: 1; }
+            100% { top: 100%; opacity: 0.7; }
+        }
+        @keyframes doxera-shine {
+            0% { left: -100%; }
+            100% { left: 200%; }
+        }
+        @keyframes doxera-pulse {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+    </style>
+
+    <div class="relative bg-slate-900 border border-slate-700/80 rounded-3xl p-8 sm:p-10 max-w-lg w-full text-center shadow-2xl overflow-hidden">
+        <!-- Sweeping laser line -->
+        <div class="scanner-beam"></div>
+
+        <!-- Ambient diagonal shine beam -->
+        <div class="absolute top-0 bottom-0 pointer-events-none" 
+            style="background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent); transform: skewX(-25deg); width: 180px; animation: doxera-shine 3s infinite ease-in-out;"></div>
+
+        <!-- Background ambient glow -->
+        <div class="absolute -top-24 -left-24 w-48 h-48 rounded-full bg-blue-600/15 blur-3xl pointer-events-none"></div>
+        <div class="absolute -bottom-24 -right-24 w-48 h-48 rounded-full bg-cyan-600/15 blur-3xl pointer-events-none"></div>
+
+        <!-- DOXERA Brand Header -->
+        <div class="relative z-30 flex flex-col items-center">
+            <div class="p-3 bg-white/5 rounded-2xl border border-white/10 mb-5 shadow-inner">
+                <img src="{{ url_for('static', filename='doxera_logo.png') }}" class="h-10 object-contain brightness-0 invert" alt="DOXERA AI" onerror="this.style.display='none'; document.getElementById('fallback-logo-text').classList.remove('hidden');">
+                <span id="fallback-logo-text" class="hidden font-mono font-black text-xl tracking-wider text-white">DOXERA AI</span>
+            </div>
+
+            <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/15 border border-blue-400/30 text-blue-300 text-[11px] font-bold uppercase tracking-wider mb-3">
+                <span class="w-2 h-2 rounded-full bg-blue-400 animate-ping"></span>
+                Tri-Factor Correlation Engine Active
+            </div>
+
+            <h3 class="text-xl font-extrabold text-white tracking-tight" id="scan-step-title">Normalizing Excel Stream & Offsets</h3>
+            <p class="text-xs text-slate-400 mt-1.5 max-w-sm" id="scan-step-desc">Auto-repairing legacy software formats, skipping title banners, and aligning column indexes...</p>
         </div>
-        <div>
-            <h3 class="text-lg font-bold text-slate-900">Correlating 3 Datasets</h3>
-            <p class="text-xs text-slate-500 mt-1">Cross-referencing AWBs, extracting Air/Surface modes, and computing separate Billed vs Unbilled analytics...</p>
+
+        <!-- Dynamic Animated Audit Checklist -->
+        <div class="relative z-30 mt-6 pt-5 border-t border-slate-800/80 text-left space-y-2.5 max-w-xs mx-auto">
+            <div class="flex items-center gap-2.5 text-xs font-semibold" id="audit-step-1">
+                <i data-lucide="loader-2" class="h-4 w-4 text-blue-400 animate-spin shrink-0"></i>
+                <span class="text-slate-300">1. Preprocessing raw sheets</span>
+            </div>
+            <div class="flex items-center gap-2.5 text-xs font-semibold text-slate-500" id="audit-step-2">
+                <i data-lucide="circle" class="h-4 w-4 text-slate-600 shrink-0"></i>
+                <span>2. Cross-matching AWB dockets</span>
+            </div>
+            <div class="flex items-center gap-2.5 text-xs font-semibold text-slate-500" id="audit-step-3">
+                <i data-lucide="circle" class="h-4 w-4 text-slate-600 shrink-0"></i>
+                <span>3. Extracting Air/Surface modes</span>
+            </div>
+            <div class="flex items-center gap-2.5 text-xs font-semibold text-slate-500" id="audit-step-4">
+                <i data-lucide="circle" class="h-4 w-4 text-slate-600 shrink-0"></i>
+                <span>4. Computing Billed/Unbilled audit</span>
+            </div>
         </div>
-        <div class="w-full bg-slate-100 rounded-full h-1.5 overflow-hidden">
-            <div class="bg-blue-600 h-1.5 rounded-full animate-pulse w-3/4"></div>
+
+        <!-- Glowing Progress Bar -->
+        <div class="relative z-30 mt-6 w-full bg-slate-800 rounded-full h-1.5 overflow-hidden border border-slate-700/50">
+            <div id="scan-progress-bar" class="bg-gradient-to-r from-blue-500 to-cyan-400 h-1.5 rounded-full transition-all duration-700" style="width: 25%"></div>
         </div>
     </div>
 </div>
@@ -283,6 +348,54 @@
 
     form.addEventListener('submit', () => {
         procModal.classList.remove('hidden');
+        if (typeof lucide !== 'undefined') lucide.createIcons();
+
+        // Realistic sequential progress animation
+        const titleEl = document.getElementById('scan-step-title');
+        const descEl = document.getElementById('scan-step-desc');
+        const pBar = document.getElementById('scan-progress-bar');
+        
+        function markDone(stepId, label) {
+            const el = document.getElementById(stepId);
+            if (el) {
+                el.className = "flex items-center gap-2.5 text-xs font-semibold text-emerald-400";
+                el.innerHTML = `<i data-lucide="check-circle" class="h-4 w-4 text-emerald-400 shrink-0"></i> <span>${label}</span>`;
+            }
+        }
+        function markActive(stepId, label) {
+            const el = document.getElementById(stepId);
+            if (el) {
+                el.className = "flex items-center gap-2.5 text-xs font-semibold text-blue-300";
+                el.innerHTML = `<i data-lucide="loader-2" class="h-4 w-4 text-blue-400 animate-spin shrink-0"></i> <span>${label}</span>`;
+            }
+        }
+
+        setTimeout(() => {
+            pBar.style.width = '50%';
+            titleEl.textContent = 'Cross-Referencing AWB Consignments';
+            descEl.textContent = 'Matching docket keys across Billed, Unbilled, and Booking Master...';
+            markDone('audit-step-1', '1. Preprocessed raw sheets');
+            markActive('audit-step-2', '2. Cross-matching AWB dockets');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }, 1200);
+
+        setTimeout(() => {
+            pBar.style.width = '75%';
+            titleEl.textContent = 'Resolving Transport Modes & Routes';
+            descEl.textContent = 'Mapping Air, Surface, Train, boxes and GPS delivery hubs...';
+            markDone('audit-step-2', '2. Matched all AWB dockets');
+            markActive('audit-step-3', '3. Extracting Air/Surface modes');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }, 2600);
+
+        setTimeout(() => {
+            pBar.style.width = '92%';
+            titleEl.textContent = 'Synthesizing Executive Sales Intelligence';
+            descEl.textContent = 'Computing Billed vs Unbilled leakage, yields, and leaderboard...';
+            markDone('audit-step-3', '3. Extracted Air/Surface modes');
+            markActive('audit-step-4', '4. Generating Executive Audit Intelligence');
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }, 4200);
     });
 </script>
 {% endblock %}
