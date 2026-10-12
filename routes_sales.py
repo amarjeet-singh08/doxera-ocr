@@ -12,13 +12,59 @@ from flask import (
 from decorators import login_required, role_required
 from database import get_db_connection, log_audit
 from sales_engine import (
-    parse_and_process_sales_3way, format_inr
+    parse_and_process_sales_3way, format_inr,
+    INDIA_CITY_COORDINATES, normalize_city_name
 )
 from sales_exports import (
     generate_sales_pptx, generate_sales_pdf
 )
 
 sales_bp = Blueprint('sales', __name__)
+
+
+def _lookup_coords(city):
+    """Return [lat, lon] only for cities we can geolocate with certainty, else None."""
+    raw = str(city or '').strip()
+    if not raw or raw.upper() in ('NAN', 'NONE', 'UNKNOWN', '0', '-'):
+        return None
+    norm = normalize_city_name(raw)
+    coords = INDIA_CITY_COORDINATES.get(norm)
+    return [coords[0], coords[1]] if coords else None
+
+
+def _enrich_geo(report_data):
+    """
+    Attach verified coordinates to destination and lane records for the dashboard map.
+    Older reports either lack coordinates or carry engine defaults (unknown city -> Delhi/Mumbai),
+    which would plot misleading points. We recompute from the city name and mark unknowns as None.
+    """
+    if not isinstance(report_data, dict):
+        return report_data
+
+    def fix_segment(seg):
+        if not isinstance(seg, dict):
+            return
+        for d in seg.get('destinations') or []:
+            d['coords'] = _lookup_coords(d.get('city'))
+
+    for key in ('all', 'billed', 'unbilled'):
+        fix_segment(report_data.get(key))
+    for month_block in (report_data.get('by_month') or {}).values():
+        if isinstance(month_block, dict):
+            for key in ('all', 'billed', 'unbilled'):
+                fix_segment(month_block.get(key))
+
+    conn_data = report_data.get('connectivity') or {}
+
+    def fix_routes(routes):
+        for r in routes or []:
+            r['origin_coords'] = _lookup_coords(r.get('origin'))
+            r['dest_coords'] = _lookup_coords(r.get('destination'))
+
+    fix_routes(conn_data.get('all_routes'))
+    for routes in (conn_data.get('by_month') or {}).values():
+        fix_routes(routes)
+    return report_data
 
 @sales_bp.route('/sales/dashboard')
 @login_required
@@ -49,6 +95,7 @@ def dashboard():
         selected_report = conn.execute('SELECT * FROM sales_reports ORDER BY created_at DESC LIMIT 1').fetchone()
 
     report_data = json.loads(selected_report['report_data_json']) if selected_report else {}
+    report_data = _enrich_geo(report_data)
     conn.close()
 
     return render_template(

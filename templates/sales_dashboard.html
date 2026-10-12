@@ -1,843 +1,880 @@
 {% extends "base.html" %}
-{% block header_title %}North Express Logistics - Executive Sales Dashboard{% endblock %}
+{% block header_title %}Sales Intelligence{% endblock %}
 
 {% block extra_head %}
-<!-- Local & CDN High-Performance Enterprise Charting & Mapping Libraries -->
 <link rel="stylesheet" href="{{ url_for('static', filename='css/leaflet.css') }}">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
-<script src="{{ url_for('static', filename='js/leaflet.js') }}"></script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="{{ url_for('static', filename='js/apexcharts.min.js') }}"></script>
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-
+<script src="{{ url_for('static', filename='js/leaflet.js') }}"></script>
 <style>
-    /* Executive Power BI Typography & Layout */
-    .bi-card {
-        background: #FFFFFF;
-        border: 1px solid #E2E8F0;
-        box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    /* ── Sales Dashboard design tokens ───────────────────────────── */
+    #sd-root { --seg: #B45309; --ink: #0F172A; --muted: #64748B; --line: #E5E7EB; }
+    .sd-card { background: #fff; border: 1px solid var(--line); border-radius: 14px; }
+    .sd-accent { height: 3px; background: var(--seg); transition: background .25s; }
+    .sd-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+    .sd-title { font-size: 16px; font-weight: 600; color: var(--ink); letter-spacing: -.01em; margin-top: 2px; }
+    .sd-desc { font-size: 13px; color: var(--muted); margin-top: 2px; }
+    .sd-num { font-variant-numeric: tabular-nums; }
+
+    .sd-sec-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px 32px; padding: 20px 24px 4px; }
+    .sd-stats { display: flex; flex-wrap: wrap; gap: 8px 32px; }
+    .sd-stat { text-align: right; min-width: 0; }
+    .sd-stat .v { font-size: 15px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
+    .sd-stat .k { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+    @media (max-width: 640px) {
+        .sd-sec-head { padding: 16px 16px 4px; }
+        .sd-stat { text-align: left; }
     }
-    .bi-title-underline {
-        text-decoration: underline;
-        text-decoration-thickness: 3px;
-        text-underline-offset: 4px;
-        color: #1E3A8A;
-    }
-    .custom-map-tooltip {
-        background: rgba(15, 23, 42, 0.95) !important;
-        border: 1px solid #38BDF8 !important;
-        color: #FFFFFF !important;
-        border-radius: 6px !important;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.4) !important;
-        font-size: 11px !important;
-    }
-    .leaflet-container {
-        background: #0f172a !important;
-    }
+
+    .sd-kpi-label { font-size: 12.5px; font-weight: 500; color: var(--muted); }
+    .sd-kpi { font-size: 26px; font-weight: 600; color: var(--ink); letter-spacing: -.02em; line-height: 1.15; margin-top: 8px;
+              font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sd-kpi-sub { font-size: 12px; color: #94A3B8; margin-top: 6px; font-variant-numeric: tabular-nums;
+                  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    @media (max-width: 640px) { .sd-kpi { font-size: 21px; } }
+
+    .sd-seg { display: inline-flex; padding: 3px; background: #F1F5F9; border-radius: 10px; gap: 2px; }
+    .sd-seg button { height: 32px; padding: 0 16px; border-radius: 8px; font-size: 13px; font-weight: 500; color: #475569; transition: all .15s; }
+    .sd-seg button:hover { color: var(--ink); }
+    .sd-seg button.active { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(15,23,42,.08), 0 0 0 1px rgba(15,23,42,.04); }
+    .sd-seg button.active .sd-seg-dot { background: var(--seg); }
+    .sd-seg-dot { display: inline-block; width: 7px; height: 7px; border-radius: 99px; background: #CBD5E1; margin-right: 7px; vertical-align: 1px; }
+
+    .sd-btn { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border: 1px solid #E2E8F0; border-radius: 8px;
+              font-size: 13px; font-weight: 500; color: #334155; background: #fff; transition: background .15s, border-color .15s; white-space: nowrap; }
+    .sd-btn:hover { background: #F8FAFC; border-color: #CBD5E1; }
+    .sd-btn-primary { background: var(--ink); border-color: var(--ink); color: #fff; }
+    .sd-btn-primary:hover { background: #1E293B; border-color: #1E293B; }
+    .sd-select { height: 34px; padding: 0 30px 0 12px; border: 1px solid #E2E8F0; border-radius: 8px; font-size: 13px; color: #334155;
+                 background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+                 appearance: none; -webkit-appearance: none; cursor: pointer; max-width: 260px; text-overflow: ellipsis; }
+    .sd-select:focus, .sd-input:focus { outline: none; border-color: #94A3B8; box-shadow: 0 0 0 3px rgba(148,163,184,.25); }
+    .sd-input { height: 34px; padding: 0 12px; border: 1px solid #E2E8F0; border-radius: 8px; font-size: 13px; color: #334155; background: #fff; }
+
+    .sd-track { height: 6px; background: #F1F5F9; border-radius: 99px; overflow: hidden; }
+    .sd-fill { height: 100%; background: var(--seg); border-radius: 99px; transition: width .4s ease; }
+    .sd-dot { display: inline-block; width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
+
+    .sd-empty { display: flex; align-items: center; justify-content: center; color: #94A3B8; font-size: 13px;
+                border: 1px dashed #E2E8F0; border-radius: 10px; background: #FAFBFC; }
+
+    /* ApexCharts custom tooltip */
+    .sd-tip { padding: 10px 12px; font-family: Inter, system-ui, sans-serif; min-width: 190px; }
+    .sd-tip-t { font-size: 12px; font-weight: 600; color: var(--ink, #0F172A); margin-bottom: 6px; max-width: 260px; white-space: normal; }
+    .sd-tip-r { display: flex; justify-content: space-between; gap: 16px; font-size: 12px; color: #64748B; line-height: 1.7; }
+    .sd-tip-r b { color: #0F172A; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .apexcharts-tooltip.apexcharts-theme-light { border: 1px solid #E2E8F0 !important; box-shadow: 0 8px 24px rgba(15,23,42,.08) !important; border-radius: 10px !important; }
+
+    /* Map: isolate Leaflet stacking context so it never overlays the sidebar / header menus */
+    .sd-map-wrap { position: relative; z-index: 0; isolation: isolate; border-radius: 10px; overflow: hidden; border: 1px solid #E5E7EB; }
+    #sd-map { height: 440px; background: #F8FAFC; }
+    @media (max-width: 640px) { #sd-map { height: 320px; } }
+    .leaflet-tooltip.sd-map-tip { background: #fff; border: 1px solid #E2E8F0; border-radius: 8px; box-shadow: 0 6px 18px rgba(15,23,42,.10); color: #0F172A; padding: 8px 10px; font-family: Inter, system-ui, sans-serif; }
+    .leaflet-tooltip.sd-map-tip::before { display: none; }
+    .leaflet-container { font-family: Inter, system-ui, sans-serif; }
+    .leaflet-control-attribution { font-size: 10px !important; }
+
+    /* Register table */
+    .sd-table th { position: sticky; top: 0; background: #F8FAFC; z-index: 1; font-size: 11px; font-weight: 600; letter-spacing: .04em;
+                   text-transform: uppercase; color: #64748B; padding: 10px 12px; border-bottom: 1px solid #E5E7EB; white-space: nowrap; }
+    .sd-table td { padding: 9px 12px; border-bottom: 1px solid #F1F5F9; font-size: 12.5px; color: #334155; white-space: nowrap; }
+    .sd-table tbody tr:hover td { background: #FAFBFC; }
+    .sd-pill { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 500; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="space-y-4 pb-8 max-w-[1600px] mx-auto">
+{% set summary = report_data.summary or {} %}
+<div id="sd-root" class="max-w-6xl mx-auto space-y-5 pb-16">
 
-    <!-- 1. EXECUTIVE HEADER (Matching user specification exactly) -->
-    <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4 pb-2 border-b border-slate-200">
-        
-        <div>
-            <!-- Company Title with prominent underline -->
-            <h1 class="text-2xl sm:text-3xl font-black bi-title-underline tracking-tight">
-                NORTH EXPRESS LOGISTIC Pvt. Ltd.
-            </h1>
-            
-            <!-- Dynamic Report Title (BILLED / UNBILLED / COMBINED) with underline -->
-            <h2 id="report-mode-heading" class="text-xl sm:text-2xl font-black bi-title-underline tracking-tight mt-1">
-                SALES REPORT (UNBILLED)
-            </h2>
-            
-            <p class="text-xs text-slate-500 italic mt-1.5 flex items-center gap-2">
-                <span>Note: Accurate Data.</span>
-                <span>•</span>
-                <span>Period: <b class="text-slate-800 not-italic">{{ report_data.summary.period_label }}</b></span>
-                <span>•</span>
-                <span>Correlated: <b class="text-slate-800 not-italic">{{ report_data.summary.total_shipments }} AWBs</b></span>
-            </p>
+    <!-- ═══════════════ HEADER ═══════════════ -->
+    <section class="sd-card overflow-hidden">
+        <div class="sd-accent"></div>
+        <div class="p-5 sm:p-6">
+            <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
+                <div class="min-w-0">
+                    <p class="sd-eyebrow">North Express Logistic Pvt. Ltd.</p>
+                    <h1 id="seg-title" class="text-[22px] sm:text-2xl font-semibold text-slate-900 tracking-tight mt-1">Unbilled Sales Dashboard</h1>
+                    <p class="text-[13px] text-slate-500 mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <span class="truncate max-w-[320px]" title="{{ current_report.title or 'Sales Report' }}">{{ current_report.title or 'Sales Report' }}</span>
+                        <span class="text-slate-300">|</span>
+                        <span>Period <span class="font-medium text-slate-700">{{ summary.period_label or '—' }}</span></span>
+                        <span class="text-slate-300">|</span>
+                        <span>Generated {{ current_report.created_at|localdt }}</span>
+                    </p>
+                </div>
+                <div class="flex flex-wrap items-center gap-2 shrink-0">
+                    <a href="{{ url_for('sales.export_pdf', report_id=current_report.id) }}" class="sd-btn">
+                        <i data-lucide="file-text" class="h-4 w-4 text-slate-500"></i> PDF
+                    </a>
+                    <a href="{{ url_for('sales.export_pptx', report_id=current_report.id) }}" class="sd-btn">
+                        <i data-lucide="presentation" class="h-4 w-4 text-slate-500"></i> PPTX
+                    </a>
+                    <a href="{{ url_for('sales.upload_page') }}" class="sd-btn sd-btn-primary">
+                        <i data-lucide="upload" class="h-4 w-4"></i> New Upload
+                    </a>
+                </div>
+            </div>
+
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mt-5 pt-4 border-t border-slate-100">
+                <div class="sd-seg" role="tablist" aria-label="Sales segment">
+                    <button type="button" data-seg="unbilled" role="tab"><span class="sd-seg-dot"></span>Unbilled</button>
+                    <button type="button" data-seg="billed" role="tab"><span class="sd-seg-dot"></span>Billed</button>
+                    <button type="button" data-seg="all" role="tab"><span class="sd-seg-dot"></span>Combined</button>
+                </div>
+                <div class="flex flex-wrap items-center gap-2">
+                    {% if report_data.months %}
+                    <select id="sd-month" class="sd-select" aria-label="Month">
+                        <option value="ALL">All months</option>
+                        {% for m in report_data.months %}
+                        <option value="{{ m.key }}">{{ m.label }}</option>
+                        {% endfor %}
+                    </select>
+                    {% endif %}
+                    <select id="sd-report" class="sd-select" aria-label="Saved report" data-base="{{ url_for('sales.dashboard') }}">
+                        {% for rep in reports %}
+                        <option value="{{ rep.id }}" {% if rep.id == current_report.id %}selected{% endif %}>
+                            {{ rep.title or ('Report #' ~ rep.id) }} — {{ rep.period_label }}
+                        </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
         </div>
+    </section>
 
-        <!-- Controls: Segment Switcher, Month Slicer, Exports -->
-        <div class="flex flex-wrap items-center gap-2.5 self-start lg:self-center">
-            
-            <!-- Segment View Tabs (UNBILLED, BILLED, COMBINED) -->
-            <div class="inline-flex rounded-lg border border-slate-300 p-0.5 bg-slate-100">
-                <button onclick="switchSegment('unbilled')" id="tab-unbilled"
-                    class="px-3.5 py-1.5 rounded-md text-xs font-bold transition-all bg-slate-900 text-white shadow-xs">
-                    UNBILLED
-                </button>
-                <button onclick="switchSegment('billed')" id="tab-billed"
-                    class="px-3.5 py-1.5 rounded-md text-xs font-bold transition-all text-slate-700 hover:text-slate-900">
-                    BILLED
-                </button>
-                <button onclick="switchSegment('all')" id="tab-all"
-                    class="px-3.5 py-1.5 rounded-md text-xs font-bold transition-all text-slate-700 hover:text-slate-900">
-                    COMBINED
-                </button>
-            </div>
-
-            <!-- Month Slicer Dropdown -->
-            {% if report_data.months and report_data.months|length > 0 %}
-            <div class="relative">
-                <select id="month-select" onchange="switchMonth(this.value)"
-                    class="bg-white text-slate-800 text-xs font-bold rounded-lg border border-slate-300 py-1.5 pl-3 pr-7 appearance-none cursor-pointer hover:border-slate-400">
-                    <option value="ALL">All Months ({{ report_data.summary.total_shipments }} AWBs)</option>
-                    {% for m in report_data.months %}
-                    <option value="{{ m.key }}">{{ m.label }} ({{ m.count }} AWBs)</option>
-                    {% endfor %}
-                </select>
-                <i data-lucide="chevron-down" class="h-3 w-3 text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-            </div>
-            {% endif %}
-
-            <!-- PDF Export Button -->
-            <a href="{{ url_for('sales.export_pdf', report_id=current_report.id) }}"
-                class="inline-flex items-center px-3 py-1.5 bg-rose-700 hover:bg-rose-800 text-white text-xs font-bold rounded-lg transition-colors">
-                <i data-lucide="file-text" class="h-3.5 w-3.5 mr-1"></i> PDF
-            </a>
-
-            <!-- PPTX Export Button -->
-            <a href="{{ url_for('sales.export_pptx', report_id=current_report.id) }}"
-                class="inline-flex items-center px-3 py-1.5 bg-amber-700 hover:bg-amber-800 text-white text-xs font-bold rounded-lg transition-colors">
-                <i data-lucide="presentation" class="h-3.5 w-3.5 mr-1"></i> PPTX
-            </a>
-
-            <!-- New Upload Button -->
-            <a href="{{ url_for('sales.upload_page') }}"
-                class="inline-flex items-center px-3 py-1.5 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-lg transition-colors">
-                <i data-lucide="upload" class="h-3.5 w-3.5 mr-1"></i> Upload
-            </a>
-
-            <!-- Saved Reports Selector -->
-            <div class="relative">
-                <select onchange="window.location.href='/sales/report/' + this.value" 
-                    class="bg-white text-slate-700 text-xs font-semibold rounded-lg border border-slate-300 py-1.5 pl-2.5 pr-7 appearance-none cursor-pointer">
-                    {% for rep in reports %}
-                    <option value="{{ rep.id }}" {% if rep.id == current_report.id %}selected{% endif %}>
-                        Report #{{ rep.id }} ({{ rep.period_label }})
-                    </option>
-                    {% endfor %}
-                </select>
-                <i data-lucide="chevron-down" class="h-3 w-3 text-slate-400 absolute right-2 top-1/2 -translate-y-1/2 pointer-events-none"></i>
-            </div>
-
+    <!-- ═══════════════ KPI STRIP ═══════════════ -->
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div class="sd-card p-4 sm:p-5 min-w-0">
+            <p class="sd-kpi-label">Total sale</p>
+            <p class="sd-kpi" id="kpi-sales">—</p>
+            <p class="sd-kpi-sub" id="kpi-sales-sub">&nbsp;</p>
         </div>
-    </div>
+        <div class="sd-card p-4 sm:p-5 min-w-0">
+            <p class="sd-kpi-label">Consignments</p>
+            <p class="sd-kpi" id="kpi-awbs">—</p>
+            <p class="sd-kpi-sub" id="kpi-awbs-sub">&nbsp;</p>
+        </div>
+        <div class="sd-card p-4 sm:p-5 min-w-0">
+            <p class="sd-kpi-label">Weight</p>
+            <p class="sd-kpi" id="kpi-wt">—</p>
+            <p class="sd-kpi-sub" id="kpi-wt-sub">&nbsp;</p>
+        </div>
+        <div class="sd-card p-4 sm:p-5 min-w-0">
+            <p class="sd-kpi-label">Average per consignment</p>
+            <p class="sd-kpi" id="kpi-avg">—</p>
+            <p class="sd-kpi-sub" id="kpi-avg-sub">&nbsp;</p>
+        </div>
+    </section>
 
-    <!-- 2. MINIMALIST POWER BI SLICER FILTER STRIP -->
-    <div class="bi-card p-2.5 rounded-lg flex flex-wrap items-center justify-between gap-3 text-xs">
-        <div class="flex flex-wrap items-center gap-3">
-            <span class="font-bold text-slate-500 uppercase flex items-center gap-1">
-                <i data-lucide="filter" class="h-3.5 w-3.5 text-blue-600"></i> Slicers:
-            </span>
+    <!-- ═══════════════ AUDIT CHECKS ═══════════════ -->
+    <section class="sd-card">
+        <div class="sd-sec-head">
+            <div>
+                <p class="sd-eyebrow">Audit checks</p>
+                <h2 class="sd-title">Delivery &amp; billing status</h2>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 px-2 pb-3">
+            <div class="p-4">
+                <p class="sd-kpi-label">Delivered</p>
+                <div class="flex items-baseline justify-between mt-1.5">
+                    <span class="text-xl font-semibold text-slate-900 sd-num" id="aud-deliv">—</span>
+                </div>
+                <div class="sd-track mt-2.5"><div class="sd-fill" id="aud-deliv-bar" style="width:0"></div></div>
+                <p class="sd-kpi-sub" id="aud-deliv-sub">&nbsp;</p>
+            </div>
+            <div class="p-4">
+                <p class="sd-kpi-label">Bill number present</p>
+                <div class="flex items-baseline justify-between mt-1.5">
+                    <span class="text-xl font-semibold text-slate-900 sd-num" id="aud-bill">—</span>
+                </div>
+                <div class="sd-track mt-2.5"><div class="sd-fill" id="aud-bill-bar" style="width:0"></div></div>
+                <p class="sd-kpi-sub" id="aud-bill-sub">&nbsp;</p>
+            </div>
+            <div class="p-4">
+                <p class="sd-kpi-label">Delivered, billing pending</p>
+                <div class="flex items-baseline justify-between mt-1.5">
+                    <span class="text-xl font-semibold sd-num" id="aud-dnb">—</span>
+                </div>
+                <div class="sd-track mt-2.5"><div class="sd-fill" id="aud-dnb-bar" style="width:0;background:#BE123C"></div></div>
+                <p class="sd-kpi-sub" id="aud-dnb-sub">&nbsp;</p>
+            </div>
+        </div>
+    </section>
 
-            <!-- Slicer 1: Sales Person -->
-            <select id="filter-rep" onchange="applyFilters()" class="border-slate-300 rounded px-2.5 py-1 text-xs bg-slate-50 font-medium">
-                <option value="ALL">All Sales Persons</option>
+    <!-- ═══════════════ 01 DAILY TREND ═══════════════ -->
+    <section class="sd-card">
+        <div class="sd-sec-head">
+            <div>
+                <p class="sd-eyebrow">01 · Trend</p>
+                <h2 class="sd-title">Daily sales</h2>
+                <p class="sd-desc">Freight value booked on each day of the period</p>
+            </div>
+            <div class="sd-stats">
+                <div class="sd-stat"><div class="v" id="daily-peak">—</div><div class="k" id="daily-peak-k">Peak day</div></div>
+                <div class="sd-stat"><div class="v" id="daily-avg">—</div><div class="k">Daily average</div></div>
+                <div class="sd-stat"><div class="v" id="daily-days">—</div><div class="k">Active days</div></div>
+            </div>
+        </div>
+        <div class="px-2 sm:px-4 pb-3"><div id="chart-daily" style="min-height:300px"></div></div>
+    </section>
+
+    <!-- ═══════════════ 02 SALES PERSONS ═══════════════ -->
+    <section class="sd-card">
+        <div class="sd-sec-head">
+            <div>
+                <p class="sd-eyebrow">02 · People</p>
+                <h2 class="sd-title">Sales by sales person</h2>
+                <p class="sd-desc">Ranked by sale value, with share of total</p>
+            </div>
+            <div class="sd-stats">
+                <div class="sd-stat"><div class="v" id="rep-top">—</div><div class="k" id="rep-top-k">Top performer</div></div>
+                <div class="sd-stat"><div class="v" id="rep-count">—</div><div class="k">Sales persons</div></div>
+            </div>
+        </div>
+        <div class="px-2 sm:px-4 pb-3"><div id="chart-reps" style="min-height:220px"></div></div>
+    </section>
+
+    <!-- ═══════════════ 03 SERVICE MODE ═══════════════ -->
+    <section class="sd-card">
+        <div class="sd-sec-head">
+            <div>
+                <p class="sd-eyebrow">03 · Service</p>
+                <h2 class="sd-title">Service mode mix</h2>
+                <p class="sd-desc">How sale value splits across transport modes</p>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center px-4 sm:px-6 pb-5">
+            <div class="md:col-span-2"><div id="chart-modes" style="min-height:280px"></div></div>
+            <div class="md:col-span-3" id="mode-list"></div>
+        </div>
+    </section>
+
+    <!-- ═══════════════ 04 CUSTOMERS ═══════════════ -->
+    <section class="sd-card">
+        <div class="sd-sec-head">
+            <div>
+                <p class="sd-eyebrow">04 · Accounts</p>
+                <h2 class="sd-title">Top 10 customers</h2>
+                <p class="sd-desc">Largest accounts by sale value</p>
+            </div>
+            <div class="sd-stats">
+                <div class="sd-stat"><div class="v" id="cust-conc">—</div><div class="k">Top 5 share of sale</div></div>
+                <div class="sd-stat"><div class="v" id="cust-count">—</div><div class="k">Active customers</div></div>
+            </div>
+        </div>
+        <div class="px-2 sm:px-4 pb-3"><div id="chart-customers" style="min-height:300px"></div></div>
+    </section>
+
+    <!-- ═══════════════ 05 NETWORK MAP ═══════════════ -->
+    <section class="sd-card">
+        <div class="sd-sec-head">
+            <div>
+                <p class="sd-eyebrow">05 · Network</p>
+                <h2 class="sd-title">Delivery network across India</h2>
+                <p class="sd-desc">Destination volume and origin → destination lanes</p>
+            </div>
+            <div class="sd-stats">
+                <div class="sd-stat"><div class="v" id="net-dest">—</div><div class="k">Destinations</div></div>
+                <div class="sd-stat"><div class="v" id="net-lanes">—</div><div class="k">Lanes on map</div></div>
+            </div>
+        </div>
+        <div class="px-4 sm:px-6 pb-5">
+            <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+                <div class="flex flex-wrap items-center gap-4 text-[13px] text-slate-600">
+                    <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+                        <input type="checkbox" id="tg-dest" checked class="h-4 w-4 rounded border-slate-300"> Destinations
+                    </label>
+                    <label class="inline-flex items-center gap-2 cursor-pointer select-none">
+                        <input type="checkbox" id="tg-lanes" checked class="h-4 w-4 rounded border-slate-300"> Lanes
+                    </label>
+                </div>
+                <div id="lane-legend" class="flex flex-wrap items-center gap-3 text-[12px] text-slate-500"></div>
+            </div>
+            <div class="grid grid-cols-1 lg:grid-cols-5 gap-5">
+                <div class="lg:col-span-3">
+                    <div class="sd-map-wrap"><div id="sd-map"></div></div>
+                    <p class="text-[11.5px] text-slate-400 mt-2" id="net-note">&nbsp;</p>
+                </div>
+                <div class="lg:col-span-2">
+                    <p class="sd-kpi-label mb-2">Top destinations by sale</p>
+                    <div id="dest-list" class="space-y-3"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══════════════ 06 REGISTER ═══════════════ -->
+    <section class="sd-card overflow-hidden">
+        <div class="sd-sec-head">
+            <div>
+                <p class="sd-eyebrow">06 · Records</p>
+                <h2 class="sd-title">Consignment register</h2>
+                <p class="sd-desc">Sample of correlated consignments for spot-checking</p>
+            </div>
+            <div class="sd-stats">
+                <div class="sd-stat"><div class="v" id="reg-count">—</div><div class="k">Rows shown</div></div>
+            </div>
+        </div>
+        <div class="px-4 sm:px-6 pb-4 flex flex-wrap items-center gap-2">
+            <select id="reg-rep" class="sd-select" aria-label="Sales person">
+                <option value="ALL">All sales persons</option>
                 {% for r in report_data.all.sales_reps %}
                 <option value="{{ r.name }}">{{ r.name }}</option>
                 {% endfor %}
             </select>
-
-            <!-- Slicer 2: ServiceMode -->
-            <select id="filter-mode" onchange="applyFilters()" class="border-slate-300 rounded px-2.5 py-1 text-xs bg-slate-50 font-medium">
-                <option value="ALL">All Service Modes</option>
+            <select id="reg-mode" class="sd-select" aria-label="Service mode">
+                <option value="ALL">All modes</option>
                 {% for m in report_data.all.modes %}
                 <option value="{{ m.mode }}">{{ m.mode }}</option>
                 {% endfor %}
             </select>
-
-            <!-- Slicer 3: Customer Search -->
-            <input type="text" id="filter-customer" oninput="applyFilters()" placeholder="Filter client name..."
-                class="border-slate-300 rounded px-2.5 py-1 text-xs bg-slate-50 w-44">
+            <input type="search" id="reg-cust" class="sd-input w-56" placeholder="Search customer or code" aria-label="Customer search">
+            <button type="button" id="reg-reset" class="text-[13px] text-slate-500 hover:text-slate-800 px-2">Reset</button>
         </div>
-
-        <button onclick="resetFilters()" class="text-blue-700 hover:text-blue-900 font-bold flex items-center gap-1">
-            <i data-lucide="rotate-ccw" class="h-3 w-3"></i> Reset Slicers
-        </button>
-    </div>
-
-    <!-- 3. MAIN DASHBOARD VISUALS (2-Column Balanced Executive Layout) -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-5 items-stretch">
-        
-        <!-- ══════════════════════════════════════════════════════════ -->
-        <!-- LEFT COLUMN (6 Cols: Total Sale, Date Trend, Sales Reps)   -->
-        <!-- ══════════════════════════════════════════════════════════ -->
-        <div class="lg:col-span-6 space-y-5">
-            
-            <!-- Top Row: Total Sale Card + Sale Graph by Date -->
-            <div class="grid grid-cols-1 sm:grid-cols-12 gap-4 items-stretch">
-                
-                <!-- Black High-Contrast Total Sale Card (5 Cols) -->
-                <div class="sm:col-span-5 bg-black rounded-xl p-3.5 sm:p-4 text-white flex flex-col justify-center items-center text-center shadow-md overflow-hidden">
-                    <div class="w-full px-1 flex flex-col items-center">
-                        <span class="text-[10px] font-bold text-cyan-500 uppercase tracking-widest mb-1">INR (₹)</span>
-                        <div class="text-xl sm:text-2xl font-black text-cyan-400 font-mono tracking-tight leading-none break-all" id="kpi-total-sales">
-                            {{ "{:,.2f}".format(report_data.summary.unbilled_sales) }}
-                        </div>
-                    </div>
-                    <div class="text-xs font-bold text-slate-300 mt-2 uppercase tracking-wider">
-                        Total Sale
-                    </div>
-                    <div class="mt-3 pt-2.5 border-t border-slate-800 text-[10px] text-slate-400 w-full flex justify-around font-mono">
-                        <span><b class="text-white" id="kpi-total-awbs">{{ report_data.summary.unbilled_shipments }}</b> AWBs</span>
-                        <span>•</span>
-                        <span><b class="text-white" id="kpi-total-wt">{{ "{:,.1f}".format(report_data.unbilled.summary.total_weight) }}</b> Kg</span>
-                    </div>
-                </div>
-
-                <!-- Sale Graph by Date (7 Cols) -->
-                <div class="sm:col-span-7 bi-card rounded-xl p-4 flex flex-col justify-between">
-                    <div class="flex items-center justify-between mb-1">
-                        <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wide">
-                            Sale Graph by Date
-                        </h3>
-                        <span class="text-[10px] font-bold text-red-600 font-mono" id="timeline-peak-label">Peak Sales</span>
-                    </div>
-                    <div id="date-trend-chart" class="w-full h-44"></div>
-                </div>
-
-            </div>
-
-            <!-- Bottom Row: Total Sale by Sales Person (Horizontal Bar Chart) -->
-            <div class="bi-card rounded-xl p-4 sm:p-5">
-                <div class="flex items-center justify-between mb-2">
-                    <h3 class="text-sm font-bold text-slate-900 uppercase tracking-wide">
-                        Total Sale by Sales Person
-                    </h3>
-                    <span class="text-xs font-bold text-slate-400">Ranked by Value (INR)</span>
-                </div>
-                <div id="sales-person-chart" class="w-full h-72"></div>
-            </div>
-
-        </div>
-
-        <!-- ══════════════════════════════════════════════════════════ -->
-        <!-- RIGHT COLUMN (6 Cols: India Map, ServiceMode, Top Clients) -->
-        <!-- ══════════════════════════════════════════════════════════ -->
-        <div class="lg:col-span-6 space-y-5">
-            
-            <!-- Shipments by Destination (Interactive India Bubble Map) -->
-            <div class="bi-card rounded-xl p-4 overflow-hidden">
-                <div class="flex items-center justify-between mb-2">
-                    <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wide flex items-center gap-1.5">
-                        <i data-lucide="map-pin" class="h-3.5 w-3.5 text-blue-600"></i>
-                        Shipments by Destination
-                    </h3>
-                    <div class="flex items-center gap-2 text-[11px] text-slate-500 font-medium">
-                        <span class="flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-cyan-400"></span> City Hubs</span>
-                        <button onclick="resetMap()" class="text-blue-600 hover:underline font-bold">Reset View</button>
-                    </div>
-                </div>
-
-                <!-- Map Container -->
-                <div id="destination-map" class="w-full h-64 rounded-lg overflow-hidden border border-slate-700 relative">
-                    <!-- Leaflet renders here -->
-                </div>
-            </div>
-
-            <!-- Bottom Row (2 Columns: ServiceMode Pie + Top 5 Customer Donut) -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                
-                <!-- Total Sale by ServiceMode (Pie Chart) -->
-                <div class="bi-card rounded-xl p-4 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">
-                            Total Sale by ServiceMode
-                        </h3>
-                        <p class="text-[10px] text-slate-400 mb-2">Air vs Surface vs Train</p>
-                    </div>
-                    <div id="servicemode-pie-chart" class="w-full h-56"></div>
-                </div>
-
-                <!-- TOP 5 Customer by Sale (Donut Chart) -->
-                <div class="bi-card rounded-xl p-4 flex flex-col justify-between">
-                    <div>
-                        <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wide mb-1">
-                            TOP 5 Customer by Sale
-                        </h3>
-                        <p class="text-[10px] text-slate-400 mb-2">Major Revenue Accounts</p>
-                    </div>
-                    <div id="top-customer-donut-chart" class="w-full h-56"></div>
-                </div>
-
-            </div>
-
-        </div>
-
-    </div>
-
-    <!-- 4. OPTIONAL COLLAPSIBLE AUDIT REGISTER (Clean expandable drawer) -->
-    <div class="bi-card rounded-xl overflow-hidden mt-4">
-        <button onclick="toggleRecordsDrawer()" class="w-full px-4 py-3 bg-slate-50 hover:bg-slate-100 flex items-center justify-between text-left transition-colors border-b border-slate-200">
-            <span class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-2">
-                <i data-lucide="database" class="h-4 w-4 text-slate-500"></i>
-                Detailed Consignment Register ({{ report_data.shipments_sample|length }} Correlated Dockets)
-            </span>
-            <span class="text-xs font-semibold text-blue-600 flex items-center gap-1" id="drawer-toggle-text">
-                <span>View Records</span>
-                <i data-lucide="chevron-down" class="h-4 w-4" id="drawer-icon"></i>
-            </span>
-        </button>
-
-        <div id="records-drawer" class="hidden overflow-x-auto max-h-80 overflow-y-auto p-2">
-            <table class="w-full text-left text-xs">
-                <thead class="bg-slate-100 text-[10px] font-bold uppercase tracking-wider text-slate-600 sticky top-0">
+        <div class="overflow-auto border-t border-slate-100" style="max-height:460px">
+            <table class="sd-table w-full text-left">
+                <thead>
                     <tr>
-                        <th class="p-2">AWB No.</th>
-                        <th class="p-2">Date</th>
-                        <th class="p-2">Customer Account</th>
-                        <th class="p-2">Sales Person</th>
-                        <th class="p-2 text-center">Mode</th>
-                        <th class="p-2">Destination</th>
-                        <th class="p-2 text-right">Weight (Kg)</th>
-                        <th class="p-2 text-right">Freight Amount</th>
-                        <th class="p-2 text-center">Status</th>
+                        <th>AWB No.</th><th>Date</th><th>Customer</th><th>Sales person</th><th>Mode</th>
+                        <th>Destination</th><th class="text-right">Weight (kg)</th><th class="text-right">Amount</th><th>Source</th>
                     </tr>
                 </thead>
-                <tbody class="divide-y divide-slate-100 font-medium" id="shipments-tbody">
-                    {% for s in report_data.shipments_sample %}
-                    <tr class="hover:bg-slate-50 shipment-row" 
-                        data-rep="{{ s.sales_person }}" data-mode="{{ s.transport_mode }}" data-source="{{ s.source_type }}" data-month="{{ s.month_key }}" data-customer="{{ s.customer_name|lower }} {{ s.customer_code|lower }}">
-                        <td class="p-2 font-mono font-bold text-blue-700">{{ s.awb_no }}</td>
-                        <td class="p-2 text-slate-500">{{ s.date or '---' }}</td>
-                        <td class="p-2 font-semibold text-slate-900 max-w-[200px] truncate" title="{{ s.customer_name }}">{{ s.customer_name }}</td>
-                        <td class="p-2 text-slate-700">{{ s.sales_person }}</td>
-                        <td class="p-2 text-center">
-                            <span class="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold {% if s.transport_mode == 'Air' %}bg-blue-100 text-blue-800{% else %}bg-slate-100 text-slate-800{% endif %}">
-                                {{ s.transport_mode }}
-                            </span>
-                        </td>
-                        <td class="p-2 text-slate-700">{{ s.destination }}</td>
-                        <td class="p-2 text-right font-mono">{{ s.weight }}</td>
-                        <td class="p-2 text-right font-mono font-bold text-slate-900">{{ format_inr(s.total_amt) }}</td>
-                        <td class="p-2 text-center">
-                            <span class="px-2 py-0.5 rounded text-[10px] font-bold {% if s.source_type == 'BILLED' %}bg-emerald-100 text-emerald-800{% elif s.source_type == 'UNBILLED' %}bg-amber-100 text-amber-800{% else %}bg-slate-100 text-slate-800{% endif %}">
-                                {{ s.source_type }}
-                            </span>
+                <tbody>
+                    {% for s in report_data.shipments_sample or [] %}
+                    <tr class="reg-row" data-rep="{{ s.sales_person }}" data-mode="{{ s.transport_mode }}" data-source="{{ s.source_type }}"
+                        data-month="{{ s.month_key }}" data-customer="{{ (s.customer_name or '')|lower }} {{ (s.customer_code or '')|lower }}">
+                        <td class="font-medium text-slate-900 sd-num">{{ s.awb_no }}</td>
+                        <td class="text-slate-500 sd-num">{{ s.date or '—' }}</td>
+                        <td class="max-w-[240px] truncate text-slate-900" title="{{ s.customer_name }}">{{ s.customer_name }}</td>
+                        <td>{{ s.sales_person }}</td>
+                        <td>{{ s.transport_mode }}</td>
+                        <td>{{ s.destination }}</td>
+                        <td class="text-right sd-num">{{ s.weight }}</td>
+                        <td class="text-right sd-num font-medium text-slate-900">{{ format_inr(s.total_amt) }}</td>
+                        <td>
+                            {% if s.source_type == 'BILLED' %}<span class="sd-pill bg-teal-50 text-teal-800">Billed</span>
+                            {% elif s.source_type == 'UNBILLED' %}<span class="sd-pill bg-amber-50 text-amber-800">Unbilled</span>
+                            {% else %}<span class="sd-pill bg-slate-100 text-slate-700">{{ s.source_type|title }}</span>{% endif %}
                         </td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
+            <div id="reg-empty" class="hidden p-8 text-center text-[13px] text-slate-400">No consignments match these filters.</div>
         </div>
-    </div>
-
+    </section>
 </div>
 
-<!-- Charting & Mapping Libraries (Guaranteed Body Execution) -->
-<script src="{{ url_for('static', filename='js/apexcharts.min.js') }}"></script>
-<script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
-<script src="{{ url_for('static', filename='js/leaflet.js') }}"></script>
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-<!-- EMBEDDED RAW DATA -->
-<script id="raw-report-data" type="application/json">
-{{ report_data | tojson }}
-</script>
+<script id="sd-data" type="application/json">{{ report_data | tojson }}</script>
 
 <script>
-    const reportData = JSON.parse(document.getElementById('raw-report-data').textContent);
-    let currentSegment = 'unbilled'; // Default to UNBILLED just like user screenshot!
-    let currentMonth = 'ALL';
+{% raw %}
+(function () {
+    'use strict';
+    console.log('[sales-dashboard] script executing, readyState =', document.readyState);
+    window.addEventListener('DOMContentLoaded', () => console.log('[sales-dashboard] DOMContentLoaded fired'));
+    window.addEventListener('load', () => console.log('[sales-dashboard] window load fired'));
 
-    function formatInr(val) {
-        if (!val && val !== 0) return '₹ 0.00';
-        return '₹ ' + Number(val).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
+    // ── Data & configuration ───────────────────────────────────────
+    let DATA = {};
+    try { DATA = JSON.parse(document.getElementById('sd-data').textContent || '{}'); }
+    catch (e) { console.error('[sales-dashboard] Could not parse report data', e); }
 
-    function formatPlainNumber(val) {
-        if (!val && val !== 0) return '0.00';
-        return Number(val).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-    }
-
-    function getActiveDataset() {
-        if (currentMonth !== 'ALL' && reportData.by_month && reportData.by_month[currentMonth]) {
-            return reportData.by_month[currentMonth][currentSegment];
-        }
-        return reportData[currentSegment];
-    }
-
-    function getActiveSummary() {
-        if (currentMonth !== 'ALL' && reportData.by_month && reportData.by_month[currentMonth]) {
-            return reportData.by_month[currentMonth].summary;
-        }
-        return reportData.summary;
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    // MAP CONTROLLER (Leaflet India Bubble Map with City Coordinates)
-    // ─────────────────────────────────────────────────────────────
-    const INDIA_COORDS_FALLBACK = {
-        "DELHI": [28.6139, 77.2090], "NEW DELHI": [28.6139, 77.2090], "GURGAON": [28.4595, 77.0266],
-        "GURUGRAM": [28.4595, 77.0266], "NOIDA": [28.5355, 77.3910], "GREATER NOIDA": [28.4744, 77.5040],
-        "FARIDABAD": [28.4089, 77.3178], "GHAZIABAD": [28.6692, 77.4538],
-        "MUMBAI": [19.0760, 72.8777], "BOMBAY": [19.0760, 72.8777], "THANE": [19.2183, 72.9781],
-        "NAVI MUMBAI": [19.0330, 73.0297], "PUNE": [18.5204, 73.8567], "NASHIK": [19.9975, 73.7898],
-        "NAGPUR": [21.1458, 79.0882], "AHMEDABAD": [23.0225, 72.5714], "SURAT": [21.1702, 72.8311],
-        "VADODARA": [22.3072, 73.1812], "BARODA": [22.3072, 73.1812], "RAJKOT": [22.3039, 70.8022],
-        "INDORE": [22.7196, 75.8577], "BHOPAL": [23.2599, 77.4126], "JAIPUR": [26.9124, 75.7873],
-        "BENGALURU": [12.9716, 77.5946], "BANGALORE": [12.9716, 77.5946], "BELAGAVI": [15.8497, 74.4977],
-        "BELGAUM": [15.8497, 74.4977], "CHENNAI": [13.0827, 80.2707], "MADRAS": [13.0827, 80.2707],
-        "COIMBATORE": [11.0168, 76.9558], "HYDERABAD": [17.3850, 78.4867], "MEDCHAL": [17.6297, 78.4814],
-        "MEDCHAL MALKAJGIRI": [17.6297, 78.4814], "RANGAREDDY": [17.4399, 78.4983],
-        "KOCHI": [9.9312, 76.2673], "COCHIN": [9.9312, 76.2673], "KOLKATA": [22.5726, 88.3639],
-        "CALCUTTA": [22.5726, 88.3639], "PATNA": [25.5941, 85.1376], "RANCHI": [23.3441, 85.3096],
-        "BHUBANESWAR": [20.2961, 85.8245], "GUWAHATI": [26.1445, 91.7362], "LUCKNOW": [26.8467, 80.9462],
-        "KANPUR": [26.4499, 80.3319], "CHANDIGARH": [30.7333, 76.7794], "LUDHIANA": [30.9010, 75.8573]
+    const SEG_THEME = {
+        unbilled: { color: '#B45309', title: 'Unbilled Sales Dashboard' },
+        billed:   { color: '#0F766E', title: 'Billed Sales Dashboard' },
+        all:      { color: '#1E3A8A', title: 'Consolidated Sales Dashboard' }
     };
+    const PALETTE = ['#1E3A8A', '#0F766E', '#B45309', '#64748B', '#7C3AED', '#BE123C'];
+    const MONTH_COLORS = ['#1E3A8A', '#D97706', '#0F766E', '#7C3AED', '#BE123C', '#0369A1', '#4D7C0F', '#A21CAF'];
+    const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const FONT = 'Inter, system-ui, -apple-system, sans-serif';
+    const AXIS = { colors: '#64748B', fontSize: '11px', fontFamily: FONT };
+    const GRID = { borderColor: '#EEF2F6', strokeDashArray: 3, padding: { left: 8, right: 16, top: 0, bottom: 0 } };
 
-    let map = null;
-    let markersLayer = null;
+    const state = { seg: 'unbilled', month: 'ALL' };
+    const charts = {};
+    let map = null, destLayer = null, laneLayer = null, firstFit = true;
 
+    // ── Helpers ────────────────────────────────────────────────────
+    const $ = (id) => document.getElementById(id);
+    const n = (v) => { const x = Number(v); return Number.isFinite(x) ? x : 0; };
+    const setText = (id, v) => { const el = $(id); if (el) el.textContent = v; };
+    const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
+    const inr = (v) => '₹' + n(v).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const int = (v) => Math.round(n(v)).toLocaleString('en-IN');
+    const pct = (v) => n(v).toFixed(1) + '%';
+    function inrShort(v) {
+        const x = n(v), a = Math.abs(x);
+        if (a >= 1e7) return '₹' + (x / 1e7).toFixed(2) + ' Cr';
+        if (a >= 1e5) return '₹' + (x / 1e5).toFixed(2) + ' L';
+        if (a >= 1e3) return '₹' + (x / 1e3).toFixed(1) + ' K';
+        return '₹' + Math.round(x).toLocaleString('en-IN');
+    }
+    function fmtDate(d) {
+        const p = String(d || '').split('-');
+        if (p.length === 3 && p[0].length <= 2) { const m = parseInt(p[1], 10); return p[0] + ' ' + (MON[m - 1] || p[1]); }
+        if (p.length === 3 && p[0].length === 4) { const m = parseInt(p[1], 10); return p[2] + ' ' + (MON[m - 1] || p[1]); }
+        return String(d || 'Undated');
+    }
+    const truncate = (s, k) => { s = String(s || ''); return s.length > k ? s.slice(0, k - 1) + '…' : s; };
+    function tip(title, rows) {
+        return '<div class="sd-tip"><div class="sd-tip-t">' + esc(title) + '</div>' +
+            rows.map((r) => '<div class="sd-tip-r"><span>' + esc(r[0]) + '</span><b>' + esc(r[1]) + '</b></div>').join('') + '</div>';
+    }
+    function baseChart(type, height) {
+        return {
+            type: type, height: height, fontFamily: FONT, parentHeightOffset: 0,
+            toolbar: { show: false }, zoom: { enabled: false },
+            animations: { enabled: true, easing: 'easeinout', speed: 350, animateGradually: { enabled: false } }
+        };
+    }
+    function destroyChart(key) {
+        if (charts[key]) { try { charts[key].destroy(); } catch (e) { /* already gone */ } charts[key] = null; }
+    }
+    function showEmpty(key, elId, msg, h) {
+        destroyChart(key);
+        const el = $(elId);
+        if (el) el.innerHTML = '<div class="sd-empty" style="height:' + (h || 220) + 'px">' + esc(msg) + '</div>';
+    }
+    /** Render an ApexChart; also traps the async render() rejection that try/catch cannot see. */
+    function draw(key, elId, opts) {
+        console.log('[sales-dashboard] draw() called for:', key, elId);
+        destroyChart(key);
+        const el = $(elId);
+        if (!el) {
+            console.warn('[sales-dashboard] element not found for:', elId);
+            return;
+        }
+        el.innerHTML = '';
+        if (typeof ApexCharts === 'undefined') { showEmpty(key, elId, 'Chart library could not load. Please refresh the page.'); return; }
+        try {
+            const c = new ApexCharts(el, opts);
+            charts[key] = c;
+            const p = c.render();
+            if (p && typeof p.catch === 'function') {
+                p.catch((err) => { console.error('[sales-dashboard] render reject: ' + key, err); showEmpty(key, elId, 'This chart could not be drawn.'); });
+            }
+            console.log('[sales-dashboard] chart.render() dispatched for:', key);
+        } catch (err) {
+            console.error('[sales-dashboard] chart constructor error: ' + key, err);
+            showEmpty(key, elId, 'This chart could not be drawn.');
+        }
+    }
+    function getSeg() {
+        const bm = DATA.by_month || {};
+        if (state.month !== 'ALL' && bm[state.month] && bm[state.month][state.seg]) return bm[state.month][state.seg];
+        return DATA[state.seg] || {};
+    }
+    const color = () => SEG_THEME[state.seg].color;
+
+    // ── KPIs & audit checks ────────────────────────────────────────
+    function renderKpis(seg) {
+        const s = seg.summary || {};
+        const sales = n(s.total_sales), awbs = n(s.total_shipments), wt = n(s.total_weight);
+        const avg = awbs ? sales / awbs : 0;
+        setText('kpi-sales', inrShort(sales));
+        setText('kpi-sales-sub', inr(sales));
+        setText('kpi-awbs', int(awbs));
+        setText('kpi-awbs-sub', (seg.customers || []).length + ' customers · ' + (seg.sales_reps || []).length + ' sales persons');
+        setText('kpi-wt', int(wt) + ' kg');
+        setText('kpi-wt-sub', awbs ? n(wt / awbs).toLocaleString('en-IN', { maximumFractionDigits: 1 }) + ' kg per consignment' : '—');
+        setText('kpi-avg', inrShort(avg));
+        setText('kpi-avg-sub', inr(avg));
+
+        const dr = n(s.delivery_rate), br = n(s.bill_no_rate);
+        setText('aud-deliv', pct(dr));
+        $('aud-deliv-bar').style.width = Math.min(100, dr) + '%';
+        setText('aud-deliv-sub', int(s.delivered_count) + ' of ' + int(awbs) + ' consignments delivered');
+        setText('aud-bill', pct(br));
+        $('aud-bill-bar').style.width = Math.min(100, br) + '%';
+        setText('aud-bill-sub', int(s.bill_no_count) + ' of ' + int(awbs) + ' carry a bill number');
+
+        const dnbAmt = n(s.delivered_unbilled_amt), dnbCnt = n(s.delivered_unbilled_count);
+        const dnbEl = $('aud-dnb');
+        dnbEl.textContent = inrShort(dnbAmt);
+        dnbEl.style.color = dnbAmt > 0 ? '#BE123C' : '#0F172A';
+        $('aud-dnb-bar').style.width = (sales ? Math.min(100, dnbAmt / sales * 100) : 0) + '%';
+        setText('aud-dnb-sub', dnbCnt > 0
+            ? int(dnbCnt) + ' delivered consignments · ' + pct(sales ? dnbAmt / sales * 100 : 0) + ' of sale'
+            : 'No delivered consignments awaiting billing');
+    }
+
+    // ── 01 Daily trend ─────────────────────────────────────────────
+    function renderDaily(seg) {
+        const rows = (seg.daily_sales || []).filter((d) => d && d.date && d.date !== 'Undated');
+        if (!rows.length) {
+            ['daily-peak', 'daily-avg', 'daily-days'].forEach((id) => setText(id, '—'));
+            return showEmpty('daily', 'chart-daily', 'No dated consignments for this selection.', 300);
+        }
+        const cats = rows.map((d) => fmtDate(d.date));
+        const vals = rows.map((d) => Math.round(n(d.sales)));
+        const avg = vals.reduce((a, b) => a + b, 0) / vals.length;
+        let pi = 0;
+        vals.forEach((v, i) => { if (v > vals[pi]) pi = i; });
+        setText('daily-peak', inrShort(vals[pi]));
+        setText('daily-peak-k', 'Peak · ' + cats[pi]);
+        setText('daily-avg', inrShort(avg));
+        setText('daily-days', rows.length);
+
+        const c = color();
+        draw('daily', 'chart-daily', {
+            chart: baseChart('area', 300),
+            series: [{ name: 'Sale', data: vals }],
+            colors: [c],
+            stroke: { curve: 'smooth', width: 2.25 },
+            fill: { type: 'gradient', gradient: { shadeIntensity: 0, opacityFrom: 0.22, opacityTo: 0.02, stops: [0, 100] } },
+            dataLabels: { enabled: false },
+            markers: { size: rows.length <= 12 ? 3 : 0, strokeWidth: 0, hover: { size: 5 } },
+            xaxis: {
+                categories: cats, tickAmount: Math.min(cats.length - 1, 10),
+                labels: { rotate: 0, hideOverlappingLabels: true, style: AXIS },
+                axisBorder: { show: false }, axisTicks: { show: false }, tooltip: { enabled: false }
+            },
+            yaxis: { min: 0, forceNiceScale: true, labels: { formatter: (v) => inrShort(v), style: AXIS } },
+            grid: GRID,
+            annotations: {
+                yaxis: [{
+                    y: avg, borderColor: '#94A3B8', strokeDashArray: 4,
+                    label: { text: 'Avg ' + inrShort(avg), position: 'left', textAnchor: 'start', offsetX: 6, borderWidth: 0,
+                             style: { background: '#F1F5F9', color: '#475569', fontSize: '11px', fontWeight: 500, fontFamily: FONT } }
+                }],
+                points: [{
+                    x: cats[pi], y: vals[pi],
+                    marker: { size: 5, fillColor: c, strokeColor: '#fff', strokeWidth: 2 },
+                    label: { text: inrShort(vals[pi]), borderWidth: 0, offsetY: -6,
+                             style: { background: c, color: '#fff', fontSize: '11px', fontWeight: 600, fontFamily: FONT } }
+                }]
+            },
+            tooltip: {
+                custom: ({ dataPointIndex: i }) => {
+                    const r = rows[i] || {};
+                    return tip(r.date || '', [['Sale', inr(r.sales)], ['Consignments', int(r.shipments)]]);
+                }
+            }
+        });
+    }
+
+    // ── Shared horizontal bar builder ──────────────────────────────
+    function hbar(key, elId, items, labelFn, tipFn, customColor) {
+        const vals = items.map((r) => Math.round(n(r.sales)));
+        const max = Math.max(1, ...vals);
+        const barColor = customColor || color();
+        draw(key, elId, {
+            chart: baseChart('bar', Math.max(200, items.length * 44 + 36)),
+            series: [{ name: 'Sale', data: vals }],
+            colors: [barColor],
+            plotOptions: { bar: { horizontal: true, barHeight: '58%', borderRadius: 3, borderRadiusApplication: 'end', dataLabels: { position: 'top' } } },
+            dataLabels: {
+                enabled: true, textAnchor: 'start', offsetX: 8,
+                formatter: (v, o) => labelFn(items[o.dataPointIndex], v),
+                style: { fontSize: '12px', fontWeight: 600, fontFamily: FONT, colors: ['#334155'] }
+            },
+            xaxis: {
+                categories: items.map((r) => truncate(r.name || 'Unassigned', 30)),
+                max: max * 1.32,
+                labels: { formatter: (v) => inrShort(v), style: AXIS },
+                axisBorder: { show: false }, axisTicks: { show: false }
+            },
+            yaxis: { labels: { maxWidth: 210, style: { colors: '#0F172A', fontSize: '12.5px', fontWeight: 500, fontFamily: FONT } } },
+            grid: Object.assign({}, GRID, { xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } }),
+            states: { hover: { filter: { type: 'darken', value: 0.9 } } },
+            tooltip: { custom: ({ dataPointIndex: i }) => (items[i] ? tipFn(items[i]) : '') }
+        });
+    }
+
+    // ── 02 Sales persons ───────────────────────────────────────────
+    function renderReps(seg) {
+        const reps = (seg.sales_reps || []).slice().sort((a, b) => n(b.sales) - n(a.sales));
+        setText('rep-count', reps.length || '—');
+        if (!reps.length) {
+            setText('rep-top', '—');
+            return showEmpty('reps', 'chart-reps', 'No sales person data for this selection.');
+        }
+        setText('rep-top', truncate(reps[0].name, 22));
+        setText('rep-top-k', 'Top performer · ' + pct(reps[0].share_pct));
+        hbar('reps', 'chart-reps', reps,
+            (r, v) => inrShort(v) + '   ' + pct(r.share_pct),
+            (r) => tip(r.name, [['Sale', inr(r.sales)], ['Share of total', pct(r.share_pct)], ['Consignments', int(r.shipments)],
+                                ['Customers', r.customer_count == null ? '—' : int(r.customer_count)], ['Weight', int(r.weight) + ' kg']]));
+    }
+
+    // ── 03 Service modes ───────────────────────────────────────────
+    function renderModes(seg) {
+        const modes = (seg.modes || []).filter((m) => n(m.sales) > 0).sort((a, b) => n(b.sales) - n(a.sales));
+        const list = $('mode-list');
+        if (!modes.length) {
+            list.innerHTML = '';
+            return showEmpty('modes', 'chart-modes', 'No service mode data.', 260);
+        }
+        draw('modes', 'chart-modes', {
+            chart: baseChart('donut', 280),
+            series: modes.map((m) => n(m.sales)),
+            labels: modes.map((m) => m.mode || 'Other'),
+            colors: PALETTE,
+            stroke: { width: 2, colors: ['#fff'] },
+            dataLabels: { enabled: false },
+            legend: { show: false },
+            plotOptions: { pie: { donut: { size: '74%', labels: {
+                show: true,
+                name: { show: true, fontSize: '12px', fontFamily: FONT, color: '#64748B' },
+                value: { show: true, fontSize: '22px', fontWeight: 600, fontFamily: FONT, color: '#0F172A', formatter: (v) => inrShort(v) },
+                total: { show: true, showAlways: true, label: 'Total sale', fontSize: '12px', fontWeight: 500, fontFamily: FONT, color: '#64748B',
+                         formatter: (w) => {
+                             const totals = (w && w.globals && w.globals.seriesTotals) || [];
+                             return inrShort(totals.reduce((a, b) => a + b, 0));
+                         } }
+            } } } },
+            tooltip: {
+                custom: ({ seriesIndex: i }) => {
+                    const m = modes[i] || {};
+                    return tip(m.mode || 'Mode', [['Sale', inr(m.sales)], ['Share', pct(m.share_pct)], ['Consignments', int(m.shipments)]]);
+                }
+            }
+        });
+        list.innerHTML =
+            '<div class="grid grid-cols-12 gap-3 pb-2 mb-1 border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wider text-slate-400">' +
+            '<div class="col-span-4">Mode</div><div class="col-span-2 text-right">AWBs</div><div class="col-span-3 text-right">Sale</div><div class="col-span-3 text-right">Share</div></div>' +
+            modes.map((m, i) =>
+                '<div class="grid grid-cols-12 gap-3 items-center py-2.5 border-b border-slate-50 text-[13px]">' +
+                '<div class="col-span-4 flex items-center gap-2 font-medium text-slate-900 min-w-0"><span class="sd-dot" style="background:' + PALETTE[i % PALETTE.length] + '"></span><span class="truncate">' + esc(m.mode) + '</span></div>' +
+                '<div class="col-span-2 text-right sd-num text-slate-600">' + int(m.shipments) + '</div>' +
+                '<div class="col-span-3 text-right sd-num font-medium text-slate-900">' + inrShort(m.sales) + '</div>' +
+                '<div class="col-span-3"><div class="flex items-center gap-2 justify-end"><div class="sd-track w-14 hidden sm:block"><div class="sd-fill" style="width:' + Math.min(100, n(m.share_pct)) + '%;background:' + PALETTE[i % PALETTE.length] + '"></div></div><span class="sd-num text-slate-600 w-12 text-right">' + pct(m.share_pct) + '</span></div></div>' +
+                '</div>').join('');
+    }
+
+    // ── 04 Customers ───────────────────────────────────────────────
+    function renderCustomers(seg) {
+        const all = (seg.customers || []).slice().sort((a, b) => n(b.sales) - n(a.sales));
+        const top = all.slice(0, 10);
+        const total = n((seg.summary || {}).total_sales) || all.reduce((a, c) => a + n(c.sales), 0);
+        const top5 = all.slice(0, 5).reduce((a, c) => a + n(c.sales), 0);
+        setText('cust-conc', total ? pct(top5 / total * 100) : '—');
+        setText('cust-count', all.length || '—');
+        if (!top.length) return showEmpty('customers', 'chart-customers', 'No customer data for this selection.');
+        const c = color();
+        hbar('customers', 'chart-customers', top,
+            (r, v) => inrShort(v) + '   ' + pct(r.share_pct),
+            (r) => tip(r.name, [['Customer code', r.code || '—'], ['Sales person', r.sales_person || '—'], ['Sale', inr(r.sales)],
+                                ['Share of total', pct(r.share_pct)], ['Consignments', int(r.shipments)], ['Weight', int(r.weight) + ' kg']]),
+            c);
+    }
+
+    // ── 05 Network map ─────────────────────────────────────────────
     function initMap() {
-        if (map) return;
-        if (typeof L === 'undefined') {
-            console.warn("Leaflet library (L) not available yet for map initialization.");
-            return;
-        }
-
-        const mapEl = document.getElementById('destination-map');
-        if (!mapEl) return;
-
-        try {
-            map = L.map('destination-map', {
-                zoomControl: true,
-                attributionControl: false
-            }).setView([22.0, 79.0], 4);
-
-            // Dark Matter tiles for professional aesthetics
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-                maxZoom: 9,
-                minZoom: 3,
-                subdomains: 'abcd'
-            }).addTo(map);
-
-            markersLayer = L.layerGroup().addTo(map);
-            renderMapBubbles();
-
-            // Refresh dimensions in case container was rendered in flex layout
-            setTimeout(() => {
-                if (map) map.invalidateSize();
-            }, 300);
-        } catch (err) {
-            console.error("Map initialization failed:", err);
-        }
+        if (map || typeof L === 'undefined' || !$('sd-map')) return;
+        map = L.map('sd-map', { zoomControl: true, scrollWheelZoom: false, attributionControl: true }).setView([22.6, 80.5], 5);
+        L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}', {
+            minZoom: 3, maxZoom: 10, attribution: '&copy; Esri &mdash; Esri, DeLorme, NAVTEQ'
+        }).addTo(map);
+        laneLayer = L.layerGroup().addTo(map);
+        destLayer = L.layerGroup().addTo(map);
+        setTimeout(() => map && map.invalidateSize(), 300);
     }
+    function curve(a, b, k) {
+        const mx = (a[0] + b[0]) / 2, my = (a[1] + b[1]) / 2, dx = b[0] - a[0], dy = b[1] - a[1];
+        const cx = mx - dy * k, cy = my + dx * k, pts = [];
+        for (let i = 0; i <= 24; i++) {
+            const t = i / 24, u = 1 - t;
+            pts.push([u * u * a[0] + 2 * u * t * cx + t * t * b[0], u * u * a[1] + 2 * u * t * cy + t * t * b[1]]);
+        }
+        return pts;
+    }
+    function monthLabel(key) {
+        const m = (DATA.months || []).find((x) => x.key === key);
+        return m ? m.label : key;
+    }
+    function renderNetwork(seg) {
+        const dests = (seg.destinations || []).slice().sort((a, b) => n(b.sales) - n(a.sales));
+        const c = color();
+        setText('net-dest', dests.length || '—');
 
-    function renderMapBubbles() {
-        if (!map || !markersLayer || typeof L === 'undefined') return;
-        try {
-            markersLayer.clearLayers();
+        // Ranked list
+        const top = dests.slice(0, 10), maxSale = Math.max(1, ...top.map((d) => n(d.sales)));
+        $('dest-list').innerHTML = top.length ? top.map((d, i) =>
+            '<div>' +
+            '<div class="flex items-baseline justify-between gap-3 text-[13px]">' +
+            '<span class="min-w-0 truncate text-slate-900"><span class="text-slate-400 sd-num mr-2">' + String(i + 1).padStart(2, '0') + '</span>' + esc(d.city) + '</span>' +
+            '<span class="shrink-0 sd-num"><span class="text-slate-400 mr-2">' + int(d.shipments) + ' AWBs</span><span class="font-medium text-slate-900">' + inrShort(d.sales) + '</span></span>' +
+            '</div>' +
+            '<div class="sd-track mt-1.5"><div class="sd-fill" style="width:' + (n(d.sales) / maxSale * 100) + '%"></div></div>' +
+            '</div>').join('') : '<div class="sd-empty" style="height:160px">No destination data.</div>';
 
-            const seg = getActiveDataset() || {};
-            const dests = seg.destinations || [];
+        if (!map) { setText('net-note', 'Map unavailable — mapping library did not load.'); return; }
 
-            // Find max shipment count for scaling
-            const maxShipments = Math.max(...dests.map(d => d.shipments || 1), 1);
-
-            dests.forEach(d => {
-                let lat = null, lon = null;
-                if (d.coords && d.coords[0] && d.coords[1]) {
-                    lat = d.coords[0];
-                    lon = d.coords[1];
-                } else {
-                    const cleanCity = (d.city || '').toUpperCase().trim();
-                    if (INDIA_COORDS_FALLBACK[cleanCity]) {
-                        [lat, lon] = INDIA_COORDS_FALLBACK[cleanCity];
-                    }
-                }
-
-                if (!lat || !lon) return;
-
-                // Radius scaled proportionally
-                const radius = Math.min(Math.max(((d.shipments || 1) / maxShipments) * 22, 4.5), 24);
-
-                const circle = L.circleMarker([lat, lon], {
-                    radius: radius,
-                    fillColor: '#38BDF8',
-                    color: '#60A5FA',
-                    weight: 1.5,
-                    opacity: 0.9,
-                    fillOpacity: 0.65
-                });
-
-                circle.bindTooltip(`
-                    <div style="font-family: inherit; font-size: 11px; padding: 2px;">
-                        <b style="color: #38BDF8; font-size: 12px; text-transform: uppercase;">${d.city || 'City'}</b><br/>
-                        <b>Consignments:</b> ${d.shipments || 0} AWBs<br/>
-                        <b>Total Sale:</b> ₹ ${formatPlainNumber(d.sales || 0)}
-                    </div>
-                `, { direction: 'top', className: 'custom-map-tooltip' });
-
-                markersLayer.addLayer(circle);
+        // Destination bubbles
+        destLayer.clearLayers();
+        const pts = [];
+        let unmapped = 0;
+        const maxShip = Math.max(1, ...dests.map((d) => n(d.shipments)));
+        if ($('tg-dest').checked) {
+            dests.forEach((d) => {
+                if (!d.coords || d.coords.length < 2) { unmapped++; return; }
+                const r = 5 + 16 * Math.sqrt(n(d.shipments) / maxShip);
+                L.circleMarker(d.coords, { radius: r, color: c, weight: 1.5, fillColor: c, fillOpacity: 0.28 })
+                    .bindTooltip(tip(d.city, [['Consignments', int(d.shipments)], ['Sale', inr(d.sales)]]), { direction: 'top', className: 'sd-map-tip', opacity: 1 })
+                    .addTo(destLayer);
+                pts.push(d.coords);
             });
-        } catch (err) {
-            console.error("Failed to render map bubbles:", err);
-        }
-    }
-
-    function resetMap() {
-        if (map) map.setView([22.0, 79.0], 4);
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    // CHARTS CONTROLLER (ApexCharts)
-    // ─────────────────────────────────────────────────────────────
-    let dateChart = null;
-    let repChart = null;
-    let modeChart = null;
-    let custChart = null;
-
-    function renderCharts() {
-        const seg = getActiveDataset() || {};
-        const summary = getActiveSummary() || {};
-        const segSummary = seg.summary || {};
-
-        // 1. UPDATE HEADING & TOTAL SALE TILE
-        const headingEl = document.getElementById('report-mode-heading');
-        const salesEl = document.getElementById('kpi-total-sales');
-        const awbsEl = document.getElementById('kpi-total-awbs');
-        const wtEl = document.getElementById('kpi-total-wt');
-
-        if (currentSegment === 'unbilled') {
-            if (headingEl) headingEl.textContent = 'SALES REPORT (UNBILLED)';
-            if (salesEl) salesEl.textContent = formatPlainNumber(summary.unbilled_sales ?? segSummary.total_sales ?? 0);
-            if (awbsEl) awbsEl.textContent = summary.unbilled_shipments ?? segSummary.total_shipments ?? 0;
-            if (wtEl) wtEl.textContent = Number(segSummary.total_weight || 0).toLocaleString('en-IN', { maximumFractionDigits: 1 });
-        } else if (currentSegment === 'billed') {
-            if (headingEl) headingEl.textContent = 'SALES REPORT (BILLED)';
-            if (salesEl) salesEl.textContent = formatPlainNumber(summary.billed_sales ?? segSummary.total_sales ?? 0);
-            if (awbsEl) awbsEl.textContent = summary.billed_shipments ?? segSummary.total_shipments ?? 0;
-            if (wtEl) wtEl.textContent = Number(segSummary.total_weight || 0).toLocaleString('en-IN', { maximumFractionDigits: 1 });
         } else {
-            if (headingEl) headingEl.textContent = 'SALES REPORT (CONSOLIDATED)';
-            if (salesEl) salesEl.textContent = formatPlainNumber(summary.total_sales ?? segSummary.total_sales ?? 0);
-            if (awbsEl) awbsEl.textContent = summary.total_shipments ?? segSummary.total_shipments ?? 0;
-            if (wtEl) wtEl.textContent = Number(segSummary.total_weight || 0).toLocaleString('en-IN', { maximumFractionDigits: 1 });
+            unmapped = dests.filter((d) => !d.coords).length;
         }
 
-        if (typeof ApexCharts === 'undefined') {
-            console.warn("ApexCharts library not available yet.");
-            return;
-        }
+        // Origin → destination lanes (coloured by month for month-on-month comparison)
+        laneLayer.clearLayers();
+        const conn = DATA.connectivity || {};
+        const byMonth = conn.by_month || {};
+        const monthKeys = (DATA.months || []).map((m) => m.key);
+        let groups;
+        if (state.month !== 'ALL') groups = [[state.month, byMonth[state.month] || []]];
+        else if (Object.keys(byMonth).length) groups = Object.keys(byMonth).sort().map((k) => [k, byMonth[k]]);
+        else groups = [['ALL', conn.all_routes || []]];
 
-        // 2. SALE GRAPH BY DATE (Line Spline with peak labels)
-        try {
-            const daily = seg.daily_sales || [];
-            const dateCategories = daily.map(d => {
-                const parts = (d.date || '').split('-');
-                return parts.length >= 2 ? `${parts[0]} ${getMonthAbbr(parts[1])}` : (d.date || '');
+        let laneCount = 0;
+        const legend = [];
+        if ($('tg-lanes').checked) {
+            const maxAwb = Math.max(1, ...groups.flatMap((g) => g[1].map((r) => n(r.awb_count))));
+            const origins = {};
+            groups.forEach(([mk, routes], gi) => {
+                const idx = monthKeys.indexOf(mk);
+                const lc = MONTH_COLORS[(idx >= 0 ? idx : gi) % MONTH_COLORS.length];
+                let drawn = 0;
+                routes.forEach((r) => {
+                    const a = r.origin_coords, b = r.dest_coords;
+                    if (!a || !b || (a[0] === b[0] && a[1] === b[1])) return;
+                    const w = 1 + 3 * Math.sqrt(n(r.awb_count) / maxAwb);
+                    L.polyline(curve(a, b, 0.18 + gi * 0.07), { color: lc, weight: w, opacity: 0.55, lineCap: 'round' })
+                        .bindTooltip(tip(r.origin + ' → ' + r.destination,
+                            [['Month', mk === 'ALL' ? 'All' : monthLabel(mk)], ['Consignments', int(r.awb_count)], ['Freight', inr(r.total_freight)],
+                             ['Weight', int(r.total_weight) + ' kg'], ['Mode', r.primary_mode || '—']]), { sticky: true, className: 'sd-map-tip', opacity: 1 })
+                        .addTo(laneLayer);
+                    origins[r.origin] = a;
+                    pts.push(a, b);
+                    drawn++;
+                });
+                laneCount += drawn;
+                if (drawn) legend.push('<span class="inline-flex items-center gap-1.5"><span style="width:16px;height:3px;border-radius:2px;background:' + lc + '"></span>' + esc(mk === 'ALL' ? 'All lanes' : monthLabel(mk)) + '</span>');
             });
-            const dateValues = daily.map(d => Math.round(d.sales || 0));
-
-            if (dateChart) dateChart.destroy();
-            const dateContainer = document.querySelector("#date-trend-chart");
-            if (dateContainer) {
-                dateChart = new ApexCharts(dateContainer, {
-                    series: [{ name: 'Sale Graph', data: dateValues }],
-                    chart: { type: 'line', height: 175, toolbar: { show: false }, fontFamily: 'inherit' },
-                    colors: ['#0284C7'],
-                    stroke: { width: 2.5, curve: 'smooth' },
-                    dataLabels: {
-                        enabled: true,
-                        formatter: function (val, opt) {
-                            const series = opt.w.config.series[0].data;
-                            const idx = opt.dataPointIndex;
-                            if (idx > 0 && idx < series.length - 1) {
-                                if (series[idx] >= series[idx - 1] && series[idx] >= series[idx + 1]) {
-                                    return val;
-                                }
-                            }
-                            if (idx === series.length - 1) return val;
-                            return '';
-                        },
-                        offsetY: -5,
-                        style: { fontSize: '9px', fontWeight: 700, colors: ['#0284C7'] }
-                    },
-                    xaxis: {
-                        categories: dateCategories,
-                        tickAmount: Math.min(dateCategories.length, 6),
-                        labels: { style: { colors: '#0F172A', fontSize: '10px', fontWeight: 600 } }
-                    },
-                    yaxis: {
-                        labels: {
-                            formatter: (val) => Number(val).toLocaleString('en-IN'),
-                            style: { colors: '#DC2626', fontSize: '9px', fontWeight: 600 }
-                        }
-                    },
-                    grid: { borderColor: '#E2E8F0', strokeDashArray: 2 },
-                    tooltip: { y: { formatter: (val) => '₹ ' + formatPlainNumber(val) } }
-                });
-                dateChart.render();
-            }
-        } catch (err) {
-            console.error("Failed to render Date Trend chart:", err);
-        }
-
-        // 3. TOTAL SALE BY SALES PERSON (Horizontal Bar Chart)
-        try {
-            const reps = seg.sales_reps || [];
-            const repNames = reps.map(r => r.name || 'Unknown');
-            const repSales = reps.map(r => r.sales || 0);
-
-            if (repChart) repChart.destroy();
-            const repContainer = document.querySelector("#sales-person-chart");
-            if (repContainer) {
-                repChart = new ApexCharts(repContainer, {
-                    series: [{ name: 'Total Sale', data: repSales }],
-                    chart: { type: 'bar', height: 280, toolbar: { show: false }, fontFamily: 'inherit' },
-                    plotOptions: {
-                        bar: {
-                            horizontal: true,
-                            borderRadius: 2,
-                            barHeight: '55%',
-                            dataLabels: { position: 'top' }
-                        }
-                    },
-                    colors: ['#000000'],
-                    dataLabels: {
-                        enabled: true,
-                        textAnchor: 'start',
-                        formatter: (val) => formatPlainNumber(val),
-                        offsetX: 8,
-                        style: { fontSize: '10px', fontWeight: 700, colors: ['#1E3A8A'] }
-                    },
-                    xaxis: {
-                        categories: repNames,
-                        labels: {
-                            formatter: (val) => Number(val).toLocaleString('en-IN'),
-                            style: { colors: '#DC2626', fontSize: '10px', fontWeight: 600 }
-                        }
-                    },
-                    yaxis: {
-                        labels: { style: { colors: '#1E3A8A', fontSize: '11px', fontWeight: 700 } }
-                    },
-                    grid: { borderColor: '#E2E8F0' },
-                    tooltip: { y: { formatter: (val) => '₹ ' + formatPlainNumber(val) } }
-                });
-                repChart.render();
-            }
-        } catch (err) {
-            console.error("Failed to render Sales Rep chart:", err);
-        }
-
-        // 4. TOTAL SALE BY SERVICEMODE (Pie Chart: Air, Surface, Train)
-        try {
-            const modes = seg.modes || [];
-            const modeLabels = modes.map(m => m.mode || 'Other');
-            const modeValues = modes.map(m => m.sales || 0);
-
-            if (modeChart) modeChart.destroy();
-            const modeContainer = document.querySelector("#servicemode-pie-chart");
-            if (modeContainer) {
-                modeChart = new ApexCharts(modeContainer, {
-                    series: modeValues,
-                    labels: modeLabels,
-                    chart: { type: 'pie', height: 220, fontFamily: 'inherit' },
-                    colors: ['#1D4ED8', '#000000', '#991B1B'],
-                    dataLabels: {
-                        enabled: true,
-                        formatter: (val, opts) => {
-                            const amt = opts.w.config.series[opts.seriesIndex];
-                            return formatPlainNumber(amt);
-                        },
-                        style: { fontSize: '9px', fontWeight: 700, colors: ['#DC2626'] }
-                    },
-                    legend: {
-                        position: 'right',
-                        fontSize: '11px',
-                        fontWeight: 600,
-                        labels: { colors: '#0F172A' }
-                    },
-                    tooltip: { y: { formatter: (val) => '₹ ' + formatPlainNumber(val) } }
-                });
-                modeChart.render();
-            }
-        } catch (err) {
-            console.error("Failed to render Service Mode chart:", err);
-        }
-
-        // 5. TOP 5 CUSTOMER BY SALE (Donut Chart)
-        try {
-            const top5Custs = (seg.customers || []).slice(0, 5);
-            const custLabels = top5Custs.map(c => {
-                const n = c.name || 'Unknown';
-                return n.length > 20 ? n.substring(0, 20) + '...' : n;
+            Object.keys(origins).forEach((name) => {
+                L.circleMarker(origins[name], { radius: 4, color: '#fff', weight: 1.5, fillColor: '#0F172A', fillOpacity: 1 })
+                    .bindTooltip(tip(name, [['Role', 'Origin']]), { direction: 'top', className: 'sd-map-tip', opacity: 1 })
+                    .addTo(laneLayer);
             });
-            const custValues = top5Custs.map(c => c.sales || 0);
-
-            if (custChart) custChart.destroy();
-            const custContainer = document.querySelector("#top-customer-donut-chart");
-            if (custContainer) {
-                custChart = new ApexCharts(custContainer, {
-                    series: custValues,
-                    labels: custLabels,
-                    chart: { type: 'donut', height: 220, fontFamily: 'inherit' },
-                    colors: ['#000000', '#0284C7', '#1D4ED8', '#EA580C', '#7C3AED'],
-                    plotOptions: {
-                        pie: {
-                            donut: { size: '60%' }
-                        }
-                    },
-                    dataLabels: {
-                        enabled: true,
-                        formatter: (val, opts) => {
-                            const amt = opts.w.config.series[opts.seriesIndex];
-                            return formatPlainNumber(amt);
-                        },
-                        style: { fontSize: '8.5px', fontWeight: 700, colors: ['#1D4ED8'] }
-                    },
-                    legend: {
-                        position: 'right',
-                        fontSize: '10px',
-                        fontWeight: 600,
-                        labels: { colors: '#0F172A' }
-                    },
-                    tooltip: { y: { formatter: (val) => '₹ ' + formatPlainNumber(val) } }
-                });
-                custChart.render();
-            }
-        } catch (err) {
-            console.error("Failed to render Top Customer chart:", err);
         }
+        $('lane-legend').innerHTML = legend.length
+            ? '<span class="inline-flex items-center gap-1.5"><span style="width:8px;height:8px;border-radius:99px;background:#0F172A"></span>Origin</span>' + legend.join('')
+            : '';
+        setText('net-lanes', $('tg-lanes').checked ? (laneCount || '0') : '—');
+        setText('net-note', (unmapped ? unmapped + ' destination' + (unmapped > 1 ? 's' : '') + ' could not be placed on the map (city not geocoded) and appear only in the list. ' : '') +
+            'Lanes cover billed and unbilled consignments.');
 
-        // Refresh Map Bubbles & Table Filters
-        try { renderMapBubbles(); } catch (e) { console.error("Map bubble update error:", e); }
-        try { applyFilters(); } catch (e) { console.error("Apply filters error:", e); }
+        if (pts.length && firstFit) {
+            map.fitBounds(L.latLngBounds(pts), { padding: [28, 28], maxZoom: 6 });
+            firstFit = false;
+        }
     }
 
-    function getMonthAbbr(mStr) {
-        const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-        const idx = parseInt(mStr, 10) - 1;
-        return (idx >= 0 && idx < 12) ? months[idx] : mStr;
-    }
-
-    // ─────────────────────────────────────────────────────────────
-    // SEGMENT SWITCHER
-    // ─────────────────────────────────────────────────────────────
-    function switchSegment(seg) {
-        currentSegment = seg;
-        ['all', 'billed', 'unbilled'].forEach(s => {
-            const btn = document.getElementById('tab-' + s);
-            if (btn) {
-                if (s === seg) {
-                    btn.className = "px-3.5 py-1.5 rounded-md text-xs font-bold transition-all bg-slate-900 text-white shadow-xs";
-                } else {
-                    btn.className = "px-3.5 py-1.5 rounded-md text-xs font-bold transition-all text-slate-700 hover:text-slate-900";
-                }
-            }
+    // ── 06 Register ────────────────────────────────────────────────
+    function applyRegister() {
+        const rep = $('reg-rep').value, mode = $('reg-mode').value, q = $('reg-cust').value.toLowerCase().trim();
+        let shown = 0;
+        document.querySelectorAll('.reg-row').forEach((row) => {
+            const src = row.dataset.source;
+            const okSeg = state.seg === 'all' ||
+                (state.seg === 'billed' && (src === 'BILLED' || src === 'COMBINED')) ||
+                (state.seg === 'unbilled' && (src === 'UNBILLED' || src === 'COMBINED'));
+            const ok = okSeg &&
+                (state.month === 'ALL' || row.dataset.month === state.month) &&
+                (rep === 'ALL' || row.dataset.rep === rep) &&
+                (mode === 'ALL' || (row.dataset.mode || '').toLowerCase() === mode.toLowerCase()) &&
+                (!q || (row.dataset.customer || '').includes(q));
+            row.style.display = ok ? '' : 'none';
+            if (ok) shown++;
         });
-        renderCharts();
+        setText('reg-count', int(shown));
+        $('reg-empty').classList.toggle('hidden', shown > 0);
     }
 
-    // ─────────────────────────────────────────────────────────────
-    // MONTH SWITCHER
-    // ─────────────────────────────────────────────────────────────
-    function switchMonth(mKey) {
-        currentMonth = mKey;
-        const monthSelect = document.getElementById('month-select');
-        if (monthSelect && monthSelect.value !== mKey) {
-            monthSelect.value = mKey;
+    // ── Orchestration ──────────────────────────────────────────────
+    function safe(fn, seg) {
+        try {
+            console.log('[sales-dashboard] safe() running:', fn.name);
+            fn(seg);
+        } catch (e) {
+            console.error('[sales-dashboard] error in ' + fn.name, e);
         }
-        renderCharts();
     }
-
-    // ─────────────────────────────────────────────────────────────
-    // CLIENT-SIDE FILTERS
-    // ─────────────────────────────────────────────────────────────
-    function applyFilters() {
-        const repEl = document.getElementById('filter-rep');
-        const modeEl = document.getElementById('filter-mode');
-        const custEl = document.getElementById('filter-customer');
-        if (!repEl || !modeEl || !custEl) return;
-
-        const selectedRep = repEl.value;
-        const selectedMode = modeEl.value;
-        const customerSearch = custEl.value.toLowerCase().trim();
-
-        const rows = document.querySelectorAll('.shipment-row');
-        let visibleCount = 0;
-
-        rows.forEach(row => {
-            const rowRep = row.getAttribute('data-rep');
-            const rowMode = row.getAttribute('data-mode');
-            const rowCust = row.getAttribute('data-customer');
-            const rowSource = row.getAttribute('data-source');
-            const rowMonth = row.getAttribute('data-month');
-
-            const matchSegment = (currentSegment === 'all') || 
-                                 (currentSegment === 'billed' && (rowSource === 'BILLED' || rowSource === 'COMBINED')) ||
-                                 (currentSegment === 'unbilled' && (rowSource === 'UNBILLED' || rowSource === 'COMBINED'));
-
-            const matchMonth = (currentMonth === 'ALL') || (rowMonth === currentMonth);
-            const matchRep = (selectedRep === 'ALL' || rowRep === selectedRep);
-            const matchMode = (selectedMode === 'ALL' || (rowMode && rowMode.toLowerCase() === selectedMode.toLowerCase()));
-            const matchCust = (!customerSearch || (rowCust && rowCust.includes(customerSearch)));
-
-            if (matchSegment && matchMonth && matchRep && matchMode && matchCust) {
-                row.style.display = '';
-                visibleCount++;
-            } else {
-                row.style.display = 'none';
-            }
+    function renderAll() {
+        console.log('[sales-dashboard] renderAll() starting for segment:', state.seg);
+        const seg = getSeg();
+        $('sd-root').style.setProperty('--seg', color());
+        setText('seg-title', SEG_THEME[state.seg].title);
+        safe(renderKpis, seg);
+        safe(renderDaily, seg);
+        safe(renderReps, seg);
+        safe(renderModes, seg);
+        safe(renderCustomers, seg);
+        safe(renderNetwork, seg);
+        safe(applyRegister, seg);
+        console.log('[sales-dashboard] renderAll() completed');
+    }
+    function setSeg(seg) {
+        state.seg = SEG_THEME[seg] ? seg : 'unbilled';
+        document.querySelectorAll('.sd-seg button').forEach((b) => {
+            const on = b.dataset.seg === state.seg;
+            b.classList.toggle('active', on);
+            b.setAttribute('aria-selected', on ? 'true' : 'false');
         });
-
-        const countEl = document.getElementById('filtered-table-count');
-        if (countEl) countEl.textContent = visibleCount;
+        try {
+            const u = new URL(window.location.href);
+            u.searchParams.set('seg', state.seg);
+            window.history.replaceState(null, '', u.toString());
+        } catch (e) { /* non-critical */ }
+        renderAll();
     }
 
-    function resetFilters() {
-        const repEl = document.getElementById('filter-rep');
-        const modeEl = document.getElementById('filter-mode');
-        const custEl = document.getElementById('filter-customer');
-        if (repEl) repEl.value = 'ALL';
-        if (modeEl) modeEl.value = 'ALL';
-        if (custEl) custEl.value = '';
-        applyFilters();
+    function boot() {
+        console.log('[sales-dashboard] boot() started!');
+        const qs = new URLSearchParams(window.location.search);
+        if (SEG_THEME[qs.get('seg')]) state.seg = qs.get('seg');
+
+        try {
+            console.log('[sales-dashboard] calling initMap...');
+            initMap();
+            console.log('[sales-dashboard] initMap completed');
+        } catch (e) { console.error('[sales-dashboard] map init error', e); }
+
+        document.querySelectorAll('.sd-seg button').forEach((b) => b.addEventListener('click', () => setSeg(b.dataset.seg)));
+        const monthSel = $('sd-month');
+        if (monthSel) monthSel.addEventListener('change', () => { state.month = monthSel.value; firstFit = true; renderAll(); });
+        const repSel = $('sd-report');
+        if (repSel) repSel.addEventListener('change', () => {
+            window.location.href = repSel.dataset.base + '?report_id=' + encodeURIComponent(repSel.value) + '&seg=' + state.seg;
+        });
+        ['tg-dest', 'tg-lanes'].forEach((id) => {
+            const el = $(id);
+            if (el) el.addEventListener('change', () => safe(renderNetwork, getSeg()));
+        });
+        ['reg-rep', 'reg-mode'].forEach((id) => {
+            const el = $(id);
+            if (el) el.addEventListener('change', applyRegister);
+        });
+        const regCust = $('reg-cust');
+        if (regCust) regCust.addEventListener('input', applyRegister);
+        const regReset = $('reg-reset');
+        if (regReset) regReset.addEventListener('click', () => { $('reg-rep').value = 'ALL'; $('reg-mode').value = 'ALL'; $('reg-cust').value = ''; applyRegister(); });
+
+        setSeg(state.seg);
     }
 
-    function toggleRecordsDrawer() {
-        const drawer = document.getElementById('records-drawer');
-        const icon = document.getElementById('drawer-icon');
-        const toggleText = document.getElementById('drawer-toggle-text');
-        if (!drawer) return;
-        if (drawer.classList.contains('hidden')) {
-            drawer.classList.remove('hidden');
-            if (toggleText && toggleText.firstElementChild) toggleText.firstElementChild.textContent = 'Hide Records';
-            if (icon) icon.classList.add('rotate-180');
-        } else {
-            drawer.classList.add('hidden');
-            if (toggleText && toggleText.firstElementChild) toggleText.firstElementChild.textContent = 'View Records';
-            if (icon) icon.classList.remove('rotate-180');
-        }
+    try {
+        boot();
+    } catch (e) {
+        console.error('[sales-dashboard] boot failed:', e);
     }
-
-    // ─────────────────────────────────────────────────────────────
-    // ROBUST BOOTSTRAP WITH RETRY POLLING
-    // ─────────────────────────────────────────────────────────────
-    function ensureLibrariesAndRender(retries = 15) {
-        const hasApex = typeof ApexCharts !== 'undefined';
-        const hasLeaflet = typeof L !== 'undefined';
-
-        if ((!hasApex || !hasLeaflet) && retries > 0) {
-            setTimeout(() => ensureLibrariesAndRender(retries - 1), 100);
-            return;
-        }
-
-        try { renderCharts(); } catch (e) { console.error("renderCharts error on startup:", e); }
-        try { initMap(); } catch (e) { console.error("initMap error on startup:", e); }
-    }
-
-    document.addEventListener('DOMContentLoaded', () => {
-        ensureLibrariesAndRender();
-        if (typeof lucide !== 'undefined') lucide.createIcons();
-    });
+})();
+{% endraw %}
 </script>
 {% endblock %}

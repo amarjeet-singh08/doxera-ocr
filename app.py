@@ -77,6 +77,8 @@ def create_app():
     app = Flask(__name__)
     app.jinja_env.filters['localdt'] = format_datetime
     app.config.from_object(Config)
+    app.config['TEMPLATES_AUTO_RELOAD'] = True
+    app.jinja_env.auto_reload = True
     Config.init_app()
     
     # Auto-initialize database and admin user on startup
