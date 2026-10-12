@@ -111,6 +111,27 @@ def upload_page():
 
     return render_template('sales_upload.html')
 
+import re
+
+def _get_export_filename(report, ext):
+    title = ""
+    if report:
+        try:
+            title = (report['title'] or '').strip()
+        except Exception:
+            title = (getattr(report, 'title', None) or '').strip()
+    if not title:
+        try:
+            title = f"SalesReport_{report['report_id']}"
+        except Exception:
+            title = "SalesReport"
+    # Replace illegal filename characters: \ / : * ? " < > |
+    safe_name = re.sub(r'[\\/*?:"<>|]', '_', title).strip()
+    safe_name = re.sub(r'\s+', ' ', safe_name)
+    if len(safe_name) > 120:
+        safe_name = safe_name[:120].strip()
+    return f"{safe_name}.{ext}"
+
 @sales_bp.route('/sales/report/<int:report_id>/export/pdf')
 @login_required
 @role_required(['ADMIN', 'AUDITOR'])
@@ -125,9 +146,9 @@ def export_pdf(report_id):
 
     report_data = json.loads(report['report_data_json'])
     pdf_buffer = generate_sales_pdf(report, report_data)
-    safe_filename = f"SalesReport_{report['report_id']}.pdf"
+    safe_filename = _get_export_filename(report, 'pdf')
 
-    log_audit(session.get('username', 'Admin'), 'SALES_REPORT_EXPORT_PDF', details=f"Exported PDF for report {report_id}")
+    log_audit(session.get('username', 'Admin'), 'SALES_REPORT_EXPORT_PDF', details=f"Exported PDF for report {report_id} as {safe_filename}")
     return send_file(
         pdf_buffer,
         as_attachment=True,
@@ -149,9 +170,9 @@ def export_pptx(report_id):
 
     report_data = json.loads(report['report_data_json'])
     pptx_buffer = generate_sales_pptx(report, report_data)
-    safe_filename = f"SalesReport_{report['report_id']}.pptx"
+    safe_filename = _get_export_filename(report, 'pptx')
 
-    log_audit(session.get('username', 'Admin'), 'SALES_REPORT_EXPORT_PPTX', details=f"Exported PPTX for report {report_id}")
+    log_audit(session.get('username', 'Admin'), 'SALES_REPORT_EXPORT_PPTX', details=f"Exported PPTX for report {report_id} as {safe_filename}")
     return send_file(
         pptx_buffer,
         as_attachment=True,

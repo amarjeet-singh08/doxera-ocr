@@ -326,11 +326,22 @@ def generate_sales_pptx(report_row, report_data):
             except Exception:
                 pass
 
+    # Resolve user-provided report title from upload intake
+    report_title = ""
+    if report_row:
+        try:
+            report_title = str(report_row["title"] or "").strip()
+        except Exception:
+            try:
+                report_title = str(getattr(report_row, "title", "") or "").strip()
+            except Exception:
+                report_title = ""
+
     # ═════════════════════════════════════════════════════════════════
     # SLIDE 1: EXECUTIVE VISUAL DASHBOARD (1:1 Power BI Layout)
     # ═════════════════════════════════════════════════════════════════
     slide1 = prs.slides.add_slide(blank_layout)
-    add_header_title = f"SALES REPORT (UNBILLED & CONSOLIDATED)"
+    add_header_title = report_title.upper() if report_title else "SALES REPORT (UNBILLED & CONSOLIDATED)"
     add_minimalist_header(slide1, add_header_title)
 
     # 1. Total Sale Black Card (Top-Left)
@@ -650,6 +661,17 @@ def generate_sales_pdf(report_row, report_data):
     Generates a minimalist, Big-4 style PDF audit report with NumberedCanvas,
     Page 1 executive visual dashboard with embedded charts, and comprehensive schedules.
     """
+    # Resolve user-provided report title from upload intake
+    report_title = ""
+    if report_row:
+        try:
+            report_title = str(report_row["title"] or "").strip()
+        except Exception:
+            try:
+                report_title = str(getattr(report_row, "title", "") or "").strip()
+            except Exception:
+                report_title = ""
+
     class NumberedCanvas(canvas.Canvas):
         def __init__(self, *args, **kwargs):
             super(NumberedCanvas, self).__init__(*args, **kwargs)
@@ -671,8 +693,9 @@ def generate_sales_pdf(report_row, report_data):
             self.saveState()
             self.setFont("Helvetica-Bold", 7.5)
             self.setFillColor(colors.HexColor("#64748B"))
-            # Running Header
-            self.drawString(36, 808, "NORTH EXPRESS LOGISTICS LTD.  |  EXECUTIVE SALES AUDIT")
+            # Running Header with user-provided report title
+            hdr_sub = (report_title[:45] + '...') if len(report_title) > 48 else (report_title or "EXECUTIVE SALES AUDIT")
+            self.drawString(36, 808, f"NORTH EXPRESS LOGISTICS LTD.  |  {hdr_sub.upper()}")
             self.drawRightString(559, 808, "STRICTLY CONFIDENTIAL")
             self.setStrokeColor(colors.HexColor("#CBD5E1"))
             self.setLineWidth(0.5)
@@ -835,7 +858,8 @@ def generate_sales_pdf(report_row, report_data):
     story.append(t_head)
     story.append(Spacer(1, 2))
 
-    story.append(Paragraph("SALES REPORT (UNBILLED & CONSOLIDATED)", doc_title_style))
+    main_doc_title = report_title.upper() if report_title else "SALES REPORT (UNBILLED & CONSOLIDATED)"
+    story.append(Paragraph(main_doc_title, doc_title_style))
     story.append(Paragraph(f"Audit Window: <b>{period_str}</b>  •  Correlated: <b>{summary.get('total_shipments', 0):,} AWBs</b>  •  <b>Note: Accurate Data.</b>", doc_sub_style))
     story.append(Spacer(1, 6))
 
