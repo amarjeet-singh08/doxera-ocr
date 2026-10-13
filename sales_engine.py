@@ -800,14 +800,28 @@ def parse_and_process_sales_3way(billed_file, unbilled_file, booking_file, bille
             bill_no = str(row.get("bill_no", "")).strip()
             if bill_no.lower() in ("nan", "none", "0"): bill_no = ""
             delivery_status = str(row.get("delivery_status", "") or row.get("status", "")).strip()
-            if not delivery_status or delivery_status.lower() in ("nan", "none"):
-                delivery_status = "In Transit" if default_tag == "UNBILLED" else "Delivered"
 
             try: amt = float(row.get("total_amt", 0) or 0)
             except: amt = 0.0
 
             b_amt = billed_amt_map.get(awb, amt if default_tag == "BILLED" else 0.0)
             u_amt = unbilled_amt_map.get(awb, amt if default_tag == "UNBILLED" else 0.0)
+
+            if awb in billed_amt_map and awb in unbilled_amt_map:
+                billing_tag = "COMBINED"
+                tot_amt = b_amt + u_amt
+            elif awb in billed_amt_map or bill_no:
+                billing_tag = "BILLED"
+                tot_amt = b_amt if b_amt > 0 else amt
+            elif awb in unbilled_amt_map:
+                billing_tag = "UNBILLED"
+                tot_amt = u_amt if u_amt > 0 else amt
+            else:
+                billing_tag = default_tag
+                tot_amt = amt
+
+            if not delivery_status or delivery_status.lower() in ("nan", "none"):
+                delivery_status = "In Transit" if billing_tag == "UNBILLED" else "Delivered"
 
             all_shipments.append({
                 "awb_no": awb,
@@ -831,8 +845,8 @@ def parse_and_process_sales_3way(billed_file, unbilled_file, booking_file, bille
                 "delivery_status": delivery_status,
                 "billed_amt": round(b_amt, 2),
                 "unbilled_amt": round(u_amt, 2),
-                "total_amt": round(amt, 2),
-                "source_type": default_tag
+                "total_amt": round(tot_amt, 2),
+                "source_type": billing_tag
             })
 
     if not all_shipments:
