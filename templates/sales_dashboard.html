@@ -1498,7 +1498,7 @@
             dataLabels: {
                 enabled: true,
                 textAnchor: 'start',
-                offsetX: isMobile ? 4 : 8,
+                offsetX: isMobile ? 22 : (isTablet ? 24 : 26),
                 formatter: (v, o) => {
                     const item = items[o.dataPointIndex];
                     if (!item) return '';
@@ -1516,7 +1516,7 @@
             },
             xaxis: {
                 categories: items.map((r) => truncate(r.name || 'Unassigned', isMobile ? 14 : (isTablet ? 20 : 28))),
-                max: max * (isMobile ? 1.88 : (isTablet ? 1.55 : 1.38)),
+                max: max * (isMobile ? 1.95 : (isTablet ? 1.55 : 1.40)),
                 tickAmount: isMobile ? 2 : 5,
                 labels: {
                     show: !isMobile,
@@ -1555,7 +1555,7 @@
                     options: {
                         xaxis: {
                             labels: { show: false },
-                            max: max * 1.88
+                            max: max * 1.95
                         },
                         yaxis: {
                             labels: {
@@ -1565,7 +1565,7 @@
                             }
                         },
                         dataLabels: {
-                            offsetX: 4,
+                            offsetX: 22,
                             style: { fontSize: '10px' }
                         },
                         grid: {
@@ -1590,6 +1590,10 @@
                                 maxWidth: 160,
                                 style: { fontSize: '11.5px', colors: '#0F172A' }
                             }
+                        },
+                        dataLabels: {
+                            offsetX: 24,
+                            style: { fontSize: '11.5px' }
                         },
                         grid: {
                             padding: {
