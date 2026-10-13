@@ -762,6 +762,79 @@ def parse_and_process_sales_3way(billed_file, unbilled_file, booking_file, bille
             "source_type": billing_tag
         })
 
+    # 2b. Resilient Ingestion: Ensure any AWBs present in Unbilled MIS or Billed MIS
+    # that were NOT found in the Booking Master Register are STILL captured and never dropped!
+    for df_source, default_tag in [(unbilled_df, "UNBILLED"), (billed_df, "BILLED")]:
+        for _, row in df_source.iterrows():
+            awb = str(row.get("awb_no", "")).strip()
+            if not awb or awb.lower() in ("nan", "none", "0") or awb in seen_awbs:
+                continue
+            seen_awbs.add(awb)
+
+            raw_date = str(row.get("date", "")).strip()
+            clean_date, month_key, month_label = extract_month_info(raw_date)
+
+            code = str(row.get("customer_code", "")).strip().upper()
+            if code == "NAN": code = ""
+            cname = str(row.get("customer_name", "") or row.get("customer", "")).strip()
+            if cname == "NAN": cname = ""
+
+            rep = "NEL"
+            if code in code_to_rep:
+                rep = code_to_rep[code]
+            elif cname.upper() in name_to_rep:
+                rep = name_to_rep[cname.upper()]
+
+            raw_mode = str(row.get("booking_mode", "") or row.get("service_mode", "") or row.get("mode", "") or "Surface").strip()
+            if raw_mode.lower() in ("nan", "none", "", "ptl", "ftl"):
+                raw_mode = "Surface"
+            raw_mode = raw_mode.capitalize()
+
+            try: wt = float(row.get("weight", 0) or 0)
+            except: wt = 0.0
+            try: chg_wt = float(row.get("chargeable_weight", wt) or wt)
+            except: chg_wt = wt
+            try: boxes = int(float(row.get("boxes", 1) or 1))
+            except: boxes = 1
+
+            bill_no = str(row.get("bill_no", "")).strip()
+            if bill_no.lower() in ("nan", "none", "0"): bill_no = ""
+            delivery_status = str(row.get("delivery_status", "") or row.get("status", "")).strip()
+            if not delivery_status or delivery_status.lower() in ("nan", "none"):
+                delivery_status = "In Transit" if default_tag == "UNBILLED" else "Delivered"
+
+            try: amt = float(row.get("total_amt", 0) or 0)
+            except: amt = 0.0
+
+            b_amt = billed_amt_map.get(awb, amt if default_tag == "BILLED" else 0.0)
+            u_amt = unbilled_amt_map.get(awb, amt if default_tag == "UNBILLED" else 0.0)
+
+            all_shipments.append({
+                "awb_no": awb,
+                "date": clean_date,
+                "month_key": month_key,
+                "month_label": month_label,
+                "customer_code": code,
+                "customer_name": cname or code or "General Customer",
+                "sales_person": rep,
+                "shipper": str(row.get("shipper", "")).strip(),
+                "consignee": str(row.get("consignee", "")).strip(),
+                "origin": str(row.get("origin", "")).strip() or "Delhi",
+                "destination": str(row.get("destination", "")).strip() or "Unknown",
+                "service_mode": str(row.get("service_mode", raw_mode)),
+                "transport_mode": raw_mode,
+                "weight": wt,
+                "chargeable_weight": chg_wt,
+                "boxes": boxes,
+                "appoint_date": str(row.get("appoint_date", "")).strip(),
+                "bill_no": bill_no,
+                "delivery_status": delivery_status,
+                "billed_amt": round(b_amt, 2),
+                "unbilled_amt": round(u_amt, 2),
+                "total_amt": round(amt, 2),
+                "source_type": default_tag
+            })
+
     if not all_shipments:
         return None, "Zero valid shipments correlated. Please verify that AWB docket numbers match across sheets."
 
