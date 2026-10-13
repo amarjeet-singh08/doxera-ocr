@@ -239,17 +239,31 @@
             <div>
                 <p class="sd-eyebrow">Audit checks</p>
                 <h2 class="sd-title">Delivery &amp; billing status</h2>
+                <p class="sd-desc">Cross-reconciliation between physical cargo delivery and accounting invoices</p>
             </div>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 px-2 pb-3">
-            <div class="p-4">
-                <p class="sd-kpi-label">Delivered</p>
+            <!-- Physical Delivery Rate (Interactive on tap) -->
+            <div class="p-4 cursor-pointer hover:bg-slate-50/80 transition rounded-xl border border-transparent hover:border-slate-200 group relative" onclick="openPendingDeliveryModal()" title="Click to view all pending / in-transit AWB numbers">
+                <div class="flex items-center justify-between">
+                    <p class="sd-kpi-label flex items-center gap-1.5 text-slate-700">
+                        <span>Physical Delivery Rate</span>
+                        <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    </p>
+                    <span id="aud-deliv-btn" class="inline-flex items-center gap-1 text-[11px] font-medium text-blue-700 bg-blue-50 group-hover:bg-blue-100 px-2 py-0.5 rounded-full border border-blue-200/70 transition shadow-2xs">
+                        <span>View Pending</span>
+                        <svg class="w-3 h-3 text-blue-600 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </span>
+                </div>
                 <div class="flex items-baseline justify-between mt-1.5">
                     <span class="text-xl font-semibold text-slate-900 sd-num" id="aud-deliv">—</span>
+                    <span class="text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80 hidden" id="aud-pending-badge"></span>
                 </div>
                 <div class="sd-track mt-2.5"><div class="sd-fill" id="aud-deliv-bar" style="width:0"></div></div>
                 <p class="sd-kpi-sub" id="aud-deliv-sub">&nbsp;</p>
             </div>
+
+            <!-- Invoicing Status -->
             <div class="p-4">
                 <p class="sd-kpi-label">Bill number present</p>
                 <div class="flex items-baseline justify-between mt-1.5">
@@ -258,8 +272,16 @@
                 <div class="sd-track mt-2.5"><div class="sd-fill" id="aud-bill-bar" style="width:0"></div></div>
                 <p class="sd-kpi-sub" id="aud-bill-sub">&nbsp;</p>
             </div>
-            <div class="p-4">
-                <p class="sd-kpi-label">Delivered, billing pending</p>
+
+            <!-- Delivered but Unbilled Risk (Interactive on tap) -->
+            <div class="p-4 cursor-pointer hover:bg-rose-50/40 transition rounded-xl border border-transparent hover:border-rose-100 group relative" onclick="openDeliveredUnbilledModal()" title="Click to view delivered consignments missing invoice numbers">
+                <div class="flex items-center justify-between">
+                    <p class="sd-kpi-label">Delivered, billing pending</p>
+                    <span class="inline-flex items-center gap-1 text-[11px] font-medium text-rose-700 bg-rose-50 group-hover:bg-rose-100 px-2 py-0.5 rounded-full border border-rose-200/70 transition shadow-2xs">
+                        <span>Audit Risk</span>
+                        <svg class="w-3 h-3 text-rose-600 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
+                    </span>
+                </div>
                 <div class="flex items-baseline justify-between mt-1.5">
                     <span class="text-xl font-semibold sd-num" id="aud-dnb">—</span>
                 </div>
@@ -372,7 +394,7 @@
     </section>
 
     <!-- ═══════════════ 06 REGISTER (FULL UPLOADED SHEETS) ═══════════════ -->
-    <section class="sd-card overflow-hidden">
+    <section id="reg-section" class="sd-card overflow-hidden">
         <div class="sd-sec-head">
             <div>
                 <p class="sd-eyebrow">06 · Records</p>
@@ -445,6 +467,85 @@
     </section>
 </div>
 
+<!-- ═══════════════ PENDING & IN-TRANSIT AWBS AUDIT MODAL ═══════════════ -->
+<div id="pending-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs transition-opacity duration-200">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-5xl w-full max-h-[92vh] flex flex-col border border-slate-200 overflow-hidden transform transition-all duration-200">
+        <!-- Header -->
+        <div class="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-start justify-between gap-4 bg-slate-50/70">
+            <div>
+                <div class="flex items-center gap-2">
+                    <span id="pending-modal-tag" class="px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-amber-800 bg-amber-50 rounded border border-amber-200">Delivery Audit</span>
+                    <h3 class="text-base sm:text-lg font-bold text-slate-900" id="pending-modal-title">In-Transit &amp; Pending Consignments</h3>
+                </div>
+                <p class="text-xs text-slate-500 mt-1" id="pending-modal-desc">Consignments awaiting physical delivery or POD confirmation in the active audit view.</p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span id="pending-modal-count-badge" class="px-2.5 py-1 text-xs font-semibold text-slate-700 bg-white rounded-md border border-slate-200 shadow-2xs">—</span>
+                <span id="pending-modal-amt-badge" class="px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-md border border-emerald-200 shadow-2xs">—</span>
+                <button type="button" onclick="closePendingModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition flex items-center justify-center ml-1 text-lg font-semibold" title="Close (Esc)">&times;</button>
+            </div>
+        </div>
+
+        <!-- Controls Toolbar -->
+        <div class="px-5 sm:px-6 py-3 border-b border-slate-100 bg-white flex flex-wrap items-center justify-between gap-3 text-xs">
+            <!-- Search -->
+            <div class="relative flex-1 min-w-[220px]">
+                <input type="text" id="pending-search" placeholder="Search AWB, customer, route, status, bill..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition" oninput="renderPendingModalTable()">
+                <svg class="w-4 h-4 text-slate-400 absolute left-2.5 top-2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            </div>
+            <!-- Status Filter Tabs -->
+            <div id="pending-status-filters" class="flex items-center gap-1 overflow-x-auto py-0.5"></div>
+            <!-- Action Buttons -->
+            <div class="flex items-center gap-2">
+                <button type="button" id="copy-awbs-btn" onclick="copyPendingAwbs()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium transition shadow-2xs">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+                    <span id="copy-awbs-txt">Copy AWBs</span>
+                </button>
+                <button type="button" onclick="exportPendingCsv()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium transition shadow-2xs">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                    <span>Export CSV</span>
+                </button>
+                <button type="button" onclick="filterPendingInMainRegister()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition shadow-2xs">
+                    <span>Filter in Register</span>
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                </button>
+            </div>
+        </div>
+
+        <!-- Table Container -->
+        <div class="overflow-y-auto flex-1 min-h-[280px] max-h-[58vh]">
+            <table class="w-full text-left border-collapse text-xs">
+                <thead class="sticky top-0 bg-slate-50/95 backdrop-blur-xs text-[11px] font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-200 z-10">
+                    <tr>
+                        <th class="py-2.5 px-3 w-10 text-center">#</th>
+                        <th class="py-2.5 px-3">AWB No.</th>
+                        <th class="py-2.5 px-3">Booking Date</th>
+                        <th class="py-2.5 px-3">Customer</th>
+                        <th class="py-2.5 px-3">Origin → Destination</th>
+                        <th class="py-2.5 px-3">Mode</th>
+                        <th class="py-2.5 px-3">Delivery Status</th>
+                        <th class="py-2.5 px-3 text-right">Weight (Kg)</th>
+                        <th class="py-2.5 px-3 text-right">Freight (INR)</th>
+                        <th class="py-2.5 px-3">Bill No.</th>
+                    </tr>
+                </thead>
+                <tbody id="pending-modal-tbody" class="divide-y divide-slate-100 font-normal text-slate-700">
+                    <!-- Populated via JavaScript -->
+                </tbody>
+            </table>
+            <div id="pending-modal-empty" class="hidden py-16 text-center text-slate-400 text-sm">
+                No matching in-transit or pending consignments found.
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="px-5 sm:px-6 py-3 border-t border-slate-100 bg-slate-50/70 flex items-center justify-between text-xs text-slate-600">
+            <div id="pending-modal-footer-info">Showing consignments</div>
+            <button type="button" onclick="closePendingModal()" class="px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium transition shadow-2xs">Close</button>
+        </div>
+    </div>
+</div>
+
 <script id="sd-data" type="application/json">{{ report_data | tojson }}</script>
 
 <script>
@@ -473,7 +574,7 @@
     const state = {
         seg: 'unbilled',
         month: 'ALL',
-        filters: { rep: null, mode: null, customer: null, destination: null },
+        filters: { rep: null, mode: null, customer: null, destination: null, status: null },
         regSubSheet: 'billed',
         regPage: 1,
         regPageSize: 50,
@@ -684,7 +785,7 @@
     }
 
     function getSeg() {
-        const hasFilter = !!(state.filters.rep || state.filters.mode || state.filters.customer || state.filters.destination);
+        const hasFilter = !!(state.filters.rep || state.filters.mode || state.filters.customer || state.filters.destination || state.filters.status);
         if (!hasFilter && state.month === 'ALL') {
             return DATA[state.seg] || {};
         }
@@ -710,6 +811,11 @@
         if (state.filters.destination) {
             list = list.filter((s) => s.destination === state.filters.destination);
         }
+        if (state.filters.status === 'pending') {
+            list = list.filter((s) => !String(s.delivery_status || '').toLowerCase().includes('deliver'));
+        } else if (state.filters.status === 'delivered_unbilled') {
+            list = list.filter((s) => String(s.delivery_status || '').toLowerCase().includes('deliver') && (s.source_type === 'UNBILLED' || s.source_type === 'COMBINED'));
+        }
 
         return computeMetricsFromShipments(list);
     }
@@ -729,7 +835,7 @@
     };
 
     function clearAllFilters() {
-        state.filters = { rep: null, mode: null, customer: null, destination: null };
+        state.filters = { rep: null, mode: null, customer: null, destination: null, status: null };
         state.regPage = 1;
         renderFilterBanner();
         renderAll();
@@ -741,14 +847,24 @@
         if (!banner || !container) return;
 
         const chips = [];
-        const labels = { rep: 'Sales Person', mode: 'Transport Mode', customer: 'Customer', destination: 'Destination' };
+        const labels = {
+            rep: 'Sales Person',
+            mode: 'Transport Mode',
+            customer: 'Customer',
+            destination: 'Destination',
+            status: 'Audit Status'
+        };
 
         Object.keys(state.filters).forEach((key) => {
             const val = state.filters[key];
             if (val) {
+                let displayVal = val;
+                if (key === 'status') {
+                    displayVal = val === 'pending' ? 'Pending / In-Transit' : (val === 'delivered_unbilled' ? 'Delivered Unbilled' : val);
+                }
                 chips.push(
                     '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-900 border border-blue-200">' +
-                    '<span>' + esc(labels[key]) + ': <b>' + esc(val) + '</b></span>' +
+                    '<span>' + esc(labels[key] || key) + ': <b>' + esc(displayVal) + '</b></span>' +
                     '<button type="button" class="ml-1 hover:text-red-700 font-bold" onclick="toggleFilter(\'' + key + '\', \'' + esc(val) + '\')">✕</button>' +
                     '</span>'
                 );
@@ -781,7 +897,17 @@
         const dr = n(s.delivery_rate), br = n(s.bill_no_rate);
         setText('aud-deliv', pct(dr));
         $('aud-deliv-bar').style.width = Math.min(100, dr) + '%';
-        setText('aud-deliv-sub', int(s.delivered_count) + ' of ' + int(awbs) + ' consignments delivered');
+        const pendingCount = Math.max(0, Math.round(awbs - n(s.delivered_count)));
+        const pendingBadge = $('aud-pending-badge');
+        if (pendingBadge) {
+            if (pendingCount > 0) {
+                pendingBadge.textContent = int(pendingCount) + ' Pending';
+                pendingBadge.classList.remove('hidden');
+            } else {
+                pendingBadge.classList.add('hidden');
+            }
+        }
+        setText('aud-deliv-sub', int(s.delivered_count) + ' of ' + int(awbs) + ' consignments delivered · ' + int(pendingCount) + ' in-transit / pending');
         setText('aud-bill', pct(br));
         $('aud-bill-bar').style.width = Math.min(100, br) + '%';
         setText('aud-bill-sub', int(s.bill_no_count) + ' of ' + int(awbs) + ' carry a bill number');
@@ -1211,6 +1337,8 @@
             if (state.filters.mode && (s.transport_mode || '').toLowerCase() !== state.filters.mode.toLowerCase()) return false;
             if (state.filters.customer && s.customer_name !== state.filters.customer) return false;
             if (state.filters.destination && s.destination !== state.filters.destination) return false;
+            if (state.filters.status === 'pending' && String(s.delivery_status || '').toLowerCase().includes('deliver')) return false;
+            if (state.filters.status === 'delivered_unbilled' && !(String(s.delivery_status || '').toLowerCase().includes('deliver') && (s.source_type === 'UNBILLED' || s.source_type === 'COMBINED'))) return false;
             if (q) {
                 const text = (s.awb_no + ' ' + (s.customer_name || '') + ' ' + (s.customer_code || '') + ' ' + (s.destination || '') + ' ' + (s.sales_person || '')).toLowerCase();
                 if (!text.includes(q)) return false;
@@ -1251,7 +1379,14 @@
                 }
 
                 return '<tr class="reg-row transition hover:bg-slate-50/80">' +
-                    '<td class="font-semibold text-slate-900 sd-num">' + esc(s.awb_no) + '</td>' +
+                    '<td class="font-semibold text-slate-900 sd-num whitespace-nowrap">' +
+                        '<div class="flex items-center gap-1.5">' +
+                            '<span>' + esc(s.awb_no) + '</span>' +
+                            '<button type="button" onclick="window.copySingleAwb(\'' + esc(s.awb_no) + '\', this)" class="text-slate-400 hover:text-blue-600 transition p-0.5 rounded hover:bg-slate-100 inline-flex items-center" title="Copy AWB">' +
+                                '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>' +
+                            '</button>' +
+                        '</div>' +
+                    '</td>' +
                     '<td class="text-slate-500 sd-num">' + esc(s.date || '—') + '</td>' +
                     '<td class="max-w-[240px] truncate text-slate-900 font-medium" title="' + esc(s.customer_name) + '">' +
                         esc(s.customer_name) + (s.customer_code ? '<span class="text-slate-400 text-xs ml-1 font-normal">(' + esc(s.customer_code) + ')</span>' : '') +
@@ -1322,6 +1457,323 @@
         const x = Number(val) || 0;
         return '₹' + x.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
+
+    // ═════════════════════════════════════════════════════════════════
+    // PENDING & AUDIT MODAL LOGIC (ON-TAP DRILL-DOWN)
+    // ═════════════════════════════════════════════════════════════════
+    let modalShipments = [];
+    let modalFilteredShipments = [];
+    let activeModalStatus = 'ALL';
+    let currentModalType = 'pending'; // 'pending' or 'delivered_unbilled'
+
+    window.openPendingDeliveryModal = function () {
+        currentModalType = 'pending';
+        let list = getAllBaseShipments();
+        if (state.month !== 'ALL') {
+            list = list.filter((s) => s.month_key === state.month);
+        }
+        if (state.filters.rep) list = list.filter((s) => s.sales_person === state.filters.rep);
+        if (state.filters.mode) list = list.filter((s) => (s.transport_mode || '').toLowerCase() === state.filters.mode.toLowerCase());
+        if (state.filters.customer) list = list.filter((s) => s.customer_name === state.filters.customer);
+        if (state.filters.destination) list = list.filter((s) => s.destination === state.filters.destination);
+
+        // Non-delivered consignments
+        modalShipments = list.filter((s) => !String(s.delivery_status || '').toLowerCase().includes('deliver'));
+        activeModalStatus = 'ALL';
+
+        const tagEl = $('pending-modal-tag');
+        if (tagEl) {
+            tagEl.textContent = 'Delivery Audit';
+            tagEl.className = 'px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-amber-800 bg-amber-50 rounded border border-amber-200';
+        }
+        setText('pending-modal-title', 'Pending & In-Transit Consignments (' + int(modalShipments.length) + ')');
+        setText('pending-modal-desc', 'Consignments awaiting physical courier delivery or POD confirmation in ' + (state.seg === 'all' ? 'Consolidated' : state.seg.toUpperCase()) + ' view.');
+
+        const searchInput = $('pending-search');
+        if (searchInput) searchInput.value = '';
+
+        buildModalStatusTabs();
+        renderPendingModalTable();
+
+        const modal = $('pending-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            if (searchInput) setTimeout(() => searchInput.focus(), 50);
+        }
+    };
+
+    window.openDeliveredUnbilledModal = function () {
+        currentModalType = 'delivered_unbilled';
+        let list = getAllBaseShipments();
+        if (state.month !== 'ALL') {
+            list = list.filter((s) => s.month_key === state.month);
+        }
+        if (state.filters.rep) list = list.filter((s) => s.sales_person === state.filters.rep);
+        if (state.filters.mode) list = list.filter((s) => (s.transport_mode || '').toLowerCase() === state.filters.mode.toLowerCase());
+        if (state.filters.customer) list = list.filter((s) => s.customer_name === state.filters.customer);
+        if (state.filters.destination) list = list.filter((s) => s.destination === state.filters.destination);
+
+        // Delivered but unbilled consignments
+        modalShipments = list.filter((s) =>
+            String(s.delivery_status || '').toLowerCase().includes('deliver') &&
+            (s.source_type === 'UNBILLED' || s.source_type === 'COMBINED')
+        );
+        activeModalStatus = 'ALL';
+
+        const tagEl = $('pending-modal-tag');
+        if (tagEl) {
+            tagEl.textContent = 'Revenue Risk';
+            tagEl.className = 'px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-rose-800 bg-rose-50 rounded border border-rose-200';
+        }
+        setText('pending-modal-title', 'Delivered Consignments Pending Invoicing (' + int(modalShipments.length) + ')');
+        setText('pending-modal-desc', 'Physical delivery complete but consignment has not been invoiced / billed.');
+
+        const searchInput = $('pending-search');
+        if (searchInput) searchInput.value = '';
+
+        buildModalStatusTabs();
+        renderPendingModalTable();
+
+        const modal = $('pending-modal');
+        if (modal) {
+            modal.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+            if (searchInput) setTimeout(() => searchInput.focus(), 50);
+        }
+    };
+
+    window.closePendingModal = function () {
+        const modal = $('pending-modal');
+        if (modal) modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    };
+
+    function buildModalStatusTabs() {
+        const container = $('pending-status-filters');
+        if (!container) return;
+
+        const counts = {};
+        modalShipments.forEach((s) => {
+            const st = (s.delivery_status || 'In Transit').trim();
+            counts[st] = (counts[st] || 0) + 1;
+        });
+
+        const statuses = Object.keys(counts).sort((a, b) => counts[b] - counts[a]);
+        if (statuses.length <= 1) {
+            container.innerHTML = '';
+            return;
+        }
+
+        let html = '<button type="button" class="px-2.5 py-1 rounded-md text-[11px] font-medium transition ' +
+            (activeModalStatus === 'ALL' ? 'bg-slate-900 text-white font-semibold shadow-2xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200') +
+            '" onclick="window.setModalStatusFilter(\'ALL\')">All (' + int(modalShipments.length) + ')</button>';
+
+        statuses.forEach((st) => {
+            const active = activeModalStatus === st;
+            html += '<button type="button" class="px-2.5 py-1 rounded-md text-[11px] font-medium transition whitespace-nowrap ' +
+                (active ? 'bg-slate-900 text-white font-semibold shadow-2xs' : 'bg-slate-100 text-slate-600 hover:bg-slate-200') +
+                '" onclick="window.setModalStatusFilter(\'' + esc(st).replace(/'/g, "\\'") + '\')">' + esc(st) + ' (' + int(counts[st]) + ')</button>';
+        });
+
+        container.innerHTML = html;
+    }
+
+    window.setModalStatusFilter = function (st) {
+        activeModalStatus = st;
+        buildModalStatusTabs();
+        renderPendingModalTable();
+    };
+
+    window.renderPendingModalTable = function () {
+        const q = ($('pending-search')?.value || '').toLowerCase().trim();
+
+        modalFilteredShipments = modalShipments.filter((s) => {
+            if (activeModalStatus !== 'ALL') {
+                const st = (s.delivery_status || 'In Transit').trim();
+                if (st !== activeModalStatus) return false;
+            }
+            if (q) {
+                const str = (
+                    (s.awb_no || '') + ' ' +
+                    (s.customer_name || '') + ' ' +
+                    (s.customer_code || '') + ' ' +
+                    (s.origin || '') + ' ' +
+                    (s.destination || '') + ' ' +
+                    (s.delivery_status || '') + ' ' +
+                    (s.transport_mode || '') + ' ' +
+                    (s.sales_person || '') + ' ' +
+                    (s.bill_no || '')
+                ).toLowerCase();
+                if (!str.includes(q)) return false;
+            }
+            return true;
+        });
+
+        const totalAmt = modalFilteredShipments.reduce((sum, s) => sum + n(s.total_amt), 0);
+        const totalWt = modalFilteredShipments.reduce((sum, s) => sum + n(s.weight), 0);
+
+        setText('pending-modal-count-badge', int(modalFilteredShipments.length) + ' of ' + int(modalShipments.length) + ' AWBs');
+        setText('pending-modal-amt-badge', formatINR(totalAmt));
+        setText('pending-modal-footer-info', 'Showing ' + int(modalFilteredShipments.length) + ' consignments · Total Freight: ' + formatINR(totalAmt) + ' · Total Weight: ' + int(totalWt) + ' kg');
+
+        const tbody = $('pending-modal-tbody');
+        const emptyEl = $('pending-modal-empty');
+
+        if (!tbody) return;
+
+        if (!modalFilteredShipments.length) {
+            tbody.innerHTML = '';
+            if (emptyEl) emptyEl.classList.remove('hidden');
+            return;
+        }
+
+        if (emptyEl) emptyEl.classList.add('hidden');
+
+        tbody.innerHTML = modalFilteredShipments.map((s, idx) => {
+            const rawStatus = (s.delivery_status || 'In Transit').trim();
+            const lowerStatus = rawStatus.toLowerCase();
+            let statusBadge = '';
+            if (lowerStatus.includes('deliver')) {
+                statusBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-emerald-50 text-emerald-800 border border-emerald-200">Delivered</span>';
+            } else if (lowerStatus.includes('transit')) {
+                statusBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-amber-50 text-amber-800 border border-amber-200">In Transit</span>';
+            } else if (lowerStatus.includes('book')) {
+                statusBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-blue-50 text-blue-800 border border-blue-200">Booked</span>';
+            } else if (lowerStatus.includes('rto')) {
+                statusBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-rose-50 text-rose-800 border border-rose-200">RTO</span>';
+            } else {
+                statusBadge = '<span class="inline-flex items-center px-2 py-0.5 rounded text-[11px] font-medium bg-slate-100 text-slate-700">' + esc(rawStatus) + '</span>';
+            }
+
+            const billDisplay = (s.bill_no && s.bill_no !== '0' && s.bill_no !== 'nan' && s.bill_no !== 'None')
+                ? '<span class="text-teal-700 font-medium">' + esc(s.bill_no) + '</span>'
+                : '<span class="text-slate-400 italic">Unbilled</span>';
+
+            const originDest = esc(s.origin || 'Delhi') + ' → ' + esc(s.destination || '—');
+
+            return '<tr class="hover:bg-slate-50/80 transition">' +
+                '<td class="py-2.5 px-3 text-center text-slate-400 font-mono text-[11px]">' + (idx + 1) + '</td>' +
+                '<td class="py-2.5 px-3 font-semibold text-slate-900 sd-num whitespace-nowrap">' +
+                    '<div class="flex items-center gap-1.5">' +
+                        '<span>' + esc(s.awb_no) + '</span>' +
+                        '<button type="button" onclick="window.copySingleAwb(\'' + esc(s.awb_no) + '\', this)" class="text-slate-400 hover:text-blue-600 transition p-1 rounded hover:bg-slate-100 inline-flex items-center justify-center" title="Copy AWB">' +
+                            '<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>' +
+                        '</button>' +
+                    '</div>' +
+                '</td>' +
+                '<td class="py-2.5 px-3 text-slate-500 sd-num whitespace-nowrap">' + esc(s.date || '—') + '</td>' +
+                '<td class="py-2.5 px-3 text-slate-900 font-medium max-w-[200px] truncate" title="' + esc(s.customer_name) + '">' +
+                    esc(s.customer_name || '—') +
+                    (s.customer_code ? '<span class="text-slate-400 text-[11px] ml-1">(' + esc(s.customer_code) + ')</span>' : '') +
+                '</td>' +
+                '<td class="py-2.5 px-3 text-slate-600 whitespace-nowrap">' + originDest + '</td>' +
+                '<td class="py-2.5 px-3"><span class="inline-flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full ' + (s.transport_mode === 'Air' ? 'bg-blue-600' : (s.transport_mode === 'Train' ? 'bg-amber-600' : 'bg-emerald-600')) + '"></span>' + esc(s.transport_mode || 'Surface') + '</span></td>' +
+                '<td class="py-2.5 px-3 whitespace-nowrap">' + statusBadge + '</td>' +
+                '<td class="py-2.5 px-3 text-right sd-num text-slate-600">' + int(s.weight) + '</td>' +
+                '<td class="py-2.5 px-3 text-right sd-num font-semibold text-slate-900">' + formatINR(s.total_amt) + '</td>' +
+                '<td class="py-2.5 px-3 whitespace-nowrap">' + billDisplay + '</td>' +
+            '</tr>';
+        }).join('');
+    };
+
+    window.copySingleAwb = function (awb, btn) {
+        if (!awb) return;
+        copyTextToClipboard(awb, function () {
+            if (btn) {
+                const orig = btn.innerHTML;
+                btn.innerHTML = '<svg class="w-3.5 h-3.5 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path></svg>';
+                setTimeout(function () { btn.innerHTML = orig; }, 1500);
+            }
+        });
+    };
+
+    window.copyPendingAwbs = function () {
+        const list = modalFilteredShipments && modalFilteredShipments.length ? modalFilteredShipments : modalShipments;
+        const awbs = list.map((s) => s.awb_no).filter(Boolean);
+        if (!awbs.length) return;
+
+        copyTextToClipboard(awbs.join('\n'), function () {
+            const txt = $('copy-awbs-txt');
+            if (txt) {
+                const orig = txt.textContent;
+                txt.textContent = 'Copied ' + int(awbs.length) + ' AWBs!';
+                setTimeout(function () { txt.textContent = orig; }, 2000);
+            }
+        });
+    };
+
+    function copyTextToClipboard(str, onSuccess) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(str).then(onSuccess).catch(function () {
+                fallbackCopy(str, onSuccess);
+            });
+        } else {
+            fallbackCopy(str, onSuccess);
+        }
+    }
+
+    function fallbackCopy(str, onSuccess) {
+        const ta = document.createElement('textarea');
+        ta.value = str;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+            document.execCommand('copy');
+            if (onSuccess) onSuccess();
+        } catch (e) {
+            console.error('Clipboard copy failed', e);
+        }
+        document.body.removeChild(ta);
+    }
+
+    window.exportPendingCsv = function () {
+        const list = modalFilteredShipments && modalFilteredShipments.length ? modalFilteredShipments : modalShipments;
+        if (!list.length) return;
+
+        const headers = ['AWB No', 'Booking Date', 'Customer Name', 'Customer Code', 'Sales Person', 'Origin', 'Destination', 'Transport Mode', 'Delivery Status', 'Weight (Kg)', 'Freight (INR)', 'Bill No'];
+        const rows = list.map((s) => [
+            s.awb_no || '',
+            s.date || '',
+            s.customer_name || '',
+            s.customer_code || '',
+            s.sales_person || '',
+            s.origin || 'Delhi',
+            s.destination || '',
+            s.transport_mode || 'Surface',
+            s.delivery_status || 'In Transit',
+            s.weight != null ? s.weight : '',
+            s.total_amt != null ? s.total_amt : '',
+            s.bill_no || ''
+        ]);
+
+        let csv = headers.map(h => '"' + h.replace(/"/g, '""') + '"').join(',') + '\r\n';
+        rows.forEach((r) => {
+            csv += r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',') + '\r\n';
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const prefix = currentModalType === 'pending' ? 'pending_intransit_awbs' : 'delivered_unbilled_awbs';
+        a.download = prefix + '_' + state.seg + '_' + (new Date().toISOString().slice(0, 10)) + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
+    window.filterPendingInMainRegister = function () {
+        closePendingModal();
+        toggleFilter('status', currentModalType);
+        const el = $('reg-section') || $('reg-table');
+        if (el && el.scrollIntoView) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    };
 
     // ── Orchestration ──────────────────────────────────────────────
     function safe(fn, seg) {
@@ -1408,6 +1860,20 @@
             state.regPage = 1;
             applyRegister();
         });
+
+        // Close modal on Escape or clicking backdrop
+        window.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                const modal = $('pending-modal');
+                if (modal && !modal.classList.contains('hidden')) closePendingModal();
+            }
+        });
+        const pendingModalEl = $('pending-modal');
+        if (pendingModalEl) {
+            pendingModalEl.addEventListener('click', (e) => {
+                if (e.target === pendingModalEl) closePendingModal();
+            });
+        }
 
         setSeg(state.seg);
     }
