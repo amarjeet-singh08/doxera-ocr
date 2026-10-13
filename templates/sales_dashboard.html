@@ -222,7 +222,7 @@
         <div class="sd-card p-4 sm:p-5 min-w-0">
             <p class="sd-kpi-label">Total sale</p>
             <p class="sd-kpi" id="kpi-sales">—</p>
-            <p class="sd-kpi-sub" id="kpi-sales-sub">&nbsp;</p>
+            <p class="text-[12.5px] font-semibold text-slate-700 mt-1.5 sd-num truncate" id="kpi-sales-sub">&nbsp;</p>
         </div>
         <div class="sd-card p-4 sm:p-5 min-w-0">
             <p class="sd-kpi-label">Consignments</p>
@@ -237,7 +237,7 @@
         <div class="sd-card p-4 sm:p-5 min-w-0">
             <p class="sd-kpi-label">Average per consignment</p>
             <p class="sd-kpi" id="kpi-avg">—</p>
-            <p class="sd-kpi-sub" id="kpi-avg-sub">&nbsp;</p>
+            <p class="text-[12.5px] font-semibold text-slate-700 mt-1.5 sd-num truncate" id="kpi-avg-sub">&nbsp;</p>
         </div>
     </section>
 
@@ -292,6 +292,7 @@
                 </div>
                 <div class="flex items-baseline justify-between mt-1.5">
                     <span class="text-xl font-semibold sd-num" id="aud-dnb">—</span>
+                    <span class="text-[12px] font-semibold text-rose-700 sd-num" id="aud-dnb-exact"></span>
                 </div>
                 <div class="sd-track mt-2.5"><div class="sd-fill" id="aud-dnb-bar" style="width:0;background:#BE123C"></div></div>
                 <p class="sd-kpi-sub" id="aud-dnb-sub">&nbsp;</p>
@@ -308,8 +309,16 @@
                 <p class="sd-desc">Freight value booked on each day of the period <span class="text-slate-400 text-xs ml-1">(Click point to filter date)</span></p>
             </div>
             <div class="sd-stats">
-                <div class="sd-stat"><div class="v" id="daily-peak">—</div><div class="k" id="daily-peak-k">Peak day</div></div>
-                <div class="sd-stat"><div class="v" id="daily-avg">—</div><div class="k">Daily average</div></div>
+                <div class="sd-stat">
+                    <div class="v" id="daily-peak">—</div>
+                    <div class="text-[11.5px] font-semibold text-slate-700 sd-num mt-0.5" id="daily-peak-exact"></div>
+                    <div class="k" id="daily-peak-k">Peak day</div>
+                </div>
+                <div class="sd-stat">
+                    <div class="v" id="daily-avg">—</div>
+                    <div class="text-[11.5px] font-semibold text-slate-700 sd-num mt-0.5" id="daily-avg-exact"></div>
+                    <div class="k">Daily average</div>
+                </div>
                 <div class="sd-stat"><div class="v" id="daily-days">—</div><div class="k">Active days</div></div>
             </div>
         </div>
@@ -325,7 +334,11 @@
                 <p class="sd-desc">Ranked by sale value, with share of total <span class="text-slate-400 text-xs ml-1">(Click bar to filter)</span></p>
             </div>
             <div class="sd-stats">
-                <div class="sd-stat"><div class="v" id="rep-top">—</div><div class="k" id="rep-top-k">Top performer</div></div>
+                <div class="sd-stat">
+                    <div class="v" id="rep-top">—</div>
+                    <div class="text-[11.5px] font-semibold text-slate-700 sd-num mt-0.5" id="rep-top-exact"></div>
+                    <div class="k" id="rep-top-k">Top performer</div>
+                </div>
                 <div class="sd-stat"><div class="v" id="rep-count">—</div><div class="k">Sales persons</div></div>
             </div>
         </div>
@@ -356,7 +369,11 @@
                 <p class="sd-desc">Largest accounts by sale value <span class="text-slate-400 text-xs ml-1">(Click bar to filter)</span></p>
             </div>
             <div class="sd-stats">
-                <div class="sd-stat"><div class="v" id="cust-conc">—</div><div class="k">Top 5 share of sale</div></div>
+                <div class="sd-stat">
+                    <div class="v" id="cust-conc">—</div>
+                    <div class="text-[11.5px] font-semibold text-slate-700 sd-num mt-0.5" id="cust-conc-exact"></div>
+                    <div class="k">Top 5 share of sale</div>
+                </div>
                 <div class="sd-stat"><div class="v" id="cust-count">—</div><div class="k">Active customers</div></div>
             </div>
         </div>
@@ -411,7 +428,11 @@
             </div>
             <div class="sd-stats">
                 <div class="sd-stat"><div class="v" id="reg-count">—</div><div class="k">Consignments shown</div></div>
-                <div class="sd-stat"><div class="v" id="reg-total-amt">—</div><div class="k">Total value</div></div>
+                <div class="sd-stat">
+                    <div class="v" id="reg-total-amt">—</div>
+                    <div class="text-[11.5px] font-semibold text-slate-700 sd-num mt-0.5" id="reg-total-amt-exact"></div>
+                    <div class="k">Total value</div>
+                </div>
             </div>
         </div>
 
@@ -419,10 +440,10 @@
         <div id="reg-subsheet-bar" class="hidden px-4 sm:px-6 pt-2 pb-1">
             <div class="inline-flex p-1 bg-slate-100 rounded-lg gap-1 border border-slate-200">
                 <button type="button" class="subsheet-btn px-4 py-1.5 rounded-md text-xs font-semibold text-slate-800 bg-white shadow-sm transition" data-sub="billed">
-                    📑 Billed Sheet (<span id="sub-billed-count">361</span> · <span id="sub-billed-amt">₹59.19 L</span>)
+                    📑 Billed Sheet (<span id="sub-billed-count">361</span> · <span id="sub-billed-amt">₹59.19 L</span> <span id="sub-billed-amt-exact" class="text-[11px] font-medium text-slate-500"></span>)
                 </button>
                 <button type="button" class="subsheet-btn px-4 py-1.5 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition" data-sub="unbilled">
-                    📑 Unbilled Sheet (<span id="sub-unbilled-count">797</span> · <span id="sub-unbilled-amt">₹31.44 L</span>)
+                    📑 Unbilled Sheet (<span id="sub-unbilled-count">797</span> · <span id="sub-unbilled-amt">₹31.44 L</span> <span id="sub-unbilled-amt-exact" class="text-[11px] font-medium text-slate-500"></span>)
                 </button>
             </div>
         </div>
@@ -640,15 +661,16 @@
     const n = (v) => { const x = Number(v); return Number.isFinite(x) ? x : 0; };
     const setText = (id, v) => { const el = $(id); if (el) el.textContent = v; };
     const esc = (s) => String(s == null ? '' : s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]);
-    const inr = (v) => '₹' + n(v).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const inr = (v) => '₹ ' + n(v).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    const inrRaw = (v) => n(v).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     const int = (v) => Math.round(n(v)).toLocaleString('en-IN');
     const pct = (v) => n(v).toFixed(1) + '%';
     function inrShort(v) {
         const x = n(v), a = Math.abs(x);
-        if (a >= 1e7) return '₹' + (x / 1e7).toFixed(2) + ' Cr';
-        if (a >= 1e5) return '₹' + (x / 1e5).toFixed(2) + ' L';
-        if (a >= 1e3) return '₹' + (x / 1e3).toFixed(1) + ' K';
-        return '₹' + Math.round(x).toLocaleString('en-IN');
+        if (a >= 1e7) return '₹ ' + (x / 1e7).toFixed(2) + ' Cr';
+        if (a >= 1e5) return '₹ ' + (x / 1e5).toFixed(2) + ' L';
+        if (a >= 1e3) return '₹ ' + (x / 1e3).toFixed(1) + ' K';
+        return '₹ ' + Math.round(x).toLocaleString('en-IN');
     }
     function fmtDate(d) {
         const p = String(d || '').split('-');
@@ -977,6 +999,7 @@
         const dnbAmt = n(s.delivered_unbilled_amt), dnbCnt = n(s.delivered_unbilled_count);
         const dnbEl = $('aud-dnb');
         dnbEl.textContent = inrShort(dnbAmt);
+        setText('aud-dnb-exact', inr(dnbAmt));
         dnbEl.style.color = dnbAmt > 0 ? '#BE123C' : '#0F172A';
         $('aud-dnb-bar').style.width = (sales ? Math.min(100, dnbAmt / sales * 100) : 0) + '%';
         setText('aud-dnb-sub', dnbCnt > 0
@@ -997,7 +1020,7 @@
     function renderDaily(seg) {
         const rows = (seg.daily_sales || []).filter((d) => d && d.date && d.date !== 'Undated');
         if (!rows.length) {
-            ['daily-peak', 'daily-avg', 'daily-days'].forEach((id) => setText(id, '—'));
+            ['daily-peak', 'daily-peak-exact', 'daily-avg', 'daily-avg-exact', 'daily-days'].forEach((id) => setText(id, '—'));
             return showEmpty('daily', 'chart-daily', 'No dated consignments for this selection.', 300);
         }
         const cats = rows.map((d) => fmtDate(d.date));
@@ -1006,8 +1029,10 @@
         let pi = 0;
         vals.forEach((v, i) => { if (v > vals[pi]) pi = i; });
         setText('daily-peak', inrShort(vals[pi]));
+        setText('daily-peak-exact', inr(vals[pi]));
         setText('daily-peak-k', 'Peak · ' + cats[pi]);
         setText('daily-avg', inrShort(avg));
+        setText('daily-avg-exact', inr(avg));
         setText('daily-days', rows.length);
 
         const peakStatEl = $('daily-peak');
@@ -1160,9 +1185,11 @@
         setText('rep-count', reps.length || '—');
         if (!reps.length) {
             setText('rep-top', '—');
+            setText('rep-top-exact', '—');
             return showEmpty('reps', 'chart-reps', 'No sales person data for this selection.');
         }
-        setText('rep-top', truncate(reps[0].name, 22));
+        setText('rep-top', truncate(reps[0].name, 22) + ' · ' + inrShort(reps[0].sales));
+        setText('rep-top-exact', inr(reps[0].sales));
         setText('rep-top-k', 'Top performer · ' + pct(reps[0].share_pct));
         hbar('reps', 'chart-reps', reps,
             (r, v) => inrShort(v) + '   ' + pct(r.share_pct),
@@ -1221,7 +1248,7 @@
             plotOptions: { pie: { donut: { size: '74%', labels: {
                 show: true,
                 name: { show: true, fontSize: '12px', fontFamily: FONT, color: '#64748B' },
-                value: { show: true, fontSize: '22px', fontWeight: 600, fontFamily: FONT, color: '#0F172A', formatter: () => inrShort(totalSales) },
+                value: { show: true, fontSize: '20px', fontWeight: 600, fontFamily: FONT, color: '#0F172A', formatter: () => inrShort(totalSales) },
                 total: { show: true, showAlways: true, label: 'Total sale', fontSize: '12px', fontWeight: 500, fontFamily: FONT, color: '#64748B',
                          formatter: () => inrShort(totalSales) }
             } } } },
@@ -1247,7 +1274,7 @@
                 return '<div class="grid grid-cols-12 gap-3 items-center py-2.5 border-b border-slate-50 text-[13px] cursor-pointer rounded-lg px-2 -mx-2 transition hover:bg-slate-50 ' + (isFiltered ? 'bg-blue-50/70 ring-1 ring-blue-400/40' : '') + '" onclick="toggleFilter(\'mode\', \'' + esc(m.mode) + '\')">' +
                 '<div class="col-span-4 flex items-center gap-2 font-medium text-slate-900 min-w-0"><span class="sd-dot" style="background:' + PALETTE[i % PALETTE.length] + '"></span><span class="truncate">' + esc(m.mode) + '</span>' + (isFiltered ? '<span class="text-[10px] bg-blue-600 text-white rounded px-1 ml-1 font-normal">Active</span>' : '') + '</div>' +
                 '<div class="col-span-2 text-right sd-num text-slate-600">' + int(m.shipments) + '</div>' +
-                '<div class="col-span-3 text-right sd-num font-medium text-slate-900">' + inrShort(m.sales) + '</div>' +
+                '<div class="col-span-3 text-right sd-num"><div class="font-semibold text-slate-900 text-[13px]">' + inrShort(m.sales) + '</div><div class="text-[11px] font-medium text-slate-600 mt-0.5">' + inr(m.sales) + '</div></div>' +
                 '<div class="col-span-3"><div class="flex items-center gap-2 justify-end"><div class="sd-track w-14 hidden sm:block"><div class="sd-fill" style="width:' + Math.min(100, n(m.share_pct)) + '%;background:' + PALETTE[i % PALETTE.length] + '"></div></div><span class="sd-num text-slate-600 w-12 text-right">' + pct(m.share_pct) + '</span></div></div>' +
                 '</div>';
             }).join('');
@@ -1260,6 +1287,7 @@
         const total = n((seg.summary || {}).total_sales) || all.reduce((a, c) => a + n(c.sales), 0);
         const top5 = all.slice(0, 5).reduce((a, c) => a + n(c.sales), 0);
         setText('cust-conc', total ? pct(top5 / total * 100) : '—');
+        setText('cust-conc-exact', inr(top5));
         setText('cust-count', all.length || '—');
         if (!top.length) return showEmpty('customers', 'chart-customers', 'No customer data for this selection.');
         const c = color();
@@ -1307,7 +1335,7 @@
             return '<div class="cursor-pointer rounded-lg p-1.5 -mx-1.5 transition hover:bg-slate-50 ' + (isFiltered ? 'bg-blue-50/70 ring-1 ring-blue-400/40' : '') + '" onclick="toggleFilter(\'destination\', \'' + esc(d.city) + '\')">' +
             '<div class="flex items-baseline justify-between gap-3 text-[13px]">' +
             '<span class="min-w-0 truncate text-slate-900"><span class="text-slate-400 sd-num mr-2">' + String(i + 1).padStart(2, '0') + '</span>' + esc(d.city) + (isFiltered ? '<span class="text-[10px] bg-blue-600 text-white rounded px-1 ml-1.5 font-normal">Active</span>' : '') + '</span>' +
-            '<span class="shrink-0 sd-num"><span class="text-slate-400 mr-2">' + int(d.shipments) + ' AWBs</span><span class="font-medium text-slate-900">' + inrShort(d.sales) + '</span></span>' +
+            '<span class="shrink-0 sd-num text-right"><div class="flex items-center justify-end gap-2"><span class="text-slate-400 text-xs">' + int(d.shipments) + ' AWBs</span><span class="font-semibold text-slate-900">' + inrShort(d.sales) + '</span></div><div class="text-[11px] font-medium text-slate-600 mt-0.5">' + inr(d.sales) + '</div></span>' +
             '</div>' +
             '<div class="sd-track mt-1.5"><div class="sd-fill" style="width:' + (n(d.sales) / maxSale * 100) + '%"></div></div>' +
             '</div>';
@@ -1436,9 +1464,14 @@
             if (state.seg === 'all') {
                 subBar.classList.remove('hidden');
                 setText('sub-billed-count', int((DATA.billed_shipments || []).length));
-                setText('sub-billed-amt', inrShort((DATA.billed || {}).summary ? (DATA.billed.summary.total_sales) : 0));
+                const bAmt = (DATA.billed || {}).summary ? (DATA.billed.summary.total_sales) : 0;
+                setText('sub-billed-amt', inrShort(bAmt));
+                setText('sub-billed-amt-exact', '(' + inr(bAmt) + ')');
+
                 setText('sub-unbilled-count', int((DATA.unbilled_shipments || []).length));
-                setText('sub-unbilled-amt', inrShort((DATA.unbilled || {}).summary ? (DATA.unbilled.summary.total_sales) : 0));
+                const uAmt = (DATA.unbilled || {}).summary ? (DATA.unbilled.summary.total_sales) : 0;
+                setText('sub-unbilled-amt', inrShort(uAmt));
+                setText('sub-unbilled-amt-exact', '(' + inr(uAmt) + ')');
                 document.querySelectorAll('.subsheet-btn').forEach((b) => {
                     const active = b.dataset.sub === state.regSubSheet;
                     b.classList.toggle('active', active);
@@ -1485,6 +1518,7 @@
         const totalAmt = filtered.reduce((sum, s) => sum + n(s.total_amt), 0);
         setText('reg-count', int(filtered.length));
         setText('reg-total-amt', inrShort(totalAmt));
+        setText('reg-total-amt-exact', inr(totalAmt));
 
         // Pagination
         const pageSize = parseInt($('reg-page-size').value, 10) || 50;
