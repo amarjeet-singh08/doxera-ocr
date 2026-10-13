@@ -20,9 +20,26 @@
     .sd-stat { text-align: right; min-width: 0; }
     .sd-stat .v { font-size: 15px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
     .sd-stat .k { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+    
     @media (max-width: 640px) {
-        .sd-sec-head { padding: 16px 16px 4px; }
-        .sd-stat { text-align: left; }
+        .sd-sec-head { padding: 14px 14px 4px; gap: 10px 14px; }
+        .sd-stats {
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 8px 10px !important;
+            width: 100% !important;
+            margin-top: 6px !important;
+            padding-top: 8px !important;
+            border-top: 1px solid #F1F5F9 !important;
+        }
+        .sd-stat { text-align: left !important; }
+        .sd-stat .v { font-size: 13.5px !important; }
+        .sd-stat .k { font-size: 10.5px !important; }
+    }
+    @media (min-width: 641px) and (max-width: 1024px) {
+        .sd-sec-head { padding: 16px 20px 4px; gap: 12px 20px; }
+        .sd-stats { gap: 8px 18px; }
+        .sd-stat .v { font-size: 14px; }
     }
 
     .sd-kpi-label { font-size: 12.5px; font-weight: 500; color: var(--muted); }
@@ -30,7 +47,18 @@
               font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .sd-kpi-sub { font-size: 12px; color: #94A3B8; margin-top: 6px; font-variant-numeric: tabular-nums;
                   white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    @media (max-width: 640px) { .sd-kpi { font-size: 21px; } }
+    @media (max-width: 640px) {
+        .sd-kpi { font-size: 19px; }
+        .sd-kpi-sub { font-size: 11px; }
+        .sd-seg { width: 100%; display: flex; justify-content: space-between; }
+        .sd-seg button { flex: 1; justify-content: center; padding: 0 6px; font-size: 12px; height: 30px; }
+        .apexcharts-canvas { max-width: 100% !important; }
+        .apexcharts-canvas svg { max-width: 100% !important; }
+    }
+    @media (max-width: 380px) {
+        .sd-kpi { font-size: 17px; }
+        .sd-kpi-sub { font-size: 10px; }
+    }
 
     .sd-seg { display: inline-flex; align-items: center; padding: 3px; background: #F1F5F9; border-radius: 10px; gap: 3px; box-sizing: border-box; }
     .sd-seg button { display: inline-flex; align-items: center; justify-content: center; flex-direction: row; height: 32px; padding: 0 14px; border-radius: 8px; font-size: 13px; font-weight: 500; color: #475569; white-space: nowrap; line-height: 1; border: none; background: transparent; cursor: pointer; transition: all .15s ease; }
@@ -146,17 +174,17 @@
         <div class="p-5 sm:p-6">
             <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                 <div class="min-w-0">
-                    <p class="sd-eyebrow">North Express Logistic Pvt. Ltd.</p>
-                    <h1 id="seg-title" class="text-[22px] sm:text-2xl font-semibold text-slate-900 tracking-tight mt-1">Unbilled Sales Dashboard</h1>
-                    <p class="text-[13px] text-slate-500 mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
-                        <span class="truncate max-w-[320px]" title="{{ current_report.title or 'Sales Report' }}">{{ current_report.title or 'Sales Report' }}</span>
+                    <p class="sd-eyebrow">North Express Logistics Pvt. Ltd.</p>
+                    <h1 id="seg-title" class="text-[20px] sm:text-2xl font-semibold text-slate-900 tracking-tight mt-1">Unbilled Sales Dashboard</h1>
+                    <p class="text-[12.5px] sm:text-[13px] text-slate-500 mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <span class="truncate max-w-[280px] sm:max-w-[340px]" title="{{ current_report.title or 'Sales Report' }}">{{ current_report.title or 'Sales Report' }}</span>
                         <span class="text-slate-300">|</span>
                         <span>Period <span class="font-medium text-slate-700">{{ summary.period_label or '—' }}</span></span>
                         <span class="text-slate-300">|</span>
                         <span>Generated {{ current_report.created_at|localdt }}</span>
                     </p>
                 </div>
-                <div class="flex flex-wrap items-center gap-2 shrink-0">
+                <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0">
                     <a href="{{ url_for('sales.export_pdf', report_id=current_report.id) }}" class="sd-btn" title="Export High-Resolution Audit PDF">
                         <i data-lucide="file-text" class="h-4 w-4 text-slate-500"></i> PDF
                     </a>
@@ -171,7 +199,9 @@
                             onclick="triggerDeleteReport(this)"
                             class="sd-btn text-rose-600 hover:text-rose-700 hover:bg-rose-50 hover:border-rose-200 transition"
                             title="Delete only this active sales report (Report #{{ current_report.id }})">
-                        <i data-lucide="trash-2" class="h-4 w-4 text-rose-500"></i> Delete Report #{{ current_report.id }}
+                        <i data-lucide="trash-2" class="h-4 w-4 text-rose-500"></i>
+                        <span class="hidden sm:inline">Delete Report #{{ current_report.id }}</span>
+                        <span class="sm:hidden">Delete #{{ current_report.id }}</span>
                     </button>
                     <a href="{{ url_for('sales.upload_page') }}" class="sd-btn sd-btn-primary">
                         <i data-lucide="upload" class="h-4 w-4"></i> New Upload
@@ -179,16 +209,16 @@
                 </div>
             </div>
 
-            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3.5 mt-5 pt-4 border-t border-slate-100">
+            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-5 pt-4 border-t border-slate-100">
                 <!-- Left: View Segments & Month Filter (Data Dimensions) -->
-                <div class="flex flex-wrap items-center gap-2.5">
-                    <div class="sd-seg" role="tablist" aria-label="Sales segment">
+                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                    <div class="sd-seg w-full sm:w-auto" role="tablist" aria-label="Sales segment">
                         <button type="button" data-seg="unbilled" role="tab"><span class="sd-seg-dot"></span><span>Unbilled</span></button>
                         <button type="button" data-seg="billed" role="tab"><span class="sd-seg-dot"></span><span>Billed</span></button>
                         <button type="button" data-seg="all" role="tab"><span class="sd-seg-dot"></span><span>Combined</span></button>
                     </div>
                     {% if report_data.months %}
-                    <select id="sd-month" class="sd-select" aria-label="Month">
+                    <select id="sd-month" class="sd-select flex-1 sm:flex-initial" aria-label="Month">
                         <option value="ALL">All months</option>
                         {% for m in report_data.months %}
                         <option value="{{ m.key }}">{{ m.label }}</option>
@@ -198,8 +228,8 @@
                 </div>
 
                 <!-- Right: Saved Report Selection & Management -->
-                <div class="flex flex-wrap items-center gap-2">
-                    <select id="sd-report" class="sd-select max-w-[210px] sm:max-w-[260px]" aria-label="Saved report" data-base="{{ url_for('sales.dashboard') }}">
+                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                    <select id="sd-report" class="sd-select flex-1 sm:flex-initial max-w-full sm:max-w-[260px]" aria-label="Saved report" data-base="{{ url_for('sales.dashboard') }}">
                         {% for rep in reports %}
                         <option value="{{ rep.id }}" {% if rep.id == current_report.id %}selected{% endif %}>
                             {{ rep.title or ('Report #' ~ rep.id) }} — {{ rep.period_label }}
@@ -465,34 +495,34 @@
 
         <!-- Combined sub-sheet switcher (shown when state.seg === 'all' to show both sheets separately) -->
         <div id="reg-subsheet-bar" class="hidden px-4 sm:px-6 pt-2 pb-1">
-            <div class="inline-flex p-1 bg-slate-100 rounded-lg gap-1 border border-slate-200">
-                <button type="button" class="subsheet-btn px-4 py-1.5 rounded-md text-xs font-semibold text-slate-800 bg-white shadow-sm transition" data-sub="billed">
-                    📑 Billed Sheet (<span id="sub-billed-count">361</span> · <span id="sub-billed-amt">₹59.19 L</span> <span id="sub-billed-amt-exact" class="text-[11px] font-medium text-slate-500"></span>)
+            <div class="flex flex-col sm:inline-flex sm:flex-row p-1 bg-slate-100 rounded-lg gap-1 border border-slate-200 w-full sm:w-auto">
+                <button type="button" class="subsheet-btn flex-1 sm:flex-initial px-4 py-1.5 rounded-md text-xs font-semibold text-slate-800 bg-white shadow-sm transition text-center justify-center" data-sub="billed">
+                    📑 Billed Sheet (<span id="sub-billed-count">361</span> · <span id="sub-billed-amt">₹59.19 L</span> <span id="sub-billed-amt-exact" class="text-[11px] font-medium text-slate-500 hidden sm:inline"></span>)
                 </button>
-                <button type="button" class="subsheet-btn px-4 py-1.5 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition" data-sub="unbilled">
-                    📑 Unbilled Sheet (<span id="sub-unbilled-count">797</span> · <span id="sub-unbilled-amt">₹31.44 L</span> <span id="sub-unbilled-amt-exact" class="text-[11px] font-medium text-slate-500"></span>)
+                <button type="button" class="subsheet-btn flex-1 sm:flex-initial px-4 py-1.5 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition text-center justify-center" data-sub="unbilled">
+                    📑 Unbilled Sheet (<span id="sub-unbilled-count">797</span> · <span id="sub-unbilled-amt">₹31.44 L</span> <span id="sub-unbilled-amt-exact" class="text-[11px] font-medium text-slate-500 hidden sm:inline"></span>)
                 </button>
             </div>
         </div>
 
         <div class="px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 bg-slate-50/50 border-y border-slate-100">
-            <div class="flex flex-wrap items-center gap-2">
-                <select id="reg-rep" class="sd-select" aria-label="Sales person">
+            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                <select id="reg-rep" class="sd-select flex-1 sm:flex-initial" aria-label="Sales person">
                     <option value="ALL">All sales persons</option>
                 </select>
-                <select id="reg-mode" class="sd-select" aria-label="Service mode">
+                <select id="reg-mode" class="sd-select flex-1 sm:flex-initial" aria-label="Service mode">
                     <option value="ALL">All modes</option>
                     <option value="Air">Air</option>
                     <option value="Surface">Surface</option>
                     <option value="Train">Train</option>
                 </select>
-                <div class="relative">
-                    <input type="search" id="reg-cust" class="sd-input w-56 sm:w-64 pl-8" placeholder="Search AWB, customer, city..." aria-label="Search customer or code">
+                <div class="relative w-full sm:w-auto">
+                    <input type="search" id="reg-cust" class="sd-input w-full sm:w-64 pl-8" placeholder="Search AWB, customer, city..." aria-label="Search customer or code">
                     <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
                 <button type="button" id="reg-reset" class="text-[13px] text-slate-500 hover:text-slate-800 px-2 font-medium">Reset</button>
             </div>
-            <div class="flex items-center gap-2 text-[12px] text-slate-500">
+            <div class="flex items-center gap-2 text-[12px] text-slate-500 w-full sm:w-auto justify-between sm:justify-start">
                 <span>Rows per page:</span>
                 <select id="reg-page-size" class="sd-select !h-8 !py-0 !pl-2 !pr-7 text-[12px]">
                     <option value="50" selected>50</option>
@@ -617,7 +647,7 @@
 
         <!-- List table -->
         <div class="overflow-y-auto flex-1 p-2 sm:p-5">
-            <div class="border border-slate-200 rounded-xl overflow-hidden bg-white">
+            <div class="border border-slate-200 rounded-xl overflow-x-auto bg-white">
                 <table class="w-full text-left text-xs text-slate-600 border-collapse">
                     <thead class="bg-slate-50 border-b border-slate-200 font-semibold text-slate-700 uppercase text-[11px] tracking-wider">
                         <tr>
@@ -749,7 +779,7 @@
         </div>
 
         <!-- Table Container -->
-        <div class="overflow-y-auto flex-1 min-h-[280px] max-h-[58vh]">
+        <div class="overflow-y-auto overflow-x-auto flex-1 min-h-[280px] max-h-[58vh]">
             <table class="w-full text-left border-collapse text-xs">
                 <thead class="sticky top-0 bg-slate-50/95 backdrop-blur-xs text-[11px] font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-200 z-10">
                     <tr>
@@ -1222,34 +1252,37 @@
         }
 
         const isMobile = window.innerWidth <= 640;
+        const isTablet = window.innerWidth <= 1024 && !isMobile;
         const c = color();
         const points = [];
 
-        // 1. Peak Day Annotation (showing short and exact full amount)
-        const peakOffsetX = (pi === lastIdx) ? (isMobile ? -38 : -20) : (pi === 0 ? (isMobile ? 38 : 20) : 0);
+        // 1. Peak Day Annotation (clean and non-overflowing on mobile)
+        const peakText = isMobile ? ('Peak: ' + inrShort(vals[pi])) : ('Peak: ' + inrShort(vals[pi]) + ' (' + inr(vals[pi]) + ')');
+        const peakOffsetX = (pi === lastIdx) ? (isMobile ? -30 : -20) : (pi === 0 ? (isMobile ? 30 : 20) : 0);
         points.push({
             x: cats[pi], y: vals[pi],
             marker: { size: 5, fillColor: c, strokeColor: '#fff', strokeWidth: 2 },
             label: {
-                text: 'Peak: ' + inrShort(vals[pi]) + ' (' + inr(vals[pi]) + ')',
+                text: peakText,
                 borderWidth: 0,
                 offsetY: -6,
                 offsetX: peakOffsetX,
-                style: { background: c, color: '#fff', fontSize: isMobile ? '10px' : '11px', fontWeight: 600, fontFamily: FONT }
+                style: { background: c, color: '#fff', fontSize: isMobile ? '9.5px' : '11px', fontWeight: 600, fontFamily: FONT }
             }
         });
 
-        // 2. Latest/Last Day Annotation (showing short and exact full amount)
+        // 2. Latest/Last Day Annotation (clean and non-overflowing on mobile)
         if (lastIdx >= 0 && lastIdx !== pi) {
+            const latestText = isMobile ? (cats[lastIdx] + ': ' + inrShort(vals[lastIdx])) : (cats[lastIdx] + ': ' + inrShort(vals[lastIdx]) + ' (' + inr(vals[lastIdx]) + ')');
             points.push({
                 x: cats[lastIdx], y: vals[lastIdx],
                 marker: { size: 5, fillColor: '#0F172A', strokeColor: '#fff', strokeWidth: 2 },
                 label: {
-                    text: cats[lastIdx] + ': ' + inrShort(vals[lastIdx]) + ' (' + inr(vals[lastIdx]) + ')',
+                    text: latestText,
                     borderWidth: 0,
                     offsetY: -6,
-                    offsetX: isMobile ? -42 : -20,
-                    style: { background: '#0F172A', color: '#fff', fontSize: isMobile ? '10px' : '11px', fontWeight: 600, fontFamily: FONT }
+                    offsetX: isMobile ? -36 : -20,
+                    style: { background: '#0F172A', color: '#fff', fontSize: isMobile ? '9.5px' : '11px', fontWeight: 600, fontFamily: FONT }
                 }
             });
         }
@@ -1258,9 +1291,10 @@
         if (state.filters.date) {
             const selIdx = rows.findIndex((r) => r.date === state.filters.date);
             if (selIdx >= 0) {
+                const activeText = isMobile ? ('Active: ' + inrShort(vals[selIdx])) : ('Active: ' + cats[selIdx] + ' · ' + inrShort(vals[selIdx]) + ' (' + inr(vals[selIdx]) + ')');
                 const existPt = points.find((p) => p.x === cats[selIdx]);
                 if (existPt) {
-                    existPt.label.text = 'Active: ' + cats[selIdx] + ' · ' + inrShort(vals[selIdx]) + ' (' + inr(vals[selIdx]) + ')';
+                    existPt.label.text = activeText;
                     existPt.label.style.background = '#1E3A8A';
                     existPt.marker.size = 7;
                     existPt.marker.strokeColor = '#1E3A8A';
@@ -1270,20 +1304,20 @@
                         x: cats[selIdx], y: vals[selIdx],
                         marker: { size: 7, fillColor: '#2563EB', strokeColor: '#ffffff', strokeWidth: 3 },
                         label: {
-                            text: 'Active: ' + cats[selIdx] + ' · ' + inrShort(vals[selIdx]) + ' (' + inr(vals[selIdx]) + ')',
+                            text: activeText,
                             borderWidth: 0,
                             offsetY: -6,
-                            style: { background: '#1E3A8A', color: '#fff', fontSize: '11px', fontWeight: 600, fontFamily: FONT }
+                            style: { background: '#1E3A8A', color: '#fff', fontSize: isMobile ? '9.5px' : '11px', fontWeight: 600, fontFamily: FONT }
                         }
                     });
                 }
             }
         }
 
-        const tickCount = isMobile ? Math.min(cats.length - 1, 5) : Math.min(cats.length - 1, 10);
+        const tickCount = isMobile ? Math.min(cats.length - 1, 4) : Math.min(cats.length - 1, 10);
 
         draw('daily', 'chart-daily', {
-            chart: Object.assign(baseChart('area', 300), {
+            chart: Object.assign(baseChart('area', isMobile ? 280 : 300), {
                 events: {
                     dataPointSelection: (event, chartContext, config) => {
                         const idx = config ? config.dataPointIndex : -1;
@@ -1321,7 +1355,22 @@
                     rotate: isMobile ? -45 : 0,
                     rotateAlways: isMobile,
                     hideOverlappingLabels: true,
-                    style: Object.assign({}, AXIS, { fontSize: isMobile ? '10px' : '11px' })
+                    formatter: function (val, timestamp, opts) {
+                        const screenW = window.innerWidth;
+                        if (screenW <= 768) {
+                            const total = cats.length;
+                            const idx = (opts && typeof opts.i === 'number') ? opts.i : -1;
+                            if (total > 5 && idx >= 0) {
+                                const maxLabels = screenW <= 480 ? 4 : 6;
+                                const step = Math.ceil(total / maxLabels);
+                                if (idx !== 0 && idx !== total - 1 && idx % step !== 0) {
+                                    return '';
+                                }
+                            }
+                        }
+                        return val;
+                    },
+                    style: Object.assign({}, AXIS, { fontSize: isMobile ? '9.5px' : '11px' })
                 },
                 axisBorder: { show: false },
                 axisTicks: { show: false },
@@ -1332,13 +1381,13 @@
                 forceNiceScale: true,
                 labels: {
                     formatter: (v) => inrShort(v),
-                    style: Object.assign({}, AXIS, { fontSize: isMobile ? '10px' : '11px' })
+                    style: Object.assign({}, AXIS, { fontSize: isMobile ? '9.5px' : '11px' })
                 }
             },
             grid: Object.assign({}, GRID, {
                 padding: {
-                    left: 6,
-                    right: 22,
+                    left: isMobile ? 8 : 16,
+                    right: isMobile ? 38 : (isTablet ? 28 : 22),
                     top: 8,
                     bottom: isMobile ? 18 : 8
                 }
@@ -1366,40 +1415,57 @@
                     );
                 }
             },
-            responsive: [{
-                breakpoint: 640,
-                options: {
-                    chart: { height: 280 },
-                    xaxis: {
-                        tickAmount: Math.min(cats.length - 1, 5),
-                        labels: {
-                            rotate: -45,
-                            rotateAlways: true,
-                            hideOverlappingLabels: true,
-                            style: { fontSize: '10px', colors: '#64748B' }
+            responsive: [
+                {
+                    breakpoint: 640,
+                    options: {
+                        chart: { height: 280 },
+                        xaxis: {
+                            tickAmount: 4,
+                            labels: {
+                                rotate: -45,
+                                rotateAlways: true,
+                                hideOverlappingLabels: true,
+                                style: { fontSize: '9.5px', colors: '#64748B' }
+                            }
+                        },
+                        yaxis: {
+                            labels: {
+                                style: { fontSize: '9.5px', colors: '#64748B' }
+                            }
+                        },
+                        grid: {
+                            padding: {
+                                left: 6,
+                                right: 38,
+                                top: 8,
+                                bottom: 18
+                            }
                         }
-                    },
-                    yaxis: {
-                        labels: {
-                            style: { fontSize: '10px', colors: '#64748B' }
-                        }
-                    },
-                    grid: {
-                        padding: {
-                            left: 6,
-                            right: 22,
-                            top: 8,
-                            bottom: 18
+                    }
+                },
+                {
+                    breakpoint: 1024,
+                    options: {
+                        chart: { height: 290 },
+                        grid: {
+                            padding: {
+                                left: 12,
+                                right: 28,
+                                top: 8,
+                                bottom: 12
+                            }
                         }
                     }
                 }
-            }]
+            ]
         });
     }
 
-    // ── Shared Horizontal Bar Builder with Mobile Optimization ──
+    // ── Shared Horizontal Bar Builder with Mobile & Tablet Optimization ──
     function hbar(key, elId, items, labelFn, tipFn, customColor) {
         const isMobile = window.innerWidth <= 640;
+        const isTablet = window.innerWidth <= 1024 && !isMobile;
         const vals = items.map((r) => Math.round(n(r.sales)));
         const max = Math.max(1, ...vals);
         const barColor = customColor || color();
@@ -1430,19 +1496,27 @@
                 enabled: true,
                 textAnchor: 'start',
                 offsetX: isMobile ? 4 : 8,
-                formatter: (v, o) => labelFn(items[o.dataPointIndex], v),
+                formatter: (v, o) => {
+                    const item = items[o.dataPointIndex];
+                    if (!item) return '';
+                    if (isMobile) {
+                        return inrShort(v) + ' · ' + Math.round(n(item.share_pct)) + '%';
+                    }
+                    return labelFn(item, v);
+                },
                 style: {
-                    fontSize: isMobile ? '10.5px' : '12px',
+                    fontSize: isMobile ? '10px' : '12px',
                     fontWeight: 600,
                     fontFamily: FONT,
                     colors: ['#334155']
                 }
             },
             xaxis: {
-                categories: items.map((r) => truncate(r.name || 'Unassigned', isMobile ? 15 : 28)),
-                max: max * (isMobile ? 1.62 : 1.35),
-                tickAmount: isMobile ? 3 : 5,
+                categories: items.map((r) => truncate(r.name || 'Unassigned', isMobile ? 14 : (isTablet ? 20 : 28))),
+                max: max * (isMobile ? 1.88 : (isTablet ? 1.55 : 1.35)),
+                tickAmount: isMobile ? 2 : 5,
                 labels: {
+                    show: !isMobile,
                     formatter: (v) => inrShort(v),
                     hideOverlappingLabels: true,
                     style: Object.assign({}, AXIS, { fontSize: isMobile ? '10px' : '11px' })
@@ -1452,16 +1526,16 @@
             },
             yaxis: {
                 labels: {
-                    maxWidth: isMobile ? 115 : 210,
-                    style: { colors: '#0F172A', fontSize: isMobile ? '11px' : '12.5px', fontWeight: 500, fontFamily: FONT }
+                    maxWidth: isMobile ? 100 : (isTablet ? 150 : 210),
+                    style: { colors: '#0F172A', fontSize: isMobile ? '10.5px' : '12.5px', fontWeight: 500, fontFamily: FONT }
                 }
             },
             grid: Object.assign({}, GRID, {
                 padding: {
                     left: 0,
-                    right: isMobile ? 26 : 16,
+                    right: isMobile ? 38 : (isTablet ? 24 : 16),
                     top: 4,
-                    bottom: 4
+                    bottom: isMobile ? 0 : 4
                 },
                 xaxis: { lines: { show: true } },
                 yaxis: { lines: { show: false } }
@@ -1471,35 +1545,55 @@
                 theme: 'light',
                 custom: ({ dataPointIndex: i }) => (items[i] ? tipFn(items[i]) : '')
             },
-            responsive: [{
-                breakpoint: 640,
-                options: {
-                    xaxis: {
-                        tickAmount: 3,
-                        max: max * 1.62,
-                        labels: {
-                            hideOverlappingLabels: true,
-                            style: { fontSize: '10px', colors: '#64748B' }
+            responsive: [
+                {
+                    breakpoint: 640,
+                    options: {
+                        xaxis: {
+                            labels: { show: false },
+                            max: max * 1.88
+                        },
+                        yaxis: {
+                            labels: {
+                                maxWidth: 100,
+                                style: { fontSize: '10.5px', colors: '#0F172A' }
+                            }
+                        },
+                        dataLabels: {
+                            offsetX: 4,
+                            style: { fontSize: '10px' }
+                        },
+                        grid: {
+                            padding: {
+                                right: 38,
+                                left: 0,
+                                bottom: 0
+                            }
                         }
-                    },
-                    yaxis: {
-                        labels: {
-                            maxWidth: 115,
-                            style: { fontSize: '11px', colors: '#0F172A' }
-                        }
-                    },
-                    dataLabels: {
-                        offsetX: 4,
-                        style: { fontSize: '10.5px' }
-                    },
-                    grid: {
-                        padding: {
-                            right: 26,
-                            left: 0
+                    }
+                },
+                {
+                    breakpoint: 1024,
+                    options: {
+                        xaxis: {
+                            tickAmount: 3,
+                            max: max * 1.55
+                        },
+                        yaxis: {
+                            labels: {
+                                maxWidth: 150,
+                                style: { fontSize: '11.5px', colors: '#0F172A' }
+                            }
+                        },
+                        grid: {
+                            padding: {
+                                right: 24,
+                                left: 0
+                            }
                         }
                     }
                 }
-            }]
+            ]
         });
     }
 
@@ -1591,15 +1685,15 @@
 
         // Mode table on right with interactive click-to-filter
         list.innerHTML =
-            '<div class="grid grid-cols-12 gap-3 pb-2 mb-1 border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wider text-slate-400">' +
+            '<div class="grid grid-cols-12 gap-2 sm:gap-3 pb-2 mb-1 border-b border-slate-100 text-[10.5px] sm:text-[11px] font-semibold uppercase tracking-wider text-slate-400">' +
             '<div class="col-span-4">Mode</div><div class="col-span-2 text-right">AWBs</div><div class="col-span-3 text-right">Sale</div><div class="col-span-3 text-right">Share</div></div>' +
             modes.map((m, i) => {
                 const isFiltered = state.filters.mode && state.filters.mode.toLowerCase() === (m.mode || '').toLowerCase();
-                return '<div class="grid grid-cols-12 gap-3 items-center py-2.5 border-b border-slate-50 text-[13px] cursor-pointer rounded-lg px-2 -mx-2 transition hover:bg-slate-50 ' + (isFiltered ? 'bg-blue-50/70 ring-1 ring-blue-400/40' : '') + '" onclick="toggleFilter(\'mode\', \'' + esc(m.mode) + '\')">' +
-                '<div class="col-span-4 flex items-center gap-2 font-medium text-slate-900 min-w-0"><span class="sd-dot" style="background:' + PALETTE[i % PALETTE.length] + '"></span><span class="truncate">' + esc(m.mode) + '</span>' + (isFiltered ? '<span class="text-[10px] bg-blue-600 text-white rounded px-1 ml-1 font-normal">Active</span>' : '') + '</div>' +
-                '<div class="col-span-2 text-right sd-num text-slate-600">' + int(m.shipments) + '</div>' +
-                '<div class="col-span-3 text-right sd-num"><div class="font-semibold text-slate-900 text-[13px]">' + inrShort(m.sales) + '</div><div class="text-[11px] font-medium text-slate-600 mt-0.5">' + inr(m.sales) + '</div></div>' +
-                '<div class="col-span-3"><div class="flex items-center gap-2 justify-end"><div class="sd-track w-14 hidden sm:block"><div class="sd-fill" style="width:' + Math.min(100, n(m.share_pct)) + '%;background:' + PALETTE[i % PALETTE.length] + '"></div></div><span class="sd-num text-slate-600 w-12 text-right">' + pct(m.share_pct) + '</span></div></div>' +
+                return '<div class="grid grid-cols-12 gap-2 sm:gap-3 items-center py-2 sm:py-2.5 border-b border-slate-50 text-[12px] sm:text-[13px] cursor-pointer rounded-lg px-2 -mx-2 transition hover:bg-slate-50 ' + (isFiltered ? 'bg-blue-50/70 ring-1 ring-blue-400/40' : '') + '" onclick="toggleFilter(\'mode\', \'' + esc(m.mode) + '\')">' +
+                '<div class="col-span-4 flex items-center gap-1.5 sm:gap-2 font-medium text-slate-900 min-w-0"><span class="sd-dot" style="background:' + PALETTE[i % PALETTE.length] + '"></span><span class="truncate">' + esc(m.mode) + '</span>' + (isFiltered ? '<span class="text-[9px] bg-blue-600 text-white rounded px-1 ml-1 font-normal">Active</span>' : '') + '</div>' +
+                '<div class="col-span-2 text-right sd-num text-slate-600 text-[11.5px] sm:text-[13px]">' + int(m.shipments) + '</div>' +
+                '<div class="col-span-3 text-right sd-num"><div class="font-semibold text-slate-900 text-[12px] sm:text-[13px]">' + inrShort(m.sales) + '</div><div class="text-[10px] sm:text-[11px] font-medium text-slate-600 truncate mt-0.5" title="' + inr(m.sales) + '">' + inr(m.sales) + '</div></div>' +
+                '<div class="col-span-3"><div class="flex items-center gap-1 sm:gap-2 justify-end"><div class="sd-track w-10 sm:w-14 hidden sm:block"><div class="sd-fill" style="width:' + Math.min(100, n(m.share_pct)) + '%;background:' + PALETTE[i % PALETTE.length] + '"></div></div><span class="sd-num text-slate-600 text-[11px] sm:text-[13px] text-right">' + pct(m.share_pct) + '</span></div></div>' +
                 '</div>';
             }).join('');
     }
@@ -1657,9 +1751,9 @@
         $('dest-list').innerHTML = top.length ? top.map((d, i) => {
             const isFiltered = state.filters.destination && state.filters.destination.toLowerCase() === (d.city || '').toLowerCase();
             return '<div class="cursor-pointer rounded-lg p-1.5 -mx-1.5 transition hover:bg-slate-50 ' + (isFiltered ? 'bg-blue-50/70 ring-1 ring-blue-400/40' : '') + '" onclick="toggleFilter(\'destination\', \'' + esc(d.city) + '\')">' +
-            '<div class="flex items-baseline justify-between gap-3 text-[13px]">' +
-            '<span class="min-w-0 truncate text-slate-900"><span class="text-slate-400 sd-num mr-2">' + String(i + 1).padStart(2, '0') + '</span>' + esc(d.city) + (isFiltered ? '<span class="text-[10px] bg-blue-600 text-white rounded px-1 ml-1.5 font-normal">Active</span>' : '') + '</span>' +
-            '<span class="shrink-0 sd-num text-right"><div class="flex items-center justify-end gap-2"><span class="text-slate-400 text-xs">' + int(d.shipments) + ' AWBs</span><span class="font-semibold text-slate-900">' + inrShort(d.sales) + '</span></div><div class="text-[11px] font-medium text-slate-600 mt-0.5">' + inr(d.sales) + '</div></span>' +
+            '<div class="flex items-baseline justify-between gap-2 sm:gap-3 text-[12.5px] sm:text-[13px]">' +
+            '<span class="min-w-0 truncate text-slate-900 max-w-[130px] sm:max-w-none"><span class="text-slate-400 sd-num mr-1 sm:mr-2">' + String(i + 1).padStart(2, '0') + '</span>' + esc(d.city) + (isFiltered ? '<span class="text-[9px] bg-blue-600 text-white rounded px-1 ml-1 font-normal">Active</span>' : '') + '</span>' +
+            '<span class="shrink-0 sd-num text-right"><div class="flex items-center justify-end gap-1.5 sm:gap-2"><span class="text-slate-400 text-[11px] sm:text-xs">' + int(d.shipments) + ' AWBs</span><span class="font-semibold text-slate-900 text-[12px] sm:text-[13px]">' + inrShort(d.sales) + '</span></div><div class="text-[10px] sm:text-[11px] font-medium text-slate-600 truncate mt-0.5" title="' + inr(d.sales) + '">' + inr(d.sales) + '</div></span>' +
             '</div>' +
             '<div class="sd-track mt-1.5"><div class="sd-fill" style="width:' + (n(d.sales) / maxSale * 100) + '%"></div></div>' +
             '</div>';
