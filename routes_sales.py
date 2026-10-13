@@ -238,17 +238,24 @@ def export_pptx(report_id):
 
 @sales_bp.route('/sales/report/<int:report_id>/delete', methods=['POST'])
 @login_required
-@role_required(['ADMIN'])
+@role_required(['ADMIN', 'AUDITOR'])
 def delete_report(report_id):
-    """Delete a saved sales report (Admin only)."""
+    """Delete a saved sales report (Admin or Auditor)."""
     conn = get_db_connection()
+    rep = conn.execute('SELECT id, title FROM sales_reports WHERE id = ?', (report_id,)).fetchone()
+    if not rep:
+        conn.close()
+        flash("Report not found or already deleted.", "error")
+        return redirect(url_for('sales.dashboard'))
+
     conn.execute('DELETE FROM sales_shipments WHERE report_id = ?', (report_id,))
     conn.execute('DELETE FROM sales_reports WHERE id = ?', (report_id,))
     conn.commit()
     conn.close()
 
-    log_audit(session.get('username', 'Admin'), 'SALES_REPORT_DELETED', details=f"Deleted report {report_id}")
-    flash("Report permanently removed.", "success")
+    title = rep['title'] or f"Report #{report_id}"
+    log_audit(session.get('username', 'Admin'), 'SALES_REPORT_DELETED', details=f"Deleted report {report_id} ({title})")
+    flash(f'Report "{title}" permanently deleted.', "success")
     return redirect(url_for('sales.dashboard'))
 
 @sales_bp.route('/sales/customers', methods=['GET', 'POST'])

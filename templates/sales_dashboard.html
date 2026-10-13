@@ -156,12 +156,15 @@
                     </p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2 shrink-0">
-                    <a href="{{ url_for('sales.export_pdf', report_id=current_report.id) }}" class="sd-btn">
+                    <a href="{{ url_for('sales.export_pdf', report_id=current_report.id) }}" class="sd-btn" title="Export High-Resolution Audit PDF">
                         <i data-lucide="file-text" class="h-4 w-4 text-slate-500"></i> PDF
                     </a>
-                    <a href="{{ url_for('sales.export_pptx', report_id=current_report.id) }}" class="sd-btn">
+                    <a href="{{ url_for('sales.export_pptx', report_id=current_report.id) }}" class="sd-btn" title="Export Executive PowerPoint Presentation">
                         <i data-lucide="presentation" class="h-4 w-4 text-slate-500"></i> PPTX
                     </a>
+                    <button type="button" onclick="openDeleteReportModal()" class="sd-btn text-rose-600 hover:text-rose-700 hover:bg-rose-50 hover:border-rose-200 transition" title="Delete this sales report">
+                        <i data-lucide="trash-2" class="h-4 w-4 text-rose-500"></i> Delete
+                    </button>
                     <a href="{{ url_for('sales.upload_page') }}" class="sd-btn sd-btn-primary">
                         <i data-lucide="upload" class="h-4 w-4"></i> New Upload
                     </a>
@@ -183,13 +186,18 @@
                         {% endfor %}
                     </select>
                     {% endif %}
-                    <select id="sd-report" class="sd-select" aria-label="Saved report" data-base="{{ url_for('sales.dashboard') }}">
-                        {% for rep in reports %}
-                        <option value="{{ rep.id }}" {% if rep.id == current_report.id %}selected{% endif %}>
-                            {{ rep.title or ('Report #' ~ rep.id) }} — {{ rep.period_label }}
-                        </option>
-                        {% endfor %}
-                    </select>
+                    <div class="inline-flex items-center gap-1.5">
+                        <select id="sd-report" class="sd-select" aria-label="Saved report" data-base="{{ url_for('sales.dashboard') }}">
+                            {% for rep in reports %}
+                            <option value="{{ rep.id }}" {% if rep.id == current_report.id %}selected{% endif %}>
+                                {{ rep.title or ('Report #' ~ rep.id) }} — {{ rep.period_label }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                        <button type="button" onclick="openDeleteReportModal()" class="sd-btn px-2.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 hover:border-rose-200 transition" title="Delete currently selected report">
+                            <i data-lucide="trash-2" class="h-4 w-4 text-rose-500"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -465,6 +473,47 @@
             <div id="reg-pagination" class="flex items-center gap-1"></div>
         </div>
     </section>
+<!-- ═══════════════ DELETE REPORT CONFIRMATION MODAL ═══════════════ -->
+<div id="delete-report-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs transition-opacity duration-200">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full border border-slate-200 overflow-hidden transform transition-all duration-200">
+        <div class="p-5 sm:p-6 text-center">
+            <div class="w-12 h-12 mx-auto rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-4">
+                <i data-lucide="trash-2" class="h-6 w-6"></i>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900">Delete Sales Report?</h3>
+            <p class="text-xs text-slate-500 mt-2 leading-relaxed">
+                Are you sure you want to permanently delete this sales intelligence report? This will remove all associated consignments, charts, and metrics from the database.
+            </p>
+            <div class="mt-4 p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-left text-xs space-y-1.5">
+                <div class="flex justify-between items-start gap-2 text-slate-500">
+                    <span>Report:</span>
+                    <span class="font-semibold text-slate-800 text-right truncate max-w-[220px]" title="{{ current_report.title or ('Report #' ~ current_report.id) }}">{{ current_report.title or ('Report #' ~ current_report.id) }}</span>
+                </div>
+                <div class="flex justify-between text-slate-500">
+                    <span>Period:</span>
+                    <span class="font-medium text-slate-800">{{ summary.period_label or current_report.period_label or '—' }}</span>
+                </div>
+                <div class="flex justify-between text-slate-500">
+                    <span>Generated:</span>
+                    <span class="font-medium text-slate-800">{{ current_report.created_at|localdt }}</span>
+                </div>
+            </div>
+            <p class="text-[11.5px] text-rose-600 font-medium mt-3 flex items-center justify-center gap-1">
+                <span>⚠️</span> This action cannot be undone.
+            </p>
+        </div>
+        <div class="px-5 sm:px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2.5">
+            <button type="button" onclick="closeDeleteReportModal()" class="px-4 py-2 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs transition">
+                Cancel
+            </button>
+            <form id="delete-report-form" method="POST" action="{{ url_for('sales.delete_report', report_id=current_report.id) }}">
+                <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg shadow-sm transition">
+                    <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                    <span>Yes, Delete Report</span>
+                </button>
+            </form>
+        </div>
+    </div>
 </div>
 
 <!-- ═══════════════ PENDING & IN-TRANSIT AWBS AUDIT MODAL ═══════════════ -->
@@ -1638,6 +1687,28 @@
         document.body.style.overflow = '';
     };
 
+    window.openDeleteReportModal = function (reportId) {
+        const modal = $('delete-report-modal');
+        if (!modal) return;
+        const repSel = $('sd-report');
+        const id = reportId || (repSel ? repSel.value : '') || '';
+        const form = $('delete-report-form');
+        if (form && id) {
+            form.action = '/sales/report/' + encodeURIComponent(id) + '/delete';
+        }
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        if (window.lucide && typeof lucide.createIcons === 'function') {
+            lucide.createIcons();
+        }
+    };
+
+    window.closeDeleteReportModal = function () {
+        const modal = $('delete-report-modal');
+        if (modal) modal.classList.add('hidden');
+        document.body.style.overflow = '';
+    };
+
     function buildModalStatusTabs() {
         const container = $('pending-status-filters');
         if (!container) return;
@@ -1950,17 +2021,25 @@
             applyRegister();
         });
 
-        // Close modal on Escape or clicking backdrop
+        // Close modals on Escape or clicking backdrop
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
                 const modal = $('pending-modal');
                 if (modal && !modal.classList.contains('hidden')) closePendingModal();
+                const delModal = $('delete-report-modal');
+                if (delModal && !delModal.classList.contains('hidden')) closeDeleteReportModal();
             }
         });
         const pendingModalEl = $('pending-modal');
         if (pendingModalEl) {
             pendingModalEl.addEventListener('click', (e) => {
                 if (e.target === pendingModalEl) closePendingModal();
+            });
+        }
+        const delModalEl = $('delete-report-modal');
+        if (delModalEl) {
+            delModalEl.addEventListener('click', (e) => {
+                if (e.target === delModalEl) closeDeleteReportModal();
             });
         }
 
