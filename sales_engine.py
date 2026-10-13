@@ -853,7 +853,10 @@ def parse_and_process_sales_3way(billed_file, unbilled_file, booking_file, bille
         "all": metrics_all,
         "billed": metrics_billed,
         "unbilled": metrics_unbilled,
-        "shipments_sample": all_shipments[:300]
+        "all_shipments": all_shipments,
+        "billed_shipments": billed_shipments,
+        "unbilled_shipments": unbilled_shipments,
+        "shipments_sample": all_shipments
     }
 
     # 4. Save to database (SQLite & PostgreSQL compatible)

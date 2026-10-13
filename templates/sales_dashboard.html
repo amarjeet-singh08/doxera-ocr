@@ -7,8 +7,8 @@
 <script src="{{ url_for('static', filename='js/leaflet.js') }}"></script>
 <style>
     /* ── Sales Dashboard design tokens ───────────────────────────── */
-    #sd-root { --seg: #B45309; --ink: #0F172A; --muted: #64748B; --line: #E5E7EB; }
-    .sd-card { background: #fff; border: 1px solid var(--line); border-radius: 14px; }
+    #sd-root { --seg: #B45309; --ink: #0F172A; --muted: #64748B; --line: #E2E8F0; }
+    .sd-card { background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 1px 3px rgba(15,23,42,.03); }
     .sd-accent { height: 3px; background: var(--seg); transition: background .25s; }
     .sd-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
     .sd-title { font-size: 16px; font-weight: 600; color: var(--ink); letter-spacing: -.01em; margin-top: 2px; }
@@ -57,18 +57,70 @@
     .sd-empty { display: flex; align-items: center; justify-content: center; color: #94A3B8; font-size: 13px;
                 border: 1px dashed #E2E8F0; border-radius: 10px; background: #FAFBFC; }
 
-    /* ApexCharts custom tooltip */
-    .sd-tip { padding: 10px 12px; font-family: Inter, system-ui, sans-serif; min-width: 190px; }
-    .sd-tip-t { font-size: 12px; font-weight: 600; color: var(--ink, #0F172A); margin-bottom: 6px; max-width: 260px; white-space: normal; }
-    .sd-tip-r { display: flex; justify-content: space-between; gap: 16px; font-size: 12px; color: #64748B; line-height: 1.7; }
-    .sd-tip-r b { color: #0F172A; font-weight: 600; font-variant-numeric: tabular-nums; }
-    .apexcharts-tooltip.apexcharts-theme-light { border: 1px solid #E2E8F0 !important; box-shadow: 0 8px 24px rgba(15,23,42,.08) !important; border-radius: 10px !important; }
+    /* ── Tooltip card: 100% PURE WHITE, crystal clear contrast ──── */
+    .apexcharts-tooltip,
+    .apexcharts-tooltip.apexcharts-theme-dark,
+    .apexcharts-tooltip.apexcharts-theme-light {
+        background: #ffffff !important;
+        background-color: #ffffff !important;
+        color: #0F172A !important;
+        border: 1px solid #E2E8F0 !important;
+        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.14), 0 8px 10px -6px rgba(15, 23, 42, 0.08) !important;
+        border-radius: 10px !important;
+        overflow: hidden !important;
+    }
+    .apexcharts-tooltip * {
+        color: #0F172A;
+    }
+    .apexcharts-tooltip-title {
+        background: #F8FAFC !important;
+        border-bottom: 1px solid #E2E8F0 !important;
+        color: #0F172A !important;
+        font-weight: 600 !important;
+        font-family: Inter, system-ui, sans-serif !important;
+        padding: 6px 10px !important;
+    }
+    .sd-tip {
+        background: #ffffff !important;
+        padding: 10px 14px;
+        font-family: Inter, system-ui, sans-serif;
+        min-width: 200px;
+        border-radius: 10px;
+    }
+    .sd-tip-t {
+        font-size: 13px;
+        font-weight: 600;
+        color: #0F172A !important;
+        margin-bottom: 8px;
+        max-width: 260px;
+        white-space: normal;
+        border-bottom: 1px solid #F1F5F9;
+        padding-bottom: 5px;
+    }
+    .sd-tip-r {
+        display: flex;
+        justify-content: space-between;
+        gap: 16px;
+        font-size: 12px;
+        color: #64748B !important;
+        line-height: 1.7;
+    }
+    .sd-tip-r span { color: #64748B !important; }
+    .sd-tip-r b { color: #0F172A !important; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .sd-tip-hint {
+        font-size: 11px;
+        color: #2563EB !important;
+        margin-top: 6px;
+        border-top: 1px dashed #E2E8F0;
+        padding-top: 4px;
+        font-weight: 500;
+    }
 
-    /* Map: isolate Leaflet stacking context so it never overlays the sidebar / header menus */
+    /* Map: isolate Leaflet stacking context so it never overlays menus */
     .sd-map-wrap { position: relative; z-index: 0; isolation: isolate; border-radius: 10px; overflow: hidden; border: 1px solid #E5E7EB; }
     #sd-map { height: 440px; background: #F8FAFC; }
     @media (max-width: 640px) { #sd-map { height: 320px; } }
-    .leaflet-tooltip.sd-map-tip { background: #fff; border: 1px solid #E2E8F0; border-radius: 8px; box-shadow: 0 6px 18px rgba(15,23,42,.10); color: #0F172A; padding: 8px 10px; font-family: Inter, system-ui, sans-serif; }
+    .leaflet-tooltip.sd-map-tip { background: #ffffff !important; border: 1px solid #E2E8F0 !important; border-radius: 8px !important; box-shadow: 0 6px 18px rgba(15,23,42,.12) !important; color: #0F172A !important; padding: 8px 10px !important; font-family: Inter, system-ui, sans-serif; }
     .leaflet-tooltip.sd-map-tip::before { display: none; }
     .leaflet-container { font-family: Inter, system-ui, sans-serif; }
     .leaflet-control-attribution { font-size: 10px !important; }
@@ -79,12 +131,13 @@
     .sd-table td { padding: 9px 12px; border-bottom: 1px solid #F1F5F9; font-size: 12.5px; color: #334155; white-space: nowrap; }
     .sd-table tbody tr:hover td { background: #FAFBFC; }
     .sd-pill { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 500; }
+    .subsheet-btn.active { background: #fff; color: #0F172A; box-shadow: 0 1px 2px rgba(15,23,42,.08), 0 0 0 1px rgba(15,23,42,.04); }
 </style>
 {% endblock %}
 
 {% block content %}
 {% set summary = report_data.summary or {} %}
-<div id="sd-root" class="max-w-6xl mx-auto space-y-5 pb-16">
+<div id="sd-root" class="max-w-7xl mx-auto space-y-5 pb-16 px-2 sm:px-4">
 
     <!-- ═══════════════ HEADER ═══════════════ -->
     <section class="sd-card overflow-hidden">
@@ -138,6 +191,20 @@
                         {% endfor %}
                     </select>
                 </div>
+            </div>
+
+            <!-- Active Drill-down Filter Banner -->
+            <div id="sd-filter-banner" class="hidden mt-4 pt-3.5 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2.5 bg-blue-50/60 -mx-5 -mb-5 sm:-mx-6 sm:-mb-6 px-5 py-3 sm:px-6 rounded-b-xl border-b border-blue-100/70">
+                <div class="flex flex-wrap items-center gap-2">
+                    <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-900 tracking-wide uppercase">
+                        <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
+                        Filtered View:
+                    </span>
+                    <div id="sd-filter-chips" class="flex flex-wrap items-center gap-1.5"></div>
+                </div>
+                <button type="button" id="sd-clear-filters-btn" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-slate-700 bg-white hover:bg-slate-100 rounded-md border border-slate-200 shadow-sm transition">
+                    <span>✕</span> Clear Filter
+                </button>
             </div>
         </div>
     </section>
@@ -225,7 +292,7 @@
             <div>
                 <p class="sd-eyebrow">02 · People</p>
                 <h2 class="sd-title">Sales by sales person</h2>
-                <p class="sd-desc">Ranked by sale value, with share of total</p>
+                <p class="sd-desc">Ranked by sale value, with share of total <span class="text-slate-400 text-xs ml-1">(Click bar to filter)</span></p>
             </div>
             <div class="sd-stats">
                 <div class="sd-stat"><div class="v" id="rep-top">—</div><div class="k" id="rep-top-k">Top performer</div></div>
@@ -241,7 +308,7 @@
             <div>
                 <p class="sd-eyebrow">03 · Service</p>
                 <h2 class="sd-title">Service mode mix</h2>
-                <p class="sd-desc">How sale value splits across transport modes</p>
+                <p class="sd-desc">How sale value splits across transport modes <span class="text-slate-400 text-xs ml-1">(Click slice or mode to filter)</span></p>
             </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center px-4 sm:px-6 pb-5">
@@ -256,7 +323,7 @@
             <div>
                 <p class="sd-eyebrow">04 · Accounts</p>
                 <h2 class="sd-title">Top 10 customers</h2>
-                <p class="sd-desc">Largest accounts by sale value</p>
+                <p class="sd-desc">Largest accounts by sale value <span class="text-slate-400 text-xs ml-1">(Click bar to filter)</span></p>
             </div>
             <div class="sd-stats">
                 <div class="sd-stat"><div class="v" id="cust-conc">—</div><div class="k">Top 5 share of sale</div></div>
@@ -297,71 +364,83 @@
                     <p class="text-[11.5px] text-slate-400 mt-2" id="net-note">&nbsp;</p>
                 </div>
                 <div class="lg:col-span-2">
-                    <p class="sd-kpi-label mb-2">Top destinations by sale</p>
+                    <p class="sd-kpi-label mb-2">Top destinations by sale <span class="text-slate-400 text-xs font-normal">(Click to filter)</span></p>
                     <div id="dest-list" class="space-y-3"></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ═══════════════ 06 REGISTER ═══════════════ -->
+    <!-- ═══════════════ 06 REGISTER (FULL UPLOADED SHEETS) ═══════════════ -->
     <section class="sd-card overflow-hidden">
         <div class="sd-sec-head">
             <div>
                 <p class="sd-eyebrow">06 · Records</p>
-                <h2 class="sd-title">Consignment register</h2>
-                <p class="sd-desc">Sample of correlated consignments for spot-checking</p>
+                <h2 class="sd-title" id="reg-title">Consignment register</h2>
+                <p class="sd-desc" id="reg-desc">Complete record of uploaded consignments</p>
             </div>
             <div class="sd-stats">
-                <div class="sd-stat"><div class="v" id="reg-count">—</div><div class="k">Rows shown</div></div>
+                <div class="sd-stat"><div class="v" id="reg-count">—</div><div class="k">Consignments shown</div></div>
+                <div class="sd-stat"><div class="v" id="reg-total-amt">—</div><div class="k">Total value</div></div>
             </div>
         </div>
-        <div class="px-4 sm:px-6 pb-4 flex flex-wrap items-center gap-2">
-            <select id="reg-rep" class="sd-select" aria-label="Sales person">
-                <option value="ALL">All sales persons</option>
-                {% for r in report_data.all.sales_reps %}
-                <option value="{{ r.name }}">{{ r.name }}</option>
-                {% endfor %}
-            </select>
-            <select id="reg-mode" class="sd-select" aria-label="Service mode">
-                <option value="ALL">All modes</option>
-                {% for m in report_data.all.modes %}
-                <option value="{{ m.mode }}">{{ m.mode }}</option>
-                {% endfor %}
-            </select>
-            <input type="search" id="reg-cust" class="sd-input w-56" placeholder="Search customer or code" aria-label="Customer search">
-            <button type="button" id="reg-reset" class="text-[13px] text-slate-500 hover:text-slate-800 px-2">Reset</button>
+
+        <!-- Combined sub-sheet switcher (shown when state.seg === 'all' to show both sheets separately) -->
+        <div id="reg-subsheet-bar" class="hidden px-4 sm:px-6 pt-2 pb-1">
+            <div class="inline-flex p-1 bg-slate-100 rounded-lg gap-1 border border-slate-200">
+                <button type="button" class="subsheet-btn px-4 py-1.5 rounded-md text-xs font-semibold text-slate-800 bg-white shadow-sm transition" data-sub="billed">
+                    📑 Billed Sheet (<span id="sub-billed-count">361</span> · <span id="sub-billed-amt">₹59.19 L</span>)
+                </button>
+                <button type="button" class="subsheet-btn px-4 py-1.5 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition" data-sub="unbilled">
+                    📑 Unbilled Sheet (<span id="sub-unbilled-count">797</span> · <span id="sub-unbilled-amt">₹31.44 L</span>)
+                </button>
+            </div>
         </div>
-        <div class="overflow-auto border-t border-slate-100" style="max-height:460px">
-            <table class="sd-table w-full text-left">
+
+        <div class="px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 bg-slate-50/50 border-y border-slate-100">
+            <div class="flex flex-wrap items-center gap-2">
+                <select id="reg-rep" class="sd-select" aria-label="Sales person">
+                    <option value="ALL">All sales persons</option>
+                </select>
+                <select id="reg-mode" class="sd-select" aria-label="Service mode">
+                    <option value="ALL">All modes</option>
+                    <option value="Air">Air</option>
+                    <option value="Surface">Surface</option>
+                    <option value="Train">Train</option>
+                </select>
+                <div class="relative">
+                    <input type="search" id="reg-cust" class="sd-input w-56 sm:w-64 pl-8" placeholder="Search AWB, customer, city..." aria-label="Search customer or code">
+                    <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                </div>
+                <button type="button" id="reg-reset" class="text-[13px] text-slate-500 hover:text-slate-800 px-2 font-medium">Reset</button>
+            </div>
+            <div class="flex items-center gap-2 text-[12px] text-slate-500">
+                <span>Rows per page:</span>
+                <select id="reg-page-size" class="sd-select !h-8 !py-0 !pl-2 !pr-7 text-[12px]">
+                    <option value="50" selected>50</option>
+                    <option value="100">100</option>
+                    <option value="250">250</option>
+                    <option value="10000">All rows</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto" style="max-height: 520px;">
+            <table class="sd-table w-full text-left" id="reg-table">
                 <thead>
                     <tr>
-                        <th>AWB No.</th><th>Date</th><th>Customer</th><th>Sales person</th><th>Mode</th>
-                        <th>Destination</th><th class="text-right">Weight (kg)</th><th class="text-right">Amount</th><th>Source</th>
+                        <th>AWB No.</th><th>Date</th><th>Customer</th><th>Sales Person</th><th>Mode</th>
+                        <th>Destination</th><th class="text-right">Weight (kg)</th><th class="text-right">Amount</th><th>Status</th><th>Bill No. / Tag</th>
                     </tr>
                 </thead>
-                <tbody>
-                    {% for s in report_data.shipments_sample or [] %}
-                    <tr class="reg-row" data-rep="{{ s.sales_person }}" data-mode="{{ s.transport_mode }}" data-source="{{ s.source_type }}"
-                        data-month="{{ s.month_key }}" data-customer="{{ (s.customer_name or '')|lower }} {{ (s.customer_code or '')|lower }}">
-                        <td class="font-medium text-slate-900 sd-num">{{ s.awb_no }}</td>
-                        <td class="text-slate-500 sd-num">{{ s.date or '—' }}</td>
-                        <td class="max-w-[240px] truncate text-slate-900" title="{{ s.customer_name }}">{{ s.customer_name }}</td>
-                        <td>{{ s.sales_person }}</td>
-                        <td>{{ s.transport_mode }}</td>
-                        <td>{{ s.destination }}</td>
-                        <td class="text-right sd-num">{{ s.weight }}</td>
-                        <td class="text-right sd-num font-medium text-slate-900">{{ format_inr(s.total_amt) }}</td>
-                        <td>
-                            {% if s.source_type == 'BILLED' %}<span class="sd-pill bg-teal-50 text-teal-800">Billed</span>
-                            {% elif s.source_type == 'UNBILLED' %}<span class="sd-pill bg-amber-50 text-amber-800">Unbilled</span>
-                            {% else %}<span class="sd-pill bg-slate-100 text-slate-700">{{ s.source_type|title }}</span>{% endif %}
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
+                <tbody id="reg-tbody"></tbody>
             </table>
-            <div id="reg-empty" class="hidden p-8 text-center text-[13px] text-slate-400">No consignments match these filters.</div>
+            <div id="reg-empty" class="hidden p-12 text-center text-[13px] text-slate-400">No consignments match these filters.</div>
+        </div>
+
+        <div class="px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 text-[12px] text-slate-600 bg-slate-50/30">
+            <div id="reg-page-info">Showing 1 to 50 of 797 consignments</div>
+            <div id="reg-pagination" class="flex items-center gap-1"></div>
         </div>
     </section>
 </div>
@@ -372,28 +451,37 @@
 {% raw %}
 (function () {
     'use strict';
-    console.log('[sales-dashboard] script executing, readyState =', document.readyState);
-    window.addEventListener('DOMContentLoaded', () => console.log('[sales-dashboard] DOMContentLoaded fired'));
-    window.addEventListener('load', () => console.log('[sales-dashboard] window load fired'));
 
-    // ── Data & configuration ───────────────────────────────────────
+    const rawScript = document.getElementById('sd-data');
+    if (!rawScript) { console.error('Dashboard data script not found'); return; }
     let DATA = {};
-    try { DATA = JSON.parse(document.getElementById('sd-data').textContent || '{}'); }
-    catch (e) { console.error('[sales-dashboard] Could not parse report data', e); }
+    try { DATA = JSON.parse(rawScript.textContent || '{}'); }
+    catch (e) { console.error('Failed to parse dashboard data', e); return; }
 
     const SEG_THEME = {
-        unbilled: { color: '#B45309', title: 'Unbilled Sales Dashboard' },
-        billed:   { color: '#0F766E', title: 'Billed Sales Dashboard' },
-        all:      { color: '#1E3A8A', title: 'Consolidated Sales Dashboard' }
+        unbilled: { color: '#B45309', title: 'Unbilled Sales Dashboard', sheetTitle: 'Unbilled Consignments Register', tag: 'UNBILLED' },
+        billed:   { color: '#0F766E', title: 'Billed Sales Dashboard',   sheetTitle: 'Billed Consignments Register',   tag: 'BILLED' },
+        all:      { color: '#475569', title: 'Consolidated Sales Dashboard', sheetTitle: 'Consolidated Consignment Registers', tag: 'ALL' }
     };
-    const PALETTE = ['#1E3A8A', '#0F766E', '#B45309', '#64748B', '#7C3AED', '#BE123C'];
-    const MONTH_COLORS = ['#1E3A8A', '#D97706', '#0F766E', '#7C3AED', '#BE123C', '#0369A1', '#4D7C0F', '#A21CAF'];
-    const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const PALETTE = ['#1E3A8A', '#0D9488', '#D97706', '#E11D48', '#7C3AED', '#0284C7', '#CA8A04', '#475569'];
+    const MONTH_COLORS = ['#2563EB', '#D97706', '#059669', '#DC2626', '#7C3AED', '#0891B2'];
     const FONT = 'Inter, system-ui, -apple-system, sans-serif';
     const AXIS = { colors: '#64748B', fontSize: '11px', fontFamily: FONT };
-    const GRID = { borderColor: '#EEF2F6', strokeDashArray: 3, padding: { left: 8, right: 16, top: 0, bottom: 0 } };
+    const GRID = { borderColor: '#F1F5F9', strokeDashArray: 3, padding: { left: 16, right: 16, top: 8, bottom: 8 } };
+    const MON = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
-    const state = { seg: 'unbilled', month: 'ALL' };
+    const state = {
+        seg: 'unbilled',
+        month: 'ALL',
+        filters: { rep: null, mode: null, customer: null, destination: null },
+        regSubSheet: 'billed',
+        regPage: 1,
+        regPageSize: 50,
+        regSearch: '',
+        regRep: 'ALL',
+        regMode: 'ALL'
+    };
+
     const charts = {};
     let map = null, destLayer = null, laneLayer = null, firstFit = true;
 
@@ -419,36 +507,41 @@
         return String(d || 'Undated');
     }
     const truncate = (s, k) => { s = String(s || ''); return s.length > k ? s.slice(0, k - 1) + '…' : s; };
-    function tip(title, rows) {
+
+    function tip(title, rows, hint) {
         return '<div class="sd-tip"><div class="sd-tip-t">' + esc(title) + '</div>' +
-            rows.map((r) => '<div class="sd-tip-r"><span>' + esc(r[0]) + '</span><b>' + esc(r[1]) + '</b></div>').join('') + '</div>';
+            rows.map((r) => '<div class="sd-tip-r"><span>' + esc(r[0]) + '</span><b>' + esc(r[1]) + '</b></div>').join('') +
+            (hint ? '<div class="sd-tip-hint">' + esc(hint) + '</div>' : '') +
+            '</div>';
     }
+
     function baseChart(type, height) {
         return {
             type: type, height: height, fontFamily: FONT, parentHeightOffset: 0,
             toolbar: { show: false }, zoom: { enabled: false },
-            animations: { enabled: true, easing: 'easeinout', speed: 350, animateGradually: { enabled: false } }
+            animations: { enabled: true, easing: 'easeinout', speed: 300, animateGradually: { enabled: false } },
+            tooltip: {
+                theme: 'light',
+                style: { fontSize: '12px', fontFamily: FONT }
+            }
         };
     }
+
     function destroyChart(key) {
-        if (charts[key]) { try { charts[key].destroy(); } catch (e) { /* already gone */ } charts[key] = null; }
+        if (charts[key]) { try { charts[key].destroy(); } catch (e) { } charts[key] = null; }
     }
     function showEmpty(key, elId, msg, h) {
         destroyChart(key);
         const el = $(elId);
         if (el) el.innerHTML = '<div class="sd-empty" style="height:' + (h || 220) + 'px">' + esc(msg) + '</div>';
     }
-    /** Render an ApexChart; also traps the async render() rejection that try/catch cannot see. */
+
     function draw(key, elId, opts) {
-        console.log('[sales-dashboard] draw() called for:', key, elId);
         destroyChart(key);
         const el = $(elId);
-        if (!el) {
-            console.warn('[sales-dashboard] element not found for:', elId);
-            return;
-        }
+        if (!el) return;
         el.innerHTML = '';
-        if (typeof ApexCharts === 'undefined') { showEmpty(key, elId, 'Chart library could not load. Please refresh the page.'); return; }
+        if (typeof ApexCharts === 'undefined') { showEmpty(key, elId, 'Chart library could not load. Please refresh.'); return; }
         try {
             const c = new ApexCharts(el, opts);
             charts[key] = c;
@@ -456,20 +549,222 @@
             if (p && typeof p.catch === 'function') {
                 p.catch((err) => { console.error('[sales-dashboard] render reject: ' + key, err); showEmpty(key, elId, 'This chart could not be drawn.'); });
             }
-            console.log('[sales-dashboard] chart.render() dispatched for:', key);
         } catch (err) {
             console.error('[sales-dashboard] chart constructor error: ' + key, err);
             showEmpty(key, elId, 'This chart could not be drawn.');
         }
     }
-    function getSeg() {
-        const bm = DATA.by_month || {};
-        if (state.month !== 'ALL' && bm[state.month] && bm[state.month][state.seg]) return bm[state.month][state.seg];
-        return DATA[state.seg] || {};
+
+    // ── Shipment Retrieval & Dynamic Metric Calculation ─────────────
+    function getAllBaseShipments() {
+        if (state.seg === 'unbilled') return DATA.unbilled_shipments || DATA.shipments_sample || [];
+        if (state.seg === 'billed') return DATA.billed_shipments || DATA.shipments_sample || [];
+        return DATA.all_shipments || DATA.shipments_sample || [];
     }
+
+    function computeMetricsFromShipments(shipments) {
+        const total_sales = shipments.reduce((sum, s) => sum + n(s.total_amt), 0);
+        const total_shipments = shipments.length;
+        const total_weight = shipments.reduce((sum, s) => sum + n(s.weight), 0);
+        const avg_ticket = total_shipments ? total_sales / total_shipments : 0;
+
+        // Daily
+        const dateMap = {};
+        shipments.forEach((s) => {
+            const d = s.date || 'Undated';
+            if (!dateMap[d]) dateMap[d] = { date: d, sales: 0, shipments: 0 };
+            dateMap[d].sales += n(s.total_amt);
+            dateMap[d].shipments += 1;
+        });
+        const daily_sales = Object.values(dateMap).sort((a, b) => (a.date > b.date ? 1 : -1));
+
+        // Sales Reps
+        const repMap = {};
+        shipments.forEach((s) => {
+            const r = s.sales_person || 'NEL';
+            if (!repMap[r]) repMap[r] = { name: r, sales: 0, shipments: 0, weight: 0, customers: new Set() };
+            repMap[r].sales += n(s.total_amt);
+            repMap[r].shipments += 1;
+            repMap[r].weight += n(s.weight);
+            if (s.customer_name) repMap[r].customers.add(s.customer_name);
+        });
+        const sales_reps = Object.values(repMap).map((r) => ({
+            name: r.name,
+            sales: r.sales,
+            shipments: r.shipments,
+            weight: r.weight,
+            customer_count: r.customers.size,
+            share_pct: total_sales ? (r.sales / total_sales * 100) : 0
+        })).sort((a, b) => b.sales - a.sales);
+
+        // Modes
+        const modeMap = {};
+        shipments.forEach((s) => {
+            const m = (s.transport_mode || 'Surface').trim();
+            if (!modeMap[m]) modeMap[m] = { mode: m, sales: 0, shipments: 0 };
+            modeMap[m].sales += n(s.total_amt);
+            modeMap[m].shipments += 1;
+        });
+        const modes = Object.values(modeMap).map((m) => ({
+            mode: m.mode,
+            sales: m.sales,
+            shipments: m.shipments,
+            share_pct: total_sales ? (m.sales / total_sales * 100) : 0
+        })).sort((a, b) => b.sales - a.sales);
+
+        // Customers
+        const custMap = {};
+        shipments.forEach((s) => {
+            const c = s.customer_name || 'General Customer';
+            if (!custMap[c]) custMap[c] = { name: c, code: s.customer_code, sales_person: s.sales_person, sales: 0, shipments: 0, weight: 0 };
+            custMap[c].sales += n(s.total_amt);
+            custMap[c].shipments += 1;
+            custMap[c].weight += n(s.weight);
+        });
+        const customers = Object.values(custMap).map((c) => ({
+            name: c.name,
+            code: c.code,
+            sales_person: c.sales_person,
+            sales: c.sales,
+            shipments: c.shipments,
+            weight: c.weight,
+            share_pct: total_sales ? (c.sales / total_sales * 100) : 0
+        })).sort((a, b) => b.sales - a.sales);
+
+        // Destinations
+        const destMap = {};
+        shipments.forEach((s) => {
+            const d = s.destination || 'Unknown';
+            if (!destMap[d]) destMap[d] = { city: d, sales: 0, shipments: 0, coords: s.dest_coords || null };
+            destMap[d].sales += n(s.total_amt);
+            destMap[d].shipments += 1;
+        });
+        const destinations = Object.values(destMap).map((d) => ({
+            city: d.city,
+            sales: d.sales,
+            shipments: d.shipments,
+            coords: d.coords
+        })).sort((a, b) => b.sales - a.sales);
+
+        // Audit
+        const delivered_count = shipments.filter((s) => String(s.delivery_status || '').toLowerCase().includes('deliver')).length;
+        const delivery_rate = total_shipments ? (delivered_count / total_shipments * 100) : 0;
+        const bill_no_count = shipments.filter((s) => {
+            const b = String(s.bill_no || '').trim();
+            return b && b !== '0' && b !== 'nan' && b !== 'None';
+        }).length;
+        const bill_no_rate = total_shipments ? (bill_no_count / total_shipments * 100) : 0;
+
+        const dnbList = shipments.filter((s) =>
+            String(s.delivery_status || '').toLowerCase().includes('deliver') &&
+            (s.source_type === 'UNBILLED' || s.source_type === 'COMBINED')
+        );
+        const delivered_unbilled_count = dnbList.length;
+        const delivered_unbilled_amt = dnbList.reduce((sum, s) => sum + n(s.total_amt), 0);
+
+        return {
+            summary: {
+                total_sales,
+                total_shipments,
+                total_weight,
+                avg_ticket,
+                delivery_rate,
+                delivered_count,
+                bill_no_rate,
+                bill_no_count,
+                delivered_unbilled_count,
+                delivered_unbilled_amt
+            },
+            daily_sales,
+            sales_reps,
+            modes,
+            customers,
+            destinations
+        };
+    }
+
+    function getSeg() {
+        const hasFilter = !!(state.filters.rep || state.filters.mode || state.filters.customer || state.filters.destination);
+        if (!hasFilter && state.month === 'ALL') {
+            return DATA[state.seg] || {};
+        }
+        if (!hasFilter && state.month !== 'ALL') {
+            const bm = DATA.by_month || {};
+            if (bm[state.month] && bm[state.month][state.seg]) return bm[state.month][state.seg];
+        }
+
+        // Apply filters to shipments
+        let list = getAllBaseShipments();
+        if (state.month !== 'ALL') {
+            list = list.filter((s) => s.month_key === state.month);
+        }
+        if (state.filters.rep) {
+            list = list.filter((s) => s.sales_person === state.filters.rep);
+        }
+        if (state.filters.mode) {
+            list = list.filter((s) => (s.transport_mode || '').toLowerCase() === state.filters.mode.toLowerCase());
+        }
+        if (state.filters.customer) {
+            list = list.filter((s) => s.customer_name === state.filters.customer);
+        }
+        if (state.filters.destination) {
+            list = list.filter((s) => s.destination === state.filters.destination);
+        }
+
+        return computeMetricsFromShipments(list);
+    }
+
     const color = () => SEG_THEME[state.seg].color;
 
-    // ── KPIs & audit checks ────────────────────────────────────────
+    // ── Interactive Cross-Filtering ────────────────────────────────
+    window.toggleFilter = function (type, val) {
+        if (state.filters[type] === val) {
+            state.filters[type] = null;
+        } else {
+            state.filters[type] = val;
+        }
+        state.regPage = 1;
+        renderFilterBanner();
+        renderAll();
+    };
+
+    function clearAllFilters() {
+        state.filters = { rep: null, mode: null, customer: null, destination: null };
+        state.regPage = 1;
+        renderFilterBanner();
+        renderAll();
+    }
+
+    function renderFilterBanner() {
+        const banner = $('sd-filter-banner');
+        const container = $('sd-filter-chips');
+        if (!banner || !container) return;
+
+        const chips = [];
+        const labels = { rep: 'Sales Person', mode: 'Transport Mode', customer: 'Customer', destination: 'Destination' };
+
+        Object.keys(state.filters).forEach((key) => {
+            const val = state.filters[key];
+            if (val) {
+                chips.push(
+                    '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-900 border border-blue-200">' +
+                    '<span>' + esc(labels[key]) + ': <b>' + esc(val) + '</b></span>' +
+                    '<button type="button" class="ml-1 hover:text-red-700 font-bold" onclick="toggleFilter(\'' + key + '\', \'' + esc(val) + '\')">✕</button>' +
+                    '</span>'
+                );
+            }
+        });
+
+        if (chips.length > 0) {
+            container.innerHTML = chips.join('');
+            banner.classList.remove('hidden');
+        } else {
+            container.innerHTML = '';
+            banner.classList.add('hidden');
+        }
+    }
+
+    // ── KPIs & Audit Checks ────────────────────────────────────────
     function renderKpis(seg) {
         const s = seg.summary || {};
         const sales = n(s.total_sales), awbs = n(s.total_shipments), wt = n(s.total_weight);
@@ -501,7 +796,7 @@
             : 'No delivered consignments awaiting billing');
     }
 
-    // ── 01 Daily trend ─────────────────────────────────────────────
+    // ── 01 Daily Trend ─────────────────────────────────────────────
     function renderDaily(seg) {
         const rows = (seg.daily_sales || []).filter((d) => d && d.date && d.date !== 'Undated');
         if (!rows.length) {
@@ -548,6 +843,7 @@
                 }]
             },
             tooltip: {
+                theme: 'light',
                 custom: ({ dataPointIndex: i }) => {
                     const r = rows[i] || {};
                     return tip(r.date || '', [['Sale', inr(r.sales)], ['Consignments', int(r.shipments)]]);
@@ -556,13 +852,23 @@
         });
     }
 
-    // ── Shared horizontal bar builder ──────────────────────────────
+    // ── Shared Horizontal Bar Builder with Interactive Tap-to-Filter
     function hbar(key, elId, items, labelFn, tipFn, customColor) {
         const vals = items.map((r) => Math.round(n(r.sales)));
         const max = Math.max(1, ...vals);
         const barColor = customColor || color();
         draw(key, elId, {
-            chart: baseChart('bar', Math.max(200, items.length * 44 + 36)),
+            chart: Object.assign(baseChart('bar', Math.max(200, items.length * 44 + 36)), {
+                events: {
+                    dataPointSelection: (event, chartContext, config) => {
+                        const item = items[config.dataPointIndex];
+                        if (item) {
+                            if (key === 'reps') toggleFilter('rep', item.name);
+                            else if (key === 'customers') toggleFilter('customer', item.name);
+                        }
+                    }
+                }
+            }),
             series: [{ name: 'Sale', data: vals }],
             colors: [barColor],
             plotOptions: { bar: { horizontal: true, barHeight: '58%', borderRadius: 3, borderRadiusApplication: 'end', dataLabels: { position: 'top' } } },
@@ -580,11 +886,14 @@
             yaxis: { labels: { maxWidth: 210, style: { colors: '#0F172A', fontSize: '12.5px', fontWeight: 500, fontFamily: FONT } } },
             grid: Object.assign({}, GRID, { xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } }),
             states: { hover: { filter: { type: 'darken', value: 0.9 } } },
-            tooltip: { custom: ({ dataPointIndex: i }) => (items[i] ? tipFn(items[i]) : '') }
+            tooltip: {
+                theme: 'light',
+                custom: ({ dataPointIndex: i }) => (items[i] ? tipFn(items[i]) : '')
+            }
         });
     }
 
-    // ── 02 Sales persons ───────────────────────────────────────────
+    // ── 02 Sales Persons ───────────────────────────────────────────
     function renderReps(seg) {
         const reps = (seg.sales_reps || []).slice().sort((a, b) => n(b.sales) - n(a.sales));
         setText('rep-count', reps.length || '—');
@@ -597,52 +906,90 @@
         hbar('reps', 'chart-reps', reps,
             (r, v) => inrShort(v) + '   ' + pct(r.share_pct),
             (r) => tip(r.name, [['Sale', inr(r.sales)], ['Share of total', pct(r.share_pct)], ['Consignments', int(r.shipments)],
-                                ['Customers', r.customer_count == null ? '—' : int(r.customer_count)], ['Weight', int(r.weight) + ' kg']]));
+                                ['Customers', r.customer_count == null ? '—' : int(r.customer_count)], ['Weight', int(r.weight) + ' kg']], '⚡ Click to filter dashboard'));
     }
 
-    // ── 03 Service modes ───────────────────────────────────────────
+    // ── 03 Service Modes (Guaranteed visible slice for Train) ───────
     function renderModes(seg) {
-        const modes = (seg.modes || []).filter((m) => n(m.sales) > 0).sort((a, b) => n(b.sales) - n(a.sales));
+        const modes = (seg.modes || []).filter((m) => n(m.sales) > 0 || n(m.shipments) > 0).sort((a, b) => n(b.sales) - n(a.sales));
         const list = $('mode-list');
         if (!modes.length) {
             list.innerHTML = '';
             return showEmpty('modes', 'chart-modes', 'No service mode data.', 260);
         }
+
+        const rawSales = modes.map((m) => n(m.sales));
+        const totalSales = rawSales.reduce((a, b) => a + b, 0);
+
+        // Visual slice floor: allocate minimum 3.5% wedge so small modes (e.g. Train 0.2%) are clearly visible
+        const minPct = 0.035;
+        let visualSeries = [...rawSales];
+        const smallIdx = [];
+        let reserved = 0;
+        rawSales.forEach((v, i) => {
+            if (v > 0 && totalSales > 0 && (v / totalSales) < minPct) {
+                smallIdx.push(i);
+                reserved += minPct;
+            }
+        });
+
+        if (smallIdx.length > 0 && reserved < 0.45 && totalSales > 0) {
+            const remTotal = rawSales.filter((v, i) => !smallIdx.includes(i)).reduce((a, b) => a + b, 0);
+            const scale = (1 - reserved);
+            visualSeries = rawSales.map((v, i) => {
+                if (smallIdx.includes(i)) return totalSales * minPct;
+                return remTotal > 0 ? (v / remTotal) * totalSales * scale : v;
+            });
+        }
+
         draw('modes', 'chart-modes', {
-            chart: baseChart('donut', 280),
-            series: modes.map((m) => n(m.sales)),
+            chart: Object.assign(baseChart('donut', 280), {
+                events: {
+                    dataPointSelection: (event, chartContext, config) => {
+                        const m = modes[config.dataPointIndex];
+                        if (m) toggleFilter('mode', m.mode);
+                    }
+                }
+            }),
+            series: visualSeries,
             labels: modes.map((m) => m.mode || 'Other'),
             colors: PALETTE,
-            stroke: { width: 2, colors: ['#fff'] },
+            stroke: { width: 1.5, colors: ['#ffffff'] },
             dataLabels: { enabled: false },
             legend: { show: false },
             plotOptions: { pie: { donut: { size: '74%', labels: {
                 show: true,
                 name: { show: true, fontSize: '12px', fontFamily: FONT, color: '#64748B' },
-                value: { show: true, fontSize: '22px', fontWeight: 600, fontFamily: FONT, color: '#0F172A', formatter: (v) => inrShort(v) },
+                value: { show: true, fontSize: '22px', fontWeight: 600, fontFamily: FONT, color: '#0F172A', formatter: () => inrShort(totalSales) },
                 total: { show: true, showAlways: true, label: 'Total sale', fontSize: '12px', fontWeight: 500, fontFamily: FONT, color: '#64748B',
-                         formatter: (w) => {
-                             const totals = (w && w.globals && w.globals.seriesTotals) || [];
-                             return inrShort(totals.reduce((a, b) => a + b, 0));
-                         } }
+                         formatter: () => inrShort(totalSales) }
             } } } },
             tooltip: {
+                theme: 'light',
                 custom: ({ seriesIndex: i }) => {
                     const m = modes[i] || {};
-                    return tip(m.mode || 'Mode', [['Sale', inr(m.sales)], ['Share', pct(m.share_pct)], ['Consignments', int(m.shipments)]]);
+                    return tip(m.mode || 'Mode', [
+                        ['Sale', inr(m.sales)],
+                        ['Share', pct(m.share_pct)],
+                        ['Consignments', int(m.shipments)]
+                    ], '⚡ Click to filter dashboard');
                 }
             }
         });
+
+        // Mode table on right with interactive click-to-filter
         list.innerHTML =
             '<div class="grid grid-cols-12 gap-3 pb-2 mb-1 border-b border-slate-100 text-[11px] font-semibold uppercase tracking-wider text-slate-400">' +
             '<div class="col-span-4">Mode</div><div class="col-span-2 text-right">AWBs</div><div class="col-span-3 text-right">Sale</div><div class="col-span-3 text-right">Share</div></div>' +
-            modes.map((m, i) =>
-                '<div class="grid grid-cols-12 gap-3 items-center py-2.5 border-b border-slate-50 text-[13px]">' +
-                '<div class="col-span-4 flex items-center gap-2 font-medium text-slate-900 min-w-0"><span class="sd-dot" style="background:' + PALETTE[i % PALETTE.length] + '"></span><span class="truncate">' + esc(m.mode) + '</span></div>' +
+            modes.map((m, i) => {
+                const isFiltered = state.filters.mode && state.filters.mode.toLowerCase() === (m.mode || '').toLowerCase();
+                return '<div class="grid grid-cols-12 gap-3 items-center py-2.5 border-b border-slate-50 text-[13px] cursor-pointer rounded-lg px-2 -mx-2 transition hover:bg-slate-50 ' + (isFiltered ? 'bg-blue-50/70 ring-1 ring-blue-400/40' : '') + '" onclick="toggleFilter(\'mode\', \'' + esc(m.mode) + '\')">' +
+                '<div class="col-span-4 flex items-center gap-2 font-medium text-slate-900 min-w-0"><span class="sd-dot" style="background:' + PALETTE[i % PALETTE.length] + '"></span><span class="truncate">' + esc(m.mode) + '</span>' + (isFiltered ? '<span class="text-[10px] bg-blue-600 text-white rounded px-1 ml-1 font-normal">Active</span>' : '') + '</div>' +
                 '<div class="col-span-2 text-right sd-num text-slate-600">' + int(m.shipments) + '</div>' +
                 '<div class="col-span-3 text-right sd-num font-medium text-slate-900">' + inrShort(m.sales) + '</div>' +
                 '<div class="col-span-3"><div class="flex items-center gap-2 justify-end"><div class="sd-track w-14 hidden sm:block"><div class="sd-fill" style="width:' + Math.min(100, n(m.share_pct)) + '%;background:' + PALETTE[i % PALETTE.length] + '"></div></div><span class="sd-num text-slate-600 w-12 text-right">' + pct(m.share_pct) + '</span></div></div>' +
-                '</div>').join('');
+                '</div>';
+            }).join('');
     }
 
     // ── 04 Customers ───────────────────────────────────────────────
@@ -658,11 +1005,11 @@
         hbar('customers', 'chart-customers', top,
             (r, v) => inrShort(v) + '   ' + pct(r.share_pct),
             (r) => tip(r.name, [['Customer code', r.code || '—'], ['Sales person', r.sales_person || '—'], ['Sale', inr(r.sales)],
-                                ['Share of total', pct(r.share_pct)], ['Consignments', int(r.shipments)], ['Weight', int(r.weight) + ' kg']]),
+                                ['Share of total', pct(r.share_pct)], ['Consignments', int(r.shipments)], ['Weight', int(r.weight) + ' kg']], '⚡ Click to filter dashboard'),
             c);
     }
 
-    // ── 05 Network map ─────────────────────────────────────────────
+    // ── 05 Network Map ─────────────────────────────────────────────
     function initMap() {
         if (map || typeof L === 'undefined' || !$('sd-map')) return;
         map = L.map('sd-map', { zoomControl: true, scrollWheelZoom: false, attributionControl: true }).setView([22.6, 80.5], 5);
@@ -686,6 +1033,7 @@
         const m = (DATA.months || []).find((x) => x.key === key);
         return m ? m.label : key;
     }
+
     function renderNetwork(seg) {
         const dests = (seg.destinations || []).slice().sort((a, b) => n(b.sales) - n(a.sales));
         const c = color();
@@ -693,18 +1041,19 @@
 
         // Ranked list
         const top = dests.slice(0, 10), maxSale = Math.max(1, ...top.map((d) => n(d.sales)));
-        $('dest-list').innerHTML = top.length ? top.map((d, i) =>
-            '<div>' +
+        $('dest-list').innerHTML = top.length ? top.map((d, i) => {
+            const isFiltered = state.filters.destination && state.filters.destination.toLowerCase() === (d.city || '').toLowerCase();
+            return '<div class="cursor-pointer rounded-lg p-1.5 -mx-1.5 transition hover:bg-slate-50 ' + (isFiltered ? 'bg-blue-50/70 ring-1 ring-blue-400/40' : '') + '" onclick="toggleFilter(\'destination\', \'' + esc(d.city) + '\')">' +
             '<div class="flex items-baseline justify-between gap-3 text-[13px]">' +
-            '<span class="min-w-0 truncate text-slate-900"><span class="text-slate-400 sd-num mr-2">' + String(i + 1).padStart(2, '0') + '</span>' + esc(d.city) + '</span>' +
+            '<span class="min-w-0 truncate text-slate-900"><span class="text-slate-400 sd-num mr-2">' + String(i + 1).padStart(2, '0') + '</span>' + esc(d.city) + (isFiltered ? '<span class="text-[10px] bg-blue-600 text-white rounded px-1 ml-1.5 font-normal">Active</span>' : '') + '</span>' +
             '<span class="shrink-0 sd-num"><span class="text-slate-400 mr-2">' + int(d.shipments) + ' AWBs</span><span class="font-medium text-slate-900">' + inrShort(d.sales) + '</span></span>' +
             '</div>' +
             '<div class="sd-track mt-1.5"><div class="sd-fill" style="width:' + (n(d.sales) / maxSale * 100) + '%"></div></div>' +
-            '</div>').join('') : '<div class="sd-empty" style="height:160px">No destination data.</div>';
+            '</div>';
+        }).join('') : '<div class="sd-empty" style="height:160px">No destination data.</div>';
 
         if (!map) { setText('net-note', 'Map unavailable — mapping library did not load.'); return; }
 
-        // Destination bubbles
         destLayer.clearLayers();
         const pts = [];
         let unmapped = 0;
@@ -714,7 +1063,7 @@
                 if (!d.coords || d.coords.length < 2) { unmapped++; return; }
                 const r = 5 + 16 * Math.sqrt(n(d.shipments) / maxShip);
                 L.circleMarker(d.coords, { radius: r, color: c, weight: 1.5, fillColor: c, fillOpacity: 0.28 })
-                    .bindTooltip(tip(d.city, [['Consignments', int(d.shipments)], ['Sale', inr(d.sales)]]), { direction: 'top', className: 'sd-map-tip', opacity: 1 })
+                    .bindTooltip(tip(d.city, [['Consignments', int(d.shipments)], ['Sale', inr(d.sales)]], 'Click list to filter'), { direction: 'top', className: 'sd-map-tip', opacity: 1 })
                     .addTo(destLayer);
                 pts.push(d.coords);
             });
@@ -722,21 +1071,26 @@
             unmapped = dests.filter((d) => !d.coords).length;
         }
 
-        // Origin → destination lanes (coloured by month for month-on-month comparison)
         laneLayer.clearLayers();
         const conn = DATA.connectivity || {};
         const byMonth = conn.by_month || {};
         const monthKeys = (DATA.months || []).map((m) => m.key);
-        let groups;
-        if (state.month !== 'ALL') groups = [[state.month, byMonth[state.month] || []]];
-        else if (Object.keys(byMonth).length) groups = Object.keys(byMonth).sort().map((k) => [k, byMonth[k]]);
-        else groups = [['ALL', conn.all_routes || []]];
-
         let laneCount = 0;
         const legend = [];
+
         if ($('tg-lanes').checked) {
-            const maxAwb = Math.max(1, ...groups.flatMap((g) => g[1].map((r) => n(r.awb_count))));
+            let groups = [];
+            if (state.month !== 'ALL') {
+                groups = [[state.month, byMonth[state.month] || []]];
+            } else if (monthKeys.length > 1) {
+                groups = monthKeys.map((mk) => [mk, byMonth[mk] || []]);
+            } else {
+                groups = [['ALL', conn.all_routes || []]];
+            }
+            const allDrawn = groups.flatMap((g) => g[1]);
+            const maxAwb = Math.max(1, ...allDrawn.map((r) => n(r.awb_count)));
             const origins = {};
+
             groups.forEach(([mk, routes], gi) => {
                 const idx = monthKeys.indexOf(mk);
                 const lc = MONTH_COLORS[(idx >= 0 ? idx : gi) % MONTH_COLORS.length];
@@ -744,6 +1098,7 @@
                 routes.forEach((r) => {
                     const a = r.origin_coords, b = r.dest_coords;
                     if (!a || !b || (a[0] === b[0] && a[1] === b[1])) return;
+                    if (state.filters.destination && r.destination !== state.filters.destination) return;
                     const w = 1 + 3 * Math.sqrt(n(r.awb_count) / maxAwb);
                     L.polyline(curve(a, b, 0.18 + gi * 0.07), { color: lc, weight: w, opacity: 0.55, lineCap: 'round' })
                         .bindTooltip(tip(r.origin + ' → ' + r.destination,
@@ -776,38 +1131,204 @@
         }
     }
 
-    // ── 06 Register ────────────────────────────────────────────────
+    // ── 06 Consignment Register (Full Uploaded Sheets) ─────────────
+    function getRegisterDataset() {
+        let list = [];
+        if (state.seg === 'unbilled') {
+            list = DATA.unbilled_shipments || [];
+        } else if (state.seg === 'billed') {
+            list = DATA.billed_shipments || [];
+        } else {
+            // Combined mode
+            if (state.regSubSheet === 'billed') {
+                list = DATA.billed_shipments || [];
+            } else if (state.regSubSheet === 'unbilled') {
+                list = DATA.unbilled_shipments || [];
+            } else {
+                list = DATA.all_shipments || [];
+            }
+        }
+        if (!list.length && DATA.shipments_sample) list = DATA.shipments_sample;
+        return list;
+    }
+
+    function populateRepOptions() {
+        const select = $('reg-rep');
+        if (!select) return;
+        const curVal = select.value;
+        const all = getAllBaseShipments();
+        const reps = Array.from(new Set(all.map((s) => s.sales_person).filter(Boolean))).sort();
+        select.innerHTML = '<option value="ALL">All sales persons</option>' +
+            reps.map((r) => '<option value="' + esc(r) + '">' + esc(r) + '</option>').join('');
+        if (reps.includes(curVal)) select.value = curVal;
+    }
+
     function applyRegister() {
-        const rep = $('reg-rep').value, mode = $('reg-mode').value, q = $('reg-cust').value.toLowerCase().trim();
-        let shown = 0;
-        document.querySelectorAll('.reg-row').forEach((row) => {
-            const src = row.dataset.source;
-            const okSeg = state.seg === 'all' ||
-                (state.seg === 'billed' && (src === 'BILLED' || src === 'COMBINED')) ||
-                (state.seg === 'unbilled' && (src === 'UNBILLED' || src === 'COMBINED'));
-            const ok = okSeg &&
-                (state.month === 'ALL' || row.dataset.month === state.month) &&
-                (rep === 'ALL' || row.dataset.rep === rep) &&
-                (mode === 'ALL' || (row.dataset.mode || '').toLowerCase() === mode.toLowerCase()) &&
-                (!q || (row.dataset.customer || '').includes(q));
-            row.style.display = ok ? '' : 'none';
-            if (ok) shown++;
+        const baseList = getRegisterDataset();
+        const rep = $('reg-rep').value;
+        const mode = $('reg-mode').value;
+        const q = $('reg-cust').value.toLowerCase().trim();
+
+        // Subsheet bar visibility in Combined view
+        const subBar = $('reg-subsheet-bar');
+        if (subBar) {
+            if (state.seg === 'all') {
+                subBar.classList.remove('hidden');
+                setText('sub-billed-count', int((DATA.billed_shipments || []).length));
+                setText('sub-billed-amt', inrShort((DATA.billed || {}).summary ? (DATA.billed.summary.total_sales) : 0));
+                setText('sub-unbilled-count', int((DATA.unbilled_shipments || []).length));
+                setText('sub-unbilled-amt', inrShort((DATA.unbilled || {}).summary ? (DATA.unbilled.summary.total_sales) : 0));
+                document.querySelectorAll('.subsheet-btn').forEach((b) => {
+                    const active = b.dataset.sub === state.regSubSheet;
+                    b.classList.toggle('active', active);
+                    b.classList.toggle('bg-white', active);
+                    b.classList.toggle('shadow-sm', active);
+                    b.classList.toggle('text-slate-900', active);
+                });
+            } else {
+                subBar.classList.add('hidden');
+            }
+        }
+
+        // Section header and titles
+        if (state.seg === 'unbilled') {
+            setText('reg-title', 'Unbilled Consignments Register');
+            setText('reg-desc', 'Full unbilled sheet uploaded for this period (' + int((DATA.unbilled_shipments || []).length) + ' total consignments)');
+        } else if (state.seg === 'billed') {
+            setText('reg-title', 'Billed Consignments Register');
+            setText('reg-desc', 'Full billed sheet uploaded for this period (' + int((DATA.billed_shipments || []).length) + ' total consignments)');
+        } else {
+            setText('reg-title', 'Consolidated Consignment Registers');
+            setText('reg-desc', 'Showing uploaded sheet: ' + (state.regSubSheet === 'billed' ? 'Billed Consignments' : 'Unbilled Consignments'));
+        }
+
+        // Filter records
+        const filtered = baseList.filter((s) => {
+            if (state.month !== 'ALL' && s.month_key && s.month_key !== state.month) return false;
+            if (rep !== 'ALL' && s.sales_person !== rep) return false;
+            if (state.filters.rep && s.sales_person !== state.filters.rep) return false;
+            if (mode !== 'ALL' && (s.transport_mode || '').toLowerCase() !== mode.toLowerCase()) return false;
+            if (state.filters.mode && (s.transport_mode || '').toLowerCase() !== state.filters.mode.toLowerCase()) return false;
+            if (state.filters.customer && s.customer_name !== state.filters.customer) return false;
+            if (state.filters.destination && s.destination !== state.filters.destination) return false;
+            if (q) {
+                const text = (s.awb_no + ' ' + (s.customer_name || '') + ' ' + (s.customer_code || '') + ' ' + (s.destination || '') + ' ' + (s.sales_person || '')).toLowerCase();
+                if (!text.includes(q)) return false;
+            }
+            return true;
         });
-        setText('reg-count', int(shown));
-        $('reg-empty').classList.toggle('hidden', shown > 0);
+
+        const totalAmt = filtered.reduce((sum, s) => sum + n(s.total_amt), 0);
+        setText('reg-count', int(filtered.length));
+        setText('reg-total-amt', inrShort(totalAmt));
+
+        // Pagination
+        const pageSize = parseInt($('reg-page-size').value, 10) || 50;
+        const totalPages = Math.ceil(filtered.length / pageSize) || 1;
+        if (state.regPage > totalPages) state.regPage = totalPages;
+        if (state.regPage < 1) state.regPage = 1;
+
+        const startIdx = (state.regPage - 1) * pageSize;
+        const endIdx = Math.min(startIdx + pageSize, filtered.length);
+        const pageItems = filtered.slice(startIdx, endIdx);
+
+        // Render Table Rows
+        const tbody = $('reg-tbody');
+        if (tbody) {
+            tbody.innerHTML = pageItems.map((s) => {
+                const isDelivered = String(s.delivery_status || '').toLowerCase().includes('deliver');
+                const stBadge = isDelivered
+                    ? '<span class="sd-pill bg-emerald-50 text-emerald-800 border border-emerald-200">Delivered</span>'
+                    : '<span class="sd-pill bg-slate-100 text-slate-700">' + esc(s.delivery_status || 'In Transit') + '</span>';
+
+                let tagBadge = '';
+                if (s.bill_no && s.bill_no !== '0' && s.bill_no !== 'nan') {
+                    tagBadge = '<span class="sd-pill bg-teal-50 text-teal-800 border border-teal-200" title="Bill No">' + esc(s.bill_no) + '</span>';
+                } else if (s.source_type === 'UNBILLED') {
+                    tagBadge = '<span class="sd-pill bg-amber-50 text-amber-800 border border-amber-200">Unbilled</span>';
+                } else {
+                    tagBadge = '<span class="sd-pill bg-slate-100 text-slate-600">' + esc(s.source_type || '—') + '</span>';
+                }
+
+                return '<tr class="reg-row transition hover:bg-slate-50/80">' +
+                    '<td class="font-semibold text-slate-900 sd-num">' + esc(s.awb_no) + '</td>' +
+                    '<td class="text-slate-500 sd-num">' + esc(s.date || '—') + '</td>' +
+                    '<td class="max-w-[240px] truncate text-slate-900 font-medium" title="' + esc(s.customer_name) + '">' +
+                        esc(s.customer_name) + (s.customer_code ? '<span class="text-slate-400 text-xs ml-1 font-normal">(' + esc(s.customer_code) + ')</span>' : '') +
+                    '</td>' +
+                    '<td class="text-slate-700">' + esc(s.sales_person || '—') + '</td>' +
+                    '<td><span class="inline-flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full ' + (s.transport_mode === 'Air' ? 'bg-blue-600' : (s.transport_mode === 'Train' ? 'bg-amber-600' : 'bg-emerald-600')) + '"></span>' + esc(s.transport_mode || 'Surface') + '</span></td>' +
+                    '<td class="text-slate-700">' + esc(s.destination || '—') + '</td>' +
+                    '<td class="text-right sd-num text-slate-600">' + int(s.weight) + '</td>' +
+                    '<td class="text-right sd-num font-semibold text-slate-900">' + formatINR(s.total_amt) + '</td>' +
+                    '<td>' + stBadge + '</td>' +
+                    '<td>' + tagBadge + '</td>' +
+                    '</tr>';
+            }).join('');
+        }
+
+        $('reg-empty').classList.toggle('hidden', filtered.length > 0);
+        if ($('reg-table')) $('reg-table').classList.toggle('hidden', filtered.length === 0);
+
+        // Update pagination bar
+        setText('reg-page-info', filtered.length
+            ? 'Showing ' + int(startIdx + 1) + '–' + int(endIdx) + ' of ' + int(filtered.length) + ' consignments'
+            : 'No consignments match');
+
+        renderPagination(totalPages);
+    }
+
+    function renderPagination(totalPages) {
+        const pag = $('reg-pagination');
+        if (!pag) return;
+        if (totalPages <= 1) { pag.innerHTML = ''; return; }
+
+        let html = '';
+        html += '<button type="button" class="px-2.5 py-1 rounded border text-xs font-medium ' + (state.regPage > 1 ? 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50' : 'opacity-40 cursor-not-allowed border-slate-100') + '" ' + (state.regPage > 1 ? 'onclick="window.goToRegPage(' + (state.regPage - 1) + ')"' : 'disabled') + '>Previous</button>';
+
+        const cur = state.regPage;
+        const delta = 2;
+        let left = cur - delta, right = cur + delta;
+        if (left < 1) left = 1;
+        if (right > totalPages) right = totalPages;
+
+        if (left > 1) {
+            html += '<button type="button" class="px-2.5 py-1 rounded border text-xs font-medium bg-white text-slate-700 border-slate-200 hover:bg-slate-50" onclick="window.goToRegPage(1)">1</button>';
+            if (left > 2) html += '<span class="px-1 text-slate-400">…</span>';
+        }
+
+        for (let p = left; p <= right; p++) {
+            const active = p === cur;
+            html += '<button type="button" class="px-2.5 py-1 rounded border text-xs font-semibold ' + (active ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50') + '" onclick="window.goToRegPage(' + p + ')">' + p + '</button>';
+        }
+
+        if (right < totalPages) {
+            if (right < totalPages - 1) html += '<span class="px-1 text-slate-400">…</span>';
+            html += '<button type="button" class="px-2.5 py-1 rounded border text-xs font-medium bg-white text-slate-700 border-slate-200 hover:bg-slate-50" onclick="window.goToRegPage(' + totalPages + ')">' + totalPages + '</button>';
+        }
+
+        html += '<button type="button" class="px-2.5 py-1 rounded border text-xs font-medium ' + (state.regPage < totalPages ? 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50' : 'opacity-40 cursor-not-allowed border-slate-100') + '" ' + (state.regPage < totalPages ? 'onclick="window.goToRegPage(' + (state.regPage + 1) + ')"' : 'disabled') + '>Next</button>';
+        pag.innerHTML = html;
+    }
+
+    window.goToRegPage = function (p) {
+        state.regPage = p;
+        applyRegister();
+        const t = $('reg-table');
+        if (t && t.scrollIntoView) t.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    };
+
+    function formatINR(val) {
+        const x = Number(val) || 0;
+        return '₹' + x.toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
     // ── Orchestration ──────────────────────────────────────────────
     function safe(fn, seg) {
-        try {
-            console.log('[sales-dashboard] safe() running:', fn.name);
-            fn(seg);
-        } catch (e) {
-            console.error('[sales-dashboard] error in ' + fn.name, e);
-        }
+        try { fn(seg); } catch (e) { console.error('[sales-dashboard] error in ' + fn.name, e); }
     }
+
     function renderAll() {
-        console.log('[sales-dashboard] renderAll() starting for segment:', state.seg);
         const seg = getSeg();
         $('sd-root').style.setProperty('--seg', color());
         setText('seg-title', SEG_THEME[state.seg].title);
@@ -818,8 +1339,8 @@
         safe(renderCustomers, seg);
         safe(renderNetwork, seg);
         safe(applyRegister, seg);
-        console.log('[sales-dashboard] renderAll() completed');
     }
+
     function setSeg(seg) {
         state.seg = SEG_THEME[seg] ? seg : 'unbilled';
         document.querySelectorAll('.sd-seg button').forEach((b) => {
@@ -827,24 +1348,22 @@
             b.classList.toggle('active', on);
             b.setAttribute('aria-selected', on ? 'true' : 'false');
         });
+        state.regPage = 1;
         try {
             const u = new URL(window.location.href);
             u.searchParams.set('seg', state.seg);
             window.history.replaceState(null, '', u.toString());
-        } catch (e) { /* non-critical */ }
+        } catch (e) { }
         renderAll();
     }
 
     function boot() {
-        console.log('[sales-dashboard] boot() started!');
         const qs = new URLSearchParams(window.location.search);
         if (SEG_THEME[qs.get('seg')]) state.seg = qs.get('seg');
 
-        try {
-            console.log('[sales-dashboard] calling initMap...');
-            initMap();
-            console.log('[sales-dashboard] initMap completed');
-        } catch (e) { console.error('[sales-dashboard] map init error', e); }
+        try { initMap(); } catch (e) { console.error('[sales-dashboard] map init error', e); }
+
+        populateRepOptions();
 
         document.querySelectorAll('.sd-seg button').forEach((b) => b.addEventListener('click', () => setSeg(b.dataset.seg)));
         const monthSel = $('sd-month');
@@ -853,18 +1372,42 @@
         if (repSel) repSel.addEventListener('change', () => {
             window.location.href = repSel.dataset.base + '?report_id=' + encodeURIComponent(repSel.value) + '&seg=' + state.seg;
         });
+
+        // Combined sub-sheet switcher buttons
+        document.querySelectorAll('.subsheet-btn').forEach((b) => {
+            b.addEventListener('click', () => {
+                state.regSubSheet = b.dataset.sub;
+                state.regPage = 1;
+                applyRegister();
+            });
+        });
+
+        // Clear filters button
+        const clearBtn = $('sd-clear-filters-btn');
+        if (clearBtn) clearBtn.addEventListener('click', clearAllFilters);
+
         ['tg-dest', 'tg-lanes'].forEach((id) => {
             const el = $(id);
             if (el) el.addEventListener('change', () => safe(renderNetwork, getSeg()));
         });
+
+        // Register table controls
         ['reg-rep', 'reg-mode'].forEach((id) => {
             const el = $(id);
-            if (el) el.addEventListener('change', applyRegister);
+            if (el) el.addEventListener('change', () => { state.regPage = 1; applyRegister(); });
         });
         const regCust = $('reg-cust');
-        if (regCust) regCust.addEventListener('input', applyRegister);
+        if (regCust) regCust.addEventListener('input', () => { state.regPage = 1; applyRegister(); });
+        const regPageSize = $('reg-page-size');
+        if (regPageSize) regPageSize.addEventListener('change', () => { state.regPage = 1; applyRegister(); });
         const regReset = $('reg-reset');
-        if (regReset) regReset.addEventListener('click', () => { $('reg-rep').value = 'ALL'; $('reg-mode').value = 'ALL'; $('reg-cust').value = ''; applyRegister(); });
+        if (regReset) regReset.addEventListener('click', () => {
+            $('reg-rep').value = 'ALL';
+            $('reg-mode').value = 'ALL';
+            $('reg-cust').value = '';
+            state.regPage = 1;
+            applyRegister();
+        });
 
         setSeg(state.seg);
     }

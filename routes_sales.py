@@ -64,6 +64,15 @@ def _enrich_geo(report_data):
     fix_routes(conn_data.get('all_routes'))
     for routes in (conn_data.get('by_month') or {}).values():
         fix_routes(routes)
+
+    # Ensure complete shipment arrays exist
+    if 'all_shipments' not in report_data:
+        report_data['all_shipments'] = report_data.get('shipments_sample') or []
+    if 'billed_shipments' not in report_data:
+        report_data['billed_shipments'] = [s for s in report_data['all_shipments'] if s.get('source_type') in ('BILLED', 'COMBINED')]
+    if 'unbilled_shipments' not in report_data:
+        report_data['unbilled_shipments'] = [s for s in report_data['all_shipments'] if s.get('source_type') in ('UNBILLED', 'COMBINED')]
+
     return report_data
 
 @sales_bp.route('/sales/dashboard')
