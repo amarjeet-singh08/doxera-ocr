@@ -1256,9 +1256,9 @@
         const c = color();
         const points = [];
 
-        // 1. Peak Day Annotation (clean and non-overflowing on mobile)
-        const peakText = isMobile ? ('Peak: ' + inrShort(vals[pi])) : ('Peak: ' + inrShort(vals[pi]) + ' (' + inr(vals[pi]) + ')');
-        const peakOffsetX = (pi === lastIdx) ? (isMobile ? -30 : -20) : (pi === 0 ? (isMobile ? 30 : 20) : 0);
+        // 1. Peak Day Annotation (clean and non-overflowing across all devices)
+        const peakText = 'Peak: ' + inrShort(vals[pi]);
+        const peakOffsetX = (pi === lastIdx) ? -32 : (pi === 0 ? 32 : 0);
         points.push({
             x: cats[pi], y: vals[pi],
             marker: { size: 5, fillColor: c, strokeColor: '#fff', strokeWidth: 2 },
@@ -1271,9 +1271,9 @@
             }
         });
 
-        // 2. Latest/Last Day Annotation (clean and non-overflowing on mobile)
+        // 2. Latest/Last Day Annotation (clean and non-overflowing across all devices)
         if (lastIdx >= 0 && lastIdx !== pi) {
-            const latestText = isMobile ? (cats[lastIdx] + ': ' + inrShort(vals[lastIdx])) : (cats[lastIdx] + ': ' + inrShort(vals[lastIdx]) + ' (' + inr(vals[lastIdx]) + ')');
+            const latestText = cats[lastIdx] + ': ' + inrShort(vals[lastIdx]);
             points.push({
                 x: cats[lastIdx], y: vals[lastIdx],
                 marker: { size: 5, fillColor: '#0F172A', strokeColor: '#fff', strokeWidth: 2 },
@@ -1281,7 +1281,7 @@
                     text: latestText,
                     borderWidth: 0,
                     offsetY: -6,
-                    offsetX: isMobile ? -36 : -20,
+                    offsetX: -32,
                     style: { background: '#0F172A', color: '#fff', fontSize: isMobile ? '9.5px' : '11px', fontWeight: 600, fontFamily: FONT }
                 }
             });
@@ -1291,10 +1291,12 @@
         if (state.filters.date) {
             const selIdx = rows.findIndex((r) => r.date === state.filters.date);
             if (selIdx >= 0) {
-                const activeText = isMobile ? ('Active: ' + inrShort(vals[selIdx])) : ('Active: ' + cats[selIdx] + ' · ' + inrShort(vals[selIdx]) + ' (' + inr(vals[selIdx]) + ')');
+                const activeText = 'Active: ' + inrShort(vals[selIdx]);
+                const activeOffsetX = (selIdx === lastIdx) ? -32 : (selIdx === 0 ? 32 : 0);
                 const existPt = points.find((p) => p.x === cats[selIdx]);
                 if (existPt) {
                     existPt.label.text = activeText;
+                    existPt.label.offsetX = activeOffsetX;
                     existPt.label.style.background = '#1E3A8A';
                     existPt.marker.size = 7;
                     existPt.marker.strokeColor = '#1E3A8A';
@@ -1307,6 +1309,7 @@
                             text: activeText,
                             borderWidth: 0,
                             offsetY: -6,
+                            offsetX: activeOffsetX,
                             style: { background: '#1E3A8A', color: '#fff', fontSize: isMobile ? '9.5px' : '11px', fontWeight: 600, fontFamily: FONT }
                         }
                     });
@@ -1387,7 +1390,7 @@
             grid: Object.assign({}, GRID, {
                 padding: {
                     left: isMobile ? 8 : 16,
-                    right: isMobile ? 38 : (isTablet ? 28 : 22),
+                    right: isMobile ? 38 : (isTablet ? 32 : 36),
                     top: 8,
                     bottom: isMobile ? 18 : 8
                 }
@@ -1451,7 +1454,7 @@
                         grid: {
                             padding: {
                                 left: 12,
-                                right: 28,
+                                right: 32,
                                 top: 8,
                                 bottom: 12
                             }
@@ -1513,7 +1516,7 @@
             },
             xaxis: {
                 categories: items.map((r) => truncate(r.name || 'Unassigned', isMobile ? 14 : (isTablet ? 20 : 28))),
-                max: max * (isMobile ? 1.88 : (isTablet ? 1.55 : 1.35)),
+                max: max * (isMobile ? 1.88 : (isTablet ? 1.55 : 1.38)),
                 tickAmount: isMobile ? 2 : 5,
                 labels: {
                     show: !isMobile,
@@ -1526,14 +1529,15 @@
             },
             yaxis: {
                 labels: {
-                    maxWidth: isMobile ? 100 : (isTablet ? 150 : 210),
-                    style: { colors: '#0F172A', fontSize: isMobile ? '10.5px' : '12.5px', fontWeight: 500, fontFamily: FONT }
+                    minWidth: isMobile ? 80 : (isTablet ? 120 : 150),
+                    maxWidth: isMobile ? 100 : (isTablet ? 160 : 240),
+                    style: { colors: '#0F172A', fontSize: isMobile ? '10.5px' : '12px', fontWeight: 500, fontFamily: FONT }
                 }
             },
             grid: Object.assign({}, GRID, {
                 padding: {
-                    left: 0,
-                    right: isMobile ? 38 : (isTablet ? 24 : 16),
+                    left: isMobile ? 12 : 24,
+                    right: isMobile ? 38 : (isTablet ? 28 : 28),
                     top: 4,
                     bottom: isMobile ? 0 : 4
                 },
@@ -1555,6 +1559,7 @@
                         },
                         yaxis: {
                             labels: {
+                                minWidth: 80,
                                 maxWidth: 100,
                                 style: { fontSize: '10.5px', colors: '#0F172A' }
                             }
@@ -1566,7 +1571,7 @@
                         grid: {
                             padding: {
                                 right: 38,
-                                left: 0,
+                                left: 12,
                                 bottom: 0
                             }
                         }
@@ -1581,14 +1586,15 @@
                         },
                         yaxis: {
                             labels: {
-                                maxWidth: 150,
+                                minWidth: 120,
+                                maxWidth: 160,
                                 style: { fontSize: '11.5px', colors: '#0F172A' }
                             }
                         },
                         grid: {
                             padding: {
-                                right: 24,
-                                left: 0
+                                right: 28,
+                                left: 18
                             }
                         }
                     }
