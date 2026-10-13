@@ -1389,7 +1389,7 @@ def generate_sales_pdf(report_row, report_data):
             self.setFont("Helvetica-Bold", 7.5)
             self.setFillColor(colors.HexColor("#64748B"))
             # Running Header
-            self.drawString(36, 808, "DOXERA EXECUTIVE SALES AUDIT | NORTH EXPRESS LOGISTICS")
+            self.drawString(36, 808, "DOXERA EXECUTIVE SALES AUDIT | NORTH EXPRESS LOGISTICS PVT. LTD.")
             self.drawRightString(559, 808, "STRICTLY CONFIDENTIAL")
             self.setStrokeColor(colors.HexColor("#CBD5E1"))
             self.setLineWidth(0.5)
@@ -1542,7 +1542,7 @@ def generate_sales_pdf(report_row, report_data):
     if os.path.exists(logo_path):
         try:
             img = Image(logo_path, width=110, height=32)
-            txt = Paragraph("<b>NORTH EXPRESS LOGISTICS LTD.</b><br/><font color='#64748B' size=7.5>EXECUTIVE SALES REVENUE AUDIT REPORT</font>", doc_sub_style)
+            txt = Paragraph("<b>NORTH EXPRESS LOGISTICS PVT. LTD.</b><br/><font color='#64748B' size=7.5>EXECUTIVE SALES REVENUE AUDIT REPORT</font>", doc_sub_style)
             header_data = [[img, txt]]
         except Exception:
             header_data = [[Paragraph("<b>DOXERA AUDIT INTELLIGENCE</b>", doc_title_style)]]
@@ -1923,7 +1923,7 @@ def generate_sales_pdf(report_row, report_data):
                       "All docket numbers, freight weights, charges, transport modes, and sales allocations have been verified.<br/><br/>"
                       "<b>Internal Auditor:</b> ___________________________ &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; "
                       "<b>Audit Sign-Off Date:</b> ___________________________<br/>"
-                      "<font size=7 color='#64748B'>North Express Logistics Internal Audit Committee | Doxera Intelligence Engine</font>", body_style)
+                      "<font size=7 color='#64748B'>North Express Logistics Pvt. Ltd. Internal Audit Committee | Doxera Intelligence Engine</font>", body_style)
         ]
     ]
     t_signoff = Table(signoff_data, colWidths=[523])

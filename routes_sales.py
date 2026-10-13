@@ -171,21 +171,32 @@ import re
 
 def _get_export_filename(report, ext):
     title = ""
+    period = ""
     if report:
         try:
             title = (report['title'] or '').strip()
+            period = (report['period_label'] or '').strip()
         except Exception:
             title = (getattr(report, 'title', None) or '').strip()
+            period = (getattr(report, 'period_label', None) or '').strip()
     if not title:
-        try:
-            title = f"SalesReport_{report['report_id']}"
-        except Exception:
-            title = "SalesReport"
-    # Replace illegal filename characters: \ / : * ? " < > |
+        title = f"Sales_Audit_{period}" if period else "Sales_Audit"
+    
+    # Clean characters illegal in filenames across Windows/macOS/iOS/Linux
     safe_name = re.sub(r'[\\/*?:"<>|]', '_', title).strip()
-    safe_name = re.sub(r'\s+', ' ', safe_name)
-    if len(safe_name) > 120:
-        safe_name = safe_name[:120].strip()
+    safe_name = re.sub(r'[\s\-]+', '_', safe_name)
+    safe_name = re.sub(r'_+', '_', safe_name).strip('_')
+    
+    # Guarantee official company name is always present in downloaded file
+    if "North_Express_Logistics" not in safe_name:
+        safe_name = f"North_Express_Logistics_Pvt_Ltd_{safe_name}"
+    else:
+        # Standardize company naming
+        safe_name = re.sub(r'North_Express_Logistics(_Ltd)?', 'North_Express_Logistics_Pvt_Ltd', safe_name)
+        safe_name = re.sub(r'_+', '_', safe_name).strip('_')
+
+    if len(safe_name) > 110:
+        safe_name = safe_name[:110].strip('_')
     return f"{safe_name}.{ext}"
 
 @sales_bp.route('/sales/report/<int:report_id>/export/pdf')
