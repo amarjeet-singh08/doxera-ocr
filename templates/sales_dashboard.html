@@ -297,7 +297,7 @@
             <div>
                 <p class="sd-eyebrow">01 · Trend</p>
                 <h2 class="sd-title">Daily sales</h2>
-                <p class="sd-desc">Freight value booked on each day of the period</p>
+                <p class="sd-desc">Freight value booked on each day of the period <span class="text-slate-400 text-xs ml-1">(Click point to filter date)</span></p>
             </div>
             <div class="sd-stats">
                 <div class="sd-stat"><div class="v" id="daily-peak">—</div><div class="k" id="daily-peak-k">Peak day</div></div>
@@ -574,7 +574,7 @@
     const state = {
         seg: 'unbilled',
         month: 'ALL',
-        filters: { rep: null, mode: null, customer: null, destination: null, status: null },
+        filters: { rep: null, mode: null, customer: null, destination: null, status: null, date: null },
         regSubSheet: 'billed',
         regPage: 1,
         regPageSize: 50,
@@ -785,7 +785,7 @@
     }
 
     function getSeg() {
-        const hasFilter = !!(state.filters.rep || state.filters.mode || state.filters.customer || state.filters.destination || state.filters.status);
+        const hasFilter = !!(state.filters.rep || state.filters.mode || state.filters.customer || state.filters.destination || state.filters.status || state.filters.date);
         if (!hasFilter && state.month === 'ALL') {
             return DATA[state.seg] || {};
         }
@@ -817,7 +817,17 @@
             list = list.filter((s) => String(s.delivery_status || '').toLowerCase().includes('deliver') && (s.source_type === 'UNBILLED' || s.source_type === 'COMBINED'));
         }
 
-        return computeMetricsFromShipments(list);
+        const baseMetrics = computeMetricsFromShipments(list);
+
+        if (state.filters.date) {
+            const dateFilteredList = list.filter((s) => s.date === state.filters.date);
+            const dateMetrics = computeMetricsFromShipments(dateFilteredList);
+            // Retain full daily_sales trend so all date points remain visible and interactive on the trend chart!
+            dateMetrics.daily_sales = baseMetrics.daily_sales;
+            return dateMetrics;
+        }
+
+        return baseMetrics;
     }
 
     const color = () => SEG_THEME[state.seg].color;
@@ -835,7 +845,7 @@
     };
 
     function clearAllFilters() {
-        state.filters = { rep: null, mode: null, customer: null, destination: null, status: null };
+        state.filters = { rep: null, mode: null, customer: null, destination: null, status: null, date: null };
         state.regPage = 1;
         renderFilterBanner();
         renderAll();
@@ -852,7 +862,8 @@
             mode: 'Transport Mode',
             customer: 'Customer',
             destination: 'Destination',
-            status: 'Audit Status'
+            status: 'Audit Status',
+            date: 'Booking Date'
         };
 
         Object.keys(state.filters).forEach((key) => {
@@ -861,6 +872,8 @@
                 let displayVal = val;
                 if (key === 'status') {
                     displayVal = val === 'pending' ? 'Pending / In-Transit' : (val === 'delivered_unbilled' ? 'Delivered Unbilled' : val);
+                } else if (key === 'date') {
+                    displayVal = fmtDate(val) + ' (' + val + ')';
                 }
                 chips.push(
                     '<span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-blue-100 text-blue-900 border border-blue-200">' +
@@ -922,7 +935,16 @@
             : 'No delivered consignments awaiting billing');
     }
 
-    // ── 01 Daily Trend ─────────────────────────────────────────────
+    // ── 01 Daily Trend (Interactive Tap-to-Filter by Date) ───────
+    let lastDateToggleTime = 0;
+    function handleDateSelect(dateVal) {
+        if (!dateVal) return;
+        const now = Date.now();
+        if (now - lastDateToggleTime < 350) return;
+        lastDateToggleTime = now;
+        toggleFilter('date', dateVal);
+    }
+
     function renderDaily(seg) {
         const rows = (seg.daily_sales || []).filter((d) => d && d.date && d.date !== 'Undated');
         if (!rows.length) {
@@ -939,15 +961,76 @@
         setText('daily-avg', inrShort(avg));
         setText('daily-days', rows.length);
 
+        const peakStatEl = $('daily-peak');
+        if (peakStatEl && peakStatEl.parentElement && rows[pi]) {
+            peakStatEl.parentElement.style.cursor = 'pointer';
+            peakStatEl.parentElement.title = 'Click to filter by peak day (' + cats[pi] + ')';
+            peakStatEl.parentElement.onclick = () => handleDateSelect(rows[pi].date);
+        }
+
         const c = color();
+        const points = [{
+            x: cats[pi], y: vals[pi],
+            marker: { size: 5, fillColor: c, strokeColor: '#fff', strokeWidth: 2 },
+            label: { text: inrShort(vals[pi]), borderWidth: 0, offsetY: -6,
+                     style: { background: c, color: '#fff', fontSize: '11px', fontWeight: 600, fontFamily: FONT } }
+        }];
+
+        if (state.filters.date) {
+            const selIdx = rows.findIndex((r) => r.date === state.filters.date);
+            if (selIdx >= 0) {
+                if (selIdx === pi) {
+                    points[0].label.text = 'Active Peak · ' + inrShort(vals[pi]);
+                    points[0].marker.size = 7;
+                    points[0].marker.strokeColor = '#1E3A8A';
+                    points[0].marker.strokeWidth = 3;
+                } else {
+                    points.push({
+                        x: cats[selIdx], y: vals[selIdx],
+                        marker: { size: 7, fillColor: '#2563EB', strokeColor: '#ffffff', strokeWidth: 3 },
+                        label: {
+                            text: 'Active · ' + inrShort(vals[selIdx]),
+                            borderWidth: 0,
+                            offsetY: -6,
+                            style: { background: '#1E3A8A', color: '#fff', fontSize: '11px', fontWeight: 600, fontFamily: FONT }
+                        }
+                    });
+                }
+            }
+        }
+
         draw('daily', 'chart-daily', {
-            chart: baseChart('area', 300),
+            chart: Object.assign(baseChart('area', 300), {
+                events: {
+                    dataPointSelection: (event, chartContext, config) => {
+                        const idx = config ? config.dataPointIndex : -1;
+                        if (idx != null && idx >= 0 && rows[idx]) {
+                            handleDateSelect(rows[idx].date);
+                        }
+                    },
+                    markerClick: (event, chartContext, { dataPointIndex }) => {
+                        if (dataPointIndex != null && dataPointIndex >= 0 && rows[dataPointIndex]) {
+                            handleDateSelect(rows[dataPointIndex].date);
+                        }
+                    },
+                    click: (event, chartContext, config) => {
+                        if (config && config.dataPointIndex != null && config.dataPointIndex >= 0 && rows[config.dataPointIndex]) {
+                            handleDateSelect(rows[config.dataPointIndex].date);
+                        }
+                    }
+                }
+            }),
             series: [{ name: 'Sale', data: vals }],
             colors: [c],
             stroke: { curve: 'smooth', width: 2.25 },
             fill: { type: 'gradient', gradient: { shadeIntensity: 0, opacityFrom: 0.22, opacityTo: 0.02, stops: [0, 100] } },
             dataLabels: { enabled: false },
-            markers: { size: rows.length <= 12 ? 3 : 0, strokeWidth: 0, hover: { size: 5 } },
+            markers: {
+                size: 4,
+                strokeWidth: 2,
+                strokeColors: '#ffffff',
+                hover: { size: 6.5 }
+            },
             xaxis: {
                 categories: cats, tickAmount: Math.min(cats.length - 1, 10),
                 labels: { rotate: 0, hideOverlappingLabels: true, style: AXIS },
@@ -961,18 +1044,21 @@
                     label: { text: 'Avg ' + inrShort(avg), position: 'left', textAnchor: 'start', offsetX: 6, borderWidth: 0,
                              style: { background: '#F1F5F9', color: '#475569', fontSize: '11px', fontWeight: 500, fontFamily: FONT } }
                 }],
-                points: [{
-                    x: cats[pi], y: vals[pi],
-                    marker: { size: 5, fillColor: c, strokeColor: '#fff', strokeWidth: 2 },
-                    label: { text: inrShort(vals[pi]), borderWidth: 0, offsetY: -6,
-                             style: { background: c, color: '#fff', fontSize: '11px', fontWeight: 600, fontFamily: FONT } }
-                }]
+                points: points
             },
             tooltip: {
                 theme: 'light',
                 custom: ({ dataPointIndex: i }) => {
                     const r = rows[i] || {};
-                    return tip(r.date || '', [['Sale', inr(r.sales)], ['Consignments', int(r.shipments)]]);
+                    const isSel = state.filters.date && state.filters.date === r.date;
+                    return tip(
+                        fmtDate(r.date) + (r.date ? ' (' + r.date + ')' : ''),
+                        [
+                            ['Sale', inr(r.sales)],
+                            ['Consignments', int(r.shipments)]
+                        ],
+                        isSel ? '⚡ Click to remove date filter' : '⚡ Click to filter dashboard by this date'
+                    );
                 }
             }
         });
@@ -1339,6 +1425,7 @@
             if (state.filters.destination && s.destination !== state.filters.destination) return false;
             if (state.filters.status === 'pending' && String(s.delivery_status || '').toLowerCase().includes('deliver')) return false;
             if (state.filters.status === 'delivered_unbilled' && !(String(s.delivery_status || '').toLowerCase().includes('deliver') && (s.source_type === 'UNBILLED' || s.source_type === 'COMBINED'))) return false;
+            if (state.filters.date && s.date !== state.filters.date) return false;
             if (q) {
                 const text = (s.awb_no + ' ' + (s.customer_name || '') + ' ' + (s.customer_code || '') + ' ' + (s.destination || '') + ' ' + (s.sales_person || '')).toLowerCase();
                 if (!text.includes(q)) return false;
@@ -1476,6 +1563,7 @@
         if (state.filters.mode) list = list.filter((s) => (s.transport_mode || '').toLowerCase() === state.filters.mode.toLowerCase());
         if (state.filters.customer) list = list.filter((s) => s.customer_name === state.filters.customer);
         if (state.filters.destination) list = list.filter((s) => s.destination === state.filters.destination);
+        if (state.filters.date) list = list.filter((s) => s.date === state.filters.date);
 
         // Non-delivered consignments
         modalShipments = list.filter((s) => !String(s.delivery_status || '').toLowerCase().includes('deliver'));
@@ -1513,6 +1601,7 @@
         if (state.filters.mode) list = list.filter((s) => (s.transport_mode || '').toLowerCase() === state.filters.mode.toLowerCase());
         if (state.filters.customer) list = list.filter((s) => s.customer_name === state.filters.customer);
         if (state.filters.destination) list = list.filter((s) => s.destination === state.filters.destination);
+        if (state.filters.date) list = list.filter((s) => s.date === state.filters.date);
 
         // Delivered but unbilled consignments
         modalShipments = list.filter((s) =>
