@@ -162,8 +162,15 @@
                     <a href="{{ url_for('sales.export_pptx', report_id=current_report.id) }}" class="sd-btn" title="Export Executive PowerPoint Presentation">
                         <i data-lucide="presentation" class="h-4 w-4 text-slate-500"></i> PPTX
                     </a>
-                    <button type="button" onclick="openDeleteReportModal()" class="sd-btn text-rose-600 hover:text-rose-700 hover:bg-rose-50 hover:border-rose-200 transition" title="Delete this sales report">
-                        <i data-lucide="trash-2" class="h-4 w-4 text-rose-500"></i> Delete
+                    <button type="button"
+                            data-del-id="{{ current_report.id }}"
+                            data-del-title="{{ current_report.title or ('Report #' ~ current_report.id) }}"
+                            data-del-period="{{ summary.period_label or current_report.period_label or '—' }}"
+                            data-del-date="{{ current_report.created_at|localdt }}"
+                            onclick="triggerDeleteReport(this)"
+                            class="sd-btn text-rose-600 hover:text-rose-700 hover:bg-rose-50 hover:border-rose-200 transition"
+                            title="Delete only this active sales report (Report #{{ current_report.id }})">
+                        <i data-lucide="trash-2" class="h-4 w-4 text-rose-500"></i> Delete Report #{{ current_report.id }}
                     </button>
                     <a href="{{ url_for('sales.upload_page') }}" class="sd-btn sd-btn-primary">
                         <i data-lucide="upload" class="h-4 w-4"></i> New Upload
@@ -194,7 +201,18 @@
                             </option>
                             {% endfor %}
                         </select>
-                        <button type="button" onclick="openDeleteReportModal()" class="sd-btn px-2.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 hover:border-rose-200 transition" title="Delete currently selected report">
+                        <button type="button" onclick="openManageReportsModal()" class="sd-btn px-2.5 text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition inline-flex items-center gap-1.5" title="Manage all saved reports (view or delete particular reports)">
+                            <i data-lucide="layers" class="h-4 w-4 text-slate-500"></i>
+                            <span class="hidden sm:inline">All Reports ({{ reports|length }})</span>
+                        </button>
+                        <button type="button"
+                                data-del-id="{{ current_report.id }}"
+                                data-del-title="{{ current_report.title or ('Report #' ~ current_report.id) }}"
+                                data-del-period="{{ summary.period_label or current_report.period_label or '—' }}"
+                                data-del-date="{{ current_report.created_at|localdt }}"
+                                onclick="triggerDeleteReport(this)"
+                                class="sd-btn px-2.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 hover:border-rose-200 transition"
+                                title="Delete only currently selected report (Report #{{ current_report.id }})">
                             <i data-lucide="trash-2" class="h-4 w-4 text-rose-500"></i>
                         </button>
                     </div>
@@ -494,33 +512,51 @@
             <div id="reg-pagination" class="flex items-center gap-1"></div>
         </div>
     </section>
-<!-- ═══════════════ DELETE REPORT CONFIRMATION MODAL ═══════════════ -->
-<div id="delete-report-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs transition-opacity duration-200">
+<!-- ═══════════════ DELETE PARTICULAR REPORT CONFIRMATION MODAL ═══════════════ -->
+<div id="delete-report-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs transition-opacity duration-200">
     <div class="bg-white rounded-2xl shadow-2xl max-w-md w-full border border-slate-200 overflow-hidden transform transition-all duration-200">
         <div class="p-5 sm:p-6 text-center">
-            <div class="w-12 h-12 mx-auto rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-4">
+            <div class="w-12 h-12 mx-auto rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-3">
                 <i data-lucide="trash-2" class="h-6 w-6"></i>
             </div>
-            <h3 class="text-lg font-bold text-slate-900">Delete Sales Report?</h3>
-            <p class="text-xs text-slate-500 mt-2 leading-relaxed">
-                Are you sure you want to permanently delete this sales intelligence report? This will remove all associated consignments, charts, and metrics from the database.
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200 mb-2">
+                <span>Targeting Single Report</span>
+                <span id="del-modal-id-badge" class="font-bold">#{{ current_report.id }}</span>
+            </div>
+            <h3 class="text-lg font-bold text-slate-900">Delete This Particular Report?</h3>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+                You are about to delete one specific sales intelligence report.
             </p>
-            <div class="mt-4 p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-left text-xs space-y-1.5">
+
+            <!-- Safe Deletion Guarantee Callout -->
+            <div class="mt-3.5 p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-left text-xs text-emerald-800 flex items-start gap-2.5">
+                <i data-lucide="shield-check" class="h-4 w-4 text-emerald-600 shrink-0 mt-0.5"></i>
+                <div class="leading-relaxed">
+                    <span class="font-bold text-emerald-900">Safe Deletion Guarantee:</span>
+                    <span>Only this individual report will be removed. All other saved reports in your system remain 100% safe and untouched.</span>
+                </div>
+            </div>
+
+            <div class="mt-3 p-3.5 bg-slate-50 rounded-xl border border-slate-200 text-left text-xs space-y-1.5">
                 <div class="flex justify-between items-start gap-2 text-slate-500">
-                    <span>Report:</span>
-                    <span class="font-semibold text-slate-800 text-right truncate max-w-[220px]" title="{{ current_report.title or ('Report #' ~ current_report.id) }}">{{ current_report.title or ('Report #' ~ current_report.id) }}</span>
+                    <span class="shrink-0">Target Report:</span>
+                    <span id="del-modal-title" class="font-semibold text-slate-800 text-right truncate max-w-[220px]" title="{{ current_report.title or ('Report #' ~ current_report.id) }}">{{ current_report.title or ('Report #' ~ current_report.id) }}</span>
                 </div>
                 <div class="flex justify-between text-slate-500">
-                    <span>Period:</span>
-                    <span class="font-medium text-slate-800">{{ summary.period_label or current_report.period_label or '—' }}</span>
+                    <span>Report ID:</span>
+                    <span id="del-modal-id" class="font-mono font-medium text-slate-800">#{{ current_report.id }}</span>
+                </div>
+                <div class="flex justify-between text-slate-500">
+                    <span>Billing Period:</span>
+                    <span id="del-modal-period" class="font-medium text-slate-800">{{ summary.period_label or current_report.period_label or '—' }}</span>
                 </div>
                 <div class="flex justify-between text-slate-500">
                     <span>Generated:</span>
-                    <span class="font-medium text-slate-800">{{ current_report.created_at|localdt }}</span>
+                    <span id="del-modal-date" class="font-medium text-slate-800">{{ current_report.created_at|localdt }}</span>
                 </div>
             </div>
             <p class="text-[11.5px] text-rose-600 font-medium mt-3 flex items-center justify-center gap-1">
-                <span>⚠️</span> This action cannot be undone.
+                <span>⚠️</span> This action cannot be undone for this particular report.
             </p>
         </div>
         <div class="px-5 sm:px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2.5">
@@ -530,9 +566,130 @@
             <form id="delete-report-form" method="POST" action="{{ url_for('sales.delete_report', report_id=current_report.id) }}">
                 <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg shadow-sm transition">
                     <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
-                    <span>Yes, Delete Report</span>
+                    <span id="del-modal-btn-label">Yes, Delete Only Report #{{ current_report.id }}</span>
                 </button>
             </form>
+        </div>
+    </div>
+</div>
+
+<!-- ═══════════════ MANAGE SAVED REPORTS MODAL ═══════════════ -->
+<div id="manage-reports-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-900/60 backdrop-blur-xs transition-opacity duration-200">
+    <div class="bg-white rounded-2xl shadow-2xl max-w-4xl w-full max-h-[90vh] flex flex-col border border-slate-200 overflow-hidden transform transition-all duration-200">
+        <!-- Header -->
+        <div class="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-start justify-between gap-4 bg-slate-50/70">
+            <div>
+                <div class="flex items-center gap-2">
+                    <span class="px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-indigo-800 bg-indigo-50 rounded border border-indigo-200">Report Inventory</span>
+                    <h3 class="text-base sm:text-lg font-bold text-slate-900">Saved Sales Intelligence Reports</h3>
+                </div>
+                <p class="text-xs text-slate-500 mt-1">
+                    Select a particular report to view or delete individually. Deleting any report removes only that specific report and preserves all other reports intact.
+                </p>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="px-2.5 py-1 text-xs font-semibold text-slate-700 bg-white rounded-md border border-slate-200 shadow-2xs">{{ reports|length }} Total Reports</span>
+                <button type="button" onclick="closeManageReportsModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition flex items-center justify-center ml-1 text-lg font-semibold" title="Close (Esc)">&times;</button>
+            </div>
+        </div>
+
+        <!-- Filter / Search toolbar -->
+        <div class="px-5 sm:px-6 py-3 border-b border-slate-100 bg-white flex flex-wrap items-center justify-between gap-3">
+            <div class="relative flex-1 min-w-[220px] max-w-sm">
+                <input type="text" id="manage-rep-search" oninput="filterManageReports(this.value)" placeholder="Search reports by title, period, ID..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 placeholder-slate-400">
+                <i data-lucide="search" class="h-3.5 w-3.5 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none"></i>
+            </div>
+            <div class="flex items-center gap-2 text-xs text-slate-500">
+                <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Active View</span>
+                <span class="text-slate-300">•</span>
+                <span>Individual Delete Enabled</span>
+            </div>
+        </div>
+
+        <!-- List table -->
+        <div class="overflow-y-auto flex-1 p-2 sm:p-5">
+            <div class="border border-slate-200 rounded-xl overflow-hidden bg-white">
+                <table class="w-full text-left text-xs text-slate-600 border-collapse">
+                    <thead class="bg-slate-50 border-b border-slate-200 font-semibold text-slate-700 uppercase text-[11px] tracking-wider">
+                        <tr>
+                            <th class="py-3 px-3.5 text-center w-14">ID</th>
+                            <th class="py-3 px-3.5">Report Title &amp; Period</th>
+                            <th class="py-3 px-3.5">Volume &amp; Sales</th>
+                            <th class="py-3 px-3.5 hidden md:table-cell">Generated On</th>
+                            <th class="py-3 px-3.5 text-right w-40">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-100">
+                        {% for rep in reports %}
+                        <tr class="manage-rep-row hover:bg-slate-50/80 transition" data-search="{{ rep.id }} {{ rep.title|e }} {{ rep.period_label|e }} {{ rep.created_by|e }}">
+                            <td class="py-3 px-3.5 text-center font-mono font-medium text-slate-500">
+                                <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold text-[11px]">#{{ rep.id }}</span>
+                            </td>
+                            <td class="py-3 px-3.5">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-bold text-slate-900 truncate max-w-[280px]" title="{{ rep.title or ('Report #' ~ rep.id) }}">{{ rep.title or ('Report #' ~ rep.id) }}</span>
+                                    {% if rep.id == current_report.id %}
+                                    <span class="px-2 py-0.5 text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-full shrink-0">Current</span>
+                                    {% endif %}
+                                </div>
+                                <div class="text-[11px] text-slate-500 mt-0.5 flex items-center gap-2">
+                                    <span>Period: <strong class="text-slate-700">{{ rep.period_label or '—' }}</strong></span>
+                                    <span class="text-slate-300">•</span>
+                                    <span class="font-mono text-slate-400">{{ rep.report_id }}</span>
+                                </div>
+                            </td>
+                            <td class="py-3 px-3.5">
+                                <div class="font-semibold text-slate-800">
+                                    {% if rep.total_sales %}₹{{ format_inr(rep.total_sales) }}{% else %}—{% endif %}
+                                </div>
+                                <div class="text-[11px] text-slate-500 mt-0.5">
+                                    {{ "{:,}".format(rep.total_shipments or 0) }} consignments
+                                </div>
+                            </td>
+                            <td class="py-3 px-3.5 hidden md:table-cell text-slate-500">
+                                <div>{{ rep.created_at|localdt }}</div>
+                                <div class="text-[11px] text-slate-400">By {{ rep.created_by or 'Admin' }}</div>
+                            </td>
+                            <td class="py-3 px-3.5 text-right">
+                                <div class="inline-flex items-center gap-1.5 justify-end">
+                                    {% if rep.id == current_report.id %}
+                                    <span class="px-2.5 py-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 rounded-lg border border-emerald-200">Active</span>
+                                    {% else %}
+                                    <a href="{{ url_for('sales.dashboard', report_id=rep.id) }}" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition" title="View this report">
+                                        <i data-lucide="eye" class="h-3.5 w-3.5"></i> View
+                                    </a>
+                                    {% endif %}
+                                    <button type="button"
+                                            data-del-id="{{ rep.id }}"
+                                            data-del-title="{{ rep.title or ('Report #' ~ rep.id) }}"
+                                            data-del-period="{{ rep.period_label or '—' }}"
+                                            data-del-date="{{ rep.created_at|localdt }}"
+                                            onclick="triggerDeleteReport(this)"
+                                            class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg border border-rose-200 transition"
+                                            title="Delete only Report #{{ rep.id }}">
+                                        <i data-lucide="trash-2" class="h-3.5 w-3.5"></i> Delete
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+                <div id="manage-rep-empty" class="hidden p-8 text-center text-xs text-slate-400">
+                    No reports match your search query.
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer Notice -->
+        <div class="px-5 sm:px-6 py-3 bg-slate-50 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
+            <div class="flex items-center gap-1.5 text-emerald-700 font-medium">
+                <i data-lucide="shield-check" class="h-4 w-4"></i>
+                <span>Isolated Deletion: Each delete action deletes only that selected report. All other reports remain completely safe.</span>
+            </div>
+            <button type="button" onclick="closeManageReportsModal()" class="px-4 py-1.5 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs transition">
+                Close
+            </button>
         </div>
     </div>
 </div>
@@ -1721,7 +1878,16 @@
         document.body.style.overflow = '';
     };
 
-    window.openDeleteReportModal = function (reportId) {
+    window.triggerDeleteReport = function (btn) {
+        if (!btn) return;
+        const id = btn.getAttribute('data-del-id') || '';
+        const title = btn.getAttribute('data-del-title') || '';
+        const period = btn.getAttribute('data-del-period') || '';
+        const date = btn.getAttribute('data-del-date') || '';
+        window.openDeleteReportModal(id, title, period, date);
+    };
+
+    window.openDeleteReportModal = function (reportId, reportTitle, reportPeriod, reportDate) {
         const modal = $('delete-report-modal');
         if (!modal) return;
         const repSel = $('sd-report');
@@ -1730,6 +1896,22 @@
         if (form && id) {
             form.action = '/sales/report/' + encodeURIComponent(id) + '/delete';
         }
+        const idBadge = $('del-modal-id-badge');
+        if (idBadge && id) idBadge.textContent = '#' + id;
+        const titleEl = $('del-modal-title');
+        if (titleEl && reportTitle) {
+            titleEl.textContent = reportTitle;
+            titleEl.title = reportTitle;
+        }
+        const idEl = $('del-modal-id');
+        if (idEl && id) idEl.textContent = '#' + id;
+        const periodEl = $('del-modal-period');
+        if (periodEl && reportPeriod) periodEl.textContent = reportPeriod;
+        const dateEl = $('del-modal-date');
+        if (dateEl && reportDate) dateEl.textContent = reportDate;
+        const btnLabel = $('del-modal-btn-label');
+        if (btnLabel && id) btnLabel.textContent = 'Yes, Delete Only Report #' + id;
+
         modal.classList.remove('hidden');
         document.body.style.overflow = 'hidden';
         if (window.lucide && typeof lucide.createIcons === 'function') {
@@ -1740,7 +1922,50 @@
     window.closeDeleteReportModal = function () {
         const modal = $('delete-report-modal');
         if (modal) modal.classList.add('hidden');
-        document.body.style.overflow = '';
+        const manageModal = $('manage-reports-modal');
+        if (!manageModal || manageModal.classList.contains('hidden')) {
+            document.body.style.overflow = '';
+        }
+    };
+
+    window.openManageReportsModal = function () {
+        const modal = $('manage-reports-modal');
+        if (!modal) return;
+        modal.classList.remove('hidden');
+        document.body.style.overflow = 'hidden';
+        const searchInput = $('manage-rep-search');
+        if (searchInput) {
+            searchInput.value = '';
+            window.filterManageReports('');
+        }
+        if (window.lucide && typeof lucide.createIcons === 'function') {
+            lucide.createIcons();
+        }
+    };
+
+    window.closeManageReportsModal = function () {
+        const modal = $('manage-reports-modal');
+        if (modal) modal.classList.add('hidden');
+        const delModal = $('delete-report-modal');
+        if (!delModal || delModal.classList.contains('hidden')) {
+            document.body.style.overflow = '';
+        }
+    };
+
+    window.filterManageReports = function (query) {
+        const q = (query || '').toLowerCase().trim();
+        const rows = document.querySelectorAll('.manage-rep-row');
+        let visibleCount = 0;
+        rows.forEach((r) => {
+            const text = (r.getAttribute('data-search') || '').toLowerCase();
+            const show = !q || text.indexOf(q) !== -1;
+            r.style.display = show ? '' : 'none';
+            if (show) visibleCount++;
+        });
+        const emptyEl = $('manage-rep-empty');
+        if (emptyEl) {
+            emptyEl.style.display = (visibleCount === 0) ? 'block' : 'none';
+        }
     };
 
     function buildModalStatusTabs() {
@@ -2058,10 +2283,18 @@
         // Close modals on Escape or clicking backdrop
         window.addEventListener('keydown', (e) => {
             if (e.key === 'Escape') {
+                const delModal = $('delete-report-modal');
+                if (delModal && !delModal.classList.contains('hidden')) {
+                    closeDeleteReportModal();
+                    return;
+                }
+                const manageModal = $('manage-reports-modal');
+                if (manageModal && !manageModal.classList.contains('hidden')) {
+                    closeManageReportsModal();
+                    return;
+                }
                 const modal = $('pending-modal');
                 if (modal && !modal.classList.contains('hidden')) closePendingModal();
-                const delModal = $('delete-report-modal');
-                if (delModal && !delModal.classList.contains('hidden')) closeDeleteReportModal();
             }
         });
         const pendingModalEl = $('pending-modal');
@@ -2074,6 +2307,12 @@
         if (delModalEl) {
             delModalEl.addEventListener('click', (e) => {
                 if (e.target === delModalEl) closeDeleteReportModal();
+            });
+        }
+        const manageModalEl = $('manage-reports-modal');
+        if (manageModalEl) {
+            manageModalEl.addEventListener('click', (e) => {
+                if (e.target === manageModalEl) closeManageReportsModal();
             });
         }
 

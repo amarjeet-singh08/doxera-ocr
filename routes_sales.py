@@ -255,7 +255,7 @@ def delete_report(report_id):
 
     title = rep['title'] or f"Report #{report_id}"
     log_audit(session.get('username', 'Admin'), 'SALES_REPORT_DELETED', details=f"Deleted report {report_id} ({title})")
-    flash(f'Report "{title}" permanently deleted.', "success")
+    flash(f'Report "{title}" (Report #{report_id}) was permanently deleted. All other reports remain safe.', "success")
     return redirect(url_for('sales.dashboard'))
 
 @sales_bp.route('/sales/customers', methods=['GET', 'POST'])
