@@ -341,6 +341,11 @@
                     <div class="text-[11.5px] font-semibold text-slate-700 sd-num mt-0.5" id="daily-avg-exact"></div>
                     <div class="k">Daily average</div>
                 </div>
+                <div class="sd-stat">
+                    <div class="v" id="daily-latest">—</div>
+                    <div class="text-[11.5px] font-semibold text-slate-700 sd-num mt-0.5" id="daily-latest-exact"></div>
+                    <div class="k" id="daily-latest-k">Latest day</div>
+                </div>
                 <div class="sd-stat"><div class="v" id="daily-days">—</div><div class="k">Active days</div></div>
             </div>
         </div>
@@ -1181,7 +1186,7 @@
     function renderDaily(seg) {
         const rows = (seg.daily_sales || []).filter((d) => d && d.date && d.date !== 'Undated');
         if (!rows.length) {
-            ['daily-peak', 'daily-peak-exact', 'daily-avg', 'daily-avg-exact', 'daily-days'].forEach((id) => setText(id, '—'));
+            ['daily-peak', 'daily-peak-exact', 'daily-avg', 'daily-avg-exact', 'daily-latest', 'daily-latest-exact', 'daily-days'].forEach((id) => setText(id, '—'));
             return showEmpty('daily', 'chart-daily', 'No dated consignments for this selection.', 300);
         }
         const cats = rows.map((d) => fmtDate(d.date));
@@ -1194,6 +1199,19 @@
         setText('daily-peak-k', 'Peak · ' + cats[pi]);
         setText('daily-avg', inrShort(avg));
         setText('daily-avg-exact', inr(avg));
+
+        const lastIdx = rows.length - 1;
+        if (lastIdx >= 0) {
+            setText('daily-latest', inrShort(vals[lastIdx]));
+            setText('daily-latest-exact', inr(vals[lastIdx]));
+            setText('daily-latest-k', 'Latest · ' + cats[lastIdx]);
+            const latestStatEl = $('daily-latest');
+            if (latestStatEl && latestStatEl.parentElement && rows[lastIdx]) {
+                latestStatEl.parentElement.style.cursor = 'pointer';
+                latestStatEl.parentElement.title = 'Click to filter by latest day (' + cats[lastIdx] + ')';
+                latestStatEl.parentElement.onclick = () => handleDateSelect(rows[lastIdx].date);
+            }
+        }
         setText('daily-days', rows.length);
 
         const peakStatEl = $('daily-peak');
@@ -1203,28 +1221,56 @@
             peakStatEl.parentElement.onclick = () => handleDateSelect(rows[pi].date);
         }
 
+        const isMobile = window.innerWidth <= 640;
         const c = color();
-        const points = [{
+        const points = [];
+
+        // 1. Peak Day Annotation (showing short and exact full amount)
+        const peakOffsetX = (pi === lastIdx) ? (isMobile ? -38 : -20) : (pi === 0 ? (isMobile ? 38 : 20) : 0);
+        points.push({
             x: cats[pi], y: vals[pi],
             marker: { size: 5, fillColor: c, strokeColor: '#fff', strokeWidth: 2 },
-            label: { text: inrShort(vals[pi]), borderWidth: 0, offsetY: -6,
-                     style: { background: c, color: '#fff', fontSize: '11px', fontWeight: 600, fontFamily: FONT } }
-        }];
+            label: {
+                text: 'Peak: ' + inrShort(vals[pi]) + ' (' + inr(vals[pi]) + ')',
+                borderWidth: 0,
+                offsetY: -6,
+                offsetX: peakOffsetX,
+                style: { background: c, color: '#fff', fontSize: isMobile ? '10px' : '11px', fontWeight: 600, fontFamily: FONT }
+            }
+        });
 
+        // 2. Latest/Last Day Annotation (showing short and exact full amount)
+        if (lastIdx >= 0 && lastIdx !== pi) {
+            points.push({
+                x: cats[lastIdx], y: vals[lastIdx],
+                marker: { size: 5, fillColor: '#0F172A', strokeColor: '#fff', strokeWidth: 2 },
+                label: {
+                    text: cats[lastIdx] + ': ' + inrShort(vals[lastIdx]) + ' (' + inr(vals[lastIdx]) + ')',
+                    borderWidth: 0,
+                    offsetY: -6,
+                    offsetX: isMobile ? -42 : -20,
+                    style: { background: '#0F172A', color: '#fff', fontSize: isMobile ? '10px' : '11px', fontWeight: 600, fontFamily: FONT }
+                }
+            });
+        }
+
+        // 3. Active Selected Date (if user tapped a date)
         if (state.filters.date) {
             const selIdx = rows.findIndex((r) => r.date === state.filters.date);
             if (selIdx >= 0) {
-                if (selIdx === pi) {
-                    points[0].label.text = 'Active Peak · ' + inrShort(vals[pi]);
-                    points[0].marker.size = 7;
-                    points[0].marker.strokeColor = '#1E3A8A';
-                    points[0].marker.strokeWidth = 3;
+                const existPt = points.find((p) => p.x === cats[selIdx]);
+                if (existPt) {
+                    existPt.label.text = 'Active: ' + cats[selIdx] + ' · ' + inrShort(vals[selIdx]) + ' (' + inr(vals[selIdx]) + ')';
+                    existPt.label.style.background = '#1E3A8A';
+                    existPt.marker.size = 7;
+                    existPt.marker.strokeColor = '#1E3A8A';
+                    existPt.marker.strokeWidth = 3;
                 } else {
                     points.push({
                         x: cats[selIdx], y: vals[selIdx],
                         marker: { size: 7, fillColor: '#2563EB', strokeColor: '#ffffff', strokeWidth: 3 },
                         label: {
-                            text: 'Active · ' + inrShort(vals[selIdx]),
+                            text: 'Active: ' + cats[selIdx] + ' · ' + inrShort(vals[selIdx]) + ' (' + inr(vals[selIdx]) + ')',
                             borderWidth: 0,
                             offsetY: -6,
                             style: { background: '#1E3A8A', color: '#fff', fontSize: '11px', fontWeight: 600, fontFamily: FONT }
@@ -1233,6 +1279,8 @@
                 }
             }
         }
+
+        const tickCount = isMobile ? Math.min(cats.length - 1, 5) : Math.min(cats.length - 1, 10);
 
         draw('daily', 'chart-daily', {
             chart: Object.assign(baseChart('area', 300), {
@@ -1267,12 +1315,34 @@
                 hover: { size: 6.5 }
             },
             xaxis: {
-                categories: cats, tickAmount: Math.min(cats.length - 1, 10),
-                labels: { rotate: 0, hideOverlappingLabels: true, style: AXIS },
-                axisBorder: { show: false }, axisTicks: { show: false }, tooltip: { enabled: false }
+                categories: cats,
+                tickAmount: tickCount,
+                labels: {
+                    rotate: isMobile ? -45 : 0,
+                    rotateAlways: isMobile,
+                    hideOverlappingLabels: true,
+                    style: Object.assign({}, AXIS, { fontSize: isMobile ? '10px' : '11px' })
+                },
+                axisBorder: { show: false },
+                axisTicks: { show: false },
+                tooltip: { enabled: false }
             },
-            yaxis: { min: 0, forceNiceScale: true, labels: { formatter: (v) => inrShort(v), style: AXIS } },
-            grid: GRID,
+            yaxis: {
+                min: 0,
+                forceNiceScale: true,
+                labels: {
+                    formatter: (v) => inrShort(v),
+                    style: Object.assign({}, AXIS, { fontSize: isMobile ? '10px' : '11px' })
+                }
+            },
+            grid: Object.assign({}, GRID, {
+                padding: {
+                    left: 6,
+                    right: 22,
+                    top: 8,
+                    bottom: isMobile ? 18 : 8
+                }
+            }),
             annotations: {
                 yaxis: [{
                     y: avg, borderColor: '#94A3B8', strokeDashArray: 4,
@@ -1295,12 +1365,41 @@
                         isSel ? '⚡ Click to remove date filter' : '⚡ Click to filter dashboard by this date'
                     );
                 }
-            }
+            },
+            responsive: [{
+                breakpoint: 640,
+                options: {
+                    chart: { height: 280 },
+                    xaxis: {
+                        tickAmount: Math.min(cats.length - 1, 5),
+                        labels: {
+                            rotate: -45,
+                            rotateAlways: true,
+                            hideOverlappingLabels: true,
+                            style: { fontSize: '10px', colors: '#64748B' }
+                        }
+                    },
+                    yaxis: {
+                        labels: {
+                            style: { fontSize: '10px', colors: '#64748B' }
+                        }
+                    },
+                    grid: {
+                        padding: {
+                            left: 6,
+                            right: 22,
+                            top: 8,
+                            bottom: 18
+                        }
+                    }
+                }
+            }]
         });
     }
 
-    // ── Shared Horizontal Bar Builder with Interactive Tap-to-Filter
+    // ── Shared Horizontal Bar Builder with Mobile Optimization ──
     function hbar(key, elId, items, labelFn, tipFn, customColor) {
+        const isMobile = window.innerWidth <= 640;
         const vals = items.map((r) => Math.round(n(r.sales)));
         const max = Math.max(1, ...vals);
         const barColor = customColor || color();
@@ -1318,25 +1417,89 @@
             }),
             series: [{ name: 'Sale', data: vals }],
             colors: [barColor],
-            plotOptions: { bar: { horizontal: true, barHeight: '58%', borderRadius: 3, borderRadiusApplication: 'end', dataLabels: { position: 'top' } } },
+            plotOptions: {
+                bar: {
+                    horizontal: true,
+                    barHeight: '58%',
+                    borderRadius: 3,
+                    borderRadiusApplication: 'end',
+                    dataLabels: { position: 'top' }
+                }
+            },
             dataLabels: {
-                enabled: true, textAnchor: 'start', offsetX: 8,
+                enabled: true,
+                textAnchor: 'start',
+                offsetX: isMobile ? 4 : 8,
                 formatter: (v, o) => labelFn(items[o.dataPointIndex], v),
-                style: { fontSize: '12px', fontWeight: 600, fontFamily: FONT, colors: ['#334155'] }
+                style: {
+                    fontSize: isMobile ? '10.5px' : '12px',
+                    fontWeight: 600,
+                    fontFamily: FONT,
+                    colors: ['#334155']
+                }
             },
             xaxis: {
-                categories: items.map((r) => truncate(r.name || 'Unassigned', 30)),
-                max: max * 1.32,
-                labels: { formatter: (v) => inrShort(v), style: AXIS },
-                axisBorder: { show: false }, axisTicks: { show: false }
+                categories: items.map((r) => truncate(r.name || 'Unassigned', isMobile ? 15 : 28)),
+                max: max * (isMobile ? 1.62 : 1.35),
+                tickAmount: isMobile ? 3 : 5,
+                labels: {
+                    formatter: (v) => inrShort(v),
+                    hideOverlappingLabels: true,
+                    style: Object.assign({}, AXIS, { fontSize: isMobile ? '10px' : '11px' })
+                },
+                axisBorder: { show: false },
+                axisTicks: { show: false }
             },
-            yaxis: { labels: { maxWidth: 210, style: { colors: '#0F172A', fontSize: '12.5px', fontWeight: 500, fontFamily: FONT } } },
-            grid: Object.assign({}, GRID, { xaxis: { lines: { show: true } }, yaxis: { lines: { show: false } } }),
+            yaxis: {
+                labels: {
+                    maxWidth: isMobile ? 115 : 210,
+                    style: { colors: '#0F172A', fontSize: isMobile ? '11px' : '12.5px', fontWeight: 500, fontFamily: FONT }
+                }
+            },
+            grid: Object.assign({}, GRID, {
+                padding: {
+                    left: 0,
+                    right: isMobile ? 26 : 16,
+                    top: 4,
+                    bottom: 4
+                },
+                xaxis: { lines: { show: true } },
+                yaxis: { lines: { show: false } }
+            }),
             states: { hover: { filter: { type: 'darken', value: 0.9 } } },
             tooltip: {
                 theme: 'light',
                 custom: ({ dataPointIndex: i }) => (items[i] ? tipFn(items[i]) : '')
-            }
+            },
+            responsive: [{
+                breakpoint: 640,
+                options: {
+                    xaxis: {
+                        tickAmount: 3,
+                        max: max * 1.62,
+                        labels: {
+                            hideOverlappingLabels: true,
+                            style: { fontSize: '10px', colors: '#64748B' }
+                        }
+                    },
+                    yaxis: {
+                        labels: {
+                            maxWidth: 115,
+                            style: { fontSize: '11px', colors: '#0F172A' }
+                        }
+                    },
+                    dataLabels: {
+                        offsetX: 4,
+                        style: { fontSize: '10.5px' }
+                    },
+                    grid: {
+                        padding: {
+                            right: 26,
+                            left: 0
+                        }
+                    }
+                }
+            }]
         });
     }
 
@@ -1353,7 +1516,7 @@
         setText('rep-top-exact', inr(reps[0].sales));
         setText('rep-top-k', 'Top performer · ' + pct(reps[0].share_pct));
         hbar('reps', 'chart-reps', reps,
-            (r, v) => inrShort(v) + '   ' + pct(r.share_pct),
+            (r, v) => inrShort(v) + ' · ' + pct(r.share_pct),
             (r) => tip(r.name, [['Sale', inr(r.sales)], ['Share of total', pct(r.share_pct)], ['Consignments', int(r.shipments)],
                                 ['Customers', r.customer_count == null ? '—' : int(r.customer_count)], ['Weight', int(r.weight) + ' kg']], '⚡ Click to filter dashboard'));
     }
@@ -1453,7 +1616,7 @@
         if (!top.length) return showEmpty('customers', 'chart-customers', 'No customer data for this selection.');
         const c = color();
         hbar('customers', 'chart-customers', top,
-            (r, v) => inrShort(v) + '   ' + pct(r.share_pct),
+            (r, v) => inrShort(v) + ' · ' + pct(r.share_pct),
             (r) => tip(r.name, [['Customer code', r.code || '—'], ['Sales person', r.sales_person || '—'], ['Sale', inr(r.sales)],
                                 ['Share of total', pct(r.share_pct)], ['Consignments', int(r.shipments)], ['Weight', int(r.weight) + ' kg']], '⚡ Click to filter dashboard'),
             c);
