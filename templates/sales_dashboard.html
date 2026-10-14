@@ -215,6 +215,7 @@
                     <div class="sd-seg w-full sm:w-auto" role="tablist" aria-label="Sales segment">
                         <button type="button" data-seg="unbilled" role="tab"><span class="sd-seg-dot"></span><span>Unbilled</span></button>
                         <button type="button" data-seg="billed" role="tab"><span class="sd-seg-dot"></span><span>Billed</span></button>
+                        <button type="button" data-seg="for_update" role="tab"><span class="sd-seg-dot !bg-rose-500"></span><span>For Update</span></button>
                         <button type="button" data-seg="all" role="tab"><span class="sd-seg-dot"></span><span>Combined</span></button>
                     </div>
                     {% if report_data.months %}
@@ -268,6 +269,19 @@
             </div>
         </div>
     </section>
+
+    <!-- Commercial Rate Update Notice Banner (Visible when For Update segment is active) -->
+    <div id="for-update-notice" class="hidden sd-card p-4 sm:p-5 bg-amber-50/90 border border-amber-200 text-amber-950 flex items-start gap-3.5">
+        <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+            <h3 class="text-sm font-bold text-amber-950">Commercial Rate Update Required (Pending Invoicing)</h3>
+            <p class="text-xs sm:text-[13px] text-amber-900 mt-0.5 leading-relaxed">
+                Showing unbilled consignments recorded with dummy or placeholder amounts (<b>₹10 or less</b>). These dockets are excluded from valid Unbilled turnover to protect financial reporting until actual freight rates are rectified in your ERP.
+            </p>
+        </div>
+    </div>
 
     <!-- ═══════════════ KPI STRIP ═══════════════ -->
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
@@ -493,14 +507,17 @@
             </div>
         </div>
 
-        <!-- Combined sub-sheet switcher (shown when state.seg === 'all' to show both sheets separately) -->
+        <!-- Combined sub-sheet switcher (shown when state.seg === 'all' to show sheets separately) -->
         <div id="reg-subsheet-bar" class="hidden px-4 sm:px-6 pt-2 pb-1">
             <div class="flex flex-col sm:inline-flex sm:flex-row p-1 bg-slate-100 rounded-lg gap-1 border border-slate-200 w-full sm:w-auto">
                 <button type="button" class="subsheet-btn flex-1 sm:flex-initial px-4 py-1.5 rounded-md text-xs font-semibold text-slate-800 bg-white shadow-sm transition text-center justify-center" data-sub="billed">
-                    📑 Billed Sheet (<span id="sub-billed-count">361</span> · <span id="sub-billed-amt">₹59.19 L</span> <span id="sub-billed-amt-exact" class="text-[11px] font-medium text-slate-500 hidden sm:inline"></span>)
+                    📑 Billed Sheet (<span id="sub-billed-count">0</span> · <span id="sub-billed-amt">₹0</span> <span id="sub-billed-amt-exact" class="text-[11px] font-medium text-slate-500 hidden sm:inline"></span>)
                 </button>
                 <button type="button" class="subsheet-btn flex-1 sm:flex-initial px-4 py-1.5 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition text-center justify-center" data-sub="unbilled">
-                    📑 Unbilled Sheet (<span id="sub-unbilled-count">797</span> · <span id="sub-unbilled-amt">₹31.44 L</span> <span id="sub-unbilled-amt-exact" class="text-[11px] font-medium text-slate-500 hidden sm:inline"></span>)
+                    📑 Unbilled Sheet (<span id="sub-unbilled-count">0</span> · <span id="sub-unbilled-amt">₹0</span> <span id="sub-unbilled-amt-exact" class="text-[11px] font-medium text-slate-500 hidden sm:inline"></span>)
+                </button>
+                <button type="button" class="subsheet-btn flex-1 sm:flex-initial px-4 py-1.5 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition text-center justify-center" data-sub="for_update">
+                    ⚠️ For Update (<span id="sub-update-count">0</span> · <span id="sub-update-amt">₹0</span>)
                 </button>
             </div>
         </div>
@@ -523,6 +540,10 @@
                 <button type="button" id="reg-reset" class="text-[13px] text-slate-500 hover:text-slate-800 px-2 font-medium">Reset</button>
             </div>
             <div class="flex items-center gap-2 text-[12px] text-slate-500 w-full sm:w-auto justify-between sm:justify-start">
+                <button type="button" id="reg-export-btn" onclick="exportRegisterCsv()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-xs transition" title="Export currently filtered register consignments as CSV">
+                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <span>Export CSV</span>
+                </button>
                 <span>Rows per page:</span>
                 <select id="reg-page-size" class="sd-select !h-8 !py-0 !pl-2 !pr-7 text-[12px]">
                     <option value="50" selected>50</option>
@@ -826,9 +847,10 @@
     catch (e) { console.error('Failed to parse dashboard data', e); return; }
 
     const SEG_THEME = {
-        unbilled: { color: '#B45309', title: 'Unbilled Sales Dashboard', sheetTitle: 'Unbilled Consignments Register', tag: 'UNBILLED' },
-        billed:   { color: '#0F766E', title: 'Billed Sales Dashboard',   sheetTitle: 'Billed Consignments Register',   tag: 'BILLED' },
-        all:      { color: '#475569', title: 'Consolidated Sales Dashboard', sheetTitle: 'Consolidated Consignment Registers', tag: 'ALL' }
+        unbilled:   { color: '#B45309', title: 'Unbilled Sales Dashboard', sheetTitle: 'Unbilled Consignments Register', tag: 'UNBILLED' },
+        billed:     { color: '#0F766E', title: 'Billed Sales Dashboard',   sheetTitle: 'Billed Consignments Register',   tag: 'BILLED' },
+        for_update: { color: '#E11D48', title: 'For Update / Rate Pending Dashboard', sheetTitle: 'Pending Rate Update Register', tag: 'FOR_UPDATE' },
+        all:        { color: '#475569', title: 'Consolidated Sales Dashboard', sheetTitle: 'Consolidated Consignment Registers', tag: 'ALL' }
     };
     const PALETTE = ['#1E3A8A', '#0D9488', '#D97706', '#E11D48', '#7C3AED', '#0284C7', '#CA8A04', '#475569'];
     const MONTH_COLORS = ['#2563EB', '#D97706', '#059669', '#DC2626', '#7C3AED', '#0891B2'];
@@ -927,6 +949,7 @@
     function getAllBaseShipments() {
         if (state.seg === 'unbilled') return DATA.unbilled_shipments || DATA.shipments_sample || [];
         if (state.seg === 'billed') return DATA.billed_shipments || DATA.shipments_sample || [];
+        if (state.seg === 'for_update') return DATA.for_update_shipments || [];
         return DATA.all_shipments || DATA.shipments_sample || [];
     }
 
@@ -1855,12 +1878,16 @@
             list = DATA.unbilled_shipments || [];
         } else if (state.seg === 'billed') {
             list = DATA.billed_shipments || [];
+        } else if (state.seg === 'for_update') {
+            list = DATA.for_update_shipments || [];
         } else {
             // Combined mode
             if (state.regSubSheet === 'billed') {
                 list = DATA.billed_shipments || [];
             } else if (state.regSubSheet === 'unbilled') {
                 list = DATA.unbilled_shipments || [];
+            } else if (state.regSubSheet === 'for_update') {
+                list = DATA.for_update_shipments || [];
             } else {
                 list = DATA.all_shipments || [];
             }
@@ -1878,6 +1905,17 @@
         select.innerHTML = '<option value="ALL">All sales persons</option>' +
             reps.map((r) => '<option value="' + esc(r) + '">' + esc(r) + '</option>').join('');
         if (reps.includes(curVal)) select.value = curVal;
+    }
+
+    function populateModeOptions() {
+        const select = $('reg-mode');
+        if (!select) return;
+        const curVal = select.value;
+        const all = getAllBaseShipments();
+        const modes = Array.from(new Set(all.map((s) => (s.transport_mode || s.service_mode || '').trim()).filter(Boolean))).sort();
+        select.innerHTML = '<option value="ALL">All modes</option>' +
+            modes.map((m) => '<option value="' + esc(m) + '">' + esc(m) + '</option>').join('');
+        if (modes.includes(curVal)) select.value = curVal;
     }
 
     function applyRegister() {
@@ -1900,6 +1938,11 @@
                 const uAmt = (DATA.unbilled || {}).summary ? (DATA.unbilled.summary.total_sales) : 0;
                 setText('sub-unbilled-amt', inrShort(uAmt));
                 setText('sub-unbilled-amt-exact', '(' + inr(uAmt) + ')');
+
+                setText('sub-update-count', int((DATA.for_update_shipments || []).length));
+                const upAmt = (DATA.for_update || {}).summary ? (DATA.for_update.summary.total_sales) : 0;
+                setText('sub-update-amt', inrShort(upAmt));
+
                 document.querySelectorAll('.subsheet-btn').forEach((b) => {
                     const active = b.dataset.sub === state.regSubSheet;
                     b.classList.toggle('active', active);
@@ -1915,13 +1958,17 @@
         // Section header and titles
         if (state.seg === 'unbilled') {
             setText('reg-title', 'Unbilled Consignments Register');
-            setText('reg-desc', 'Full unbilled sheet uploaded for this period (' + int((DATA.unbilled_shipments || []).length) + ' total consignments)');
+            setText('reg-desc', 'Valid unbilled sheet uploaded for this period (' + int((DATA.unbilled_shipments || []).length) + ' total consignments)');
         } else if (state.seg === 'billed') {
             setText('reg-title', 'Billed Consignments Register');
             setText('reg-desc', 'Full billed sheet uploaded for this period (' + int((DATA.billed_shipments || []).length) + ' total consignments)');
+        } else if (state.seg === 'for_update') {
+            setText('reg-title', 'Pending Rate Update Register (Amount ≤ ₹10)');
+            setText('reg-desc', 'Consignments requiring commercial rate updates in ERP before invoicing (' + int((DATA.for_update_shipments || []).length) + ' total consignments)');
         } else {
             setText('reg-title', 'Consolidated Consignment Registers');
-            setText('reg-desc', 'Showing uploaded sheet: ' + (state.regSubSheet === 'billed' ? 'Billed Consignments' : 'Unbilled Consignments'));
+            const subTitle = state.regSubSheet === 'billed' ? 'Billed Consignments' : (state.regSubSheet === 'for_update' ? 'For Update (Rate ≤ ₹10)' : 'Unbilled Consignments');
+            setText('reg-desc', 'Showing uploaded sheet: ' + subTitle);
         }
 
         // Filter records
@@ -1929,8 +1976,8 @@
             if (state.month !== 'ALL' && s.month_key && s.month_key !== state.month) return false;
             if (rep !== 'ALL' && s.sales_person !== rep) return false;
             if (state.filters.rep && s.sales_person !== state.filters.rep) return false;
-            if (mode !== 'ALL' && (s.transport_mode || '').toLowerCase() !== mode.toLowerCase()) return false;
-            if (state.filters.mode && (s.transport_mode || '').toLowerCase() !== state.filters.mode.toLowerCase()) return false;
+            if (mode !== 'ALL' && (s.transport_mode || s.service_mode || '').toLowerCase() !== mode.toLowerCase()) return false;
+            if (state.filters.mode && (s.transport_mode || s.service_mode || '').toLowerCase() !== state.filters.mode.toLowerCase()) return false;
             if (state.filters.customer && s.customer_name !== state.filters.customer) return false;
             if (state.filters.destination && s.destination !== state.filters.destination) return false;
             if (state.filters.status === 'pending' && String(s.delivery_status || '').toLowerCase().includes('deliver')) return false;
@@ -1968,7 +2015,9 @@
                     : '<span class="sd-pill bg-slate-100 text-slate-700">' + esc(s.delivery_status || 'In Transit') + '</span>';
 
                 let tagBadge = '';
-                if (s.bill_no && s.bill_no !== '0' && s.bill_no !== 'nan') {
+                if (n(s.total_amt) <= 10.0 && (s.source_type === 'UNBILLED' || s.source_type === 'COMBINED')) {
+                    tagBadge = '<span class="sd-pill bg-rose-50 text-rose-800 border border-rose-300 font-semibold" title="Placeholder/Dummy rate in ERP: Requires commercial update before billing">For Update</span>';
+                } else if (s.bill_no && s.bill_no !== '0' && s.bill_no !== 'nan') {
                     tagBadge = '<span class="sd-pill bg-teal-50 text-teal-800 border border-teal-200" title="Bill No">' + esc(s.bill_no) + '</span>';
                 } else if (s.source_type === 'UNBILLED') {
                     tagBadge = '<span class="sd-pill bg-amber-50 text-amber-800 border border-amber-200">Unbilled</span>';
@@ -1993,7 +2042,7 @@
                     '<td><span class="inline-flex items-center gap-1.5"><span class="w-1.5 h-1.5 rounded-full ' + (s.transport_mode === 'Air' ? 'bg-blue-600' : (s.transport_mode === 'Train' ? 'bg-amber-600' : 'bg-emerald-600')) + '"></span>' + esc(s.transport_mode || 'Surface') + '</span></td>' +
                     '<td class="text-slate-700">' + esc(s.destination || '—') + '</td>' +
                     '<td class="text-right sd-num text-slate-600">' + int(s.weight) + '</td>' +
-                    '<td class="text-right sd-num font-semibold text-slate-900">' + formatINR(s.total_amt) + '</td>' +
+                    '<td class="text-right sd-num font-semibold text-slate-900">' + (n(s.total_amt) <= 10.0 && (s.source_type === 'UNBILLED' || s.source_type === 'COMBINED') ? '<span class="text-rose-600 font-bold" title="Dummy/Pending rate in ERP">' + formatINR(s.total_amt) + ' ⚠️</span>' : formatINR(s.total_amt)) + '</td>' +
                     '<td>' + stBadge + '</td>' +
                     '<td>' + tagBadge + '</td>' +
                     '</tr>';
@@ -2456,6 +2505,60 @@
         URL.revokeObjectURL(url);
     };
 
+    window.exportRegisterCsv = function () {
+        const baseList = getRegisterDataset();
+        const rep = $('reg-rep') ? $('reg-rep').value : 'ALL';
+        const mode = $('reg-mode') ? $('reg-mode').value : 'ALL';
+        const q = $('reg-cust') ? $('reg-cust').value.toLowerCase().trim() : '';
+
+        const rowsToExport = baseList.filter((s) => {
+            if (rep !== 'ALL' && s.sales_person !== rep) return false;
+            if (mode !== 'ALL' && (s.transport_mode || s.service_mode || '').toLowerCase() !== mode.toLowerCase()) return false;
+            if (q) {
+                const hay = [s.awb_no, s.customer_name, s.customer_code, s.origin, s.destination, s.sales_person, s.bill_no].join(' ').toLowerCase();
+                if (!hay.includes(q)) return false;
+            }
+            return true;
+        });
+
+        if (!rowsToExport.length) {
+            alert('No consignments available to export for this view.');
+            return;
+        }
+
+        const headers = ['AWB No', 'Booking Date', 'Customer Name', 'Customer Code', 'Sales Person', 'Mode', 'Origin', 'Destination', 'Weight (kg)', 'Amount (INR)', 'Delivery Status', 'Bill No / Tag'];
+        const csvRows = rowsToExport.map((s) => [
+            s.awb_no || '',
+            s.date || '',
+            s.customer_name || '',
+            s.customer_code || '',
+            s.sales_person || '',
+            s.transport_mode || s.service_mode || 'Surface',
+            s.origin || 'Delhi',
+            s.destination || '',
+            s.weight != null ? s.weight : '',
+            s.total_amt != null ? s.total_amt : '',
+            s.delivery_status || 'In Transit',
+            (n(s.total_amt) <= 10.0 && (s.source_type === 'UNBILLED' || s.source_type === 'COMBINED')) ? 'FOR UPDATE (Amount <= 10)' : (s.bill_no || s.source_type || '')
+        ]);
+
+        let csv = headers.map(h => '"' + String(h).replace(/"/g, '""') + '"').join(',') + '\r\n';
+        csvRows.forEach((r) => {
+            csv += r.map(c => '"' + String(c).replace(/"/g, '""') + '"').join(',') + '\r\n';
+        });
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        const segName = state.seg === 'all' ? (state.regSubSheet || 'combined') : state.seg;
+        a.download = 'North_Express_Logistics_Pvt_Ltd_' + segName + '_Register_' + (new Date().toISOString().slice(0, 10)) + '.csv';
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+    };
+
     window.filterPendingInMainRegister = function () {
         closePendingModal();
         toggleFilter('status', currentModalType);
@@ -2473,7 +2576,11 @@
     function renderAll() {
         const seg = getSeg();
         $('sd-root').style.setProperty('--seg', color());
-        setText('seg-title', SEG_THEME[state.seg].title);
+        setText('seg-title', (SEG_THEME[state.seg] || {}).title || 'Sales Dashboard');
+        const forUpNotice = $('for-update-notice');
+        if (forUpNotice) {
+            forUpNotice.classList.toggle('hidden', state.seg !== 'for_update');
+        }
         safe(renderKpis, seg);
         safe(renderDaily, seg);
         safe(renderReps, seg);
@@ -2491,6 +2598,8 @@
             b.setAttribute('aria-selected', on ? 'true' : 'false');
         });
         state.regPage = 1;
+        populateRepOptions();
+        populateModeOptions();
         try {
             const u = new URL(window.location.href);
             u.searchParams.set('seg', state.seg);
@@ -2506,6 +2615,7 @@
         try { initMap(); } catch (e) { console.error('[sales-dashboard] map init error', e); }
 
         populateRepOptions();
+        populateModeOptions();
 
         document.querySelectorAll('.sd-seg button').forEach((b) => b.addEventListener('click', () => setSeg(b.dataset.seg)));
         const monthSel = $('sd-month');

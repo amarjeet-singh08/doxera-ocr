@@ -13,7 +13,8 @@ from decorators import login_required, role_required
 from database import get_db_connection, log_audit
 from sales_engine import (
     parse_and_process_sales_3way, format_inr,
-    INDIA_CITY_COORDINATES, normalize_city_name
+    INDIA_CITY_COORDINATES, normalize_city_name,
+    compute_segment_metrics
 )
 from sales_exports import (
     generate_sales_pptx, generate_sales_pdf
@@ -47,11 +48,11 @@ def _enrich_geo(report_data):
         for d in seg.get('destinations') or []:
             d['coords'] = _lookup_coords(d.get('city'))
 
-    for key in ('all', 'billed', 'unbilled'):
+    for key in ('all', 'billed', 'unbilled', 'for_update'):
         fix_segment(report_data.get(key))
     for month_block in (report_data.get('by_month') or {}).values():
         if isinstance(month_block, dict):
-            for key in ('all', 'billed', 'unbilled'):
+            for key in ('all', 'billed', 'unbilled', 'for_update'):
                 fix_segment(month_block.get(key))
 
     conn_data = report_data.get('connectivity') or {}
@@ -70,8 +71,18 @@ def _enrich_geo(report_data):
         report_data['all_shipments'] = report_data.get('shipments_sample') or []
     if 'billed_shipments' not in report_data:
         report_data['billed_shipments'] = [s for s in report_data['all_shipments'] if s.get('source_type') in ('BILLED', 'COMBINED')]
-    if 'unbilled_shipments' not in report_data:
-        report_data['unbilled_shipments'] = [s for s in report_data['all_shipments'] if s.get('source_type') in ('UNBILLED', 'COMBINED')]
+
+    raw_unbilled = [s for s in report_data['all_shipments'] if s.get('source_type') in ('UNBILLED', 'COMBINED')]
+    if 'for_update_shipments' not in report_data:
+        report_data['for_update_shipments'] = [s for s in raw_unbilled if float(s.get('total_amt', 0) or 0) <= 10.0]
+        report_data['unbilled_shipments'] = [s for s in raw_unbilled if float(s.get('total_amt', 0) or 0) > 10.0]
+    else:
+        # Guarantee unbilled_shipments does not contain dummy rates <= 10
+        report_data['unbilled_shipments'] = [s for s in (report_data.get('unbilled_shipments') or raw_unbilled) if float(s.get('total_amt', 0) or 0) > 10.0]
+
+    # Dynamically compute for_update metrics if absent (ensures older reports support For Update cleanly)
+    if not report_data.get('for_update'):
+        report_data['for_update'] = compute_segment_metrics(report_data['for_update_shipments'])
 
     return report_data
 

@@ -645,8 +645,24 @@ def generate_sales_pptx(report_row, report_data):
     p_al2.font.size = Pt(8.8)
     p_al2.font.color.rgb = RGBColor(15, 23, 42)
 
-    # Tri-Factor Schedule Table
-    t_shape = slide2.shapes.add_table(4, 6, Inches(0.8), Inches(3.80), Inches(11.733), Inches(3.2))
+    for_update_metrics = report_data.get("for_update", {})
+    for_update_s = summary.get("for_update_sales", for_update_metrics.get("summary", {}).get("total_sales", 0))
+    for_update_awb = summary.get("for_update_shipments", for_update_metrics.get("summary", {}).get("total_shipments", len(report_data.get("for_update_shipments", []))))
+    for_update_wt = for_update_metrics.get("summary", {}).get("total_weight", sum(float(s.get("weight", 0) or 0) for s in report_data.get("for_update_shipments", [])))
+
+    tot_s = summary.get("total_sales", 1) or 1
+    billed_wt = billed_metrics.get('summary', {}).get('total_weight', 0)
+    unbilled_wt = unbilled_metrics.get('summary', {}).get('total_weight', 0)
+    rows_data = [
+        ["Billed MIS (Invoiced Revenue)", format_inr(summary.get("billed_sales", 0)), f"{summary.get('billed_shipments', 0):,}", f"{billed_wt:,.1f}", f"{(summary.get('billed_sales', 0)/billed_wt if billed_wt else 0):.2f}", f"{(summary.get('billed_sales', 0)/tot_s*100):.1f}%"],
+        ["Unbilled MIS (Pending Exposure)", format_inr(summary.get("unbilled_sales", 0)), f"{summary.get('unbilled_shipments', 0):,}", f"{unbilled_wt:,.1f}", f"{(summary.get('unbilled_sales', 0)/unbilled_wt if unbilled_wt else 0):.2f}", f"{(summary.get('unbilled_sales', 0)/tot_s*100):.1f}%"]
+    ]
+    if for_update_awb > 0:
+        rows_data.append(["Pending Rate Update (≤ ₹10)", format_inr(for_update_s), f"{for_update_awb:,}", f"{for_update_wt:,.1f}", f"{(for_update_s/for_update_wt if for_update_wt else 0):.2f}", f"{(for_update_s/tot_s*100):.1f}%"])
+    rows_data.append(["Consolidated Reconciled Operations Base", format_inr(tot_s), f"{summary.get('total_shipments', 0):,}", f"{summary.get('total_weight', 0):,.1f}", f"{(tot_s/summary.get('total_weight', 1) if summary.get('total_weight') else 0):.2f}", "100.0%"])
+
+    num_rows = len(rows_data) + 1
+    t_shape = slide2.shapes.add_table(num_rows, 6, Inches(0.8), Inches(3.80), Inches(11.733), Inches(3.2))
     t = t_shape.table
 
     headers = ["Audit Category", "Reconciled Freight (INR)", "Dockets (AWB)", "Weight (Kg)", "Yield (INR/Kg)", "Share %"]
@@ -660,22 +676,14 @@ def generate_sales_pptx(report_row, report_data):
             p.font.size = Pt(10.0)
             p.font.color.rgb = RGBColor(255, 255, 255)
 
-    tot_s = summary.get("total_sales", 1) or 1
-    billed_wt = billed_metrics.get('summary', {}).get('total_weight', 0)
-    unbilled_wt = unbilled_metrics.get('summary', {}).get('total_weight', 0)
-    rows_data = [
-        ["Billed MIS (Invoiced Revenue)", format_inr(summary.get("billed_sales", 0)), f"{summary.get('billed_shipments', 0):,}", f"{billed_wt:,.1f}", f"{(summary.get('billed_sales', 0)/billed_wt if billed_wt else 0):.2f}", f"{(summary.get('billed_sales', 0)/tot_s*100):.1f}%"],
-        ["Unbilled MIS (Pending Exposure)", format_inr(summary.get("unbilled_sales", 0)), f"{summary.get('unbilled_shipments', 0):,}", f"{unbilled_wt:,.1f}", f"{(summary.get('unbilled_sales', 0)/unbilled_wt if unbilled_wt else 0):.2f}", f"{(summary.get('unbilled_sales', 0)/tot_s*100):.1f}%"],
-        ["Consolidated Reconciled Operations Base", format_inr(tot_s), f"{summary.get('total_shipments', 0):,}", f"{summary.get('total_weight', 0):,.1f}", f"{(tot_s/summary.get('total_weight', 1) if summary.get('total_weight') else 0):.2f}", "100.0%"]
-    ]
     for row_idx, r in enumerate(rows_data, start=1):
         for col_idx, v in enumerate(r):
             cell = t.cell(row_idx, col_idx)
             cell.text = v
             cell.fill.solid()
-            cell.fill.fore_color.rgb = RGBColor(255, 255, 255) if row_idx < 3 else RGBColor(241, 245, 249)
+            cell.fill.fore_color.rgb = RGBColor(255, 255, 255) if row_idx < len(rows_data) else RGBColor(241, 245, 249)
             for p in cell.text_frame.paragraphs:
-                p.font.bold = (row_idx == 3)
+                p.font.bold = (row_idx == len(rows_data))
                 p.font.size = Pt(9.5)
                 p.font.color.rgb = RGBColor(15, 23, 42)
 
@@ -1296,27 +1304,52 @@ def generate_sales_pdf(report_row, report_data):
             Paragraph(format_indian_number(unbilled_metrics.get("summary", {}).get("avg_ticket", 0)), table_cell_right),
             Paragraph(f"{(summary.get('unbilled_sales', 0)/unbilled_wt if unbilled_wt else 0):.2f}", table_cell_right),
             Paragraph(f"{(summary.get('unbilled_sales', 0)/tot_s_base*100):.1f}%", table_cell_right_bold)
-        ],
-        [
-            Paragraph("<b>Total Reconciled Operations Base</b>", table_cell_bold),
-            Paragraph(f"{summary.get('total_shipments', 0):,}", table_cell_right_bold),
-            Paragraph(f"{summary.get('total_weight', 0):,.1f}", table_cell_right_bold),
-            Paragraph(format_indian_number(tot_s_base), table_cell_right_bold),
-            Paragraph(format_indian_number(summary.get("avg_ticket", 0)), table_cell_right_bold),
-            Paragraph(f"{(tot_s_base/summary.get('total_weight', 1) if summary.get('total_weight') else 0):.2f}", table_cell_right_bold),
-            Paragraph("100.0%", table_cell_right_bold)
         ]
     ]
+
+    for_update_metrics = report_data.get("for_update", {})
+    for_update_s = summary.get("for_update_sales", for_update_metrics.get("summary", {}).get("total_sales", 0))
+    for_update_awb = summary.get("for_update_shipments", for_update_metrics.get("summary", {}).get("total_shipments", len(report_data.get("for_update_shipments", []))))
+    for_update_wt = for_update_metrics.get("summary", {}).get("total_weight", sum(float(s.get("weight", 0) or 0) for s in report_data.get("for_update_shipments", [])))
+
+    if for_update_awb > 0:
+        reconcil_data.append([
+            Paragraph("<b>Pending Rate Update (≤ ₹10)</b>", table_cell_bold),
+            Paragraph(f"{for_update_awb:,}", table_cell_right),
+            Paragraph(f"{for_update_wt:,.1f}", table_cell_right),
+            Paragraph(format_indian_number(for_update_s), table_cell_right_bold),
+            Paragraph(format_indian_number(for_update_s/for_update_awb if for_update_awb else 0), table_cell_right),
+            Paragraph(f"{(for_update_s/for_update_wt if for_update_wt else 0):.2f}", table_cell_right),
+            Paragraph(f"{(for_update_s/tot_s_base*100):.1f}%", table_cell_right_bold)
+        ])
+
+    reconcil_data.append([
+        Paragraph("<b>Total Reconciled Operations Base</b>", table_cell_bold),
+        Paragraph(f"{summary.get('total_shipments', 0):,}", table_cell_right_bold),
+        Paragraph(f"{summary.get('total_weight', 0):,.1f}", table_cell_right_bold),
+        Paragraph(format_indian_number(tot_s_base), table_cell_right_bold),
+        Paragraph(format_indian_number(summary.get("avg_ticket", 0)), table_cell_right_bold),
+        Paragraph(f"{(tot_s_base/summary.get('total_weight', 1) if summary.get('total_weight') else 0):.2f}", table_cell_right_bold),
+        Paragraph("100.0%", table_cell_right_bold)
+    ])
+
     t_rec = Table(reconcil_data, colWidths=[153, 52, 60, 92, 68, 58, 40])
-    t_rec.setStyle(TableStyle([
+    t_style = [
         ('BACKGROUND', (0,0), (-1,0), colors.HexColor('#0F172A')),
         ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor('#CBD5E1')),
         ('BACKGROUND', (0,1), (-1,1), colors.HexColor('#FFFFFF')),
         ('BACKGROUND', (0,2), (-1,2), colors.HexColor('#F8FAFC')),
-        ('BACKGROUND', (0,3), (-1,3), colors.HexColor('#F1F5F9')),
+    ]
+    if for_update_awb > 0:
+        t_style.append(('BACKGROUND', (0,3), (-1,3), colors.HexColor('#FFF1F2')))
+        t_style.append(('BACKGROUND', (0,4), (-1,4), colors.HexColor('#F1F5F9')))
+    else:
+        t_style.append(('BACKGROUND', (0,3), (-1,3), colors.HexColor('#F1F5F9')))
+    t_style.extend([
         ('TOPPADDING', (0,0), (-1,-1), 4),
         ('BOTTOMPADDING', (0,0), (-1,-1), 4),
-    ]))
+    ])
+    t_rec.setStyle(TableStyle(t_style))
     story.append(t_rec)
     story.append(Spacer(1, 8))
 

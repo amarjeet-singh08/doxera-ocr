@@ -113,18 +113,23 @@
                 <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-2">
                     <label for="report_title" class="text-xs font-bold uppercase tracking-wider text-slate-700 flex items-center gap-1.5">
                         <i data-lucide="tag" class="h-3.5 w-3.5 text-blue-600"></i>
-                        Audit Report Identifier / Billing Period <span class="text-rose-500">*</span>
+                        Audit Report Title / Billing Period <span class="text-slate-400 font-normal text-[11px] lowercase">(optional — auto-generates if blank)</span>
                     </label>
-                    <span class="text-[11px] text-slate-400 font-mono">Displayed across executive exports & dashboards</span>
+                    <span class="text-[11px] text-slate-500 font-mono">Auto-named by date range (e.g. October Sales Audit Till 7th Oct)</span>
                 </div>
 
                 <div class="relative">
                     <div class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-slate-400">
                         <i data-lucide="calendar" class="h-4 w-4"></i>
                     </div>
-                    <input type="text" name="report_title" id="report_title" required
-                        placeholder="e.g. North Express Logistics - September 2026 Executive Sales Audit"
+                    <input type="text" name="report_title" id="report_title"
+                        placeholder="Leave blank to auto-generate (e.g. October Sales Audit Till 7th Oct) or type custom name..."
                         class="pl-10 w-full text-xs sm:text-sm bg-white border border-slate-300 rounded-lg shadow-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 py-2.5 text-slate-900 font-medium placeholder-slate-400">
+                </div>
+                
+                <div class="mt-2.5 flex items-start gap-1.5 text-[11px] text-slate-500">
+                    <i data-lucide="sparkles" class="h-3.5 w-3.5 text-blue-500 shrink-0 mt-0.5"></i>
+                    <span><b>Smart Monthly Sync:</b> If an audit for this month already exists (e.g. earlier weekly intake), our system automatically updates that month's audit with this new data to prevent duplicate files and keep your charts unified.</span>
                 </div>
             </div>
 
