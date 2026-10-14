@@ -175,34 +175,20 @@
             <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                 <div class="min-w-0">
                     <p class="sd-eyebrow">North Express Logistics Pvt. Ltd.</p>
-                    <h1 id="seg-title" class="text-[20px] sm:text-2xl font-semibold text-slate-900 tracking-tight mt-1">Unbilled Sales Dashboard</h1>
-                    <p class="text-[12.5px] sm:text-[13px] text-slate-500 mt-1.5 flex flex-wrap items-center gap-x-2 gap-y-1">
-                        <span class="truncate max-w-[280px] sm:max-w-[340px]" title="{{ current_report.title or 'Sales Report' }}">{{ current_report.title or 'Sales Report' }}</span>
-                        <span class="text-slate-300">|</span>
-                        <span>Period <span class="font-medium text-slate-700">{{ summary.period_label or '—' }}</span></span>
-                        <span class="text-slate-300">|</span>
+                    <h1 id="seg-title" class="text-[20px] sm:text-2xl font-semibold text-slate-900 tracking-tight mt-1">Unbilled Revenue</h1>
+                    <p class="text-[12.5px] sm:text-[13px] text-slate-500 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <span class="font-medium text-slate-700">{{ summary.period_label or current_report.period_label or '—' }}</span>
+                        <span class="text-slate-300">·</span>
                         <span>Generated {{ current_report.created_at|localdt }}</span>
                     </p>
                 </div>
                 <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0">
-                    <a href="{{ url_for('sales.export_pdf', report_id=current_report.id) }}" class="sd-btn" title="Export High-Resolution Audit PDF">
+                    <a href="{{ url_for('sales.export_pdf', report_id=current_report.id) }}" class="sd-btn" title="Export Audit PDF">
                         <i data-lucide="file-text" class="h-4 w-4 text-slate-500"></i> PDF
                     </a>
-                    <a href="{{ url_for('sales.export_pptx', report_id=current_report.id) }}" class="sd-btn" title="Export Executive PowerPoint Presentation">
+                    <a href="{{ url_for('sales.export_pptx', report_id=current_report.id) }}" class="sd-btn" title="Export Presentation">
                         <i data-lucide="presentation" class="h-4 w-4 text-slate-500"></i> PPTX
                     </a>
-                    <button type="button"
-                            data-del-id="{{ current_report.id }}"
-                            data-del-title="{{ current_report.title or ('Report #' ~ current_report.id) }}"
-                            data-del-period="{{ summary.period_label or current_report.period_label or '—' }}"
-                            data-del-date="{{ current_report.created_at|localdt }}"
-                            onclick="triggerDeleteReport(this)"
-                            class="sd-btn text-rose-600 hover:text-rose-700 hover:bg-rose-50 hover:border-rose-200 transition"
-                            title="Delete only this active sales report (Report #{{ current_report.id }})">
-                        <i data-lucide="trash-2" class="h-4 w-4 text-rose-500"></i>
-                        <span class="hidden sm:inline">Delete Report #{{ current_report.id }}</span>
-                        <span class="sm:hidden">Delete #{{ current_report.id }}</span>
-                    </button>
                     <a href="{{ url_for('sales.upload_page') }}" class="sd-btn sd-btn-primary">
                         <i data-lucide="upload" class="h-4 w-4"></i> New Upload
                     </a>
@@ -215,8 +201,8 @@
                     <div class="sd-seg w-full sm:w-auto" role="tablist" aria-label="Sales segment">
                         <button type="button" data-seg="unbilled" role="tab"><span class="sd-seg-dot"></span><span>Unbilled</span></button>
                         <button type="button" data-seg="billed" role="tab"><span class="sd-seg-dot"></span><span>Billed</span></button>
-                        <button type="button" data-seg="for_update" role="tab"><span class="sd-seg-dot !bg-rose-500"></span><span>For Update</span></button>
-                        <button type="button" data-seg="all" role="tab"><span class="sd-seg-dot"></span><span>Combined</span></button>
+                        <button type="button" data-seg="for_update" role="tab"><span class="sd-seg-dot !bg-rose-500"></span><span>Rate Pending</span></button>
+                        <button type="button" data-seg="all" role="tab"><span class="sd-seg-dot"></span><span>Consolidated</span></button>
                     </div>
                     {% if report_data.months %}
                     <select id="sd-month" class="sd-select flex-1 sm:flex-initial" aria-label="Month">
@@ -271,14 +257,15 @@
     </section>
 
     <!-- Commercial Rate Update Notice Banner (Visible when For Update segment is active) -->
-    <div id="for-update-notice" class="hidden sd-card p-4 sm:p-5 bg-amber-50/90 border border-amber-200 text-amber-950 flex items-start gap-3.5">
-        <div class="w-8 h-8 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
+    <!-- Rate Revision Notice Banner -->
+    <div id="for-update-notice" class="hidden sd-card p-3.5 sm:p-4 bg-amber-50/90 border border-amber-200 text-amber-950 flex items-start gap-3">
+        <div class="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
         </div>
         <div class="flex-1 min-w-0">
-            <h3 class="text-sm font-bold text-amber-950">Commercial Rate Update Required (Pending Invoicing)</h3>
-            <p class="text-xs sm:text-[13px] text-amber-900 mt-0.5 leading-relaxed">
-                Showing unbilled consignments recorded with dummy or placeholder amounts (<b>₹10 or less</b>). These dockets are excluded from valid Unbilled turnover to protect financial reporting until actual freight rates are rectified in your ERP.
+            <h3 class="text-xs sm:text-sm font-semibold text-amber-950">Pending Rate Revisions (≤ ₹10)</h3>
+            <p class="text-xs text-amber-900 mt-0.5 leading-relaxed">
+                Consignments recorded with placeholder rates are segregated pending commercial ERP rate entry.
             </p>
         </div>
     </div>
@@ -286,46 +273,42 @@
     <!-- ═══════════════ KPI STRIP ═══════════════ -->
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
         <div class="sd-card p-4 sm:p-5 min-w-0">
-            <p class="sd-kpi-label">Total sale</p>
+            <p class="sd-kpi-label">Total Revenue</p>
             <p class="sd-kpi" id="kpi-sales">—</p>
             <p class="text-[12.5px] font-semibold text-slate-700 mt-1.5 sd-num truncate" id="kpi-sales-sub">&nbsp;</p>
         </div>
         <div class="sd-card p-4 sm:p-5 min-w-0">
-            <p class="sd-kpi-label">Consignments</p>
+            <p class="sd-kpi-label">Shipment Volume</p>
             <p class="sd-kpi" id="kpi-awbs">—</p>
             <p class="sd-kpi-sub" id="kpi-awbs-sub">&nbsp;</p>
         </div>
         <div class="sd-card p-4 sm:p-5 min-w-0">
-            <p class="sd-kpi-label">Weight</p>
+            <p class="sd-kpi-label">Total Weight</p>
             <p class="sd-kpi" id="kpi-wt">—</p>
             <p class="sd-kpi-sub" id="kpi-wt-sub">&nbsp;</p>
         </div>
         <div class="sd-card p-4 sm:p-5 min-w-0">
-            <p class="sd-kpi-label">Average per consignment</p>
+            <p class="sd-kpi-label">Average Value</p>
             <p class="sd-kpi" id="kpi-avg">—</p>
             <p class="text-[12.5px] font-semibold text-slate-700 mt-1.5 sd-num truncate" id="kpi-avg-sub">&nbsp;</p>
         </div>
     </section>
 
-    <!-- ═══════════════ AUDIT CHECKS ═══════════════ -->
+    <!-- ═══════════════ AUDIT RECONCILIATION ═══════════════ -->
     <section class="sd-card">
         <div class="sd-sec-head">
             <div>
-                <p class="sd-eyebrow">Audit checks</p>
-                <h2 class="sd-title">Delivery &amp; billing status</h2>
-                <p class="sd-desc">Cross-reconciliation between physical cargo delivery and accounting invoices</p>
+                <h2 class="sd-title">Operational &amp; Billing Reconciliation</h2>
+                <p class="sd-desc">Physical delivery aligned against billing status</p>
             </div>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 px-2 pb-3">
-            <!-- Physical Delivery Rate (Interactive on tap) -->
-            <div class="p-4 cursor-pointer hover:bg-slate-50/80 transition rounded-xl border border-transparent hover:border-slate-200 group relative" onclick="openPendingDeliveryModal()" title="Click to view all pending / in-transit AWB numbers">
+            <!-- Physical Delivery Rate -->
+            <div class="p-4 cursor-pointer hover:bg-slate-50/80 transition rounded-xl border border-transparent hover:border-slate-200 group relative" onclick="openPendingDeliveryModal()" title="View in-transit consignments">
                 <div class="flex items-center justify-between">
-                    <p class="sd-kpi-label flex items-center gap-1.5 text-slate-700">
-                        <span>Physical Delivery Rate</span>
-                        <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-blue-600 transition" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                    </p>
+                    <p class="sd-kpi-label text-slate-700">Delivery Rate</p>
                     <span id="aud-deliv-btn" class="inline-flex items-center gap-1 text-[11px] font-medium text-blue-700 bg-blue-50 group-hover:bg-blue-100 px-2 py-0.5 rounded-full border border-blue-200/70 transition shadow-2xs">
-                        <span>View Pending</span>
+                        <span>Pending AWBs</span>
                         <svg class="w-3 h-3 text-blue-600 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </span>
                 </div>
@@ -339,7 +322,7 @@
 
             <!-- Invoicing Status -->
             <div class="p-4">
-                <p class="sd-kpi-label">Bill number present</p>
+                <p class="sd-kpi-label">Invoicing Rate</p>
                 <div class="flex items-baseline justify-between mt-1.5">
                     <span class="text-xl font-semibold text-slate-900 sd-num" id="aud-bill">—</span>
                 </div>
@@ -347,12 +330,12 @@
                 <p class="sd-kpi-sub" id="aud-bill-sub">&nbsp;</p>
             </div>
 
-            <!-- Delivered but Unbilled Risk (Interactive on tap) -->
-            <div class="p-4 cursor-pointer hover:bg-rose-50/40 transition rounded-xl border border-transparent hover:border-rose-100 group relative" onclick="openDeliveredUnbilledModal()" title="Click to view delivered consignments missing invoice numbers">
+            <!-- Delivered but Unbilled Risk -->
+            <div class="p-4 cursor-pointer hover:bg-rose-50/40 transition rounded-xl border border-transparent hover:border-rose-100 group relative" onclick="openDeliveredUnbilledModal()" title="View delivered unbilled consignments">
                 <div class="flex items-center justify-between">
-                    <p class="sd-kpi-label">Delivered, billing pending</p>
+                    <p class="sd-kpi-label">Delivered Unbilled</p>
                     <span class="inline-flex items-center gap-1 text-[11px] font-medium text-rose-700 bg-rose-50 group-hover:bg-rose-100 px-2 py-0.5 rounded-full border border-rose-200/70 transition shadow-2xs">
-                        <span>Audit Risk</span>
+                        <span>Exposure</span>
                         <svg class="w-3 h-3 text-rose-600 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </span>
                 </div>
@@ -366,63 +349,60 @@
         </div>
     </section>
 
-    <!-- ═══════════════ 01 DAILY TREND ═══════════════ -->
+    <!-- ═══════════════ DAILY REVENUE TREND ═══════════════ -->
     <section class="sd-card">
         <div class="sd-sec-head">
             <div>
-                <p class="sd-eyebrow">01 · Trend</p>
-                <h2 class="sd-title">Daily sales</h2>
-                <p class="sd-desc">Freight value booked on each day of the period <span class="text-slate-400 text-xs ml-1">(Click point to filter date)</span></p>
+                <h2 class="sd-title">Daily Revenue Trend</h2>
+                <p class="sd-desc">Daily booking progression across the audit period</p>
             </div>
             <div class="sd-stats">
                 <div class="sd-stat">
                     <div class="v" id="daily-peak">—</div>
                     <div class="text-[11.5px] font-semibold text-slate-700 sd-num mt-0.5" id="daily-peak-exact"></div>
-                    <div class="k" id="daily-peak-k">Peak day</div>
+                    <div class="k" id="daily-peak-k">Peak Day</div>
                 </div>
                 <div class="sd-stat">
                     <div class="v" id="daily-avg">—</div>
                     <div class="text-[11.5px] font-semibold text-slate-700 sd-num mt-0.5" id="daily-avg-exact"></div>
-                    <div class="k">Daily average</div>
+                    <div class="k">Daily Average</div>
                 </div>
                 <div class="sd-stat">
                     <div class="v" id="daily-latest">—</div>
                     <div class="text-[11.5px] font-semibold text-slate-700 sd-num mt-0.5" id="daily-latest-exact"></div>
-                    <div class="k" id="daily-latest-k">Latest day</div>
+                    <div class="k" id="daily-latest-k">Latest Day</div>
                 </div>
-                <div class="sd-stat"><div class="v" id="daily-days">—</div><div class="k">Active days</div></div>
+                <div class="sd-stat"><div class="v" id="daily-days">—</div><div class="k">Active Days</div></div>
             </div>
         </div>
         <div class="px-2 sm:px-4 pb-3"><div id="chart-daily" style="min-height:300px"></div></div>
     </section>
 
-    <!-- ═══════════════ 02 SALES PERSONS ═══════════════ -->
+    <!-- ═══════════════ SALES REPRESENTATIVES ═══════════════ -->
     <section class="sd-card">
         <div class="sd-sec-head">
             <div>
-                <p class="sd-eyebrow">02 · People</p>
-                <h2 class="sd-title">Sales by sales person</h2>
-                <p class="sd-desc">Ranked by sale value, with share of total <span class="text-slate-400 text-xs ml-1">(Click bar to filter)</span></p>
+                <h2 class="sd-title">Sales Representative Performance</h2>
+                <p class="sd-desc">Revenue distribution by assigned sales representative</p>
             </div>
             <div class="sd-stats">
                 <div class="sd-stat">
                     <div class="v" id="rep-top">—</div>
                     <div class="text-[11.5px] font-semibold text-slate-700 sd-num mt-0.5" id="rep-top-exact"></div>
-                    <div class="k" id="rep-top-k">Top performer</div>
+                    <div class="k" id="rep-top-k">Top Representative</div>
                 </div>
-                <div class="sd-stat"><div class="v" id="rep-count">—</div><div class="k">Sales persons</div></div>
+                <div class="sd-stat"><div class="v" id="rep-count">—</div><div class="k">Representatives</div></div>
             </div>
         </div>
         <div class="px-2 sm:px-4 pb-3"><div id="chart-reps" style="min-height:220px"></div></div>
     </section>
 
-    <!-- ═══════════════ 03 SERVICE MODE ═══════════════ -->
+    <!-- ═══════════════ TRANSPORT MODE MIX ═══════════════ -->
     <section class="sd-card">
         <div class="sd-sec-head">
             <div>
-                <p class="sd-eyebrow">03 · Service</p>
-                <h2 class="sd-title">Service mode mix</h2>
-                <p class="sd-desc">How sale value splits across transport modes <span class="text-slate-400 text-xs ml-1">(Click slice or mode to filter)</span></p>
+                <h2 class="sd-title">Transport Mode Mix</h2>
+                <p class="sd-desc">Revenue and volume allocation across transport modes</p>
             </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center px-4 sm:px-6 pb-5">
@@ -431,37 +411,35 @@
         </div>
     </section>
 
-    <!-- ═══════════════ 04 CUSTOMERS ═══════════════ -->
+    <!-- ═══════════════ KEY CLIENT ACCOUNTS ═══════════════ -->
     <section class="sd-card">
         <div class="sd-sec-head">
             <div>
-                <p class="sd-eyebrow">04 · Accounts</p>
-                <h2 class="sd-title">Top 10 customers</h2>
-                <p class="sd-desc">Largest accounts by sale value <span class="text-slate-400 text-xs ml-1">(Click bar to filter)</span></p>
+                <h2 class="sd-title">Key Client Accounts</h2>
+                <p class="sd-desc">Top 10 commercial client accounts by revenue</p>
             </div>
             <div class="sd-stats">
                 <div class="sd-stat">
                     <div class="v" id="cust-conc">—</div>
                     <div class="text-[11.5px] font-semibold text-slate-700 sd-num mt-0.5" id="cust-conc-exact"></div>
-                    <div class="k">Top 5 share of sale</div>
+                    <div class="k">Top 5 Concentration</div>
                 </div>
-                <div class="sd-stat"><div class="v" id="cust-count">—</div><div class="k">Active customers</div></div>
+                <div class="sd-stat"><div class="v" id="cust-count">—</div><div class="k">Active Accounts</div></div>
             </div>
         </div>
         <div class="px-2 sm:px-4 pb-3"><div id="chart-customers" style="min-height:300px"></div></div>
     </section>
 
-    <!-- ═══════════════ 05 NETWORK MAP ═══════════════ -->
+    <!-- ═══════════════ GEOGRAPHIC NETWORK & LANES ═══════════════ -->
     <section class="sd-card">
         <div class="sd-sec-head">
             <div>
-                <p class="sd-eyebrow">05 · Network</p>
-                <h2 class="sd-title">Delivery network across India</h2>
-                <p class="sd-desc">Destination volume and origin → destination lanes</p>
+                <h2 class="sd-title">Geographic Network &amp; Lanes</h2>
+                <p class="sd-desc">Transit corridors and destination hubs</p>
             </div>
             <div class="sd-stats">
                 <div class="sd-stat"><div class="v" id="net-dest">—</div><div class="k">Destinations</div></div>
-                <div class="sd-stat"><div class="v" id="net-lanes">—</div><div class="k">Lanes on map</div></div>
+                <div class="sd-stat"><div class="v" id="net-lanes">—</div><div class="k">Active Lanes</div></div>
             </div>
         </div>
         <div class="px-4 sm:px-6 pb-5">
@@ -482,42 +460,41 @@
                     <p class="text-[11.5px] text-slate-400 mt-2" id="net-note">&nbsp;</p>
                 </div>
                 <div class="lg:col-span-2">
-                    <p class="sd-kpi-label mb-2">Top destinations by sale <span class="text-slate-400 text-xs font-normal">(Click to filter)</span></p>
+                    <p class="sd-kpi-label mb-2">Top Destinations by Revenue</p>
                     <div id="dest-list" class="space-y-3"></div>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ═══════════════ 06 REGISTER (FULL UPLOADED SHEETS) ═══════════════ -->
+    <!-- ═══════════════ CONSIGNMENT REGISTER ═══════════════ -->
     <section id="reg-section" class="sd-card overflow-hidden">
         <div class="sd-sec-head">
             <div>
-                <p class="sd-eyebrow">06 · Records</p>
-                <h2 class="sd-title" id="reg-title">Consignment register</h2>
-                <p class="sd-desc" id="reg-desc">Complete record of uploaded consignments</p>
+                <h2 class="sd-title" id="reg-title">Consignment Register</h2>
+                <p class="sd-desc" id="reg-desc">Complete record of verified consignments</p>
             </div>
             <div class="sd-stats">
-                <div class="sd-stat"><div class="v" id="reg-count">—</div><div class="k">Consignments shown</div></div>
+                <div class="sd-stat"><div class="v" id="reg-count">—</div><div class="k">Shipments</div></div>
                 <div class="sd-stat">
                     <div class="v" id="reg-total-amt">—</div>
                     <div class="text-[11.5px] font-semibold text-slate-700 sd-num mt-0.5" id="reg-total-amt-exact"></div>
-                    <div class="k">Total value</div>
+                    <div class="k">Total Value</div>
                 </div>
             </div>
         </div>
 
-        <!-- Combined sub-sheet switcher (shown when state.seg === 'all' to show sheets separately) -->
+        <!-- Consolidated Sub-sheet Switcher -->
         <div id="reg-subsheet-bar" class="hidden px-4 sm:px-6 pt-2 pb-1">
             <div class="flex flex-col sm:inline-flex sm:flex-row p-1 bg-slate-100 rounded-lg gap-1 border border-slate-200 w-full sm:w-auto">
                 <button type="button" class="subsheet-btn flex-1 sm:flex-initial px-4 py-1.5 rounded-md text-xs font-semibold text-slate-800 bg-white shadow-sm transition text-center justify-center" data-sub="billed">
-                    📑 Billed Sheet (<span id="sub-billed-count">0</span> · <span id="sub-billed-amt">₹0</span> <span id="sub-billed-amt-exact" class="text-[11px] font-medium text-slate-500 hidden sm:inline"></span>)
+                    Billed (<span id="sub-billed-count">0</span> · <span id="sub-billed-amt">₹0</span> <span id="sub-billed-amt-exact" class="text-[11px] font-medium text-slate-500 hidden sm:inline"></span>)
                 </button>
                 <button type="button" class="subsheet-btn flex-1 sm:flex-initial px-4 py-1.5 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition text-center justify-center" data-sub="unbilled">
-                    📑 Unbilled Sheet (<span id="sub-unbilled-count">0</span> · <span id="sub-unbilled-amt">₹0</span> <span id="sub-unbilled-amt-exact" class="text-[11px] font-medium text-slate-500 hidden sm:inline"></span>)
+                    Unbilled (<span id="sub-unbilled-count">0</span> · <span id="sub-unbilled-amt">₹0</span> <span id="sub-unbilled-amt-exact" class="text-[11px] font-medium text-slate-500 hidden sm:inline"></span>)
                 </button>
                 <button type="button" class="subsheet-btn flex-1 sm:flex-initial px-4 py-1.5 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition text-center justify-center" data-sub="for_update">
-                    ⚠️ For Update (<span id="sub-update-count">0</span> · <span id="sub-update-amt">₹0</span>)
+                    Rate Pending (<span id="sub-update-count">0</span> · <span id="sub-update-amt">₹0</span>)
                 </button>
             </div>
         </div>
@@ -558,8 +535,8 @@
             <table class="sd-table w-full text-left" id="reg-table">
                 <thead>
                     <tr>
-                        <th>AWB No.</th><th>Date</th><th>Customer</th><th>Sales Person</th><th>Mode</th>
-                        <th>Destination</th><th class="text-right">Weight (kg)</th><th class="text-right">Amount</th><th>Status</th><th>Bill No. / Tag</th>
+                        <th>AWB No.</th><th>Booking Date</th><th>Customer Name</th><th>Representative</th><th>Mode</th>
+                        <th>Destination</th><th class="text-right">Weight (kg)</th><th class="text-right">Freight (₹)</th><th>Delivery Status</th><th>Billing Status</th>
                     </tr>
                 </thead>
                 <tbody id="reg-tbody"></tbody>
@@ -615,8 +592,8 @@
                     <span id="del-modal-date" class="font-medium text-slate-800">{{ current_report.created_at|localdt }}</span>
                 </div>
             </div>
-            <p class="text-[11.5px] text-rose-600 font-medium mt-3 flex items-center justify-center gap-1">
-                <span>⚠️</span> This action cannot be undone for this particular report.
+            <p class="text-xs text-rose-600 font-medium mt-3 text-center">
+                This action is permanent and cannot be undone.
             </p>
         </div>
         <div class="px-5 sm:px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2.5">
@@ -626,7 +603,7 @@
             <form id="delete-report-form" method="POST" action="{{ url_for('sales.delete_report', report_id=current_report.id) }}">
                 <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg shadow-sm transition">
                     <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
-                    <span id="del-modal-btn-label">Yes, Delete Only Report #{{ current_report.id }}</span>
+                    <span id="del-modal-btn-label">Delete Report #{{ current_report.id }}</span>
                 </button>
             </form>
         </div>
@@ -640,15 +617,15 @@
         <div class="px-5 sm:px-6 py-4 border-b border-slate-100 flex items-start justify-between gap-4 bg-slate-50/70">
             <div>
                 <div class="flex items-center gap-2">
-                    <span class="px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-indigo-800 bg-indigo-50 rounded border border-indigo-200">Report Inventory</span>
-                    <h3 class="text-base sm:text-lg font-bold text-slate-900">Saved Sales Intelligence Reports</h3>
+                    <span class="px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-indigo-800 bg-indigo-50 rounded border border-indigo-200">Directory</span>
+                    <h3 class="text-base sm:text-lg font-bold text-slate-900">Audit Reports</h3>
                 </div>
                 <p class="text-xs text-slate-500 mt-1">
-                    Select a particular report to view or delete individually. Deleting any report removes only that specific report and preserves all other reports intact.
+                    Select a report to inspect or manage historical audit snapshots.
                 </p>
             </div>
             <div class="flex items-center gap-2">
-                <span class="px-2.5 py-1 text-xs font-semibold text-slate-700 bg-white rounded-md border border-slate-200 shadow-2xs">{{ reports|length }} Total Reports</span>
+                <span class="px-2.5 py-1 text-xs font-semibold text-slate-700 bg-white rounded-md border border-slate-200 shadow-2xs">{{ reports|length }} Reports</span>
                 <button type="button" onclick="closeManageReportsModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition flex items-center justify-center ml-1 text-lg font-semibold" title="Close (Esc)">&times;</button>
             </div>
         </div>
@@ -656,13 +633,11 @@
         <!-- Filter / Search toolbar -->
         <div class="px-5 sm:px-6 py-3 border-b border-slate-100 bg-white flex flex-wrap items-center justify-between gap-3">
             <div class="relative flex-1 min-w-[220px] max-w-sm">
-                <input type="text" id="manage-rep-search" oninput="filterManageReports(this.value)" placeholder="Search reports by title, period, ID..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 placeholder-slate-400">
+                <input type="text" id="manage-rep-search" oninput="filterManageReports(this.value)" placeholder="Search by title, period, or ID..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 placeholder-slate-400">
                 <i data-lucide="search" class="h-3.5 w-3.5 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none"></i>
             </div>
             <div class="flex items-center gap-2 text-xs text-slate-500">
-                <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Active View</span>
-                <span class="text-slate-300">•</span>
-                <span>Individual Delete Enabled</span>
+                <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Active Audit</span>
             </div>
         </div>
 
@@ -673,9 +648,9 @@
                     <thead class="bg-slate-50 border-b border-slate-200 font-semibold text-slate-700 uppercase text-[11px] tracking-wider">
                         <tr>
                             <th class="py-3 px-3.5 text-center w-14">ID</th>
-                            <th class="py-3 px-3.5">Report Title &amp; Period</th>
-                            <th class="py-3 px-3.5">Volume &amp; Sales</th>
-                            <th class="py-3 px-3.5 hidden md:table-cell">Generated On</th>
+                            <th class="py-3 px-3.5">Report Title</th>
+                            <th class="py-3 px-3.5">Volume &amp; Revenue</th>
+                            <th class="py-3 px-3.5 hidden md:table-cell">Created</th>
                             <th class="py-3 px-3.5 text-right w-40">Actions</th>
                         </tr>
                     </thead>
@@ -743,9 +718,9 @@
 
         <!-- Footer Notice -->
         <div class="px-5 sm:px-6 py-3 bg-slate-50 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
-            <div class="flex items-center gap-1.5 text-emerald-700 font-medium">
-                <i data-lucide="shield-check" class="h-4 w-4"></i>
-                <span>Isolated Deletion: Each delete action deletes only that selected report. All other reports remain completely safe.</span>
+            <div class="flex items-center gap-1.5 text-slate-600 font-medium">
+                <i data-lucide="shield-check" class="h-4 w-4 text-emerald-600"></i>
+                <span>Audit reports are managed independently. Deleting a report does not affect other periods.</span>
             </div>
             <button type="button" onclick="closeManageReportsModal()" class="px-4 py-1.5 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs transition">
                 Close
@@ -762,9 +737,9 @@
             <div>
                 <div class="flex items-center gap-2">
                     <span id="pending-modal-tag" class="px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-amber-800 bg-amber-50 rounded border border-amber-200">Delivery Audit</span>
-                    <h3 class="text-base sm:text-lg font-bold text-slate-900" id="pending-modal-title">In-Transit &amp; Pending Consignments</h3>
+                    <h3 class="text-base sm:text-lg font-bold text-slate-900" id="pending-modal-title">Pending Deliveries</h3>
                 </div>
-                <p class="text-xs text-slate-500 mt-1" id="pending-modal-desc">Consignments awaiting physical delivery or POD confirmation in the active audit view.</p>
+                <p class="text-xs text-slate-500 mt-1" id="pending-modal-desc">Consignments awaiting physical delivery or POD confirmation.</p>
             </div>
             <div class="flex items-center gap-2">
                 <span id="pending-modal-count-badge" class="px-2.5 py-1 text-xs font-semibold text-slate-700 bg-white rounded-md border border-slate-200 shadow-2xs">—</span>
@@ -777,7 +752,7 @@
         <div class="px-5 sm:px-6 py-3 border-b border-slate-100 bg-white flex flex-wrap items-center justify-between gap-3 text-xs">
             <!-- Search -->
             <div class="relative flex-1 min-w-[220px]">
-                <input type="text" id="pending-search" placeholder="Search AWB, customer, route, status, bill..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition" oninput="renderPendingModalTable()">
+                <input type="text" id="pending-search" placeholder="Search by AWB, customer, destination..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition" oninput="renderPendingModalTable()">
                 <svg class="w-4 h-4 text-slate-400 absolute left-2.5 top-2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
             <!-- Status Filter Tabs -->
@@ -847,10 +822,10 @@
     catch (e) { console.error('Failed to parse dashboard data', e); return; }
 
     const SEG_THEME = {
-        unbilled:   { color: '#B45309', title: 'Unbilled Sales Dashboard', sheetTitle: 'Unbilled Consignments Register', tag: 'UNBILLED' },
-        billed:     { color: '#0F766E', title: 'Billed Sales Dashboard',   sheetTitle: 'Billed Consignments Register',   tag: 'BILLED' },
-        for_update: { color: '#E11D48', title: 'For Update / Rate Pending Dashboard', sheetTitle: 'Pending Rate Update Register', tag: 'FOR_UPDATE' },
-        all:        { color: '#475569', title: 'Consolidated Sales Dashboard', sheetTitle: 'Consolidated Consignment Registers', tag: 'ALL' }
+        unbilled:   { color: '#B45309', title: 'Unbilled Revenue', sheetTitle: 'Unbilled Register', tag: 'UNBILLED' },
+        billed:     { color: '#0F766E', title: 'Billed Revenue',   sheetTitle: 'Billed Register',   tag: 'BILLED' },
+        for_update: { color: '#E11D48', title: 'Rate Pending',     sheetTitle: 'Rate Pending Register', tag: 'FOR_UPDATE' },
+        all:        { color: '#475569', title: 'Consolidated Sales', sheetTitle: 'Consolidated Register', tag: 'ALL' }
     };
     const PALETTE = ['#1E3A8A', '#0D9488', '#D97706', '#E11D48', '#7C3AED', '#0284C7', '#CA8A04', '#475569'];
     const MONTH_COLORS = ['#2563EB', '#D97706', '#059669', '#DC2626', '#7C3AED', '#0891B2'];
@@ -1957,18 +1932,18 @@
 
         // Section header and titles
         if (state.seg === 'unbilled') {
-            setText('reg-title', 'Unbilled Consignments Register');
-            setText('reg-desc', 'Valid unbilled sheet uploaded for this period (' + int((DATA.unbilled_shipments || []).length) + ' total consignments)');
+            setText('reg-title', 'Unbilled Register');
+            setText('reg-desc', 'Pending billing release (' + int((DATA.unbilled_shipments || []).length) + ' consignments)');
         } else if (state.seg === 'billed') {
-            setText('reg-title', 'Billed Consignments Register');
-            setText('reg-desc', 'Full billed sheet uploaded for this period (' + int((DATA.billed_shipments || []).length) + ' total consignments)');
+            setText('reg-title', 'Billed Register');
+            setText('reg-desc', 'Invoiced consignments (' + int((DATA.billed_shipments || []).length) + ' consignments)');
         } else if (state.seg === 'for_update') {
-            setText('reg-title', 'Pending Rate Update Register (Amount ≤ ₹10)');
-            setText('reg-desc', 'Consignments requiring commercial rate updates in ERP before invoicing (' + int((DATA.for_update_shipments || []).length) + ' total consignments)');
+            setText('reg-title', 'Rate Pending Register');
+            setText('reg-desc', 'Pending commercial rate entry in ERP (' + int((DATA.for_update_shipments || []).length) + ' consignments)');
         } else {
-            setText('reg-title', 'Consolidated Consignment Registers');
-            const subTitle = state.regSubSheet === 'billed' ? 'Billed Consignments' : (state.regSubSheet === 'for_update' ? 'For Update (Rate ≤ ₹10)' : 'Unbilled Consignments');
-            setText('reg-desc', 'Showing uploaded sheet: ' + subTitle);
+            setText('reg-title', 'Consolidated Register');
+            const subTitle = state.regSubSheet === 'billed' ? 'Billed' : (state.regSubSheet === 'for_update' ? 'Rate Pending' : 'Unbilled');
+            setText('reg-desc', 'Active register: ' + subTitle);
         }
 
         // Filter records
@@ -2016,7 +1991,7 @@
 
                 let tagBadge = '';
                 if (n(s.total_amt) <= 10.0 && (s.source_type === 'UNBILLED' || s.source_type === 'COMBINED')) {
-                    tagBadge = '<span class="sd-pill bg-rose-50 text-rose-800 border border-rose-300 font-semibold" title="Placeholder/Dummy rate in ERP: Requires commercial update before billing">For Update</span>';
+                    tagBadge = '<span class="sd-pill bg-rose-50 text-rose-800 border border-rose-300 font-semibold" title="Rate Pending: Amount ≤ ₹10 requires commercial ERP update">Rate Pending</span>';
                 } else if (s.bill_no && s.bill_no !== '0' && s.bill_no !== 'nan') {
                     tagBadge = '<span class="sd-pill bg-teal-50 text-teal-800 border border-teal-200" title="Bill No">' + esc(s.bill_no) + '</span>';
                 } else if (s.source_type === 'UNBILLED') {
@@ -2131,11 +2106,11 @@
 
         const tagEl = $('pending-modal-tag');
         if (tagEl) {
-            tagEl.textContent = 'Delivery Audit';
+            tagEl.textContent = 'Delivery Status';
             tagEl.className = 'px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-amber-800 bg-amber-50 rounded border border-amber-200';
         }
-        setText('pending-modal-title', 'Pending & In-Transit Consignments (' + int(modalShipments.length) + ')');
-        setText('pending-modal-desc', 'Consignments awaiting physical courier delivery or POD confirmation in ' + (state.seg === 'all' ? 'Consolidated' : state.seg.toUpperCase()) + ' view.');
+        setText('pending-modal-title', 'Pending Deliveries (' + int(modalShipments.length) + ')');
+        setText('pending-modal-desc', 'Consignments awaiting physical delivery or POD confirmation.');
 
         const searchInput = $('pending-search');
         if (searchInput) searchInput.value = '';
@@ -2172,11 +2147,11 @@
 
         const tagEl = $('pending-modal-tag');
         if (tagEl) {
-            tagEl.textContent = 'Revenue Risk';
+            tagEl.textContent = 'Exposure';
             tagEl.className = 'px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-rose-800 bg-rose-50 rounded border border-rose-200';
         }
-        setText('pending-modal-title', 'Delivered Consignments Pending Invoicing (' + int(modalShipments.length) + ')');
-        setText('pending-modal-desc', 'Physical delivery complete but consignment has not been invoiced / billed.');
+        setText('pending-modal-title', 'Delivered Unbilled Consignments (' + int(modalShipments.length) + ')');
+        setText('pending-modal-desc', 'Physical delivery complete but consignment has not been invoiced.');
 
         const searchInput = $('pending-search');
         if (searchInput) searchInput.value = '';
@@ -2539,7 +2514,7 @@
             s.weight != null ? s.weight : '',
             s.total_amt != null ? s.total_amt : '',
             s.delivery_status || 'In Transit',
-            (n(s.total_amt) <= 10.0 && (s.source_type === 'UNBILLED' || s.source_type === 'COMBINED')) ? 'FOR UPDATE (Amount <= 10)' : (s.bill_no || s.source_type || '')
+            (n(s.total_amt) <= 10.0 && (s.source_type === 'UNBILLED' || s.source_type === 'COMBINED')) ? 'RATE PENDING (<= 10)' : (s.bill_no || s.source_type || '')
         ]);
 
         let csv = headers.map(h => '"' + String(h).replace(/"/g, '""') + '"').join(',') + '\r\n';
