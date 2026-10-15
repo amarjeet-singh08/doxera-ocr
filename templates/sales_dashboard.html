@@ -50,14 +50,44 @@
     @media (max-width: 640px) {
         .sd-kpi { font-size: 19px; }
         .sd-kpi-sub { font-size: 11px; }
-        .sd-seg { width: 100%; display: flex; justify-content: space-between; }
-        .sd-seg button { flex: 1; justify-content: center; padding: 0 6px; font-size: 12px; height: 30px; }
+        .sd-seg {
+            width: 100% !important;
+            display: grid !important;
+            grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            gap: 4px !important;
+            padding: 4px !important;
+            background: #F1F5F9 !important;
+            border-radius: 12px !important;
+            box-sizing: border-box !important;
+        }
+        .sd-seg button {
+            width: 100% !important;
+            height: 38px !important;
+            padding: 0 6px !important;
+            font-size: 12px !important;
+            justify-content: center !important;
+            border-radius: 8px !important;
+            box-sizing: border-box !important;
+        }
+        .sd-seg-dot {
+            margin-right: 5px !important;
+        }
+        .sd-btn {
+            height: 36px !important;
+            font-size: 12.5px !important;
+        }
+        .sd-select {
+            height: 36px !important;
+            font-size: 12.5px !important;
+            max-width: 100% !important;
+        }
         .apexcharts-canvas { max-width: 100% !important; }
         .apexcharts-canvas svg { max-width: 100% !important; }
     }
     @media (max-width: 380px) {
         .sd-kpi { font-size: 17px; }
         .sd-kpi-sub { font-size: 10px; }
+        .sd-seg button { font-size: 11px !important; padding: 0 4px !important; }
     }
 
     .sd-seg { display: inline-flex; align-items: center; padding: 3px; background: #F1F5F9; border-radius: 10px; gap: 3px; box-sizing: border-box; }
@@ -182,22 +212,22 @@
                         <span>Generated {{ current_report.created_at|localdt }}</span>
                     </p>
                 </div>
-                <div class="flex flex-wrap items-center gap-1.5 sm:gap-2 shrink-0">
-                    <a href="{{ url_for('sales.export_pdf', report_id=current_report.id) }}" class="sd-btn" title="Export Audit PDF">
+                <div class="grid grid-cols-3 sm:flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto mt-2 sm:mt-0">
+                    <a href="{{ url_for('sales.export_pdf', report_id=current_report.id) }}" class="sd-btn justify-center text-center" title="Export Audit PDF">
                         <i data-lucide="file-text" class="h-4 w-4 text-slate-500"></i> PDF
                     </a>
-                    <a href="{{ url_for('sales.export_pptx', report_id=current_report.id) }}" class="sd-btn" title="Export Presentation">
+                    <a href="{{ url_for('sales.export_pptx', report_id=current_report.id) }}" class="sd-btn justify-center text-center" title="Export Presentation">
                         <i data-lucide="presentation" class="h-4 w-4 text-slate-500"></i> PPTX
                     </a>
-                    <a href="{{ url_for('sales.upload_page') }}" class="sd-btn sd-btn-primary">
+                    <a href="{{ url_for('sales.upload_page') }}" class="sd-btn sd-btn-primary justify-center text-center">
                         <i data-lucide="upload" class="h-4 w-4"></i> New Upload
                     </a>
                 </div>
             </div>
 
-            <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mt-5 pt-4 border-t border-slate-100">
+            <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 mt-5 pt-4 border-t border-slate-100">
                 <!-- Left: View Segments & Month Filter (Data Dimensions) -->
-                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full lg:w-auto">
                     <div class="sd-seg w-full sm:w-auto" role="tablist" aria-label="Sales segment">
                         <button type="button" data-seg="unbilled" role="tab"><span class="sd-seg-dot"></span><span>Unbilled</span></button>
                         <button type="button" data-seg="billed" role="tab"><span class="sd-seg-dot"></span><span>Billed</span></button>
@@ -205,7 +235,7 @@
                         <button type="button" data-seg="all" role="tab"><span class="sd-seg-dot"></span><span>Consolidated</span></button>
                     </div>
                     {% if report_data.months %}
-                    <select id="sd-month" class="sd-select flex-1 sm:flex-initial" aria-label="Month">
+                    <select id="sd-month" class="sd-select w-full sm:w-auto sm:max-w-[200px]" aria-label="Month">
                         <option value="ALL">All months</option>
                         {% for m in report_data.months %}
                         <option value="{{ m.key }}">{{ m.label }}</option>
@@ -215,28 +245,30 @@
                 </div>
 
                 <!-- Right: Saved Report Selection & Management -->
-                <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                    <select id="sd-report" class="sd-select flex-1 sm:flex-initial max-w-full sm:max-w-[260px]" aria-label="Saved report" data-base="{{ url_for('sales.dashboard') }}">
+                <div class="flex flex-col sm:flex-row sm:items-center gap-2 w-full lg:w-auto">
+                    <select id="sd-report" class="sd-select w-full sm:w-auto sm:max-w-[260px]" aria-label="Saved report" data-base="{{ url_for('sales.dashboard') }}">
                         {% for rep in reports %}
                         <option value="{{ rep.id }}" {% if rep.id == current_report.id %}selected{% endif %}>
                             {{ rep.title or ('Report #' ~ rep.id) }} — {{ rep.period_label }}
                         </option>
                         {% endfor %}
                     </select>
-                    <button type="button" onclick="openManageReportsModal()" class="sd-btn px-2.5 text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition inline-flex items-center gap-1.5" title="Manage all saved reports (view or delete particular reports)">
-                        <i data-lucide="layers" class="h-4 w-4 text-slate-500"></i>
-                        <span class="hidden sm:inline">All Reports ({{ reports|length }})</span>
-                    </button>
-                    <button type="button"
-                            data-del-id="{{ current_report.id }}"
-                            data-del-title="{{ current_report.title or ('Report #' ~ current_report.id) }}"
-                            data-del-period="{{ summary.period_label or current_report.period_label or '—' }}"
-                            data-del-date="{{ current_report.created_at|localdt }}"
-                            onclick="triggerDeleteReport(this)"
-                            class="sd-btn px-2.5 text-rose-600 hover:text-rose-700 hover:bg-rose-50 hover:border-rose-200 transition"
-                            title="Delete only currently selected report (Report #{{ current_report.id }})">
-                        <i data-lucide="trash-2" class="h-4 w-4 text-rose-500"></i>
-                    </button>
+                    <div class="flex items-center gap-2 w-full sm:w-auto">
+                        <button type="button" onclick="openManageReportsModal()" class="sd-btn flex-1 sm:flex-initial px-3 text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition inline-flex items-center justify-center gap-1.5" title="Manage all saved reports">
+                            <i data-lucide="layers" class="h-4 w-4 text-slate-500"></i>
+                            <span>All Reports ({{ reports|length }})</span>
+                        </button>
+                        <button type="button"
+                                data-del-id="{{ current_report.id }}"
+                                data-del-title="{{ current_report.title or ('Report #' ~ current_report.id) }}"
+                                data-del-period="{{ summary.period_label or current_report.period_label or '—' }}"
+                                data-del-date="{{ current_report.created_at|localdt }}"
+                                onclick="triggerDeleteReport(this)"
+                                class="sd-btn px-3 text-rose-600 hover:text-rose-700 hover:bg-rose-50 hover:border-rose-200 transition inline-flex items-center justify-center shrink-0"
+                                title="Delete only currently selected report (Report #{{ current_report.id }})">
+                            <i data-lucide="trash-2" class="h-4 w-4 text-rose-500"></i>
+                        </button>
+                    </div>
                 </div>
             </div>
 
@@ -486,48 +518,50 @@
 
         <!-- Consolidated Sub-sheet Switcher -->
         <div id="reg-subsheet-bar" class="hidden px-4 sm:px-6 pt-2 pb-1">
-            <div class="flex flex-col sm:inline-flex sm:flex-row p-1 bg-slate-100 rounded-lg gap-1 border border-slate-200 w-full sm:w-auto">
-                <button type="button" class="subsheet-btn flex-1 sm:flex-initial px-4 py-1.5 rounded-md text-xs font-semibold text-slate-800 bg-white shadow-sm transition text-center justify-center" data-sub="billed">
+            <div class="grid grid-cols-1 sm:inline-flex sm:flex-row p-1 bg-slate-100 rounded-xl gap-1 border border-slate-200 w-full sm:w-auto">
+                <button type="button" class="subsheet-btn flex-1 sm:flex-initial px-4 py-2 sm:py-1.5 rounded-lg text-xs font-semibold text-slate-800 bg-white shadow-sm transition text-center justify-center min-h-[36px]" data-sub="billed">
                     Billed (<span id="sub-billed-count">0</span> · <span id="sub-billed-amt">₹0</span> <span id="sub-billed-amt-exact" class="text-[11px] font-medium text-slate-500 hidden sm:inline"></span>)
                 </button>
-                <button type="button" class="subsheet-btn flex-1 sm:flex-initial px-4 py-1.5 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition text-center justify-center" data-sub="unbilled">
+                <button type="button" class="subsheet-btn flex-1 sm:flex-initial px-4 py-2 sm:py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition text-center justify-center min-h-[36px]" data-sub="unbilled">
                     Unbilled (<span id="sub-unbilled-count">0</span> · <span id="sub-unbilled-amt">₹0</span> <span id="sub-unbilled-amt-exact" class="text-[11px] font-medium text-slate-500 hidden sm:inline"></span>)
                 </button>
-                <button type="button" class="subsheet-btn flex-1 sm:flex-initial px-4 py-1.5 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition text-center justify-center" data-sub="for_update">
+                <button type="button" class="subsheet-btn flex-1 sm:flex-initial px-4 py-2 sm:py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition text-center justify-center min-h-[36px]" data-sub="for_update">
                     Rate Pending (<span id="sub-update-count">0</span> · <span id="sub-update-amt">₹0</span>)
                 </button>
             </div>
         </div>
 
-        <div class="px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 bg-slate-50/50 border-y border-slate-100">
-            <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                <select id="reg-rep" class="sd-select flex-1 sm:flex-initial" aria-label="Sales person">
+        <div class="px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-slate-50/50 border-y border-slate-100">
+            <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full sm:w-auto">
+                <select id="reg-rep" class="sd-select w-full sm:w-auto sm:flex-initial" aria-label="Sales person">
                     <option value="ALL">All sales persons</option>
                 </select>
-                <select id="reg-mode" class="sd-select flex-1 sm:flex-initial" aria-label="Service mode">
+                <select id="reg-mode" class="sd-select w-full sm:w-auto sm:flex-initial" aria-label="Service mode">
                     <option value="ALL">All modes</option>
                     <option value="Air">Air</option>
                     <option value="Surface">Surface</option>
                     <option value="Train">Train</option>
                 </select>
-                <div class="relative w-full sm:w-auto">
+                <div class="relative col-span-2 sm:col-span-1 w-full sm:w-auto">
                     <input type="search" id="reg-cust" class="sd-input w-full sm:w-64 pl-8" placeholder="Search AWB, customer, city..." aria-label="Search customer or code">
                     <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
                 </div>
-                <button type="button" id="reg-reset" class="text-[13px] text-slate-500 hover:text-slate-800 px-2 font-medium">Reset</button>
+                <button type="button" id="reg-reset" class="col-span-2 sm:col-span-1 inline-flex items-center justify-center text-xs font-semibold text-slate-600 hover:text-slate-900 bg-white sm:bg-transparent border border-slate-200 sm:border-0 rounded-lg py-2 sm:py-1 px-3 sm:px-2 shadow-2xs sm:shadow-none transition">Reset</button>
             </div>
-            <div class="flex items-center gap-2 text-[12px] text-slate-500 w-full sm:w-auto justify-between sm:justify-start">
+            <div class="flex items-center justify-between gap-2 text-[12px] text-slate-500 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200/60">
                 <button type="button" id="reg-export-btn" onclick="exportRegisterCsv()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 hover:text-slate-900 shadow-xs transition" title="Export currently filtered register consignments as CSV">
                     <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     <span>Export CSV</span>
                 </button>
-                <span>Rows per page:</span>
-                <select id="reg-page-size" class="sd-select !h-8 !py-0 !pl-2 !pr-7 text-[12px]">
-                    <option value="50" selected>50</option>
-                    <option value="100">100</option>
-                    <option value="250">250</option>
-                    <option value="10000">All rows</option>
-                </select>
+                <div class="flex items-center gap-1.5">
+                    <span class="hidden xs:inline">Rows:</span>
+                    <select id="reg-page-size" class="sd-select !h-8 !py-0 !pl-2 !pr-7 text-[12px]">
+                        <option value="50" selected>50</option>
+                        <option value="100">100</option>
+                        <option value="250">250</option>
+                        <option value="10000">All rows</option>
+                    </select>
+                </div>
             </div>
         </div>
 
@@ -544,9 +578,9 @@
             <div id="reg-empty" class="hidden p-12 text-center text-[13px] text-slate-400">No consignments match these filters.</div>
         </div>
 
-        <div class="px-4 sm:px-6 py-3 flex flex-wrap items-center justify-between gap-3 border-t border-slate-100 text-[12px] text-slate-600 bg-slate-50/30">
-            <div id="reg-page-info">Showing 1 to 50 of 797 consignments</div>
-            <div id="reg-pagination" class="flex items-center gap-1"></div>
+        <div class="px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-2.5 border-t border-slate-100 text-[12px] text-slate-600 bg-slate-50/30">
+            <div id="reg-page-info" class="text-center sm:text-left w-full sm:w-auto">Showing 1 to 50 of 797 consignments</div>
+            <div id="reg-pagination" class="flex flex-wrap items-center justify-center gap-1 w-full sm:w-auto"></div>
         </div>
     </section>
 <!-- ═══════════════ DELETE PARTICULAR REPORT CONFIRMATION MODAL ═══════════════ -->
@@ -596,12 +630,12 @@
                 This action is permanent and cannot be undone.
             </p>
         </div>
-        <div class="px-5 sm:px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex items-center justify-end gap-2.5">
-            <button type="button" onclick="closeDeleteReportModal()" class="px-4 py-2 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs transition">
+        <div class="px-5 sm:px-6 py-3.5 bg-slate-50 border-t border-slate-100 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
+            <button type="button" onclick="closeDeleteReportModal()" class="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs transition text-center justify-center">
                 Cancel
             </button>
-            <form id="delete-report-form" method="POST" action="{{ url_for('sales.delete_report', report_id=current_report.id) }}">
-                <button type="submit" class="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg shadow-sm transition">
+            <form id="delete-report-form" method="POST" action="{{ url_for('sales.delete_report', report_id=current_report.id) }}" class="w-full sm:w-auto">
+                <button type="submit" class="w-full sm:w-auto inline-flex items-center justify-center gap-1.5 px-4 py-2 text-xs font-semibold text-white bg-rose-600 hover:bg-rose-700 rounded-lg shadow-sm transition">
                     <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
                     <span id="del-modal-btn-label">Delete Report #{{ current_report.id }}</span>
                 </button>
@@ -722,7 +756,7 @@
                 <i data-lucide="shield-check" class="h-4 w-4 text-emerald-600"></i>
                 <span>Audit reports are managed independently. Deleting a report does not affect other periods.</span>
             </div>
-            <button type="button" onclick="closeManageReportsModal()" class="px-4 py-1.5 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs transition">
+            <button type="button" onclick="closeManageReportsModal()" class="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs transition text-center justify-center min-h-[38px]">
                 Close
             </button>
         </div>
@@ -749,27 +783,27 @@
         </div>
 
         <!-- Controls Toolbar -->
-        <div class="px-5 sm:px-6 py-3 border-b border-slate-100 bg-white flex flex-wrap items-center justify-between gap-3 text-xs">
+        <div class="px-4 sm:px-6 py-3 border-b border-slate-100 bg-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
             <!-- Search -->
-            <div class="relative flex-1 min-w-[220px]">
-                <input type="text" id="pending-search" placeholder="Search by AWB, customer, destination..." class="w-full pl-8 pr-3 py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition" oninput="renderPendingModalTable()">
-                <svg class="w-4 h-4 text-slate-400 absolute left-2.5 top-2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+            <div class="relative w-full sm:flex-1 sm:min-w-[220px]">
+                <input type="text" id="pending-search" placeholder="Search by AWB, customer, destination..." class="w-full pl-8 pr-3 py-2 sm:py-1.5 text-xs bg-slate-50 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition" oninput="renderPendingModalTable()">
+                <svg class="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5 sm:top-2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
             <!-- Status Filter Tabs -->
-            <div id="pending-status-filters" class="flex items-center gap-1 overflow-x-auto py-0.5"></div>
+            <div id="pending-status-filters" class="flex items-center gap-1.5 overflow-x-auto py-1 w-full sm:w-auto"></div>
             <!-- Action Buttons -->
-            <div class="flex items-center gap-2">
-                <button type="button" id="copy-awbs-btn" onclick="copyPendingAwbs()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium transition shadow-2xs">
-                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
+            <div class="grid grid-cols-3 sm:flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
+                <button type="button" id="copy-awbs-btn" onclick="copyPendingAwbs()" class="inline-flex items-center justify-center gap-1 px-2.5 py-2 sm:py-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium transition shadow-2xs text-[11px] sm:text-xs min-h-[36px]">
+                    <svg class="w-3.5 h-3.5 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                     <span id="copy-awbs-txt">Copy AWBs</span>
                 </button>
-                <button type="button" onclick="exportPendingCsv()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium transition shadow-2xs">
-                    <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+                <button type="button" onclick="exportPendingCsv()" class="inline-flex items-center justify-center gap-1 px-2.5 py-2 sm:py-1.5 rounded-lg border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium transition shadow-2xs text-[11px] sm:text-xs min-h-[36px]">
+                    <svg class="w-3.5 h-3.5 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     <span>Export CSV</span>
                 </button>
-                <button type="button" onclick="filterPendingInMainRegister()" class="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition shadow-2xs">
-                    <span>Filter in Register</span>
-                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+                <button type="button" onclick="filterPendingInMainRegister()" class="inline-flex items-center justify-center gap-1 px-2.5 py-2 sm:py-1.5 rounded-lg bg-blue-600 hover:bg-blue-700 text-white font-medium transition shadow-2xs text-[11px] sm:text-xs min-h-[36px]">
+                    <span>Filter Register</span>
+                    <svg class="w-3.5 h-3.5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
                 </button>
             </div>
         </div>
@@ -2040,31 +2074,32 @@
         if (!pag) return;
         if (totalPages <= 1) { pag.innerHTML = ''; return; }
 
+        const isMobile = window.innerWidth < 640;
         let html = '';
-        html += '<button type="button" class="px-2.5 py-1 rounded border text-xs font-medium ' + (state.regPage > 1 ? 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50' : 'opacity-40 cursor-not-allowed border-slate-100') + '" ' + (state.regPage > 1 ? 'onclick="window.goToRegPage(' + (state.regPage - 1) + ')"' : 'disabled') + '>Previous</button>';
+        html += '<button type="button" class="px-2.5 py-1.5 rounded border text-xs font-medium ' + (state.regPage > 1 ? 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50' : 'opacity-40 cursor-not-allowed border-slate-100') + '" ' + (state.regPage > 1 ? 'onclick="window.goToRegPage(' + (state.regPage - 1) + ')"' : 'disabled') + '>' + (isMobile ? '‹' : 'Previous') + '</button>';
 
         const cur = state.regPage;
-        const delta = 2;
+        const delta = isMobile ? 1 : 2;
         let left = cur - delta, right = cur + delta;
         if (left < 1) left = 1;
         if (right > totalPages) right = totalPages;
 
         if (left > 1) {
-            html += '<button type="button" class="px-2.5 py-1 rounded border text-xs font-medium bg-white text-slate-700 border-slate-200 hover:bg-slate-50" onclick="window.goToRegPage(1)">1</button>';
+            html += '<button type="button" class="px-2.5 py-1.5 rounded border text-xs font-medium bg-white text-slate-700 border-slate-200 hover:bg-slate-50" onclick="window.goToRegPage(1)">1</button>';
             if (left > 2) html += '<span class="px-1 text-slate-400">…</span>';
         }
 
         for (let p = left; p <= right; p++) {
             const active = p === cur;
-            html += '<button type="button" class="px-2.5 py-1 rounded border text-xs font-semibold ' + (active ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50') + '" onclick="window.goToRegPage(' + p + ')">' + p + '</button>';
+            html += '<button type="button" class="px-2.5 py-1.5 rounded border text-xs font-semibold ' + (active ? 'bg-slate-900 text-white border-slate-900' : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50') + '" onclick="window.goToRegPage(' + p + ')">' + p + '</button>';
         }
 
         if (right < totalPages) {
             if (right < totalPages - 1) html += '<span class="px-1 text-slate-400">…</span>';
-            html += '<button type="button" class="px-2.5 py-1 rounded border text-xs font-medium bg-white text-slate-700 border-slate-200 hover:bg-slate-50" onclick="window.goToRegPage(' + totalPages + ')">' + totalPages + '</button>';
+            html += '<button type="button" class="px-2.5 py-1.5 rounded border text-xs font-medium bg-white text-slate-700 border-slate-200 hover:bg-slate-50" onclick="window.goToRegPage(' + totalPages + ')">' + totalPages + '</button>';
         }
 
-        html += '<button type="button" class="px-2.5 py-1 rounded border text-xs font-medium ' + (state.regPage < totalPages ? 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50' : 'opacity-40 cursor-not-allowed border-slate-100') + '" ' + (state.regPage < totalPages ? 'onclick="window.goToRegPage(' + (state.regPage + 1) + ')"' : 'disabled') + '>Next</button>';
+        html += '<button type="button" class="px-2.5 py-1.5 rounded border text-xs font-medium ' + (state.regPage < totalPages ? 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50' : 'opacity-40 cursor-not-allowed border-slate-100') + '" ' + (state.regPage < totalPages ? 'onclick="window.goToRegPage(' + (state.regPage + 1) + ')"' : 'disabled') + '>' + (isMobile ? '›' : 'Next') + '</button>';
         pag.innerHTML = html;
     }
 
@@ -2411,7 +2446,7 @@
             const txt = $('copy-awbs-txt');
             if (txt) {
                 const orig = txt.textContent;
-                txt.textContent = 'Copied ' + int(awbs.length) + ' AWBs!';
+                txt.textContent = window.innerWidth < 640 ? 'Copied!' : 'Copied ' + int(awbs.length) + ' AWBs!';
                 setTimeout(function () { txt.textContent = orig; }, 2000);
             }
         });

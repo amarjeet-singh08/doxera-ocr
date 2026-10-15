@@ -78,7 +78,7 @@
 
         <div class="flex items-center gap-2 self-start sm:self-auto">
             <a href="{{ url_for('sales.dashboard') }}" 
-                class="inline-flex items-center px-3.5 py-2 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 shadow-xs transition-colors">
+                class="inline-flex items-center justify-center px-3.5 py-2 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 shadow-xs transition-colors min-h-[38px]">
                 <i data-lucide="arrow-left" class="h-3.5 w-3.5 mr-1.5"></i> Dashboard
             </a>
         </div>
@@ -303,7 +303,7 @@
                 </div>
 
                 <button type="submit" id="submit-btn" disabled
-                    class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 opacity-40 cursor-not-allowed bg-slate-200 text-slate-500 border border-slate-300">
+                    class="w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 opacity-40 cursor-not-allowed bg-slate-200 text-slate-500 border border-slate-300 min-h-[42px]">
                     <i data-lucide="play" class="h-3.5 w-3.5 mr-2"></i> Process & Generate Audit
                 </button>
             </div>
@@ -408,12 +408,12 @@
 
         if (hasBilled && hasUnbilled && hasBooking) {
             submitBtn.disabled = false;
-            submitBtn.className = "w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-blue-600/20 transition-all duration-200 bg-blue-600 hover:bg-blue-700 active:scale-98 cursor-pointer border border-blue-600";
+            submitBtn.className = "w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-blue-600/20 transition-all duration-200 bg-blue-600 hover:bg-blue-700 active:scale-98 cursor-pointer border border-blue-600 min-h-[42px]";
             readyStatusContainer.className = "flex items-center text-xs font-semibold text-emerald-700";
             readyStatusContainer.innerHTML = '<i data-lucide="check-circle-2" class="h-4 w-4 mr-2 text-emerald-600"></i> All three registers attached and ready.';
         } else {
             submitBtn.disabled = true;
-            submitBtn.className = "w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 opacity-40 cursor-not-allowed bg-slate-200 text-slate-500 border border-slate-300";
+            submitBtn.className = "w-full sm:w-auto inline-flex items-center justify-center px-6 py-2.5 rounded-xl text-xs font-bold uppercase tracking-wider transition-all duration-200 opacity-40 cursor-not-allowed bg-slate-200 text-slate-500 border border-slate-300 min-h-[42px]";
             readyStatusContainer.className = "flex items-center text-xs font-semibold text-slate-500";
             readyStatusContainer.innerHTML = '<i data-lucide="lock" class="h-4 w-4 mr-2 text-slate-400"></i> Attach all three registers to proceed.';
         }
