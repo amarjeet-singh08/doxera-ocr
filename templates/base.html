@@ -404,7 +404,7 @@
     <!-- Main Content -->
     <div class="flex-1 flex flex-col h-screen w-full overflow-hidden">
         <!-- Top Header -->
-        <header class="h-16 bg-white/80 backdrop-blur-2xl border-b border-white/90 flex items-center justify-between px-4 lg:px-6 flex-shrink-0 z-10 shadow-[0_4px_20px_-2px_rgba(15,23,42,0.03)]">
+        <header class="h-16 bg-white/80 backdrop-blur-2xl border-b border-white/90 flex items-center justify-between px-4 lg:px-6 flex-shrink-0 z-30 shadow-[0_4px_20px_-2px_rgba(15,23,42,0.03)] relative">
             <div class="flex items-center min-w-0">
                 <button class="lg:hidden text-slate-500 hover:text-slate-700 mr-2 sm:mr-4 p-1 rounded focus:outline-none shrink-0" onclick="toggleSidebar()">
                     <i data-lucide="menu" class="h-6 w-6"></i>
@@ -420,34 +420,118 @@
                         <input type="text" name="search" placeholder="Search..." class="dox-input !h-9 pl-7 sm:pl-9 pr-2 sm:pr-4 text-xs sm:text-sm w-24 sm:w-40 lg:w-64" required>
                     </form>
                 </div>
-                <div class="relative group shrink-0">
-                    <button type="button" class="text-slate-500 hover:text-slate-800 p-1.5 sm:p-2 rounded-xl hover:bg-white/60 transition-colors relative">
+
+                <!-- Notification Center Popover (Apple Control Center) -->
+                <div class="relative shrink-0" id="notif-container">
+                    <button type="button" 
+                            id="notif-bell-btn" 
+                            onclick="toggleNotifDropdown(event)"
+                            class="text-slate-600 hover:text-slate-900 p-2 rounded-xl hover:bg-slate-100/80 active:scale-95 transition-all relative border border-transparent hover:border-slate-200/80" 
+                            aria-label="View notifications and quota" 
+                            aria-expanded="false">
                         <i data-lucide="bell" class="h-5 w-5"></i>
                         {% if notif_total and notif_total > 0 %}
-                        <span class="absolute top-1.5 right-1.5 block h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
+                        <span class="absolute top-1.5 right-1.5 flex h-2.5 w-2.5">
+                            <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75"></span>
+                            <span class="relative inline-flex rounded-full h-2.5 w-2.5 bg-rose-500 ring-2 ring-white"></span>
+                        </span>
                         {% endif %}
                     </button>
-                    <!-- Notification Dropdown -->
-                    <div class="absolute right-0 mt-2 w-72 dox-card !p-0 !rounded-2xl overflow-hidden shadow-2xl border-white/95 hidden group-hover:block z-50">
-                        <div class="px-4 py-2.5 bg-slate-900 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-between">
-                            <span>Notifications</span>
-                            <span class="text-[10px] text-slate-400">Live Quota</span>
+
+                    <!-- Popover Dropdown Panel (100% Opaque Solid Surface - No Ghosting) -->
+                    <div id="notif-dropdown" 
+                         class="hidden absolute right-0 mt-2.5 w-[calc(100vw-32px)] sm:w-84 max-w-sm rounded-2xl shadow-2xl border border-slate-200/90 overflow-hidden z-50 transform opacity-0 translate-y-2 transition-all duration-200 ease-out origin-top-right ring-1 ring-black/5"
+                         style="background: #FFFFFF !important; box-shadow: 0 25px 60px -12px rgba(15, 23, 42, 0.28), 0 0 0 1px rgba(15, 23, 42, 0.08) !important;">
+                        
+                        <!-- Control Center Top Bar -->
+                        <div class="px-4 py-3 bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white flex items-center justify-between border-b border-slate-800">
+                            <div class="flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                                <span class="font-bold text-xs uppercase tracking-wider text-slate-100">Notifications</span>
+                            </div>
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-bold bg-white/10 text-slate-300 border border-white/15 tracking-wide">
+                                Live Quota
+                            </span>
                         </div>
-                        <a href="{{ url_for('ops.dockets', status='REVIEW') }}" class="block px-4 py-2.5 text-xs text-amber-800 hover:bg-amber-50/60 flex items-center justify-between border-b border-slate-100 transition-colors font-medium">
-                            <span>Pending Review</span>
-                            <span class="dox-badge dox-badge-review text-[10px]">{{ notif_pending|default(0) }}</span>
-                        </a>
-                        <a href="{{ url_for('ops.dockets', status='FAILED') }}" class="block px-4 py-2.5 text-xs text-rose-800 hover:bg-rose-50/60 flex items-center justify-between border-b border-slate-100 transition-colors font-medium">
-                            <span>Failed AI Extraction</span>
-                            <span class="dox-badge dox-badge-failed text-[10px]">{{ notif_failed|default(0) }}</span>
-                        </a>
-                        <a href="{{ url_for('ops.dockets', status='REJECTED') }}" class="block px-4 py-2.5 text-xs text-rose-800 hover:bg-rose-50/60 flex items-center justify-between border-b border-slate-100 transition-colors font-medium">
-                            <span>Rejected Dockets</span>
-                            <span class="dox-badge dox-badge-rejected text-[10px]">{{ notif_rejected|default(0) }}</span>
-                        </a>
-                        <div class="px-4 py-3 text-xs bg-slate-50/90 flex items-center justify-between">
-                            <span class="font-bold text-[10px] uppercase tracking-wider text-slate-500">Remaining AI Limit</span>
-                            <span class="{% if notif_limit and notif_limit < 20 %}text-rose-600{% else %}text-emerald-700{% endif %} font-extrabold text-xs">{{ notif_limit|default(50) }} Dockets</span>
+
+                        <!-- Notification Rows -->
+                        <div class="divide-y divide-slate-100 bg-white">
+                            <!-- 1. Pending Review -->
+                            <a href="{{ url_for('ops.dockets', status='REVIEW') }}" 
+                               class="group/item px-4 py-3 hover:bg-amber-50/70 active:bg-amber-100/60 transition-colors flex items-center justify-between gap-3 bg-white">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <div class="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center shrink-0 border border-amber-200/80 shadow-2xs group-hover/item:scale-105 transition-transform">
+                                        <i data-lucide="inbox" class="h-4 w-4"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-bold text-slate-900 group-hover/item:text-amber-900 truncate">Pending Review</p>
+                                        <p class="text-[11px] text-slate-500 truncate">Awaiting human verification</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="dox-badge dox-badge-review !px-2.5 !py-0.5 !text-[11px] !font-bold">
+                                        {{ notif_pending|default(0) }}
+                                    </span>
+                                    <i data-lucide="chevron-right" class="h-3.5 w-3.5 text-slate-300 group-hover/item:text-amber-600 transition-colors"></i>
+                                </div>
+                            </a>
+
+                            <!-- 2. Failed AI Extraction -->
+                            <a href="{{ url_for('ops.dockets', status='FAILED') }}" 
+                               class="group/item px-4 py-3 hover:bg-rose-50/70 active:bg-rose-100/60 transition-colors flex items-center justify-between gap-3 bg-white">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <div class="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 border border-rose-200/80 shadow-2xs group-hover/item:scale-105 transition-transform">
+                                        <i data-lucide="alert-triangle" class="h-4 w-4"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-bold text-slate-900 group-hover/item:text-rose-900 truncate">Failed AI Extraction</p>
+                                        <p class="text-[11px] text-slate-500 truncate">OCR / formatting errors</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="dox-badge dox-badge-failed !px-2.5 !py-0.5 !text-[11px] !font-bold">
+                                        {{ notif_failed|default(0) }}
+                                    </span>
+                                    <i data-lucide="chevron-right" class="h-3.5 w-3.5 text-slate-300 group-hover/item:text-rose-600 transition-colors"></i>
+                                </div>
+                            </a>
+
+                            <!-- 3. Rejected Dockets -->
+                            <a href="{{ url_for('ops.dockets', status='REJECTED') }}" 
+                               class="group/item px-4 py-3 hover:bg-rose-50/70 active:bg-rose-100/60 transition-colors flex items-center justify-between gap-3 bg-white">
+                                <div class="flex items-center gap-3 min-w-0">
+                                    <div class="w-8 h-8 rounded-xl bg-rose-100 text-rose-700 flex items-center justify-center shrink-0 border border-rose-200/80 shadow-2xs group-hover/item:scale-105 transition-transform">
+                                        <i data-lucide="x-circle" class="h-4 w-4"></i>
+                                    </div>
+                                    <div class="min-w-0">
+                                        <p class="text-xs font-bold text-slate-900 group-hover/item:text-rose-900 truncate">Rejected Dockets</p>
+                                        <p class="text-[11px] text-slate-500 truncate">Declined during inspection</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-center gap-1.5 shrink-0">
+                                    <span class="dox-badge dox-badge-rejected !px-2.5 !py-0.5 !text-[11px] !font-bold">
+                                        {{ notif_rejected|default(0) }}
+                                    </span>
+                                    <i data-lucide="chevron-right" class="h-3.5 w-3.5 text-slate-300 group-hover/item:text-rose-600 transition-colors"></i>
+                                </div>
+                            </a>
+                        </div>
+
+                        <!-- Quota Meter Footer -->
+                        <div class="px-4 py-3.5 bg-slate-50/95 border-t border-slate-100">
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span class="text-[11px] font-bold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                                    <i data-lucide="zap" class="h-3.5 w-3.5 text-amber-500"></i>
+                                    Remaining AI Limit
+                                </span>
+                                <span class="text-xs font-extrabold {% if notif_limit and notif_limit < 20 %}text-rose-600{% else %}text-emerald-700{% endif %}">
+                                    {{ notif_limit|default(50) }} Dockets
+                                </span>
+                            </div>
+                            {% set limit_pct = [(notif_limit|default(50) / 200 * 100)|round, 100]|min %}
+                            <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                                <div class="h-full rounded-full transition-all duration-500 {% if notif_limit and notif_limit < 20 %}bg-rose-500{% else %}bg-emerald-500{% endif %}" style="width: {{ limit_pct }}%;"></div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -488,10 +572,63 @@
         function toggleSidebar() {
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('sidebar-backdrop');
-            
-            sidebar.classList.toggle('-translate-x-full');
-            backdrop.classList.toggle('hidden');
+            if (sidebar && backdrop) {
+                sidebar.classList.toggle('-translate-x-full');
+                backdrop.classList.toggle('hidden');
+            }
         }
+
+        /* Apple Control Center Notification Dropdown Controller */
+        function toggleNotifDropdown(e) {
+            if (e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            const dropdown = document.getElementById('notif-dropdown');
+            const btn = document.getElementById('notif-bell-btn');
+            if (!dropdown) return;
+
+            const isHidden = dropdown.classList.contains('hidden');
+            if (isHidden) {
+                dropdown.classList.remove('hidden');
+                // Trigger smooth Apple spring animation
+                requestAnimationFrame(() => {
+                    dropdown.classList.remove('opacity-0', 'translate-y-2');
+                    dropdown.classList.add('opacity-100', 'translate-y-0');
+                });
+                if (btn) btn.setAttribute('aria-expanded', 'true');
+            } else {
+                closeNotifDropdown();
+            }
+        }
+
+        function closeNotifDropdown() {
+            const dropdown = document.getElementById('notif-dropdown');
+            const btn = document.getElementById('notif-bell-btn');
+            if (!dropdown || dropdown.classList.contains('hidden')) return;
+
+            dropdown.classList.remove('opacity-100', 'translate-y-0');
+            dropdown.classList.add('opacity-0', 'translate-y-2');
+            setTimeout(() => {
+                dropdown.classList.add('hidden');
+            }, 180);
+            if (btn) btn.setAttribute('aria-expanded', 'false');
+        }
+
+        // Global dismiss on click outside
+        document.addEventListener('click', function(e) {
+            const container = document.getElementById('notif-container');
+            if (container && !container.contains(e.target)) {
+                closeNotifDropdown();
+            }
+        });
+
+        // Global dismiss on Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeNotifDropdown();
+            }
+        });
     </script>
     {% block extra_scripts %}{% endblock %}
 </body>
