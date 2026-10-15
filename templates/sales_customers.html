@@ -84,27 +84,37 @@
                 <tbody class="divide-y divide-slate-100">
                     {% for c in customers %}
                     <tr class="hover:bg-slate-50/80 transition-colors">
-                        <td class="px-5 py-3 font-mono font-bold text-blue-600 text-xs">
-                            {{ c.customer_code }}
+                        <td class="px-5 py-3.5">
+                            <span class="px-2 py-0.5 rounded-md font-mono font-bold text-xs bg-slate-100 text-slate-800 border border-slate-200/80 shadow-2xs">
+                                {{ c.customer_code }}
+                            </span>
                         </td>
-                        <td class="px-5 py-3 font-semibold text-slate-900 max-w-[280px] truncate" title="{{ c.customer_name }}">
-                            {{ c.customer_name }}
+                        <td class="px-5 py-3.5">
+                            <div class="flex items-center gap-2.5">
+                                <div class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0 border border-slate-200/70">
+                                    {{ c.customer_name[:1]|upper }}
+                                </div>
+                                <span class="font-semibold text-slate-900 max-w-[280px] truncate" title="{{ c.customer_name }}">
+                                    {{ c.customer_name }}
+                                </span>
+                            </div>
                         </td>
-                        <td class="px-5 py-3">
+                        <td class="px-5 py-3.5">
                             <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {% if c.sales_person == 'NEL' %}bg-slate-100 text-slate-700{% elif c.sales_person == 'Jeetendra Prasad' %}bg-blue-100 text-blue-800 border border-blue-200{% elif c.sales_person == 'Sarita Singh' %}bg-purple-100 text-purple-800 border border-purple-200{% elif c.sales_person == 'Ramkrishna' %}bg-emerald-100 text-emerald-800 border border-emerald-200{% else %}bg-amber-100 text-amber-800 border border-amber-200{% endif %}">
+                                <span class="w-1.5 h-1.5 rounded-full mr-1.5 {% if c.sales_person == 'NEL' %}bg-slate-400{% elif c.sales_person == 'Jeetendra Prasad' %}bg-blue-600{% elif c.sales_person == 'Sarita Singh' %}bg-purple-600{% elif c.sales_person == 'Ramkrishna' %}bg-emerald-600{% else %}bg-amber-600{% endif %}"></span>
                                 {{ c.sales_person or 'NEL' }}
                             </span>
                         </td>
-                        <td class="px-5 py-3 text-slate-600">
+                        <td class="px-5 py-3.5 text-slate-600">
                             {{ c.city or c.location or '---' }}
                         </td>
-                        <td class="px-5 py-3 text-slate-500 text-xs">
+                        <td class="px-5 py-3.5 text-slate-500 text-xs">
                             {{ c.state or '---' }}
                         </td>
-                        <td class="px-5 py-3 text-right">
+                        <td class="px-5 py-3.5 text-right">
                             <button onclick="openEditModal('{{ c.id }}', '{{ c.customer_name|escape }}', '{{ c.sales_person|escape }}')"
-                                class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-lg border border-transparent hover:border-blue-100 transition-colors min-h-[34px]">
-                                <i data-lucide="edit-3" class="h-3.5 w-3.5 mr-1"></i> Reassign
+                                class="inline-flex items-center justify-center px-3 py-1.5 text-xs font-semibold text-slate-700 hover:text-blue-700 bg-white hover:bg-blue-50/80 border border-slate-200 hover:border-blue-200 rounded-lg shadow-2xs transition-all min-h-[34px]">
+                                <i data-lucide="edit-3" class="h-3.5 w-3.5 mr-1 text-slate-400"></i> Reassign
                             </button>
                         </td>
                     </tr>

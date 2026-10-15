@@ -6,20 +6,97 @@
 <script src="{{ url_for('static', filename='js/apexcharts.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/leaflet.js') }}"></script>
 <style>
-    /* ── Sales Dashboard design tokens ───────────────────────────── */
-    #sd-root { --seg: #B45309; --ink: #0F172A; --muted: #64748B; --line: #E2E8F0; }
-    .sd-card { background: #fff; border: 1px solid var(--line); border-radius: 14px; box-shadow: 0 1px 3px rgba(15,23,42,.03); }
-    .sd-accent { height: 3px; background: var(--seg); transition: background .25s; }
-    .sd-eyebrow { font-size: 11px; font-weight: 600; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
-    .sd-title { font-size: 16px; font-weight: 600; color: var(--ink); letter-spacing: -.01em; margin-top: 2px; }
-    .sd-desc { font-size: 13px; color: var(--muted); margin-top: 2px; }
-    .sd-num { font-variant-numeric: tabular-nums; }
+    /* ── Apple HIG / Xcode 27 & Open-SaaS Design System Tokens ───── */
+    #sd-root {
+        --seg: #D97706;
+        --seg-rgb: 217, 119, 6;
+        --ink: #0F172A;
+        --muted: #64748B;
+        --line: #E2E8F0;
+        --card-bg: #FFFFFF;
+        --card-border: #E2E8F0;
+        --card-shadow: 0 1px 3px rgba(15, 23, 42, 0.03), 0 6px 16px -2px rgba(15, 23, 42, 0.02);
+    }
+    .sd-card {
+        background: var(--card-bg);
+        border: 1px solid var(--card-border);
+        border-radius: 16px;
+        box-shadow: var(--card-shadow);
+        transition: border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+    }
+    .sd-card:hover {
+        border-color: #CBD5E1;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.04), 0 12px 24px -4px rgba(15, 23, 42, 0.04);
+    }
+    .sd-accent {
+        height: 2.5px;
+        background: linear-gradient(90deg, var(--seg) 0%, rgba(var(--seg-rgb), 0.35) 100%);
+        transition: background .3s ease;
+    }
+    .sd-eyebrow {
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        color: var(--muted);
+    }
+    .sd-title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--ink);
+        letter-spacing: -.02em;
+        margin-top: 2px;
+    }
+    .sd-desc {
+        font-size: 13px;
+        color: var(--muted);
+        margin-top: 2px;
+    }
+    .sd-num {
+        font-variant-numeric: tabular-nums;
+        font-feature-settings: "tnum";
+    }
 
-    .sd-sec-head { display: flex; flex-wrap: wrap; align-items: flex-start; justify-content: space-between; gap: 16px 32px; padding: 20px 24px 4px; }
-    .sd-stats { display: flex; flex-wrap: wrap; gap: 8px 32px; }
-    .sd-stat { text-align: right; min-width: 0; }
-    .sd-stat .v { font-size: 15px; font-weight: 600; color: var(--ink); font-variant-numeric: tabular-nums; white-space: nowrap; }
-    .sd-stat .k { font-size: 11.5px; color: var(--muted); white-space: nowrap; }
+    .sd-sec-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 16px 32px;
+        padding: 20px 24px 6px;
+    }
+    .sd-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 16px;
+    }
+    .sd-stat {
+        text-align: right;
+        min-width: 0;
+        padding: 5px 12px;
+        border-radius: 9px;
+        background: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        transition: all .15s ease;
+    }
+    .sd-stat:hover {
+        background: #F1F5F9;
+        border-color: #CBD5E1;
+    }
+    .sd-stat .v {
+        font-size: 14px;
+        font-weight: 700;
+        color: var(--ink);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+    }
+    .sd-stat .k {
+        font-size: 11px;
+        font-weight: 500;
+        color: var(--muted);
+        white-space: nowrap;
+        margin-top: 1px;
+    }
     
     @media (max-width: 640px) {
         .sd-sec-head { padding: 14px 14px 4px; gap: 10px 14px; }
@@ -32,23 +109,41 @@
             padding-top: 8px !important;
             border-top: 1px solid #F1F5F9 !important;
         }
-        .sd-stat { text-align: left !important; }
+        .sd-stat {
+            text-align: left !important;
+            padding: 4px 8px !important;
+        }
         .sd-stat .v { font-size: 13.5px !important; }
         .sd-stat .k { font-size: 10.5px !important; }
     }
     @media (min-width: 641px) and (max-width: 1024px) {
         .sd-sec-head { padding: 16px 20px 4px; gap: 12px 20px; }
-        .sd-stats { gap: 8px 18px; }
-        .sd-stat .v { font-size: 14px; }
+        .sd-stats { gap: 8px 14px; }
+        .sd-stat .v { font-size: 13.5px; }
     }
 
     .sd-kpi-label { font-size: 12.5px; font-weight: 500; color: var(--muted); }
-    .sd-kpi { font-size: 26px; font-weight: 600; color: var(--ink); letter-spacing: -.02em; line-height: 1.15; margin-top: 8px;
-              font-variant-numeric: tabular-nums; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .sd-kpi-sub { font-size: 12px; color: #94A3B8; margin-top: 6px; font-variant-numeric: tabular-nums;
-                  white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .sd-kpi {
+        font-size: 28px;
+        font-weight: 700;
+        color: var(--ink);
+        letter-spacing: -.03em;
+        line-height: 1.15;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .sd-kpi-sub {
+        font-size: 12px;
+        color: #94A3B8;
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
     @media (max-width: 640px) {
-        .sd-kpi { font-size: 19px; }
+        .sd-kpi { font-size: 20px; }
         .sd-kpi-sub { font-size: 11px; }
         .sd-seg {
             width: 100% !important;
@@ -85,36 +180,164 @@
         .apexcharts-canvas svg { max-width: 100% !important; }
     }
     @media (max-width: 380px) {
-        .sd-kpi { font-size: 17px; }
+        .sd-kpi { font-size: 18px; }
         .sd-kpi-sub { font-size: 10px; }
         .sd-seg button { font-size: 11px !important; padding: 0 4px !important; }
     }
 
-    .sd-seg { display: inline-flex; align-items: center; padding: 3px; background: #F1F5F9; border-radius: 10px; gap: 3px; box-sizing: border-box; }
-    .sd-seg button { display: inline-flex; align-items: center; justify-content: center; flex-direction: row; height: 32px; padding: 0 14px; border-radius: 8px; font-size: 13px; font-weight: 500; color: #475569; white-space: nowrap; line-height: 1; border: none; background: transparent; cursor: pointer; transition: all .15s ease; }
-    .sd-seg button:hover { color: var(--ink); }
-    .sd-seg button.active { background: #fff; color: var(--ink); box-shadow: 0 1px 2px rgba(15,23,42,.08), 0 0 0 1px rgba(15,23,42,.04); font-weight: 600; }
-    .sd-seg button.active .sd-seg-dot { background: var(--seg); }
-    .sd-seg-dot { display: inline-block; width: 7px; height: 7px; border-radius: 99px; background: #CBD5E1; margin-right: 7px; flex-shrink: 0; }
+    /* ── Apple Tactile Segmented Control (Xcode / iOS 27 style) ──── */
+    .sd-seg {
+        display: inline-flex;
+        align-items: center;
+        padding: 3.5px;
+        background: #F1F5F9;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        border-radius: 12px;
+        gap: 3.5px;
+        box-sizing: border-box;
+        box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.03);
+    }
+    .sd-seg button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: row;
+        height: 32px;
+        padding: 0 14px;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #475569;
+        white-space: nowrap;
+        line-height: 1;
+        border: 1px solid transparent;
+        background: transparent;
+        cursor: pointer;
+        transition: all .18s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .sd-seg button:hover {
+        color: var(--ink);
+        background: rgba(255, 255, 255, 0.6);
+    }
+    .sd-seg button.active {
+        background: #ffffff;
+        color: var(--ink);
+        border-color: rgba(226, 232, 240, 0.9);
+        box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06), 0 1px 1px rgba(15, 23, 42, 0.04);
+        font-weight: 600;
+    }
+    .sd-seg button.active .sd-seg-dot {
+        background: var(--seg);
+        box-shadow: 0 0 0 3px rgba(var(--seg-rgb), 0.18);
+    }
+    .sd-seg-dot {
+        display: inline-block;
+        width: 7px;
+        height: 7px;
+        border-radius: 99px;
+        background: #CBD5E1;
+        margin-right: 7px;
+        flex-shrink: 0;
+        transition: all .2s ease;
+    }
 
+    /* ── Modern Shadcn / Apple Action Buttons ────────────────────── */
+    .sd-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 34px;
+        padding: 0 13px;
+        border: 1px solid #E2E8F0;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #334155;
+        background: #ffffff;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        transition: all .15s ease;
+        white-space: nowrap;
+    }
+    .sd-btn:hover {
+        background: #F8FAFC;
+        border-color: #CBD5E1;
+        color: #0F172A;
+        box-shadow: 0 2px 4px rgba(15, 23, 42, 0.06);
+    }
+    .sd-btn:active {
+        transform: scale(0.98);
+    }
+    .sd-btn-primary {
+        background: linear-gradient(180deg, #1E293B 0%, #0F172A 100%);
+        border-color: #0F172A;
+        color: #ffffff;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.12), inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    }
+    .sd-btn-primary:hover {
+        background: #1E293B;
+        border-color: #1E293B;
+        color: #ffffff;
+        box-shadow: 0 3px 8px rgba(15, 23, 42, 0.18);
+    }
 
-    .sd-btn { display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border: 1px solid #E2E8F0; border-radius: 8px;
-              font-size: 13px; font-weight: 500; color: #334155; background: #fff; transition: background .15s, border-color .15s; white-space: nowrap; }
-    .sd-btn:hover { background: #F8FAFC; border-color: #CBD5E1; }
-    .sd-btn-primary { background: var(--ink); border-color: var(--ink); color: #fff; }
-    .sd-btn-primary:hover { background: #1E293B; border-color: #1E293B; }
-    .sd-select { height: 34px; padding: 0 30px 0 12px; border: 1px solid #E2E8F0; border-radius: 8px; font-size: 13px; color: #334155;
-                 background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
-                 appearance: none; -webkit-appearance: none; cursor: pointer; max-width: 260px; text-overflow: ellipsis; }
-    .sd-select:focus, .sd-input:focus { outline: none; border-color: #94A3B8; box-shadow: 0 0 0 3px rgba(148,163,184,.25); }
-    .sd-input { height: 34px; padding: 0 12px; border: 1px solid #E2E8F0; border-radius: 8px; font-size: 13px; color: #334155; background: #fff; }
+    .sd-select {
+        height: 34px;
+        padding: 0 30px 0 12px;
+        border: 1px solid #E2E8F0;
+        border-radius: 9px;
+        font-size: 13px;
+        font-weight: 500;
+        color: #334155;
+        background: #ffffff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 10px center;
+        appearance: none;
+        -webkit-appearance: none;
+        cursor: pointer;
+        max-width: 260px;
+        text-overflow: ellipsis;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        transition: all .15s ease;
+    }
+    .sd-select:hover { border-color: #CBD5E1; }
+    .sd-select:focus, .sd-input:focus { outline: none; border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15); }
+    .sd-input {
+        height: 34px;
+        padding: 0 12px;
+        border: 1px solid #E2E8F0;
+        border-radius: 9px;
+        font-size: 13px;
+        color: #334155;
+        background: #ffffff;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        transition: all .15s ease;
+    }
+    .sd-input:hover { border-color: #CBD5E1; }
 
-    .sd-track { height: 6px; background: #F1F5F9; border-radius: 99px; overflow: hidden; }
-    .sd-fill { height: 100%; background: var(--seg); border-radius: 99px; transition: width .4s ease; }
+    /* ── Progress & Health Indicators ────────────────────────────── */
+    .sd-track {
+        height: 7px;
+        background: #F1F5F9;
+        border-radius: 99px;
+        overflow: hidden;
+        position: relative;
+    }
+    .sd-fill {
+        height: 100%;
+        background: linear-gradient(90deg, var(--seg) 0%, rgba(var(--seg-rgb), 0.85) 100%);
+        border-radius: 99px;
+        transition: width .5s cubic-bezier(0.16, 1, 0.3, 1);
+    }
     .sd-dot { display: inline-block; width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
 
-    .sd-empty { display: flex; align-items: center; justify-content: center; color: #94A3B8; font-size: 13px;
-                border: 1px dashed #E2E8F0; border-radius: 10px; background: #FAFBFC; }
+    .sd-empty {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #94A3B8;
+        font-size: 13px;
+        border: 1px dashed #E2E8F0;
+        border-radius: 12px;
+        background: #FAFBFC;
+    }
 
     /* ── Tooltip card: 100% PURE WHITE, crystal clear contrast ──── */
     .apexcharts-tooltip,
@@ -123,9 +346,9 @@
         background: #ffffff !important;
         background-color: #ffffff !important;
         color: #0F172A !important;
-        border: 1px solid #E2E8F0 !important;
-        box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.14), 0 8px 10px -6px rgba(15, 23, 42, 0.08) !important;
-        border-radius: 10px !important;
+        border: 1px solid rgba(226, 232, 240, 0.95) !important;
+        box-shadow: 0 12px 30px -4px rgba(15, 23, 42, 0.14), 0 4px 10px -2px rgba(15, 23, 42, 0.08) !important;
+        border-radius: 12px !important;
         overflow: hidden !important;
     }
     .apexcharts-tooltip * {
@@ -135,9 +358,9 @@
         background: #F8FAFC !important;
         border-bottom: 1px solid #E2E8F0 !important;
         color: #0F172A !important;
-        font-weight: 600 !important;
+        font-weight: 700 !important;
         font-family: Inter, system-ui, sans-serif !important;
-        padding: 6px 10px !important;
+        padding: 7px 12px !important;
     }
     .sd-tip {
         background: #ffffff !important;
@@ -148,7 +371,7 @@
     }
     .sd-tip-t {
         font-size: 13px;
-        font-weight: 600;
+        font-weight: 700;
         color: #0F172A !important;
         margin-bottom: 8px;
         max-width: 260px;
@@ -165,18 +388,26 @@
         line-height: 1.7;
     }
     .sd-tip-r span { color: #64748B !important; }
-    .sd-tip-r b { color: #0F172A !important; font-weight: 600; font-variant-numeric: tabular-nums; }
+    .sd-tip-r b { color: #0F172A !important; font-weight: 700; font-variant-numeric: tabular-nums; }
     .sd-tip-hint {
         font-size: 11px;
         color: #2563EB !important;
         margin-top: 6px;
         border-top: 1px dashed #E2E8F0;
         padding-top: 4px;
-        font-weight: 500;
+        font-weight: 600;
     }
 
     /* Map: isolate Leaflet stacking context so it never overlays menus */
-    .sd-map-wrap { position: relative; z-index: 0; isolation: isolate; border-radius: 10px; overflow: hidden; border: 1px solid #E5E7EB; }
+    .sd-map-wrap {
+        position: relative;
+        z-index: 0;
+        isolation: isolate;
+        border-radius: 14px;
+        overflow: hidden;
+        border: 1px solid #E2E8F0;
+        box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
     #sd-map { height: 440px; background: #F8FAFC; }
     @media (max-width: 640px) { #sd-map { height: 320px; } }
     .leaflet-tooltip.sd-map-tip { background: #ffffff !important; border: 1px solid #E2E8F0 !important; border-radius: 8px !important; box-shadow: 0 6px 18px rgba(15,23,42,.12) !important; color: #0F172A !important; padding: 8px 10px !important; font-family: Inter, system-ui, sans-serif; }
@@ -185,12 +416,56 @@
     .leaflet-control-attribution { font-size: 10px !important; }
 
     /* Register table */
-    .sd-table th { position: sticky; top: 0; background: #F8FAFC; z-index: 1; font-size: 11px; font-weight: 600; letter-spacing: .04em;
-                   text-transform: uppercase; color: #64748B; padding: 10px 12px; border-bottom: 1px solid #E5E7EB; white-space: nowrap; }
-    .sd-table td { padding: 9px 12px; border-bottom: 1px solid #F1F5F9; font-size: 12.5px; color: #334155; white-space: nowrap; }
-    .sd-table tbody tr:hover td { background: #FAFBFC; }
-    .sd-pill { display: inline-block; padding: 2px 8px; border-radius: 99px; font-size: 11px; font-weight: 500; }
-    .subsheet-btn.active { background: #fff; color: #0F172A; box-shadow: 0 1px 2px rgba(15,23,42,.08), 0 0 0 1px rgba(15,23,42,.04); }
+    .sd-table { border-collapse: separate; border-spacing: 0; }
+    .sd-table th {
+        position: sticky;
+        top: 0;
+        background: rgba(248, 250, 252, 0.96);
+        backdrop-filter: blur(8px);
+        z-index: 10;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .05em;
+        text-transform: uppercase;
+        color: #475569;
+        padding: 11px 14px;
+        border-bottom: 1px solid #E2E8F0;
+        white-space: nowrap;
+    }
+    .sd-table td {
+        padding: 10px 14px;
+        border-bottom: 1px solid #F1F5F9;
+        font-size: 12.5px;
+        color: #334155;
+        white-space: nowrap;
+        transition: background .12s ease;
+    }
+    .sd-table tbody tr {
+        transition: background-color .15s ease;
+    }
+    .sd-table tbody tr:hover td {
+        background: #F8FAFC;
+    }
+    .sd-pill {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        padding: 2px 9px;
+        border-radius: 99px;
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: .02em;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+    }
+    .subsheet-btn {
+        transition: all .15s ease;
+    }
+    .subsheet-btn.active {
+        background: #ffffff !important;
+        color: #0F172A !important;
+        font-weight: 600 !important;
+        box-shadow: 0 2px 4px rgba(15,23,42,.06), 0 0 0 1px rgba(15,23,42,.08) !important;
+    }
 </style>
 {% endblock %}
 
@@ -204,10 +479,16 @@
         <div class="p-5 sm:p-6">
             <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                 <div class="min-w-0">
-                    <p class="sd-eyebrow">North Express Logistics Pvt. Ltd.</p>
-                    <h1 id="seg-title" class="text-[20px] sm:text-2xl font-semibold text-slate-900 tracking-tight mt-1">Unbilled Revenue</h1>
+                    <div class="flex items-center gap-2 mb-1">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200/80">
+                            <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+                            North Express Logistics
+                        </span>
+                        <span class="text-xs text-slate-400">Enterprise Audit</span>
+                    </div>
+                    <h1 id="seg-title" class="text-[22px] sm:text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight mt-1">Unbilled Revenue</h1>
                     <p class="text-[12.5px] sm:text-[13px] text-slate-500 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
-                        <span class="font-medium text-slate-700">{{ summary.period_label or current_report.period_label or '—' }}</span>
+                        <span class="font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded text-xs">{{ summary.period_label or current_report.period_label or '—' }}</span>
                         <span class="text-slate-300">·</span>
                         <span>Generated {{ current_report.created_at|localdt }}</span>
                     </p>
@@ -302,27 +583,66 @@
         </div>
     </div>
 
-    <!-- ═══════════════ KPI STRIP ═══════════════ -->
+    <!-- ═══════════════ EXECUTIVE KPI STRIP (Open-SaaS / Apple HIG) ═══════════════ -->
     <section class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
-        <div class="sd-card p-4 sm:p-5 min-w-0">
-            <p class="sd-kpi-label">Total Revenue</p>
-            <p class="sd-kpi" id="kpi-sales">—</p>
-            <p class="text-[12.5px] font-semibold text-slate-700 mt-1.5 sd-num truncate" id="kpi-sales-sub">&nbsp;</p>
+        <!-- 1. Total Revenue -->
+        <div class="sd-card p-4 sm:p-5 min-w-0 relative overflow-hidden group hover:-translate-y-0.5 transition-all">
+            <div class="flex items-center justify-between gap-2">
+                <span class="sd-kpi-label font-medium text-slate-500">Total Revenue</span>
+                <div class="w-8 h-8 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/70 shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                </div>
+            </div>
+            <p class="sd-kpi mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900" id="kpi-sales">—</p>
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                <span class="text-slate-400">Reconciled</span>
+                <span class="font-semibold text-slate-700 sd-num truncate" id="kpi-sales-sub">&nbsp;</span>
+            </div>
         </div>
-        <div class="sd-card p-4 sm:p-5 min-w-0">
-            <p class="sd-kpi-label">Shipment Volume</p>
-            <p class="sd-kpi" id="kpi-awbs">—</p>
-            <p class="sd-kpi-sub" id="kpi-awbs-sub">&nbsp;</p>
+
+        <!-- 2. Shipment Volume -->
+        <div class="sd-card p-4 sm:p-5 min-w-0 relative overflow-hidden group hover:-translate-y-0.5 transition-all">
+            <div class="flex items-center justify-between gap-2">
+                <span class="sd-kpi-label font-medium text-slate-500">Shipment Volume</span>
+                <div class="w-8 h-8 rounded-xl bg-sky-50 text-sky-600 flex items-center justify-center border border-sky-100/70 shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
+                </div>
+            </div>
+            <p class="sd-kpi mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900" id="kpi-awbs">—</p>
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                <span class="text-slate-400">Total AWBs</span>
+                <span class="font-semibold text-slate-600 sd-num truncate" id="kpi-awbs-sub">&nbsp;</span>
+            </div>
         </div>
-        <div class="sd-card p-4 sm:p-5 min-w-0">
-            <p class="sd-kpi-label">Total Weight</p>
-            <p class="sd-kpi" id="kpi-wt">—</p>
-            <p class="sd-kpi-sub" id="kpi-wt-sub">&nbsp;</p>
+
+        <!-- 3. Total Weight -->
+        <div class="sd-card p-4 sm:p-5 min-w-0 relative overflow-hidden group hover:-translate-y-0.5 transition-all">
+            <div class="flex items-center justify-between gap-2">
+                <span class="sd-kpi-label font-medium text-slate-500">Total Weight</span>
+                <div class="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-100/70 shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path></svg>
+                </div>
+            </div>
+            <p class="sd-kpi mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900" id="kpi-wt">—</p>
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                <span class="text-slate-400">Billed Weight</span>
+                <span class="font-semibold text-slate-600 sd-num truncate" id="kpi-wt-sub">&nbsp;</span>
+            </div>
         </div>
-        <div class="sd-card p-4 sm:p-5 min-w-0">
-            <p class="sd-kpi-label">Average Value</p>
-            <p class="sd-kpi" id="kpi-avg">—</p>
-            <p class="text-[12.5px] font-semibold text-slate-700 mt-1.5 sd-num truncate" id="kpi-avg-sub">&nbsp;</p>
+
+        <!-- 4. Average Value -->
+        <div class="sd-card p-4 sm:p-5 min-w-0 relative overflow-hidden group hover:-translate-y-0.5 transition-all">
+            <div class="flex items-center justify-between gap-2">
+                <span class="sd-kpi-label font-medium text-slate-500">Average Value</span>
+                <div class="w-8 h-8 rounded-xl bg-violet-50 text-violet-600 flex items-center justify-center border border-violet-100/70 shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                </div>
+            </div>
+            <p class="sd-kpi mt-2 text-2xl sm:text-3xl font-bold tracking-tight text-slate-900" id="kpi-avg">—</p>
+            <div class="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between text-xs">
+                <span class="text-slate-400">Per Consignment</span>
+                <span class="font-semibold text-slate-700 sd-num truncate" id="kpi-avg-sub">&nbsp;</span>
+            </div>
         </div>
     </section>
 
@@ -856,12 +1176,12 @@
     catch (e) { console.error('Failed to parse dashboard data', e); return; }
 
     const SEG_THEME = {
-        unbilled:   { color: '#B45309', title: 'Unbilled Revenue', sheetTitle: 'Unbilled Register', tag: 'UNBILLED' },
-        billed:     { color: '#0F766E', title: 'Billed Revenue',   sheetTitle: 'Billed Register',   tag: 'BILLED' },
-        for_update: { color: '#E11D48', title: 'Rate Pending',     sheetTitle: 'Rate Pending Register', tag: 'FOR_UPDATE' },
-        all:        { color: '#475569', title: 'Consolidated Sales', sheetTitle: 'Consolidated Register', tag: 'ALL' }
+        unbilled:   { color: '#D97706', rgb: '217, 119, 6', title: 'Unbilled Revenue', sheetTitle: 'Unbilled Register', tag: 'UNBILLED' },
+        billed:     { color: '#2563EB', rgb: '37, 99, 235', title: 'Billed Revenue',   sheetTitle: 'Billed Register',   tag: 'BILLED' },
+        for_update: { color: '#E11D48', rgb: '225, 29, 72', title: 'Rate Pending',     sheetTitle: 'Rate Pending Register', tag: 'FOR_UPDATE' },
+        all:        { color: '#4F46E5', rgb: '79, 70, 229', title: 'Consolidated Sales', sheetTitle: 'Consolidated Register', tag: 'ALL' }
     };
-    const PALETTE = ['#1E3A8A', '#0D9488', '#D97706', '#E11D48', '#7C3AED', '#0284C7', '#CA8A04', '#475569'];
+    const PALETTE = ['#2563EB', '#0D9488', '#D97706', '#E11D48', '#7C3AED', '#0284C7', '#CA8A04', '#475569'];
     const MONTH_COLORS = ['#2563EB', '#D97706', '#059669', '#DC2626', '#7C3AED', '#0891B2'];
     const FONT = 'Inter, system-ui, -apple-system, sans-serif';
     const AXIS = { colors: '#64748B', fontSize: '11px', fontFamily: FONT };
@@ -2585,8 +2905,13 @@
 
     function renderAll() {
         const seg = getSeg();
-        $('sd-root').style.setProperty('--seg', color());
-        setText('seg-title', (SEG_THEME[state.seg] || {}).title || 'Sales Dashboard');
+        const theme = SEG_THEME[state.seg] || SEG_THEME.unbilled;
+        const root = $('sd-root');
+        if (root) {
+            root.style.setProperty('--seg', theme.color);
+            root.style.setProperty('--seg-rgb', theme.rgb);
+        }
+        setText('seg-title', theme.title || 'Sales Dashboard');
         const forUpNotice = $('for-update-notice');
         if (forUpNotice) {
             forUpNotice.classList.toggle('hidden', state.seg !== 'for_update');
