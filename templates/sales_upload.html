@@ -3,33 +3,44 @@
 
 {% block extra_head %}
 <style>
-    /* Premium Glass & Enterprise Surface Utility Styles */
+    /* iOS 27 Liquid Frosted Glass Upload Tokens */
+    .sd-glass-card {
+        background: rgba(255, 255, 255, 0.80);
+        backdrop-filter: blur(28px) saturate(190%);
+        -webkit-backdrop-filter: blur(28px) saturate(190%);
+        border: 1px solid rgba(255, 255, 255, 0.90);
+        border-radius: 22px;
+        box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.95), 0 8px 32px -4px rgba(15, 23, 42, 0.05), 0 2px 6px 0 rgba(15, 23, 42, 0.02);
+    }
     .drop-surface {
-        background: #FFFFFF;
-        border: 1.5px dashed #CBD5E1;
-        border-radius: 14px;
+        background: rgba(255, 255, 255, 0.72);
+        backdrop-filter: blur(18px);
+        -webkit-backdrop-filter: blur(18px);
+        border: 1.5px dashed rgba(203, 213, 225, 0.85);
+        border-radius: 18px;
+        box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.95), 0 2px 8px -1px rgba(15, 23, 42, 0.03);
         transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
     }
     .drop-surface:hover {
         border-color: #2563EB;
-        background: #F8FAFC;
-        box-shadow: 0 4px 16px -2px rgba(37, 99, 235, 0.1);
-        transform: translateY(-1px);
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: 0 8px 24px -4px rgba(37, 99, 235, 0.15), inset 0 1px 1px #FFFFFF;
+        transform: translateY(-2px);
     }
     .drop-surface.dragover {
         border-color: #2563EB !important;
-        background: #EFF6FF !important;
-        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18) !important;
-        transform: translateY(-2px);
+        background: rgba(239, 246, 255, 0.95) !important;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.22), 0 8px 24px -2px rgba(37, 99, 235, 0.2) !important;
+        transform: translateY(-3px);
     }
     .drop-surface.is-filled {
         border-style: solid;
         border-color: #2563EB;
-        background: #FFFFFF;
-        box-shadow: 0 4px 12px -2px rgba(37, 99, 235, 0.1);
+        background: rgba(255, 255, 255, 0.92);
+        box-shadow: 0 6px 18px -2px rgba(37, 99, 235, 0.12), inset 0 1px 1px #FFFFFF;
     }
 
-    /* DOXERA Authentic Scanning Laser Sweep */
+    /* DOXERA Holographic Laser Sweep */
     .scanner-sweep-line {
         position: absolute;
         left: 0;
@@ -57,6 +68,12 @@
 {% endblock %}
 
 {% block content %}
+<!-- Ambient Liquid Mesh Gradient Layer -->
+<div class="fixed inset-0 pointer-events-none overflow-hidden -z-10" aria-hidden="true">
+    <div class="absolute -top-[12%] -left-[10%] w-[550px] h-[550px] rounded-full bg-gradient-to-br from-blue-500/10 via-indigo-500/6 to-transparent blur-3xl transform-gpu"></div>
+    <div class="absolute top-[35%] -right-[12%] w-[650px] h-[650px] rounded-full bg-gradient-to-bl from-sky-400/8 via-cyan-400/5 to-transparent blur-3xl transform-gpu"></div>
+</div>
+
 <div class="max-w-6xl mx-auto space-y-6 pb-12">
 
     <!-- 1. BREADCRUMBS & TOP BAR -->
@@ -87,7 +104,7 @@
     </div>
 
     <!-- 2. MAIN WORKSPACE CARD -->
-    <div class="bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
+    <div class="sd-glass-card overflow-hidden">
         
         <!-- Header Banner -->
         <div class="px-6 py-4 bg-slate-900 text-white flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-slate-800">

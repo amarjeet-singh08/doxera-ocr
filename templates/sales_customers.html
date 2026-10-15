@@ -1,7 +1,71 @@
 {% extends "base.html" %}
 {% block header_title %}Customer Accounts - DOXERA Enterprise{% endblock %}
+{% block extra_head %}
+<style>
+    .sd-glass-card {
+        background: rgba(255, 255, 255, 0.78);
+        backdrop-filter: blur(28px) saturate(190%);
+        -webkit-backdrop-filter: blur(28px) saturate(190%);
+        border: 1px solid rgba(255, 255, 255, 0.88);
+        border-radius: 20px;
+        box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.95), 0 8px 32px -4px rgba(15, 23, 42, 0.05), 0 2px 6px 0 rgba(15, 23, 42, 0.02);
+    }
+    .sd-glass-modal {
+        background: rgba(255, 255, 255, 0.96) !important;
+        backdrop-filter: blur(32px) saturate(190%) !important;
+        -webkit-backdrop-filter: blur(32px) saturate(190%) !important;
+        border: 1px solid rgba(255, 255, 255, 0.95) !important;
+        border-radius: 24px !important;
+        box-shadow: 0 30px 80px -15px rgba(15, 23, 42, 0.28), inset 0 1px 1px #FFFFFF !important;
+    }
+    .sd-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 36px;
+        padding: 0 14px;
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        border-radius: 11px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #334155;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        box-shadow: inset 0 1px 0 #FFFFFF, 0 1px 3px rgba(15, 23, 42, 0.04);
+        transition: all .18s cubic-bezier(0.16, 1, 0.3, 1);
+        white-space: nowrap;
+    }
+    .sd-btn:hover {
+        background: #FFFFFF;
+        border-color: #CBD5E1;
+        color: #0F172A;
+        box-shadow: inset 0 1px 0 #FFFFFF, 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+        transform: translateY(-1px);
+    }
+    .sd-btn-primary {
+        background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+        border-color: rgba(255, 255, 255, 0.15);
+        color: #FFFFFF;
+        box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+    .sd-btn-primary:hover {
+        background: linear-gradient(135deg, #334155 0%, #1E293B 100%);
+        color: #FFFFFF;
+        box-shadow: 0 6px 18px -2px rgba(15, 23, 42, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        transform: translateY(-1px);
+    }
+</style>
+{% endblock %}
+
 
 {% block content %}
+<!-- Ambient Liquid Mesh Gradient Layer -->
+<div class="fixed inset-0 pointer-events-none overflow-hidden -z-10" aria-hidden="true">
+    <div class="absolute -top-[12%] -left-[10%] w-[550px] h-[550px] rounded-full bg-gradient-to-br from-blue-500/10 via-indigo-500/6 to-transparent blur-3xl transform-gpu"></div>
+    <div class="absolute top-[35%] -right-[12%] w-[650px] h-[650px] rounded-full bg-gradient-to-bl from-sky-400/8 via-cyan-400/5 to-transparent blur-3xl transform-gpu"></div>
+</div>
+
 <div class="space-y-6">
 
     <!-- Top Banner -->
@@ -33,7 +97,7 @@
     </div>
 
     <!-- Filters & Search Toolbar -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+    <div class="sd-glass-card p-4 sm:p-5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
         <form method="GET" action="{{ url_for('sales.customers_page') }}" class="flex flex-col sm:flex-row flex-1 items-stretch sm:items-center gap-3 w-full">
             <div class="relative flex-1">
                 <i data-lucide="search" class="h-4 w-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2"></i>
@@ -68,7 +132,7 @@
     </div>
 
     <!-- Customer Mapping Table -->
-    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+    <div class="sd-glass-card overflow-hidden">
         <div class="overflow-x-auto">
             <table class="w-full text-left text-xs sm:text-sm text-slate-600">
                 <thead class="bg-slate-50 text-[11px] font-bold uppercase tracking-wider text-slate-500 border-b border-slate-200">
@@ -134,7 +198,7 @@
 
 <!-- Edit Sales Rep Modal -->
 <div id="edit-rep-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-md w-full p-6 space-y-4 animate-in fade-in zoom-in duration-150">
+    <div class="sd-glass-modal max-w-md w-full p-6 space-y-4 animate-in fade-in zoom-in duration-150">
         <div class="flex items-center justify-between pb-3 border-b border-slate-100">
             <h3 class="text-base font-bold text-slate-900">Reassign Sales Representative</h3>
             <button onclick="document.getElementById('edit-rep-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
@@ -177,7 +241,7 @@
 
 <!-- Add Customer Modal -->
 <div id="add-customer-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-    <div class="bg-white rounded-2xl shadow-xl border border-slate-200 max-w-lg w-full p-6 space-y-4 animate-in fade-in zoom-in duration-150">
+    <div class="sd-glass-modal max-w-lg w-full p-6 space-y-4 animate-in fade-in zoom-in duration-150">
         <div class="flex items-center justify-between pb-3 border-b border-slate-100">
             <h3 class="text-base font-bold text-slate-900">Add Customer Account</h3>
             <button onclick="document.getElementById('add-customer-modal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600">
