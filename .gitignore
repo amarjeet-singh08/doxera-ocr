@@ -7,5 +7,7 @@ dockets.db
 *.db
 uploads/
 exports/
-.vscode/
-.idea/
+frontend/node_modules/
+frontend/.next/
+frontend/out/
+
