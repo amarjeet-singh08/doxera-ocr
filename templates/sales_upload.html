@@ -64,6 +64,43 @@
     .beam-shimmer-effect {
         animation: beam-shimmer 3.2s infinite ease-in-out;
     }
+    .sd-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 38px;
+        padding: 0 16px;
+        border: 1px solid rgba(226, 232, 240, 0.85);
+        border-radius: 12px;
+        font-size: 13px;
+        font-weight: 600;
+        color: #334155;
+        background: rgba(255, 255, 255, 0.85);
+        backdrop-filter: blur(14px);
+        -webkit-backdrop-filter: blur(14px);
+        box-shadow: inset 0 1px 0 #FFFFFF, 0 1px 3px rgba(15, 23, 42, 0.04);
+        transition: all .18s cubic-bezier(0.16, 1, 0.3, 1);
+        white-space: nowrap;
+    }
+    .sd-btn:hover {
+        background: #FFFFFF;
+        border-color: #CBD5E1;
+        color: #0F172A;
+        box-shadow: inset 0 1px 0 #FFFFFF, 0 4px 12px -2px rgba(15, 23, 42, 0.08);
+        transform: translateY(-1px);
+    }
+    .sd-btn-primary {
+        background: linear-gradient(135deg, #1E293B 0%, #0F172A 100%);
+        border-color: rgba(255, 255, 255, 0.15);
+        color: #FFFFFF;
+        box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+    .sd-btn-primary:hover {
+        background: linear-gradient(135deg, #334155 0%, #1E293B 100%);
+        color: #FFFFFF;
+        box-shadow: 0 6px 18px -2px rgba(15, 23, 42, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+        transform: translateY(-1px);
+    }
 </style>
 {% endblock %}
 
@@ -97,7 +134,7 @@
 
         <div class="flex items-center gap-2 self-start sm:self-auto">
             <a href="{{ url_for('sales.dashboard') }}" 
-                class="inline-flex items-center justify-center px-3.5 py-2 border border-slate-200 rounded-lg text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 shadow-xs transition-colors min-h-[38px]">
+                class="sd-btn">
                 <i data-lucide="arrow-left" class="h-3.5 w-3.5 mr-1.5"></i> Dashboard
             </a>
         </div>
