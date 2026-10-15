@@ -12,16 +12,20 @@
                 <span>/</span>
                 <span class="text-slate-800 font-semibold">Access Control</span>
             </div>
-            <h1 class="text-2xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
-                <span class="p-2 rounded-lg bg-blue-50 text-blue-700 border border-blue-100 flex items-center justify-center">
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
+                <span class="p-2 rounded-xl bg-blue-50/90 text-blue-700 border border-blue-200/80 shadow-2xs flex items-center justify-center">
                     <i data-lucide="shield-check" class="h-5 w-5"></i>
                 </span>
                 User & Multi-Role Permissions
             </h1>
-            <p class="text-xs sm:text-sm text-slate-500 mt-1">
+            <p class="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
                 Configure user access levels, grant multiple operational features simultaneously (e.g. Reviewer + Auditor), and enforce strict credential uniqueness.
             </p>
         </div>
+        
+        <a href="{{ url_for('ops.dashboard') }}" class="dox-btn-secondary !h-10 text-xs shrink-0">
+            <i data-lucide="arrow-left" class="h-3.5 w-3.5 mr-1.5"></i> Dashboard
+        </a>
     </div>
 
     <!-- Main Grid: Create/Edit Card (Left) + Active Users Table (Right) -->
@@ -30,14 +34,14 @@
         <!-- ══════════════════════════════════════════════════════════ -->
         <!-- LEFT: CREATE / EDIT USER FORM (5 Columns)                   -->
         <!-- ══════════════════════════════════════════════════════════ -->
-        <div class="lg:col-span-5 bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
+        <div class="lg:col-span-5 dox-card overflow-hidden">
             
-            <div class="px-5 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
-                <div class="flex items-center gap-2">
+            <div class="px-6 py-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+                <div class="flex items-center gap-2.5">
                     <i data-lucide="user-plus" class="h-4 w-4 text-cyan-400" id="form-icon"></i>
                     <h2 class="text-sm font-bold tracking-wide" id="form-heading">Create New User</h2>
                 </div>
-                <button type="button" id="cancel-edit-btn" onclick="resetFormToCreate()" class="hidden text-xs text-slate-300 hover:text-white underline">
+                <button type="button" id="cancel-edit-btn" onclick="resetFormToCreate()" class="hidden text-xs text-cyan-300 hover:text-white underline font-semibold">
                     Cancel Edit
                 </button>
             </div>
@@ -48,28 +52,28 @@
 
                 <!-- Username Input -->
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1">
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1">
                         Username <span class="text-rose-500">*</span>
                     </label>
                     <div class="relative">
                         <i data-lucide="user" class="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
                         <input type="text" name="username" id="input-username" required autocomplete="off"
                             placeholder="e.g. auditor_rajesh"
-                            class="pl-9 w-full text-xs sm:text-sm bg-white border border-slate-300 rounded-lg shadow-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 py-2.5 text-slate-900 font-medium">
+                            class="dox-input pl-9 w-full text-xs sm:text-sm font-semibold">
                     </div>
                     <p class="text-[11px] text-slate-400 mt-1">Unique identifier. Cannot duplicate existing IDs.</p>
                 </div>
 
                 <!-- Password Input -->
                 <div>
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-1" id="label-password">
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-1" id="label-password">
                         Password <span class="text-rose-500">*</span>
                     </label>
                     <div class="relative">
                         <i data-lucide="key" class="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
                         <input type="password" name="password" id="input-password" required autocomplete="new-password"
                             placeholder="Enter secure password"
-                            class="pl-9 w-full text-xs sm:text-sm bg-white border border-slate-300 rounded-lg shadow-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 py-2.5 text-slate-900 font-medium">
+                            class="dox-input pl-9 w-full text-xs sm:text-sm font-semibold">
                     </div>
                     <p class="text-[11px] text-slate-400 mt-1" id="help-password">
                         Must be unique. System rejects passwords reused across existing accounts.
@@ -78,15 +82,15 @@
 
                 <!-- MULTI-ROLE / MULTI-FEATURE CHECKBOXES -->
                 <div class="pt-2">
-                    <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">
+                    <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-2">
                         Assigned Feature Access (Select Multiple) <span class="text-rose-500">*</span>
                     </label>
                     
-                    <div class="space-y-2.5 bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                    <div class="space-y-2 bg-white/50 p-3 rounded-2xl border border-white/80">
                         
                         <!-- Role 1: REVIEWER -->
-                        <label class="flex items-start gap-2.5 p-2 rounded-lg bg-white border border-slate-200 hover:border-blue-400 cursor-pointer transition-all">
-                            <input type="checkbox" name="roles" value="REVIEWER" id="role-reviewer" class="mt-1 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/80 border border-slate-200/80 hover:border-blue-400 cursor-pointer transition-all shadow-2xs">
+                            <input type="checkbox" name="roles" value="REVIEWER" id="role-reviewer" class="mt-0.5 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
                             <div class="text-xs">
                                 <span class="font-bold text-slate-900 flex items-center gap-1.5">
                                     <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
@@ -97,8 +101,8 @@
                         </label>
 
                         <!-- Role 2: AUDITOR -->
-                        <label class="flex items-start gap-2.5 p-2 rounded-lg bg-white border border-slate-200 hover:border-blue-400 cursor-pointer transition-all">
-                            <input type="checkbox" name="roles" value="AUDITOR" id="role-auditor" class="mt-1 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/80 border border-slate-200/80 hover:border-blue-400 cursor-pointer transition-all shadow-2xs">
+                            <input type="checkbox" name="roles" value="AUDITOR" id="role-auditor" class="mt-0.5 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
                             <div class="text-xs">
                                 <span class="font-bold text-slate-900 flex items-center gap-1.5">
                                     <span class="w-2 h-2 rounded-full bg-blue-500"></span>
@@ -109,8 +113,8 @@
                         </label>
 
                         <!-- Role 3: VIEWER -->
-                        <label class="flex items-start gap-2.5 p-2 rounded-lg bg-white border border-slate-200 hover:border-blue-400 cursor-pointer transition-all">
-                            <input type="checkbox" name="roles" value="VIEWER" id="role-viewer" class="mt-1 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
+                        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/80 border border-slate-200/80 hover:border-blue-400 cursor-pointer transition-all shadow-2xs">
+                            <input type="checkbox" name="roles" value="VIEWER" id="role-viewer" class="mt-0.5 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
                             <div class="text-xs">
                                 <span class="font-bold text-slate-900 flex items-center gap-1.5">
                                     <span class="w-2 h-2 rounded-full bg-slate-400"></span>
@@ -121,8 +125,8 @@
                         </label>
 
                         <!-- Role 4: ADMIN -->
-                        <label class="flex items-start gap-2.5 p-2 rounded-lg bg-white border border-slate-200 hover:border-purple-400 cursor-pointer transition-all">
-                            <input type="checkbox" name="roles" value="ADMIN" id="role-admin" class="mt-1 h-4 w-4 text-purple-600 rounded border-slate-300 focus:ring-purple-500">
+                        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-purple-50/60 border border-purple-200/80 hover:border-purple-400 cursor-pointer transition-all shadow-2xs">
+                            <input type="checkbox" name="roles" value="ADMIN" id="role-admin" class="mt-0.5 h-4 w-4 text-purple-600 rounded border-slate-300 focus:ring-purple-500">
                             <div class="text-xs">
                                 <span class="font-bold text-purple-900 flex items-center gap-1.5">
                                     <span class="w-2 h-2 rounded-full bg-purple-600"></span>
@@ -133,14 +137,14 @@
                         </label>
 
                     </div>
-                    <p class="text-[11px] text-slate-500 mt-1.5 italic">
-                        Tip: You can check multiple access levels (e.g. <b>REVIEWER + AUDITOR</b>) for one user.
+                    <p class="text-[11px] text-slate-500 mt-1.5 font-medium">
+                        Tip: You can select multiple access levels (e.g. <b>REVIEWER + AUDITOR</b>) for one user.
                     </p>
                 </div>
 
-                <div class="pt-3 border-t border-slate-100 flex items-center gap-2">
+                <div class="pt-3 border-t border-white/80 flex items-center gap-2">
                     <button type="submit" id="btn-submit"
-                        class="w-full inline-flex justify-center items-center px-5 py-2.5 bg-blue-600 hover:bg-blue-700 active:scale-98 text-white rounded-xl text-xs font-bold uppercase tracking-wider shadow-sm transition-all">
+                        class="dox-btn-primary w-full !h-11 font-bold shadow-lg shadow-blue-600/25">
                         <i data-lucide="user-check" class="h-4 w-4 mr-1.5"></i>
                         <span id="btn-submit-text">Create Account</span>
                     </button>
@@ -152,64 +156,64 @@
         <!-- ══════════════════════════════════════════════════════════ -->
         <!-- RIGHT: ACTIVE USER ACCOUNTS TABLE (7 Columns)               -->
         <!-- ══════════════════════════════════════════════════════════ -->
-        <div class="lg:col-span-7 bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
+        <div class="lg:col-span-7 dox-card overflow-hidden">
             
-            <div class="px-5 py-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-                <div class="flex items-center gap-2">
+            <div class="px-6 py-4 border-b border-white/80 bg-white/40 flex items-center justify-between backdrop-blur-md">
+                <div class="flex items-center gap-2.5">
                     <i data-lucide="users" class="h-4 w-4 text-slate-500"></i>
                     <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Registered Accounts</h2>
                 </div>
-                <span class="bg-blue-50 text-blue-700 border border-blue-200 text-xs font-bold px-2.5 py-0.5 rounded-full">
+                <span class="dox-badge dox-badge-neutral text-xs">
                     {{ users|length }} Total Accounts
                 </span>
             </div>
 
             <div class="overflow-x-auto">
-                <table class="w-full text-left text-xs">
-                    <thead class="bg-slate-100 text-[10px] uppercase font-bold text-slate-600 border-b border-slate-200">
+                <table class="dox-table">
+                    <thead>
                         <tr>
-                            <th class="px-4 py-3">User</th>
-                            <th class="px-4 py-3">Granted Access Roles</th>
-                            <th class="px-4 py-3">Last Active</th>
-                            <th class="px-4 py-3 text-right">Actions</th>
+                            <th>User</th>
+                            <th>Granted Access Roles</th>
+                            <th>Last Active</th>
+                            <th class="text-right">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100 font-medium">
+                    <tbody>
                         {% for u in users %}
-                        <tr class="hover:bg-slate-50/80 transition-colors">
+                        <tr class="hover:bg-blue-50/50 transition-colors">
                             
                             <!-- Username & Avatar -->
-                            <td class="px-4 py-3.5">
+                            <td>
                                 <div class="flex items-center gap-2.5">
-                                    <div class="w-7 h-7 rounded-full bg-slate-200 text-slate-700 flex items-center justify-center font-bold text-xs uppercase">
+                                    <div class="w-8 h-8 rounded-xl bg-gradient-to-tr from-slate-200 to-slate-300 text-slate-800 flex items-center justify-center font-bold text-xs uppercase shadow-2xs border border-white">
                                         {{ u['username'][0] }}
                                     </div>
                                     <div>
                                         <p class="font-bold text-slate-900">{{ u['username'] }}</p>
-                                        <p class="text-[10px] text-slate-400">ID #{{ u['id'] }}</p>
+                                        <p class="text-[10px] text-slate-400 font-mono">UID #{{ u['id'] }}</p>
                                     </div>
                                 </div>
                             </td>
 
                             <!-- Multi-Role Badges -->
-                            <td class="px-4 py-3.5">
+                            <td>
                                 <div class="flex flex-wrap gap-1">
                                     {% for r in u['role'].split(',') %}
                                         {% set clean_r = r.strip() %}
                                         {% if clean_r == 'ADMIN' %}
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-purple-100 text-purple-800 border border-purple-200">
+                                            <span class="dox-badge dox-badge-rejected !bg-purple-100 !text-purple-800 !border-purple-200">
                                                 ADMIN
                                             </span>
                                         {% elif clean_r == 'AUDITOR' %}
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-800 border border-blue-200">
+                                            <span class="dox-badge dox-badge-processing">
                                                 AUDITOR
                                             </span>
                                         {% elif clean_r == 'REVIEWER' %}
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
+                                            <span class="dox-badge dox-badge-verified">
                                                 REVIEWER
                                             </span>
                                         {% else %}
-                                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-slate-100 text-slate-700 border border-slate-200">
+                                            <span class="dox-badge dox-badge-neutral">
                                                 {{ clean_r }}
                                             </span>
                                         {% endif %}
@@ -218,19 +222,19 @@
                             </td>
 
                             <!-- Last Login -->
-                            <td class="px-4 py-3.5 text-[11px] text-slate-500 font-mono">
+                            <td class="text-xs text-slate-500 font-mono">
                                 {{ u['last_login']|localdt if u['last_login'] else 'Never' }}
                             </td>
 
                             <!-- Actions: Edit & Delete -->
-                            <td class="px-4 py-3.5 text-right">
-                                <div class="inline-flex items-center gap-1.5">
+                            <td class="text-right">
+                                <div class="inline-flex items-center justify-end gap-1.5">
                                     <!-- Edit Button -->
                                     <button type="button" 
                                         onclick="loadUserForEdit('{{ u['id'] }}', '{{ u['username'] }}', '{{ u['role'] }}')"
-                                        class="p-1.5 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-md transition-colors"
+                                        class="dox-btn-secondary !h-7 !px-2.5 !text-xs !font-bold"
                                         title="Edit roles or reset password">
-                                        <i data-lucide="edit-3" class="w-4 h-4"></i>
+                                        <i data-lucide="edit-3" class="w-3.5 h-3.5 mr-1"></i> Edit
                                     </button>
 
                                     <!-- Delete Button -->
@@ -239,15 +243,15 @@
                                         <form action="{{ url_for('auth.user_management') }}" method="POST" class="inline" onsubmit="return confirm('Are you sure you want to delete user {{ u['username'] }}?');">
                                             <input type="hidden" name="action" value="delete">
                                             <input type="hidden" name="user_id" value="{{ u['id'] }}">
-                                            <button type="submit" class="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-md transition-colors" title="Delete User">
-                                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                                            <button type="submit" class="dox-btn-secondary !h-7 !px-2 text-rose-600 hover:!bg-rose-50 hover:!border-rose-300" title="Delete User">
+                                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
                                             </button>
                                         </form>
                                         {% else %}
-                                        <span class="text-[10px] text-slate-400 italic px-1">Master</span>
+                                        <span class="text-[10px] text-slate-400 italic px-2 font-semibold">Master</span>
                                         {% endif %}
                                     {% else %}
-                                        <span class="text-[10px] font-bold text-slate-400 px-1">Current</span>
+                                        <span class="text-[10px] font-bold text-blue-600 px-2 bg-blue-50 rounded-md border border-blue-100">Current</span>
                                     {% endif %}
                                 </div>
                             </td>
@@ -322,7 +326,6 @@
             }
         });
 
-        // Scroll form into view if on mobile
         document.getElementById('user-form').scrollIntoView({ behavior: 'smooth', block: 'center' });
 
         if (typeof lucide !== 'undefined') lucide.createIcons();

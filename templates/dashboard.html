@@ -1,129 +1,241 @@
 {% extends "base.html" %}
-{% block header_title %}Overview Dashboard{% endblock %}
+{% block header_title %}Operations Dashboard - DOXERA Enterprise{% endblock %}
 
 {% block content %}
-<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-    <div class="flex flex-col">
-        <h1 class="text-xl sm:text-2xl font-bold text-navy-900">Operations Dashboard</h1>
-        <p class="text-sm text-slate-500 font-medium">{{ period_label }}</p>
-    </div>
-    
-    <div class="flex flex-col sm:flex-row gap-3 w-full md:w-auto">
-        <form action="{{ url_for('ops.dashboard') }}" method="GET" class="flex items-center gap-2 bg-white rounded-md border border-slate-300 p-1">
-            <input type="date" name="start_date" value="{{ start_date or '' }}" class="text-sm border-none bg-transparent focus:ring-0 text-slate-700 max-w-[120px]" required>
-            <span class="text-slate-400 text-sm">to</span>
-            <input type="date" name="end_date" value="{{ end_date or '' }}" class="text-sm border-none bg-transparent focus:ring-0 text-slate-700 max-w-[120px]" required>
-            <button type="submit" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition-colors" title="Filter by date">
-                <i data-lucide="filter" class="h-4 w-4"></i>
-            </button>
-            {% if start_date %}
-            <a href="{{ url_for('ops.dashboard') }}" class="p-1.5 text-rose-500 hover:bg-rose-50 rounded transition-colors" title="Clear filter">
-                <i data-lucide="x" class="h-4 w-4"></i>
+<div class="space-y-6 max-w-7xl mx-auto">
+    <!-- Header Banner & Action Bar -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50/90 text-blue-700 border border-blue-200/80 shadow-2xs">
+                    <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                    Logistics OCR Engine
+                </span>
+                <span class="text-xs text-slate-400 font-medium">Real-Time Operations</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Operations Dashboard</h1>
+            <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5 flex items-center gap-1.5">
+                <span>Period:</span>
+                <span class="font-semibold text-slate-700 bg-white/70 px-2 py-0.5 rounded-md border border-slate-200/80">{{ period_label }}</span>
+            </p>
+        </div>
+        
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto">
+            <form action="{{ url_for('ops.dashboard') }}" method="GET" class="flex items-center gap-2 bg-white/85 backdrop-blur-md rounded-xl border border-white/95 p-1.5 shadow-[inset_0_1px_0_#FFF,0_2px_8px_rgba(15,23,42,0.04)]">
+                <input type="date" name="start_date" value="{{ start_date or '' }}" class="dox-input !h-8 !px-2.5 text-xs border-0 bg-transparent focus:ring-0 text-slate-800 font-semibold max-w-[125px]" required>
+                <span class="text-slate-400 text-xs font-semibold">to</span>
+                <input type="date" name="end_date" value="{{ end_date or '' }}" class="dox-input !h-8 !px-2.5 text-xs border-0 bg-transparent focus:ring-0 text-slate-800 font-semibold max-w-[125px]" required>
+                <button type="submit" class="dox-btn-secondary !h-8 !px-2.5 !min-h-0 text-slate-700" title="Filter by date">
+                    <i data-lucide="filter" class="h-3.5 w-3.5"></i>
+                </button>
+                {% if start_date %}
+                <a href="{{ url_for('ops.dashboard') }}" class="dox-btn-secondary !h-8 !px-2.5 !min-h-0 !text-rose-600 hover:!bg-rose-50" title="Clear filter">
+                    <i data-lucide="x" class="h-3.5 w-3.5"></i>
+                </a>
+                {% endif %}
+            </form>
+            
+            <a href="{{ url_for('ops.upload') }}" class="dox-btn-primary !h-11 px-5 shadow-lg shadow-blue-600/25 justify-center">
+                <i data-lucide="plus" class="h-4 w-4"></i> Upload Dockets
             </a>
-            {% endif %}
-        </form>
-        
-        <a href="{{ url_for('ops.upload') }}" class="inline-flex items-center px-4 py-2 bg-nexpress-blue hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors w-full sm:w-auto justify-center">
-            <i data-lucide="plus" class="h-4 w-4 mr-1.5"></i> Upload Dockets
-        </a>
-    </div>
-</div>
-
-<!-- Stats -->
-<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 lg:gap-4 mb-6 lg:mb-8">
-    <a href="{{ url_for('ops.dockets', start_date=start_date, end_date=end_date) }}" class="bg-white rounded-lg shadow-sm border border-slate-200 p-5 hover:shadow-md transition-shadow cursor-pointer block">
-        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">{% if start_date %}Total Uploaded{% else %}Today's Dockets{% endif %}</p>
-        <p class="text-2xl font-bold text-slate-900 mt-1">{{ stats.today }}</p>
-    </a>
-    <a href="{{ url_for('ops.dockets', status='PROCESSING', start_date=start_date, end_date=end_date) }}" class="bg-white rounded-lg shadow-sm border border-slate-200 p-5 border-l-4 border-l-blue-400 hover:shadow-md transition-shadow cursor-pointer block">
-        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Processing</p>
-        <p class="text-2xl font-bold text-blue-700 mt-1">{{ stats.processing }}</p>
-    </a>
-    <a href="{{ url_for('ops.dockets', status='VERIFIED', start_date=start_date, end_date=end_date) }}" class="bg-white rounded-lg shadow-sm border border-slate-200 p-5 border-l-4 border-l-emerald-500 hover:shadow-md transition-shadow cursor-pointer block">
-        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Verified</p>
-        <p class="text-2xl font-bold text-emerald-700 mt-1">{{ stats.verified }}</p>
-    </a>
-    <a href="{{ url_for('ops.review_center', start_date=start_date, end_date=end_date) }}" class="bg-white rounded-lg shadow-sm border border-slate-200 p-5 border-l-4 border-l-amber-500 hover:shadow-md transition-shadow cursor-pointer block">
-        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Needs Review</p>
-        <p class="text-2xl font-bold text-amber-700 mt-1">{{ stats.review }}</p>
-    </a>
-    <a href="{{ url_for('ops.dockets', status='REJECTED', start_date=start_date, end_date=end_date) }}" class="bg-white rounded-lg shadow-sm border border-slate-200 p-5 border-l-4 border-l-rose-500 hover:shadow-md transition-shadow cursor-pointer block">
-        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Rejected</p>
-        <p class="text-2xl font-bold text-rose-700 mt-1">{{ stats.rejected }}</p>
-    </a>
-    <a href="{{ url_for('ops.dockets', status='FAILED', start_date=start_date, end_date=end_date) }}" class="bg-white rounded-lg shadow-sm border border-slate-200 p-5 border-l-4 border-l-red-600 hover:shadow-md transition-shadow cursor-pointer block">
-        <p class="text-xs font-semibold text-slate-500 uppercase tracking-wide">Failed</p>
-        <p class="text-2xl font-bold text-red-700 mt-1">{{ stats.failed }}</p>
-    </a>
-</div>
-
-<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-    
-    <!-- Left Col (Pipeline & Activity) -->
-    <div class="lg:col-span-2 space-y-6">
-        
-
-
-        <!-- Recent Activity -->
-        <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-            <div class="px-5 py-4 border-b border-slate-100 flex justify-between items-center">
-                <h2 class="text-sm font-bold text-slate-800">Recent Dockets</h2>
-                <a href="{{ url_for('ops.dockets') }}" class="text-xs font-medium text-nexpress-blue hover:underline">View All</a>
-            </div>
-            <div class="overflow-x-auto">
-                <table class="w-full text-left text-sm whitespace-nowrap">
-                    <thead class="bg-slate-50 text-slate-500 text-xs uppercase font-semibold">
-                        <tr>
-                            <th class="px-5 py-3">Docket No</th>
-                            <th class="px-5 py-3">Status</th>
-                            <th class="px-5 py-3">Time</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-slate-100 text-slate-700">
-                        {% for d in dockets %}
-                        <tr class="hover:bg-slate-50 transition-colors {% if d.status not in ['PROCESSING', 'UPLOADED'] %}cursor-pointer{% endif %}" {% if d.status not in ['PROCESSING', 'UPLOADED'] %}onclick="window.location='{{ url_for('ops.docket_detail', docket_id=d.id) }}'"{% endif %}>
-                            <td class="px-5 py-3 font-medium">{{ d.docket_number or 'Processing...' }}</td>
-                            <td class="px-5 py-3">
-                                {% if d.status == 'VERIFIED' %}
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">Verified</span>
-                                {% elif d.status == 'REVIEW_REQUIRED' or d.status == 'MODIFIED_REVERIFICATION_REQUIRED' %}
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-800 border border-amber-200">Review</span>
-                                {% elif d.status == 'REJECTED' %}
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-rose-100 text-rose-800 border border-rose-200">Rejected</span>
-                                {% elif d.status == 'FAILED' %}
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-red-100 text-red-800 border border-red-200">Failed</span>
-                                {% else %}
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-700 border border-slate-200">{{ d.status }}</span>
-                                {% endif %}
-                            </td>
-                            <td class="px-5 py-3 text-xs text-slate-500">{{ d.uploaded_at|localdt }}</td>
-                        </tr>
-                        {% else %}
-                        <tr><td colspan="3" class="px-5 py-8 text-center text-slate-500">No recent activity.</td></tr>
-                        {% endfor %}
-                    </tbody>
-                </table>
-            </div>
         </div>
     </div>
-    
-    <!-- Right Col (Attention Required) -->
-    <div class="space-y-6">
-        <div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-            <div class="px-5 py-4 border-b border-amber-100 bg-amber-50">
-                <h2 class="text-sm font-bold text-amber-900 flex items-center">
-                    <i data-lucide="alert-triangle" class="h-4 w-4 mr-2 text-amber-600"></i> Attention Required
-                </h2>
+
+    <!-- 6 Stat Cards (Liquid Glass Squircles with Specular Lighting) -->
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-4">
+        <!-- 1. Total / Today -->
+        <a href="{{ url_for('ops.dockets', start_date=start_date, end_date=end_date) }}" class="dox-card p-4 sm:p-5 hover:-translate-y-1 transition-all cursor-pointer block group">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold text-slate-500 uppercase tracking-wider">{% if start_date %}Uploaded{% else %}Today's Batch{% endif %}</span>
+                <div class="w-7 h-7 rounded-lg bg-slate-100/90 text-slate-600 flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xs">
+                    <i data-lucide="layers" class="h-3.5 w-3.5"></i>
+                </div>
             </div>
-            <div class="p-5">
-                <p class="text-sm text-slate-600 mb-4">You have <strong class="text-slate-900">{{ stats.review }}</strong> dockets awaiting manual review or reverification.</p>
-                <a href="{{ url_for('ops.review_center') }}" class="w-full flex items-center justify-center px-4 py-2 border border-slate-300 rounded-md shadow-sm text-sm font-medium text-slate-700 bg-white hover:bg-slate-50 transition-colors">
-                    Go to Review Center
+            <p class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">{{ stats.today }}</p>
+            <div class="mt-2 text-[10px] font-semibold text-slate-400 flex items-center gap-1">
+                <span>View Registry</span>
+                <i data-lucide="arrow-right" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </div>
+        </a>
+
+        <!-- 2. Processing -->
+        <a href="{{ url_for('ops.dockets', status='PROCESSING', start_date=start_date, end_date=end_date) }}" class="dox-card p-4 sm:p-5 hover:-translate-y-1 transition-all cursor-pointer block group border-blue-200/70">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold text-blue-700 uppercase tracking-wider">Processing</span>
+                <div class="w-7 h-7 rounded-lg bg-blue-100/90 text-blue-700 flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xs">
+                    <i data-lucide="refresh-cw" class="h-3.5 w-3.5 {% if stats.processing > 0 %}animate-spin{% endif %}"></i>
+                </div>
+            </div>
+            <p class="text-2xl sm:text-3xl font-extrabold text-blue-700 tracking-tight">{{ stats.processing }}</p>
+            <div class="mt-2 text-[10px] font-semibold text-blue-500 flex items-center gap-1">
+                <span>Active pipeline</span>
+                <i data-lucide="arrow-right" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </div>
+        </a>
+
+        <!-- 3. Verified -->
+        <a href="{{ url_for('ops.dockets', status='VERIFIED', start_date=start_date, end_date=end_date) }}" class="dox-card p-4 sm:p-5 hover:-translate-y-1 transition-all cursor-pointer block group border-emerald-200/70">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold text-emerald-700 uppercase tracking-wider">Verified</span>
+                <div class="w-7 h-7 rounded-lg bg-emerald-100/90 text-emerald-700 flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xs">
+                    <i data-lucide="check-circle" class="h-3.5 w-3.5"></i>
+                </div>
+            </div>
+            <p class="text-2xl sm:text-3xl font-extrabold text-emerald-700 tracking-tight">{{ stats.verified }}</p>
+            <div class="mt-2 text-[10px] font-semibold text-emerald-500 flex items-center gap-1">
+                <span>Ready for export</span>
+                <i data-lucide="arrow-right" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </div>
+        </a>
+
+        <!-- 4. Needs Review -->
+        <a href="{{ url_for('ops.review_center', start_date=start_date, end_date=end_date) }}" class="dox-card p-4 sm:p-5 hover:-translate-y-1 transition-all cursor-pointer block group border-amber-200/70">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold text-amber-700 uppercase tracking-wider">Needs Review</span>
+                <div class="w-7 h-7 rounded-lg bg-amber-100/90 text-amber-700 flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xs">
+                    <i data-lucide="alert-triangle" class="h-3.5 w-3.5"></i>
+                </div>
+            </div>
+            <p class="text-2xl sm:text-3xl font-extrabold text-amber-700 tracking-tight">{{ stats.review }}</p>
+            <div class="mt-2 text-[10px] font-semibold text-amber-600 flex items-center gap-1">
+                <span>Review queue</span>
+                <i data-lucide="arrow-right" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </div>
+        </a>
+
+        <!-- 5. Rejected -->
+        <a href="{{ url_for('ops.dockets', status='REJECTED', start_date=start_date, end_date=end_date) }}" class="dox-card p-4 sm:p-5 hover:-translate-y-1 transition-all cursor-pointer block group border-rose-200/70">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold text-rose-700 uppercase tracking-wider">Rejected</span>
+                <div class="w-7 h-7 rounded-lg bg-rose-100/90 text-rose-700 flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xs">
+                    <i data-lucide="x-circle" class="h-3.5 w-3.5"></i>
+                </div>
+            </div>
+            <p class="text-2xl sm:text-3xl font-extrabold text-rose-700 tracking-tight">{{ stats.rejected }}</p>
+            <div class="mt-2 text-[10px] font-semibold text-rose-500 flex items-center gap-1">
+                <span>Manual audit</span>
+                <i data-lucide="arrow-right" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </div>
+        </a>
+
+        <!-- 6. Failed -->
+        <a href="{{ url_for('ops.dockets', status='FAILED', start_date=start_date, end_date=end_date) }}" class="dox-card p-4 sm:p-5 hover:-translate-y-1 transition-all cursor-pointer block group border-red-200/70">
+            <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold text-red-700 uppercase tracking-wider">Failed</span>
+                <div class="w-7 h-7 rounded-lg bg-red-100/90 text-red-700 flex items-center justify-center group-hover:scale-110 transition-transform shadow-2xs">
+                    <i data-lucide="alert-octagon" class="h-3.5 w-3.5"></i>
+                </div>
+            </div>
+            <p class="text-2xl sm:text-3xl font-extrabold text-red-700 tracking-tight">{{ stats.failed }}</p>
+            <div class="mt-2 text-[10px] font-semibold text-red-500 flex items-center gap-1">
+                <span>OCR retries</span>
+                <i data-lucide="arrow-right" class="h-3 w-3 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+            </div>
+        </a>
+    </div>
+
+    <!-- Main Layout Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left Col (Recent Dockets Table) -->
+        <div class="lg:col-span-2 space-y-6">
+            <div class="dox-card overflow-hidden">
+                <div class="px-6 py-4 border-b border-white/80 bg-white/40 flex justify-between items-center backdrop-blur-md">
+                    <div class="flex items-center gap-2">
+                        <i data-lucide="clock" class="h-4 w-4 text-slate-500"></i>
+                        <h2 class="text-sm font-bold text-slate-900 tracking-wide">Recent Docket Extractions</h2>
+                    </div>
+                    <a href="{{ url_for('ops.dockets') }}" class="dox-btn-secondary !h-7 !px-3 !text-xs !font-bold">
+                        View All Dockets <i data-lucide="arrow-right" class="h-3 w-3 ml-1"></i>
+                    </a>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="dox-table">
+                        <thead>
+                            <tr>
+                                <th>Docket No</th>
+                                <th>Status</th>
+                                <th>Upload Time</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for d in dockets %}
+                            <tr class="hover:bg-blue-50/50 transition-colors {% if d.status not in ['PROCESSING', 'UPLOADED'] %}cursor-pointer{% endif %}" {% if d.status not in ['PROCESSING', 'UPLOADED'] %}onclick="window.location='{{ url_for('ops.docket_detail', docket_id=d.id) }}'"{% endif %}>
+                                <td class="font-bold text-slate-900">{{ d.docket_number or 'Processing OCR...' }}</td>
+                                <td>
+                                    {% if d.status == 'VERIFIED' %}
+                                        <span class="dox-badge dox-badge-verified">Verified</span>
+                                    {% elif d.status == 'REVIEW_REQUIRED' or d.status == 'MODIFIED_REVERIFICATION_REQUIRED' %}
+                                        <span class="dox-badge dox-badge-review">Review</span>
+                                    {% elif d.status == 'REJECTED' %}
+                                        <span class="dox-badge dox-badge-rejected">Rejected</span>
+                                    {% elif d.status == 'FAILED' %}
+                                        <span class="dox-badge dox-badge-failed">Failed</span>
+                                    {% else %}
+                                        <span class="dox-badge dox-badge-neutral">{{ d.status }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="text-xs text-slate-500 font-mono">{{ d.uploaded_at|localdt }}</td>
+                            </tr>
+                            {% else %}
+                            <tr>
+                                <td colspan="3" class="px-6 py-12 text-center text-slate-500">
+                                    <div class="flex flex-col items-center justify-center">
+                                        <div class="w-12 h-12 rounded-2xl bg-white/70 border border-white flex items-center justify-center text-slate-400 mb-3 shadow-xs">
+                                            <i data-lucide="inbox" class="h-6 w-6"></i>
+                                        </div>
+                                        <p class="font-semibold text-slate-800 text-sm">No recent activity</p>
+                                        <p class="text-xs text-slate-400 mt-1">Upload images to begin OCR processing.</p>
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Right Col (Attention Required & Fast Actions) -->
+        <div class="space-y-6">
+            <div class="dox-card overflow-hidden border-amber-200/80 bg-gradient-to-br from-amber-50/70 via-white/80 to-white/90">
+                <div class="px-6 py-4 border-b border-amber-200/60 bg-amber-100/50 flex items-center justify-between">
+                    <h2 class="text-sm font-bold text-amber-950 flex items-center gap-2">
+                        <i data-lucide="alert-triangle" class="h-4 w-4 text-amber-600"></i> Attention Required
+                    </h2>
+                    <span class="dox-badge dox-badge-review">{{ stats.review }} Pending</span>
+                </div>
+                <div class="p-6 space-y-4">
+                    <p class="text-xs text-slate-600 leading-relaxed font-medium">
+                        You have <strong class="text-slate-900 font-bold">{{ stats.review }}</strong> dockets awaiting manual field verification or corrections before they can be marked verified.
+                    </p>
+                    <a href="{{ url_for('ops.review_center') }}" class="dox-btn-secondary w-full justify-center !h-10 !font-bold">
+                        Go to Review Center <i data-lucide="arrow-right" class="h-4 w-4 ml-1.5"></i>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Upload Shortcut Card -->
+            <div class="dox-card p-6 space-y-3">
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-100/80 shadow-2xs">
+                        <i data-lucide="upload-cloud" class="h-5 w-5"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-bold text-slate-900">Batch Ingestion</h3>
+                        <p class="text-xs text-slate-500">Process 30-40 dockets per batch</p>
+                    </div>
+                </div>
+                <p class="text-xs text-slate-600 leading-relaxed">
+                    AI automatically extracts AWB number, packages, actual weight, and checks for physical signatures and stamps.
+                </p>
+                <a href="{{ url_for('ops.upload') }}" class="dox-btn-primary w-full justify-center !h-10">
+                    <i data-lucide="play" class="h-4 w-4"></i> Start New Ingestion
                 </a>
             </div>
         </div>
-    </div>
 
+    </div>
 </div>
 
 <script>

@@ -1,59 +1,63 @@
 {% extends "base.html" %}
-{% block header_title %}Upload Dockets{% endblock %}
+{% block header_title %}Batch Upload Dockets - DOXERA Enterprise{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-    <div class="p-6 border-b border-slate-100">
-        <h2 class="text-lg font-bold text-slate-800">New Batch Upload</h2>
-        <p class="text-sm text-slate-500 mt-1">Select one or multiple docket images to process through OCR.</p>
+<div class="max-w-3xl mx-auto dox-card overflow-hidden">
+    <div class="p-6 sm:p-7 border-b border-white/80 bg-white/40 backdrop-blur-md flex items-center justify-between">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50/90 text-blue-700 border border-blue-200/80 shadow-2xs">
+                    <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                    Batch Pipeline
+                </span>
+                <span class="text-xs text-slate-400 font-medium">Multi-Image OCR Ingestion</span>
+            </div>
+            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">New Batch Upload</h2>
+            <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+                Upload docket images (JPG, PNG) for automated handwriting OCR extraction and validation.
+            </p>
+        </div>
+        <div class="hidden sm:flex w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white items-center justify-center shadow-md shadow-blue-500/25 ring-2 ring-white/80 shrink-0">
+            <i data-lucide="upload-cloud" class="h-6 w-6"></i>
+        </div>
     </div>
     
-    <div class="p-6">
+    <div class="p-6 sm:p-7">
         <form action="{{ url_for('ops.upload') }}" method="POST" enctype="multipart/form-data" id="uploadForm">
             <style>
-                .glow-hover {
-                    box-shadow: 0 0 0px transparent;
-                    transition: all 0.3s ease;
+                .drop-lens {
+                    background: rgba(255, 255, 255, 0.75);
+                    backdrop-filter: blur(20px);
+                    -webkit-backdrop-filter: blur(20px);
+                    border: 2px dashed rgba(191, 219, 254, 0.9);
+                    border-radius: 20px;
+                    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.95), 0 4px 20px -2px rgba(15, 23, 42, 0.04);
+                    transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
                 }
-                .group:hover .glow-hover {
-                    box-shadow: inset 0 0 20px rgba(59, 130, 246, 0.3);
-                    border-color: #3b82f6;
+                .drop-lens:hover {
+                    border-color: #2563EB;
+                    background: rgba(255, 255, 255, 0.92);
+                    box-shadow: 0 12px 32px -4px rgba(37, 99, 235, 0.16), inset 0 1px 1px #FFFFFF;
+                    transform: translateY(-2px);
                 }
                 .drop-active {
-                    box-shadow: inset 0 0 30px rgba(59, 130, 246, 0.5) !important;
-                    border-color: #2563eb !important;
-                    background-color: rgba(239, 246, 255, 0.5);
+                    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2), inset 0 0 24px rgba(59, 130, 246, 0.15) !important;
+                    border-color: #2563EB !important;
+                    background-color: rgba(239, 246, 255, 0.92) !important;
                 }
                 .scanner-line {
                     position: absolute;
                     left: 0;
                     right: 0;
-                    height: 4px;
-                    background: #3b82f6;
-                    box-shadow: 0 0 10px #3b82f6, 0 0 20px #3b82f6;
-                    animation: scan 2s infinite linear alternate;
+                    height: 3px;
+                    background: linear-gradient(90deg, transparent 0%, #38BDF8 30%, #60A5FA 70%, transparent 100%);
+                    box-shadow: 0 0 16px #38BDF8, 0 0 32px #2563EB;
+                    animation: scan 2s infinite ease-in-out alternate;
                     z-index: 20;
                 }
                 @keyframes scan {
-                    0% { top: 0%; }
-                    100% { top: 100%; }
-                }
-                /* Animated glowing wave border */
-                .wave-border {
-                    border: 2px solid #e2e8f0;
-                    box-shadow: 0 0 0px transparent;
-                    transition: all 0.3s ease;
-                }
-                
-                .group:hover .wave-border, .drop-active .wave-border {
-                    border-color: #3b82f6;
-                    animation: pulse-glow 2s infinite;
-                }
-                
-                @keyframes pulse-glow {
-                    0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
-                    50% { box-shadow: 0 0 20px 5px rgba(59, 130, 246, 0.2); }
-                    100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.4); }
+                    0% { top: 4%; }
+                    100% { top: 96%; }
                 }
                 @keyframes shine {
                     0% { left: -100%; }
@@ -64,46 +68,62 @@
                 }
             </style>
             
-            <div id="drop-zone" class="glow-hover wave-border rounded-lg p-12 text-center relative group flex flex-col items-center justify-center min-h-[300px] overflow-hidden">
+            <div id="drop-zone" class="drop-lens p-10 sm:p-14 text-center relative group flex flex-col items-center justify-center min-h-[300px] overflow-hidden cursor-pointer">
                 <input type="file" name="files[]" multiple accept="image/*" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" id="file-input">
                 
                 <div id="default-ui" class="pointer-events-none flex flex-col items-center">
-                    <div class="h-16 w-16 bg-blue-50 rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-[0_0_15px_rgba(59,130,246,0.3)]">
+                    <div class="h-16 w-16 bg-gradient-to-tr from-blue-50 to-indigo-50 border border-blue-200/80 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-[0_4px_16px_rgba(59,130,246,0.15)] ring-4 ring-white/90">
                         <i data-lucide="upload-cloud" class="h-8 w-8 text-blue-600"></i>
                     </div>
-                    <p class="text-base font-semibold text-slate-700 mb-1">Click to browse or drag images here</p>
-                    <p class="text-sm text-slate-500 mb-4" id="file-msg">Supports JPG, PNG (30-40 images recommended per batch)</p>
+                    <p class="text-base sm:text-lg font-bold text-slate-800 mb-1">Click to browse or drop images here</p>
+                    <p class="text-xs sm:text-sm text-slate-500 mb-4 max-w-md font-medium" id="file-msg">
+                        Supports high-resolution JPG & PNG dockets (recommended 30–40 per batch).
+                    </p>
                     
                     <div id="file-list" class="flex flex-wrap gap-2 justify-center hidden"></div>
                 </div>
                 
-                <div id="scanning-ui" class="hidden absolute inset-0 w-full h-full bg-slate-900 flex flex-col items-center justify-center overflow-hidden">
-                    <img id="preview-img" class="absolute inset-0 w-full h-full object-contain opacity-50 blur-[2px]" src="">
-                    <!-- Shine sweeping across the entire container -->
-                    <div class="absolute top-0 bottom-0 z-20 pointer-events-none" style="background: linear-gradient(90deg, transparent, rgba(255,255,255,0.15), transparent); transform: skewX(-20deg); width: 200px; animation: shine 2.5s infinite ease-in-out;"></div>
+                <!-- Scanning UI Overlay -->
+                <div id="scanning-ui" class="hidden absolute inset-0 w-full h-full bg-slate-950/85 backdrop-blur-md flex flex-col items-center justify-center overflow-hidden z-20">
+                    <div class="scanner-line"></div>
+                    <img id="preview-img" class="absolute inset-0 w-full h-full object-contain opacity-40 blur-[2px]" src="">
                     
-                    <div class="z-30 flex flex-col items-center bg-black/70 p-6 rounded-lg backdrop-blur-md border border-slate-700 relative overflow-hidden">
+                    <div class="absolute top-0 bottom-0 z-20 pointer-events-none" style="background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent); transform: skewX(-20deg); width: 220px; animation: shine 2.5s infinite ease-in-out;"></div>
+                    
+                    <div class="z-30 flex flex-col items-center dox-card !bg-slate-900/90 !border-slate-700/80 p-6 sm:p-8 rounded-2xl shadow-2xl relative overflow-hidden max-w-sm mx-4">
                         <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
                         <img src="{{ url_for('static', filename='doxera_logo.png') }}" class="h-10 mb-4 object-contain brightness-0 invert" alt="DOXERA Logo">
-                        <p class="text-slate-300 text-sm font-medium z-10 relative">Extracting data from <span id="scan-count"></span> docket(s)...</p>
+                        <div class="flex items-center gap-2 text-cyan-400 font-bold text-sm z-10 relative">
+                            <i data-lucide="loader-2" class="h-4 w-4 animate-spin"></i>
+                            <span>Extracting docket metadata...</span>
+                        </div>
+                        <p class="text-slate-300 text-xs mt-2 z-10 relative text-center">
+                            Analyzing <span id="scan-count" class="font-bold text-white"></span> docket(s) with Vision OCR.
+                        </p>
                     </div>
                 </div>
 
-                <div id="limit-ui" class="hidden absolute inset-0 w-full h-full bg-slate-900 flex flex-col items-center justify-center overflow-hidden z-40">
-                    <img src="{{ url_for('static', filename='doxera_logo.png') }}" class="h-14 mb-4 object-contain brightness-0 invert" alt="DOXERA Logo">
-                    <div class="text-rose-500 font-bold text-2xl uppercase tracking-widest mb-1">Out of limit</div>
-                    <div class="text-rose-400 font-medium text-lg mb-4">Come Back at 6:00 AM</div>
-                    <p class="text-slate-400 text-sm text-center max-w-sm">
-                        DOXERA AI has reached its rate limit. Please try again later or add credits to your account.
+                <!-- Rate Limit UI -->
+                <div id="limit-ui" class="hidden absolute inset-0 w-full h-full bg-slate-950/90 backdrop-blur-xl flex flex-col items-center justify-center overflow-hidden z-40 p-6">
+                    <img src="{{ url_for('static', filename='doxera_logo.png') }}" class="h-12 mb-4 object-contain brightness-0 invert" alt="DOXERA Logo">
+                    <div class="text-rose-500 font-extrabold text-xl uppercase tracking-wider mb-1">Quota Exceeded</div>
+                    <div class="text-rose-400 font-semibold text-sm mb-3">Resets Daily at 6:00 AM IST</div>
+                    <p class="text-slate-300 text-xs text-center max-w-sm leading-relaxed mb-5">
+                        DOXERA AI has reached its rate limit for this session. Please wait until quota resets or add credits to your account.
                     </p>
-                    <button type="button" onclick="window.location.reload()" class="mt-6 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm rounded border border-slate-600 transition-colors">Go Back</button>
+                    <button type="button" onclick="window.location.reload()" class="dox-btn-secondary !h-9 !px-6 !font-bold">
+                        Go Back
+                    </button>
                 </div>
             </div>
             
-            <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-100 pt-6">
-                <div class="text-sm text-slate-500 font-medium" id="selection-count">0 files selected</div>
-                <button type="submit" id="uploadBtn" disabled class="w-full sm:w-auto justify-center inline-flex items-center px-6 py-2.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold rounded-md shadow-[0_4px_14px_0_rgba(59,130,246,0.39)] hover:shadow-[0_6px_20px_rgba(59,130,246,0.23)] hover:-translate-y-0.5 transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none disabled:shadow-none">
-                    <i data-lucide="play" class="h-4 w-4 mr-2"></i> START DOXERA AI
+            <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/80 pt-6">
+                <div class="text-xs sm:text-sm text-slate-500 font-semibold flex items-center gap-2" id="selection-count">
+                    <span class="w-2 h-2 rounded-full bg-slate-300"></span>
+                    <span>0 files selected</span>
+                </div>
+                <button type="submit" id="uploadBtn" disabled class="w-full sm:w-auto dox-btn-primary !h-12 !px-8 text-sm font-extrabold shadow-xl shadow-blue-600/30">
+                    <i data-lucide="play" class="h-4 w-4 mr-2"></i> START DOXERA AI INGESTION
                 </button>
             </div>
         </form>
@@ -137,19 +157,19 @@
                 const displayFiles = files.slice(0, 5);
                 displayFiles.forEach(f => {
                     const el = document.createElement('span');
-                    el.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-slate-100 text-slate-800 border border-slate-200 shadow-sm';
+                    el.className = 'dox-badge dox-badge-neutral text-xs';
                     el.textContent = f.name.length > 20 ? f.name.substring(0, 20) + '...' : f.name;
                     fileList.appendChild(el);
                 });
                 
                 if (files.length > 5) {
                     const el = document.createElement('span');
-                    el.className = 'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700 border border-blue-200';
+                    el.className = 'dox-badge dox-badge-processing text-xs font-bold';
                     el.textContent = `+${files.length - 5} more`;
                     fileList.appendChild(el);
                 }
                 
-                selectionCount.innerHTML = `<span class="font-bold text-slate-800">${files.length}</span> file(s) selected`;
+                selectionCount.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> <span class="font-extrabold text-slate-900">${files.length}</span> file(s) selected`;
                 uploadBtn.disabled = false;
 
                 // Load preview image for the scanner
@@ -160,14 +180,12 @@
             } else {
                 fileMsg.classList.remove('hidden');
                 fileList.classList.add('hidden');
-                selectionCount.textContent = '0 files selected';
+                selectionCount.innerHTML = `<span class="w-2 h-2 rounded-full bg-slate-300"></span> 0 files selected`;
                 uploadBtn.disabled = true;
                 fileData = null;
             }
         });
 
-        // The browser handles drop natively if we don't prevent default on the dropzone.
-        // But to add styles, we listen to events but let the input tag handle the actual file drop.
         dropZone.addEventListener('dragenter', (e) => { dropZone.classList.add('drop-active'); });
         dropZone.addEventListener('dragleave', (e) => { dropZone.classList.remove('drop-active'); });
         dropZone.addEventListener('drop', (e) => { dropZone.classList.remove('drop-active'); });
@@ -182,7 +200,7 @@
             scanningUi.classList.remove('hidden');
             if (fileData) previewImg.src = fileData;
             
-            uploadBtn.innerHTML = '<i data-lucide="loader-2" class="h-4 w-4 mr-2 animate-spin"></i> PROCESSING...';
+            uploadBtn.innerHTML = '<i data-lucide="loader-2" class="h-4 w-4 mr-2 animate-spin"></i> PROCESSING BATCH...';
             uploadBtn.disabled = true;
             lucide.createIcons();
             
@@ -208,7 +226,7 @@
                 
                 // Add a beautiful non-intrusive banner on top of the Scanning UI
                 const successBanner = document.createElement('div');
-                successBanner.className = 'absolute top-6 left-1/2 transform -translate-x-1/2 bg-emerald-500/90 text-white px-6 py-3 rounded-full shadow-lg backdrop-blur-sm z-50 flex items-center space-x-3 border border-emerald-400 animate-fade-in-down transition-opacity duration-500';
+                successBanner.className = 'absolute top-6 left-1/2 transform -translate-x-1/2 bg-emerald-600/90 text-white px-6 py-3 rounded-full shadow-xl backdrop-blur-md z-50 flex items-center space-x-3 border border-emerald-400/80 animate-fade-in-down transition-opacity duration-500';
                 successBanner.innerHTML = `
                     <i data-lucide="check-circle" class="h-5 w-5"></i>
                     <div>
@@ -219,10 +237,9 @@
                 scanningUi.appendChild(successBanner);
                 lucide.createIcons();
                 
-                // Make the banner disappear after 3 seconds
                 setTimeout(() => {
                     successBanner.style.opacity = '0';
-                    setTimeout(() => successBanner.remove(), 500); // Wait for fade transition before removing
+                    setTimeout(() => successBanner.remove(), 500);
                 }, 3000);
                 
                 // Background polling
@@ -249,10 +266,9 @@
                 setTimeout(checkStatus, 1500);
             })
             .catch(err => {
-                // Error — hide scanner and show error
                 scanningUi.classList.add('hidden');
                 defaultUi.classList.remove('hidden');
-                uploadBtn.innerHTML = '<i data-lucide="play" class="h-4 w-4 mr-2"></i> START DOXERA AI';
+                uploadBtn.innerHTML = '<i data-lucide="play" class="h-4 w-4 mr-2"></i> START DOXERA AI INGESTION';
                 uploadBtn.disabled = false;
                 lucide.createIcons();
                 alert('Upload failed: ' + err.message);

@@ -1,149 +1,188 @@
 {% extends "base.html" %}
-{% block header_title %}All Dockets{% endblock %}
+{% block header_title %}Docket Registry - DOXERA Enterprise{% endblock %}
 
 {% block content %}
-<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-6">
-    <h1 class="text-xl sm:text-2xl font-bold text-navy-900">Docket Registry</h1>
-    
-    <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
-        <form action="{{ url_for('ops.dockets') }}" method="GET" class="flex items-center gap-2 bg-white rounded-md border border-slate-300 p-1">
-            <input type="hidden" name="status" value="{{ current_filter }}">
-            <input type="date" name="start_date" value="{{ start_date or '' }}" class="text-sm border-none bg-transparent focus:ring-0 text-slate-700 max-w-[120px]" required>
-            <span class="text-slate-400 text-sm">to</span>
-            <input type="date" name="end_date" value="{{ end_date or '' }}" class="text-sm border-none bg-transparent focus:ring-0 text-slate-700 max-w-[120px]" required>
-            <button type="submit" class="p-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded transition-colors" title="Filter by date">
-                <i data-lucide="filter" class="h-4 w-4"></i>
-            </button>
-            {% if start_date %}
-            <a href="{{ url_for('ops.dockets', status=current_filter) }}" class="p-1.5 text-rose-500 hover:bg-rose-50 rounded transition-colors" title="Clear filter">
-                <i data-lucide="x" class="h-4 w-4"></i>
-            </a>
+<div class="space-y-6 max-w-7xl mx-auto">
+    <!-- Header & Action Bar -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <div class="flex items-center gap-2 mb-1">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50/90 text-blue-700 border border-blue-200/80 shadow-2xs">
+                    <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
+                    Registry Master
+                </span>
+                <span class="text-xs text-slate-400 font-medium">Archive & Live Extractions</span>
+            </div>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Docket Registry</h1>
+            <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+                Browse, search, inspect OCR results, and manage verification status.
+            </p>
+        </div>
+        
+        <div class="flex flex-wrap items-center gap-2 sm:gap-3 w-full md:w-auto">
+            <!-- Date Filter -->
+            <form action="{{ url_for('ops.dockets') }}" method="GET" class="flex items-center gap-2 bg-white/85 backdrop-blur-md rounded-xl border border-white/95 p-1.5 shadow-[inset_0_1px_0_#FFF,0_2px_8px_rgba(15,23,42,0.04)]">
+                <input type="hidden" name="status" value="{{ current_filter }}">
+                <input type="date" name="start_date" value="{{ start_date or '' }}" class="dox-input !h-8 !px-2.5 text-xs border-0 bg-transparent focus:ring-0 text-slate-800 font-semibold max-w-[125px]" required>
+                <span class="text-slate-400 text-xs font-semibold">to</span>
+                <input type="date" name="end_date" value="{{ end_date or '' }}" class="dox-input !h-8 !px-2.5 text-xs border-0 bg-transparent focus:ring-0 text-slate-800 font-semibold max-w-[125px]" required>
+                <button type="submit" class="dox-btn-secondary !h-8 !px-2.5 !min-h-0 text-slate-700" title="Filter by date">
+                    <i data-lucide="filter" class="h-3.5 w-3.5"></i>
+                </button>
+                {% if start_date %}
+                <a href="{{ url_for('ops.dockets', status=current_filter) }}" class="dox-btn-secondary !h-8 !px-2.5 !min-h-0 !text-rose-600 hover:!bg-rose-50" title="Clear filter">
+                    <i data-lucide="x" class="h-3.5 w-3.5"></i>
+                </a>
+                {% endif %}
+            </form>
+            
+            {% if session.role == 'ADMIN' %}
+            <form method="POST" action="{{ url_for('ops.delete_all_dockets') }}" onsubmit="return confirm('WARNING: Are you sure you want to permanently delete ALL dockets currently shown in this filter? This cannot be undone!');">
+                <input type="hidden" name="status" value="{{ current_filter }}">
+                <button type="submit" class="dox-btn-danger !h-10 text-xs shadow-md shadow-rose-500/20">
+                    <i data-lucide="trash-2" class="h-3.5 w-3.5 mr-1.5"></i> Delete All {{ current_filter }}
+                </button>
+            </form>
             {% endif %}
-        </form>
-        
-        {% if session.role == 'ADMIN' %}
-        <form method="POST" action="{{ url_for('ops.delete_all_dockets') }}" onsubmit="return confirm('WARNING: Are you sure you want to permanently delete ALL dockets currently shown in this filter? This cannot be undone!');">
-            <input type="hidden" name="status" value="{{ current_filter }}">
-            <button type="submit" class="inline-flex items-center px-4 py-2 bg-white border border-rose-200 text-rose-600 hover:bg-rose-50 text-sm font-medium rounded-md shadow-sm transition-colors">
-                <i data-lucide="trash-2" class="h-4 w-4 mr-2"></i> Delete All {{ current_filter }}
+            
+            {% if session.role in ['ADMIN', 'REVIEWER'] and current_filter == 'FAILED' %}
+            <button type="button" onclick="retryAllFailed(this)" class="dox-btn-secondary !h-10 text-xs !bg-amber-500 !text-white !border-amber-400 hover:!bg-amber-600 shadow-md shadow-amber-500/25">
+                <i data-lucide="refresh-cw" class="h-3.5 w-3.5 mr-1.5"></i> Retry All Failed
             </button>
-        </form>
-        {% endif %}
-        
-        {% if session.role in ['ADMIN', 'REVIEWER'] and current_filter == 'FAILED' %}
-        <button type="button" onclick="retryAllFailed(this)" class="inline-flex items-center px-4 py-2 bg-amber-500 hover:bg-amber-600 text-white text-sm font-medium rounded-md shadow-sm transition-colors">
-            <i data-lucide="refresh-cw" class="h-4 w-4 mr-2"></i> Retry All Failed
-        </button>
-        {% endif %}
-        
-        <a href="{{ url_for('ops.upload') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-md shadow-sm transition-colors">
-            <i data-lucide="plus" class="h-4 w-4 mr-1.5"></i> New Upload
-        </a>
-    </div>
-</div>
-
-<div class="bg-white rounded-lg shadow-sm border border-slate-200 overflow-hidden">
-    
-    <!-- Filters -->
-    <div class="px-6 py-3 bg-slate-50 border-b border-slate-200 flex gap-2 overflow-x-auto">
-        {% set statuses = [
-            ('ALL', 'All Dockets', 'slate'),
-            ('VERIFIED', 'Verified', 'emerald'),
-            ('REVIEW', 'Review / Modified', 'amber'),
-            ('REJECTED', 'Rejected', 'rose'),
-            ('FAILED', 'Failed', 'red'),
-            ('PROCESSING', 'Processing', 'blue')
-        ] %}
-        
-        {% for val, label, color in statuses %}
-            {% set is_active = current_filter == val %}
-            <a href="{{ url_for('ops.dockets', status=val, start_date=start_date, end_date=end_date) }}" 
-               class="whitespace-nowrap px-3 py-1 rounded-md text-xs font-medium border transition-colors
-               {% if is_active %} bg-{{color}}-100 text-{{color}}-800 border-{{color}}-200
-               {% else %} bg-white text-slate-600 border-slate-200 hover:bg-slate-100 {% endif %}">
-                {{ label }}
+            {% endif %}
+            
+            <a href="{{ url_for('ops.upload') }}" class="dox-btn-primary !h-10 text-xs shadow-lg shadow-blue-600/25">
+                <i data-lucide="plus" class="h-3.5 w-3.5 mr-1.5"></i> New Upload
             </a>
-        {% endfor %}
+        </div>
     </div>
 
-    <!-- Table -->
-    <div class="overflow-x-auto">
-        <table class="w-full text-left text-sm whitespace-nowrap">
-            <thead class="bg-white text-slate-500 text-[11px] uppercase font-bold tracking-wider border-b border-slate-200">
-                <tr>
-                    <th class="px-6 py-3">Docket No</th>
-                    <th class="px-6 py-3">Status</th>
-                    <th class="px-6 py-3">Weight (kg)</th>
-                    <th class="px-6 py-3">Pkgs</th>
-                    <th class="px-6 py-3">Date Uploaded</th>
-                    <th class="px-6 py-3 text-right">Action</th>
-                </tr>
-            </thead>
-            <tbody class="divide-y divide-slate-100 text-slate-700">
-                {% for d in dockets %}
-                <tr class="hover:bg-slate-50 transition-colors {% if search_query and search_query == d.docket_number %}bg-amber-100 ring-2 ring-amber-300{% endif %}">
-                    <td class="px-6 py-3 font-semibold text-slate-900">{{ d.docket_number or '---' }}</td>
-                    <td class="px-6 py-3">
-                        {% if d.status == 'VERIFIED' %}
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-emerald-100 text-emerald-800 border border-emerald-200">Verified</span>
-                        {% elif d.status == 'REVIEW_REQUIRED' or d.status == 'MODIFIED_REVERIFICATION_REQUIRED' %}
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-amber-100 text-amber-800 border border-amber-200">Review</span>
-                        {% elif d.status == 'REJECTED' %}
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-rose-100 text-rose-800 border border-rose-200">Rejected</span>
-                        {% elif d.status == 'FAILED' %}
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-red-100 text-red-800 border border-red-200">Failed</span>
-                        {% else %}
-                            <span class="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium bg-slate-100 text-slate-700 border border-slate-200">{{ d.status }}</span>
-                        {% endif %}
-                    </td>
-                    <td class="px-6 py-3 font-mono">{{ d.actual_weight or '--' }}</td>
-                    <td class="px-6 py-3 font-mono">{{ d.total_packages or '--' }}</td>
-                    <td class="px-6 py-3 text-xs text-slate-500">{{ d.uploaded_at|localdt }}</td>
-                    <td class="px-6 py-3 text-right flex justify-end gap-2">
-                        {% if d.status not in ['PROCESSING', 'UPLOADED'] %}
-                        <a href="{{ url_for('ops.docket_detail', docket_id=d.id) }}" class="inline-flex items-center px-3 py-1 bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs font-medium rounded shadow-sm transition-colors">
-                            Open
-                        </a>
-                        {% else %}
-                        <span class="processing-docket-badge inline-flex items-center px-3 py-1 bg-slate-100 text-slate-400 border border-slate-200 text-xs font-medium rounded shadow-sm cursor-not-allowed" title="Processing in background">
-                            Wait
-                        </span>
-                        {% endif %}
-                        {% if d.status == 'FAILED' and session.role in ['ADMIN', 'REVIEWER'] %}
-                        <button onclick="retryDocket({{ d.id }}, this)" class="inline-flex items-center px-3 py-1 bg-amber-500 hover:bg-amber-600 text-white border border-amber-600 text-xs font-medium rounded shadow-sm transition-colors" title="Retry Processing">
-                            <i data-lucide="refresh-cw" class="h-3 w-3 mr-1"></i> Retry
-                        </button>
-                        {% endif %}
-                        {% if session.role in ['ADMIN', 'REVIEWER'] %}
-                        <form method="POST" action="{{ url_for('ops.delete_docket', docket_id=d.id) }}" onsubmit="return confirm('Permanently delete this docket?');">
-                            <button type="submit" class="inline-flex items-center px-2 py-1 bg-white hover:bg-rose-50 text-rose-600 border border-rose-200 text-xs font-medium rounded shadow-sm transition-colors" title="Delete Docket">
-                                <i data-lucide="trash-2" class="h-3 w-3"></i>
-                            </button>
-                        </form>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% else %}
-                <tr>
-                    <td colspan="6" class="px-6 py-12 text-center text-slate-500">
-                        No dockets found matching the filter.
-                    </td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+    <!-- Liquid Glass Registry Container -->
+    <div class="dox-card overflow-hidden">
+        
+        <!-- Filter Tabs (Apple Liquid Glass Segmented Pill Bar) -->
+        <div class="px-5 py-3.5 border-b border-white/80 bg-white/50 backdrop-blur-md flex items-center gap-2 overflow-x-auto no-scrollbar">
+            {% set statuses = [
+                ('ALL', 'All Dockets', 'neutral'),
+                ('VERIFIED', 'Verified', 'verified'),
+                ('REVIEW', 'Review / Modified', 'review'),
+                ('REJECTED', 'Rejected', 'rejected'),
+                ('FAILED', 'Failed', 'failed'),
+                ('PROCESSING', 'Processing', 'processing')
+            ] %}
+            
+            {% for val, label, tone in statuses %}
+                {% set is_active = current_filter == val %}
+                <a href="{{ url_for('ops.dockets', status=val, start_date=start_date, end_date=end_date) }}" 
+                   class="whitespace-nowrap px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5
+                   {% if is_active %}
+                       bg-white text-blue-700 border border-blue-200/90 shadow-sm shadow-blue-500/10 ring-1 ring-blue-500/20
+                   {% else %}
+                       text-slate-600 hover:text-slate-900 hover:bg-white/60 border border-transparent
+                   {% endif %}">
+                    {% if tone == 'verified' %}<span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>{% endif %}
+                    {% if tone == 'review' %}<span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>{% endif %}
+                    {% if tone == 'rejected' %}<span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>{% endif %}
+                    {% if tone == 'failed' %}<span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>{% endif %}
+                    {% if tone == 'processing' %}<span class="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse"></span>{% endif %}
+                    <span>{{ label }}</span>
+                </a>
+            {% endfor %}
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table class="dox-table">
+                <thead>
+                    <tr>
+                        <th>Docket No</th>
+                        <th>Status</th>
+                        <th>Weight (kg)</th>
+                        <th>Packages</th>
+                        <th>Date Uploaded</th>
+                        <th class="text-right">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for d in dockets %}
+                    <tr class="hover:bg-blue-50/50 transition-colors {% if search_query and search_query == d.docket_number %}bg-amber-100/70 ring-2 ring-amber-300{% endif %}">
+                        <td class="font-bold text-slate-900 font-mono tracking-tight">{{ d.docket_number or '---' }}</td>
+                        <td>
+                            {% if d.status == 'VERIFIED' %}
+                                <span class="dox-badge dox-badge-verified">Verified</span>
+                            {% elif d.status == 'REVIEW_REQUIRED' or d.status == 'MODIFIED_REVERIFICATION_REQUIRED' %}
+                                <span class="dox-badge dox-badge-review">Review</span>
+                            {% elif d.status == 'REJECTED' %}
+                                <span class="dox-badge dox-badge-rejected">Rejected</span>
+                            {% elif d.status == 'FAILED' %}
+                                <span class="dox-badge dox-badge-failed">Failed</span>
+                            {% else %}
+                                <span class="dox-badge dox-badge-neutral">{{ d.status }}</span>
+                            {% endif %}
+                        </td>
+                        <td class="font-mono text-slate-700 font-semibold">{{ d.actual_weight or '--' }}</td>
+                        <td class="font-mono text-slate-700 font-semibold">{{ d.total_packages or '--' }}</td>
+                        <td class="text-xs text-slate-500 font-mono">{{ d.uploaded_at|localdt }}</td>
+                        <td class="text-right">
+                            <div class="inline-flex items-center justify-end gap-1.5">
+                                {% if d.status not in ['PROCESSING', 'UPLOADED'] %}
+                                <a href="{{ url_for('ops.docket_detail', docket_id=d.id) }}" class="dox-btn-secondary !h-7 !px-3 !text-xs !font-bold" title="Open Docket Workspace">
+                                    Open
+                                </a>
+                                {% else %}
+                                <span class="processing-docket-badge inline-flex items-center px-2.5 py-1 bg-slate-100 text-slate-400 border border-slate-200 text-xs font-semibold rounded-lg cursor-not-allowed" title="Processing in background">
+                                    <i data-lucide="loader-2" class="h-3 w-3 mr-1 animate-spin"></i> Wait
+                                </span>
+                                {% endif %}
+                                {% if d.status == 'FAILED' and session.role in ['ADMIN', 'REVIEWER'] %}
+                                <button onclick="retryDocket({{ d.id }}, this)" class="dox-btn-secondary !h-7 !px-2.5 !text-xs !font-bold !bg-amber-50 !text-amber-800 !border-amber-300 hover:!bg-amber-100" title="Retry Processing">
+                                    <i data-lucide="refresh-cw" class="h-3 w-3 mr-1"></i> Retry
+                                </button>
+                                {% endif %}
+                                {% if session.role in ['ADMIN', 'REVIEWER'] %}
+                                <form method="POST" action="{{ url_for('ops.delete_docket', docket_id=d.id) }}" onsubmit="return confirm('Permanently delete this docket?');" class="inline">
+                                    <button type="submit" class="dox-btn-secondary !h-7 !px-2 !text-xs !text-rose-600 hover:!bg-rose-50 hover:!border-rose-300" title="Delete Docket">
+                                        <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
+                                    </button>
+                                </form>
+                                {% endif %}
+                            </div>
+                        </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="6" class="px-6 py-16 text-center text-slate-500">
+                            <div class="flex flex-col items-center justify-center">
+                                <div class="w-12 h-12 rounded-2xl bg-white/80 border border-white flex items-center justify-center text-slate-400 mb-3 shadow-xs">
+                                    <i data-lucide="search-x" class="h-6 w-6"></i>
+                                </div>
+                                <p class="font-bold text-slate-800 text-sm">No dockets found</p>
+                                <p class="text-xs text-slate-400 mt-1">There are no records matching your current filter criteria.</p>
+                            </div>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
-<!-- Limit UI Overlay (Initially Hidden) -->
-<div id="limit-ui" class="hidden fixed inset-0 w-full h-full bg-slate-900 flex flex-col items-center justify-center overflow-hidden z-[999]">
-    <img src="{{ url_for('static', filename='doxera_logo.png') }}" class="h-14 mb-4 object-contain brightness-0 invert" alt="DOXERA Logo">
-    <div class="text-rose-500 font-bold text-2xl uppercase tracking-widest mb-1">Out of limit</div>
-    <div class="text-rose-400 font-medium text-lg mb-4">Come Back at 6:00 AM</div>
-    <p class="text-slate-400 text-sm text-center max-w-sm">
-        DOXERA AI has reached its rate limit. Please try again later or add credits to your account.
-    </p>
-    <button type="button" onclick="window.location.reload()" class="mt-6 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white text-sm rounded border border-slate-600 transition-colors">Go Back</button>
+<!-- Limit UI Overlay (Modal with Liquid Glass Backdrop) -->
+<div id="limit-ui" class="hidden fixed inset-0 w-full h-full bg-slate-950/70 backdrop-blur-xl flex flex-col items-center justify-center overflow-hidden z-[999] p-4">
+    <div class="dox-card max-w-md w-full p-8 text-center space-y-4 border-white/90 shadow-2xl">
+        <img src="{{ url_for('static', filename='doxera_logo.png') }}" class="h-12 mx-auto object-contain brightness-0 invert" alt="DOXERA Logo">
+        <div>
+            <div class="text-rose-500 font-extrabold text-xl uppercase tracking-wider">AI Daily Quota Reached</div>
+            <div class="text-slate-400 font-semibold text-sm mt-1">Resets Daily at 6:00 AM IST</div>
+        </div>
+        <p class="text-slate-300 text-xs leading-relaxed">
+            DOXERA AI has reached its rate limit for this billing period. Please wait until quota resets or add credits to your account.
+        </p>
+        <button type="button" onclick="window.location.reload()" class="dox-btn-secondary !h-10 !px-6 mx-auto !font-bold">
+            Close & Refresh
+        </button>
+    </div>
 </div>
 
 <script>

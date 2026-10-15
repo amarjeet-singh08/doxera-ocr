@@ -28,49 +28,299 @@
     </script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-        body { background-color: #f8fafc; font-family: 'Inter', sans-serif; }
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+        body { 
+            background-color: #F8FAFC; 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif; 
+            color: #0F172A;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ══════════════════════════════════════════════════════
+           DOXERA TRUE LIQUID GLASS DESIGN SYSTEM (WWDC 2025/2026 HIG)
+           ══════════════════════════════════════════════════════ */
+        :root {
+            --glass-bg: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.70) 50%, rgba(240, 246, 255, 0.80) 100%);
+            --glass-bg-hover: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(255, 255, 255, 0.82) 100%);
+            --glass-border: rgba(255, 255, 255, 0.92);
+            --glass-border-hover: #FFFFFF;
+            --glass-specular-top: inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.98);
+            --glass-specular-bottom: inset 0 -1.5px 1.5px 0 rgba(15, 23, 42, 0.03);
+            --glass-shadow: 0 16px 40px -8px rgba(15, 23, 42, 0.07), 0 4px 14px -2px rgba(15, 23, 42, 0.03);
+            --glass-shadow-hover: 0 24px 50px -10px rgba(37, 99, 235, 0.14), 0 6px 18px -2px rgba(15, 23, 42, 0.06);
+            --squircle-radius: 22px;
+        }
+
+        .dox-bg-canvas, .sales-bg-canvas {
+            background-color: #F8FAFC;
+            background-image: 
+                radial-gradient(circle at 12% 8%, rgba(59, 130, 246, 0.16) 0%, transparent 48%),
+                radial-gradient(circle at 88% 14%, rgba(99, 102, 241, 0.14) 0%, transparent 48%),
+                radial-gradient(circle at 82% 85%, rgba(168, 85, 247, 0.12) 0%, transparent 52%),
+                radial-gradient(circle at 14% 92%, rgba(16, 185, 129, 0.10) 0%, transparent 48%),
+                radial-gradient(circle at 50% 50%, rgba(248, 250, 252, 0.7) 0%, transparent 100%);
+            background-attachment: fixed;
+        }
+
+        /* 1. Liquid Glass Card Container */
+        .dox-card, .sd-card, .sd-glass-card {
+            background: var(--glass-bg);
+            backdrop-filter: blur(28px) saturate(190%);
+            -webkit-backdrop-filter: blur(28px) saturate(190%);
+            border: 1px solid var(--glass-border);
+            border-radius: var(--squircle-radius);
+            box-shadow: var(--glass-specular-top), var(--glass-specular-bottom), var(--glass-shadow);
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+        }
+        .dox-card:hover, .sd-card:hover, .sd-glass-card:hover {
+            border-color: var(--glass-border-hover);
+            box-shadow: inset 0 2px 1px 0 #FFFFFF, var(--glass-shadow-hover);
+        }
+
+        /* 2. High-Contrast Tactile Liquid Buttons */
+        .dox-btn-primary, .sd-btn-primary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            height: 38px;
+            min-height: 38px;
+            padding: 0 18px;
+            background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%) !important;
+            color: #FFFFFF !important;
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            letter-spacing: -0.01em;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.28) !important;
+            box-shadow: 0 4px 14px -2px rgba(29, 78, 216, 0.4), inset 0 1px 0.5px rgba(255, 255, 255, 0.5);
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .dox-btn-primary:hover, .sd-btn-primary:hover {
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
+            transform: translateY(-1.5px);
+            box-shadow: 0 8px 22px -3px rgba(37, 99, 235, 0.5), inset 0 1px 1px #FFFFFF;
+            color: #FFFFFF !important;
+        }
+        .dox-btn-primary:disabled, .sd-btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+            box-shadow: none !important;
+        }
+
+        .dox-btn-secondary, .sd-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            height: 38px;
+            min-height: 38px;
+            padding: 0 16px;
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 252, 0.90) 100%) !important;
+            color: #0F172A !important;
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            border-radius: 12px;
+            border: 1px solid rgba(203, 213, 225, 0.95) !important;
+            box-shadow: inset 0 1px 0 #FFFFFF, 0 2px 6px -1px rgba(15, 23, 42, 0.05);
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .dox-btn-secondary:hover, .sd-btn:hover {
+            background: #FFFFFF !important;
+            border-color: #94A3B8 !important;
+            color: #0F172A !important;
+            transform: translateY(-1.5px);
+            box-shadow: 0 6px 18px -2px rgba(15, 23, 42, 0.1), inset 0 1px 0 #FFFFFF;
+        }
+
+        .dox-btn-danger {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            height: 38px;
+            min-height: 38px;
+            padding: 0 16px;
+            background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%) !important;
+            color: #FFFFFF !important;
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 4px 14px -2px rgba(220, 38, 38, 0.35), inset 0 1px 0.5px rgba(255, 255, 255, 0.4);
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            text-decoration: none;
+            white-space: nowrap;
+        }
+        .dox-btn-danger:hover {
+            background: linear-gradient(135deg, #F87171 0%, #EF4444 100%) !important;
+            transform: translateY(-1.5px);
+            box-shadow: 0 8px 20px -3px rgba(220, 38, 38, 0.45);
+        }
+
+        /* 3. Liquid Glass Form Inputs & Dropdowns */
+        .dox-input, .sd-input, .sd-select {
+            height: 38px;
+            padding: 0 14px;
+            border-radius: 12px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #0F172A;
+            background: rgba(255, 255, 255, 0.90);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(203, 213, 225, 0.95);
+            box-shadow: inset 0 1px 1px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(255, 255, 255, 0.8);
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .dox-input:focus, .sd-input:focus, .sd-select:focus {
+            background: #FFFFFF;
+            border-color: #2563EB;
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.2), inset 0 1px 1px rgba(0, 0, 0, 0.03);
+        }
+
+        /* 4. Liquid Glass Table Styling */
+        .dox-table, .sd-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+        }
+        .dox-table th, .sd-table th {
+            position: sticky;
+            top: 0;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            z-index: 10;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .06em;
+            text-transform: uppercase;
+            color: #475569;
+            padding: 12px 18px;
+            border-bottom: 1px solid rgba(226, 232, 240, 0.9);
+            white-space: nowrap;
+        }
+        .dox-table td, .sd-table td {
+            padding: 12px 18px;
+            border-bottom: 1px solid rgba(241, 245, 249, 0.9);
+            font-size: 13px;
+            color: #334155;
+            white-space: nowrap;
+            transition: background 0.15s ease;
+        }
+        .dox-table tbody tr:hover td, .sd-table tbody tr:hover td {
+            background: rgba(239, 246, 255, 0.65);
+        }
+
+        /* 5. Liquid Glass Status Pills / Badges */
+        .dox-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 10px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.02em;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 2px rgba(15, 23, 42, 0.05);
+        }
+        .dox-badge-verified {
+            background: rgba(236, 253, 245, 0.92);
+            color: #065F46;
+            border: 1px solid rgba(167, 243, 208, 0.95);
+        }
+        .dox-badge-review {
+            background: rgba(254, 243, 199, 0.92);
+            color: #92400E;
+            border: 1px solid rgba(253, 230, 138, 0.95);
+        }
+        .dox-badge-rejected {
+            background: rgba(255, 241, 242, 0.92);
+            color: #9F1239;
+            border: 1px solid rgba(254, 205, 211, 0.95);
+        }
+        .dox-badge-failed {
+            background: rgba(254, 242, 242, 0.92);
+            color: #991B1B;
+            border: 1px solid rgba(254, 202, 202, 0.95);
+        }
+        .dox-badge-processing {
+            background: rgba(239, 246, 255, 0.92);
+            color: #1E40AF;
+            border: 1px solid rgba(191, 219, 254, 0.95);
+        }
+        .dox-badge-neutral {
+            background: rgba(241, 245, 249, 0.92);
+            color: #334155;
+            border: 1px solid rgba(226, 232, 240, 0.95);
+        }
+
+        /* 6. Liquid Glass Sidebar & Navigation */
+        #sidebar {
+            background: rgba(255, 255, 255, 0.88);
+            backdrop-filter: blur(32px) saturate(190%);
+            -webkit-backdrop-filter: blur(32px) saturate(190%);
+            border-right: 1px solid rgba(255, 255, 255, 0.92);
+            box-shadow: 4px 0 24px -2px rgba(15, 23, 42, 0.03);
+        }
         .sidebar-link {
             display: flex;
             align-items: center;
-            padding: 0.5rem 0.75rem;
-            color: #64748b;
-            border-radius: 0.375rem;
-            font-size: 0.875rem;
-            font-weight: 500;
-            transition: all 0.2s;
+            padding: 9px 14px;
+            color: #475569;
+            border-radius: 12px;
+            font-size: 13.5px;
+            font-weight: 600;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
         }
         .sidebar-link:hover {
-            background-color: #f1f5f9;
-            color: #0f172a;
+            background: rgba(255, 255, 255, 0.9);
+            color: #0F172A;
+            transform: translateX(2px);
         }
         .sidebar-link.active {
-            background-color: #e6f0ff;
-            color: #0052cc;
+            background: linear-gradient(135deg, rgba(239, 246, 255, 0.95) 0%, rgba(224, 238, 255, 0.85) 100%);
+            color: #1D4ED8;
+            font-weight: 700;
+            border: 1px solid rgba(191, 219, 254, 0.9);
+            box-shadow: 0 4px 12px -2px rgba(37, 99, 235, 0.12), inset 0 1px 0 #FFFFFF;
+        }
+        .sidebar-link.active .sidebar-icon {
+            color: #2563EB;
         }
         .sidebar-icon { margin-right: 0.75rem; width: 1.25rem; height: 1.25rem; }
-        .sales-bg-canvas {
-            background-color: #F1F5F9;
-            background-image: 
-                radial-gradient(circle at 10% 8%, rgba(59, 130, 246, 0.16) 0%, transparent 48%),
-                radial-gradient(circle at 90% 12%, rgba(99, 102, 241, 0.14) 0%, transparent 48%),
-                radial-gradient(circle at 85% 85%, rgba(168, 85, 247, 0.12) 0%, transparent 52%),
-                radial-gradient(circle at 15% 90%, rgba(16, 185, 129, 0.10) 0%, transparent 48%),
-                radial-gradient(circle at 50% 50%, rgba(241, 245, 249, 0.5) 0%, transparent 100%);
-            background-attachment: fixed;
-        }
     </style>
     {% block extra_head %}{% endblock %}
 </head>
-<body class="min-h-screen text-slate-800 antialiased flex overflow-hidden bg-slate-50">
+<body class="min-h-screen text-slate-800 antialiased flex overflow-hidden dox-bg-canvas">
+    
+    <!-- Ambient Liquid Mesh Gradient Canvas (Apple iOS 27 Fluid Refraction) -->
+    <div class="fixed inset-0 pointer-events-none overflow-hidden -z-10" aria-hidden="true">
+        <div class="absolute -top-[12%] -left-[10%] w-[580px] h-[580px] rounded-full bg-gradient-to-br from-blue-500/18 via-indigo-500/12 to-transparent blur-3xl transform-gpu"></div>
+        <div class="absolute top-[35%] -right-[12%] w-[680px] h-[680px] rounded-full bg-gradient-to-bl from-sky-400/15 via-cyan-400/10 to-transparent blur-3xl transform-gpu"></div>
+        <div class="absolute -bottom-[10%] left-[25%] w-[600px] h-[600px] rounded-full bg-gradient-to-tr from-purple-500/12 via-indigo-500/8 to-transparent blur-3xl transform-gpu"></div>
+    </div>
     
     {% if session.get('user_id') %}
     <!-- Mobile Sidebar Backdrop -->
-    <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/50 z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
 
     <!-- Sidebar -->
-    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 bg-white border-r border-slate-200 flex flex-col h-screen transform -translate-x-full lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-lg lg:shadow-sm">
-        <div class="h-20 flex items-center justify-between px-6 border-b border-slate-200">
+    <aside id="sidebar" class="fixed inset-y-0 left-0 z-50 w-64 flex flex-col h-screen transform -translate-x-full lg:relative lg:translate-x-0 transition-transform duration-300 ease-in-out shadow-2xl lg:shadow-md">
+        <div class="h-20 flex items-center justify-between px-6 border-b border-slate-200/70">
             <img src="{{ url_for('static', filename='doxera_logo.png') }}" alt="DOXERA" class="h-12 lg:h-16">
             <button class="lg:hidden text-slate-500 hover:text-slate-700" onclick="toggleSidebar()">
                 <i data-lucide="x" class="h-6 w-6"></i>
@@ -135,17 +385,17 @@
             </div>
         </div>
         
-        <div class="p-4 border-t border-slate-200 bg-slate-50 lg:bg-white">
+        <div class="p-4 border-t border-slate-200/70 bg-white/40 backdrop-blur-md">
             <div class="flex items-center">
-                <div class="h-8 w-8 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-sm">
+                <div class="h-8 w-8 rounded-full bg-gradient-to-tr from-blue-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-sm ring-1 ring-white/80">
                     {{ session.get('username')[0]|upper }}
                 </div>
                 <div class="ml-3 truncate">
-                    <p class="text-sm font-medium text-slate-900 truncate">{{ session.get('username') }}</p>
-                    <p class="text-xs text-slate-500">{{ session.get('role') }}</p>
+                    <p class="text-sm font-bold text-slate-900 truncate">{{ session.get('username') }}</p>
+                    <p class="text-xs text-slate-500 font-medium">{{ session.get('role') }}</p>
                 </div>
             </div>
-            <a href="{{ url_for('auth.logout') }}" class="mt-3 flex items-center justify-center w-full px-3 py-1.5 border border-slate-200 rounded-md text-xs font-medium text-slate-600 hover:bg-slate-100 hover:text-red-600 transition-colors">
+            <a href="{{ url_for('auth.logout') }}" class="mt-3 dox-btn-secondary !h-8 !text-xs !font-bold w-full !text-slate-700 hover:!text-rose-600 transition-colors">
                 <i data-lucide="log-out" class="h-3.5 w-3.5 mr-1.5"></i> Logout
             </a>
         </div>
@@ -154,47 +404,50 @@
     <!-- Main Content -->
     <div class="flex-1 flex flex-col h-screen w-full overflow-hidden">
         <!-- Top Header -->
-        <header class="h-16 {% if request.blueprint == 'sales' %}bg-white/80 backdrop-blur-md border-b border-slate-200/80{% else %}bg-white border-b border-slate-200{% endif %} flex items-center justify-between px-4 lg:px-6 flex-shrink-0 z-10 shadow-sm lg:shadow-none">
+        <header class="h-16 bg-white/80 backdrop-blur-2xl border-b border-white/90 flex items-center justify-between px-4 lg:px-6 flex-shrink-0 z-10 shadow-[0_4px_20px_-2px_rgba(15,23,42,0.03)]">
             <div class="flex items-center min-w-0">
                 <button class="lg:hidden text-slate-500 hover:text-slate-700 mr-2 sm:mr-4 p-1 rounded focus:outline-none shrink-0" onclick="toggleSidebar()">
                     <i data-lucide="menu" class="h-6 w-6"></i>
                 </button>
-                <h2 class="text-sm sm:text-base lg:text-lg font-semibold text-slate-800 truncate">
+                <h2 class="text-sm sm:text-base lg:text-lg font-bold text-slate-900 tracking-tight truncate">
                     {% block header_title %}DOXERA Operations{% endblock %}
                 </h2>
             </div>
             <div class="flex items-center space-x-1.5 sm:space-x-2 lg:space-x-4 shrink-0">
                 <div class="relative">
                     <form action="{{ url_for('ops.dockets') }}" method="GET" class="flex items-center">
-                        <i data-lucide="search" class="h-3.5 w-3.5 sm:h-4 sm:w-4 absolute left-2 sm:left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
-                        <input type="text" name="search" placeholder="Search..." class="pl-7 sm:pl-9 pr-2 sm:pr-4 py-1.5 text-xs sm:text-sm border border-slate-300 rounded-md bg-slate-50 focus:bg-white focus:ring-1 focus:ring-nexpress-blue focus:border-nexpress-blue transition-colors w-24 sm:w-40 lg:w-64" required>
+                        <i data-lucide="search" class="h-3.5 w-3.5 sm:h-4 sm:w-4 absolute left-2.5 sm:left-3 top-1/2 transform -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" name="search" placeholder="Search..." class="dox-input !h-9 pl-7 sm:pl-9 pr-2 sm:pr-4 text-xs sm:text-sm w-24 sm:w-40 lg:w-64" required>
                     </form>
                 </div>
                 <div class="relative group shrink-0">
-                    <button type="button" class="text-slate-400 hover:text-slate-600 p-1.5 sm:p-2 relative">
+                    <button type="button" class="text-slate-500 hover:text-slate-800 p-1.5 sm:p-2 rounded-xl hover:bg-white/60 transition-colors relative">
                         <i data-lucide="bell" class="h-5 w-5"></i>
                         {% if notif_total and notif_total > 0 %}
                         <span class="absolute top-1.5 right-1.5 block h-2 w-2 rounded-full bg-rose-500 ring-2 ring-white"></span>
                         {% endif %}
                     </button>
                     <!-- Notification Dropdown -->
-                    <div class="absolute right-0 mt-2 w-72 bg-white rounded-md shadow-lg py-1 border border-slate-200 hidden group-hover:block z-50">
-                        <div class="px-4 py-2 border-b border-slate-100 font-bold text-sm text-slate-700">Notifications</div>
-                        <a href="{{ url_for('ops.dockets', status='REVIEW') }}" class="block px-4 py-2 text-sm text-amber-700 hover:bg-slate-50 flex items-center justify-between">
+                    <div class="absolute right-0 mt-2 w-72 dox-card !p-0 !rounded-2xl overflow-hidden shadow-2xl border-white/95 hidden group-hover:block z-50">
+                        <div class="px-4 py-2.5 bg-slate-900 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-between">
+                            <span>Notifications</span>
+                            <span class="text-[10px] text-slate-400">Live Quota</span>
+                        </div>
+                        <a href="{{ url_for('ops.dockets', status='REVIEW') }}" class="block px-4 py-2.5 text-xs text-amber-800 hover:bg-amber-50/60 flex items-center justify-between border-b border-slate-100 transition-colors font-medium">
                             <span>Pending Review</span>
-                            <span class="bg-amber-100 text-amber-800 text-xs font-bold px-2 py-0.5 rounded-full">{{ notif_pending|default(0) }}</span>
+                            <span class="dox-badge dox-badge-review text-[10px]">{{ notif_pending|default(0) }}</span>
                         </a>
-                        <a href="{{ url_for('ops.dockets', status='FAILED') }}" class="block px-4 py-2 text-sm text-rose-700 hover:bg-slate-50 flex items-center justify-between border-t border-slate-50">
+                        <a href="{{ url_for('ops.dockets', status='FAILED') }}" class="block px-4 py-2.5 text-xs text-rose-800 hover:bg-rose-50/60 flex items-center justify-between border-b border-slate-100 transition-colors font-medium">
                             <span>Failed AI Extraction</span>
-                            <span class="bg-rose-100 text-rose-800 text-xs font-bold px-2 py-0.5 rounded-full">{{ notif_failed|default(0) }}</span>
+                            <span class="dox-badge dox-badge-failed text-[10px]">{{ notif_failed|default(0) }}</span>
                         </a>
-                        <a href="{{ url_for('ops.dockets', status='REJECTED') }}" class="block px-4 py-2 text-sm text-rose-700 hover:bg-slate-50 flex items-center justify-between border-t border-slate-50">
+                        <a href="{{ url_for('ops.dockets', status='REJECTED') }}" class="block px-4 py-2.5 text-xs text-rose-800 hover:bg-rose-50/60 flex items-center justify-between border-b border-slate-100 transition-colors font-medium">
                             <span>Rejected Dockets</span>
-                            <span class="bg-rose-100 text-rose-800 text-xs font-bold px-2 py-0.5 rounded-full">{{ notif_rejected|default(0) }}</span>
+                            <span class="dox-badge dox-badge-rejected text-[10px]">{{ notif_rejected|default(0) }}</span>
                         </a>
-                        <div class="block px-4 py-3 text-sm text-slate-600 border-t border-slate-100 bg-slate-50 flex items-center justify-between">
-                            <span class="font-medium text-xs uppercase tracking-wider text-slate-400">Doxera Quota Left Today</span>
-                            <span class="{% if notif_limit and notif_limit < 20 %}text-rose-600{% else %}text-emerald-600{% endif %} font-bold">{{ notif_limit|default(50) }} Dockets</span>
+                        <div class="px-4 py-3 text-xs bg-slate-50/90 flex items-center justify-between">
+                            <span class="font-bold text-[10px] uppercase tracking-wider text-slate-500">Remaining AI Limit</span>
+                            <span class="{% if notif_limit and notif_limit < 20 %}text-rose-600{% else %}text-emerald-700{% endif %} font-extrabold text-xs">{{ notif_limit|default(50) }} Dockets</span>
                         </div>
                     </div>
                 </div>
@@ -202,17 +455,17 @@
         </header>
         
         <!-- Page Content -->
-        <main class="flex-1 overflow-x-hidden overflow-y-auto p-3 sm:p-4 lg:p-6 {% if request.blueprint == 'sales' %}sales-bg-canvas{% else %}bg-slate-50{% endif %}">
+        <main class="flex-1 overflow-x-hidden overflow-y-auto p-3 sm:p-4 lg:p-6 dox-bg-canvas relative">
             <!-- Flash Messages -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     <div class="mb-4 lg:mb-6 space-y-2">
                     {% for category, message in messages %}
-                        {% set bg_color = 'bg-emerald-50 border-emerald-200 text-emerald-800' if category == 'success' else 'bg-rose-50 border-rose-200 text-rose-800' if category == 'error' else 'bg-amber-50 border-amber-200 text-amber-800' %}
+                        {% set bg_color = 'bg-emerald-50/90 border-emerald-200/90 text-emerald-900' if category == 'success' else 'bg-rose-50/90 border-rose-200/90 text-rose-900' if category == 'error' else 'bg-amber-50/90 border-amber-200/90 text-amber-900' %}
                         {% set icon = 'check-circle' if category == 'success' else 'alert-circle' if category == 'error' else 'alert-triangle' %}
-                        <div class="flex items-center p-3 rounded-lg border {{ bg_color }} shadow-sm text-sm">
-                            <i data-lucide="{{ icon }}" class="h-4 w-4 mr-2 flex-shrink-0"></i>
-                            <p class="font-medium">{{ message }}</p>
+                        <div class="flex items-center p-3.5 rounded-xl border {{ bg_color }} shadow-xs text-sm font-medium backdrop-blur-md">
+                            <i data-lucide="{{ icon }}" class="h-4 w-4 mr-2.5 flex-shrink-0"></i>
+                            <p>{{ message }}</p>
                         </div>
                     {% endfor %}
                     </div>
@@ -224,7 +477,7 @@
     </div>
     {% else %}
         <!-- Auth Layout -->
-        <main class="w-full min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <main class="w-full min-h-screen dox-bg-canvas flex items-center justify-center p-4 relative">
             {% block auth_content %}{% endblock %}
         </main>
     {% endif %}
