@@ -37,9 +37,9 @@ export default function DoxeraDashboard() {
       <main className="max-w-7xl mx-auto w-full px-4 sm:px-6 space-y-6 mt-4">
         {/* 1. Header Banner & Action Lens */}
         <LiquidLens
-          refraction={0.14}
-          bevel={20}
-          aberration={0.18}
+          refraction={0.12}
+          bevel={18}
+          aberration={0.16}
           zIndex={10}
           className="p-5 sm:p-7"
         >
@@ -138,7 +138,7 @@ export default function DoxeraDashboard() {
 
         {/* 2. Executive Metric Grid */}
         <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-          <LiquidLens refraction={0.1} bevel={16} zIndex={10} className="p-5">
+          <LiquidLens refraction={0.12} bevel={18} aberration={0.16} zIndex={10} className="p-5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Total Revenue</span>
               <div className="w-8 h-8 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center font-bold">
@@ -154,7 +154,7 @@ export default function DoxeraDashboard() {
             </div>
           </LiquidLens>
 
-          <LiquidLens refraction={0.1} bevel={16} zIndex={10} className="p-5">
+          <LiquidLens refraction={0.12} bevel={18} aberration={0.16} zIndex={10} className="p-5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Verified AWBs</span>
               <div className="w-8 h-8 rounded-xl bg-sky-100 text-sky-700 flex items-center justify-center font-bold">
@@ -168,7 +168,7 @@ export default function DoxeraDashboard() {
             </div>
           </LiquidLens>
 
-          <LiquidLens refraction={0.1} bevel={16} zIndex={10} className="p-5">
+          <LiquidLens refraction={0.12} bevel={18} aberration={0.16} zIndex={10} className="p-5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Billed Weight</span>
               <div className="w-8 h-8 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center font-bold">
@@ -182,7 +182,7 @@ export default function DoxeraDashboard() {
             </div>
           </LiquidLens>
 
-          <LiquidLens refraction={0.1} bevel={16} zIndex={10} className="p-5">
+          <LiquidLens refraction={0.12} bevel={18} aberration={0.16} zIndex={10} className="p-5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">Pending Review</span>
               <div className="w-8 h-8 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center font-bold">
@@ -198,7 +198,7 @@ export default function DoxeraDashboard() {
         </section>
 
         {/* 3. Consignments & Ingestion Registry */}
-        <LiquidLens refraction={0.12} bevel={22} zIndex={10} className="p-0 overflow-hidden">
+        <LiquidLens refraction={0.12} bevel={18} aberration={0.16} zIndex={10} className="p-0 overflow-hidden">
           {/* Table Header Filter Toolbar */}
           <div className="p-5 border-b border-slate-200/80 flex flex-col md:flex-row md:items-center md:justify-between gap-4 bg-slate-50/50">
             <div>
