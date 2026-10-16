@@ -6,7 +6,7 @@
 <script src="{{ url_for('static', filename='js/apexcharts.min.js') }}"></script>
 <script src="{{ url_for('static', filename='js/leaflet.js') }}"></script>
 <style>
-    /* ── Apple iOS 27 & Open-SaaS Liquid Frosted Glass System Tokens ───── */
+    /* ── Sales Intelligence — Apple Liquid Glass Business Tokens ───── */
     #sd-root {
         --seg: #D97706;
         --seg-rgb: 217, 119, 6;
@@ -14,82 +14,24 @@
         --ink-secondary: #334155;
         --muted: #64748B;
         --subtle: #94A3B8;
-        --glass-surface: linear-gradient(135deg, rgba(255, 255, 255, 0.88) 0%, rgba(255, 255, 255, 0.65) 50%, rgba(240, 246, 255, 0.78) 100%);
-        --glass-surface-hover: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(255, 255, 255, 0.84) 100%);
-        --glass-border: rgba(255, 255, 255, 0.92);
-        --glass-specular: inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.98), inset 0 -1.5px 1.5px 0 rgba(15, 23, 42, 0.04);
-        --glass-shadow: 0 20px 50px -10px rgba(15, 23, 42, 0.07), 0 6px 18px -2px rgba(15, 23, 42, 0.03);
-        --glass-shadow-hover: 0 28px 70px -12px rgba(37, 99, 235, 0.14), 0 10px 24px -3px rgba(15, 23, 42, 0.05);
     }
 
-    /* Ambient Liquid Mesh Gradient Behind Cards (Linear Vector Loops) */
-    .sd-ambient-mesh {
-        position: fixed;
-        inset: 0;
-        pointer-events: none;
-        overflow: hidden;
-        z-index: 0;
-    }
-    .sd-orb-1 {
-        position: absolute;
-        top: -10%;
-        left: -8%;
-        width: 620px;
-        height: 620px;
-        border-radius: 9999px;
-        background: radial-gradient(circle, rgba(14, 165, 233, 0.20) 0%, rgba(59, 130, 246, 0.10) 45%, transparent 70%);
-        filter: blur(55px);
-        animation: orbDriftCyan 26s ease-in-out infinite alternate;
-        transform: translateZ(0);
-        will-change: transform;
-    }
-    .sd-orb-2 {
-        position: absolute;
-        top: 25%;
-        right: -10%;
-        width: 700px;
-        height: 700px;
-        border-radius: 9999px;
-        background: radial-gradient(circle, rgba(99, 102, 241, 0.16) 0%, rgba(37, 99, 235, 0.08) 50%, transparent 70%);
-        filter: blur(60px);
-        animation: orbDriftIndigo 30s ease-in-out infinite alternate;
-        transform: translateZ(0);
-        will-change: transform;
-    }
-    .sd-orb-3 {
-        position: absolute;
-        top: 65%;
-        left: 5%;
-        width: 640px;
-        height: 640px;
-        border-radius: 9999px;
-        background: radial-gradient(circle, rgba(245, 158, 11, 0.12) 0%, rgba(236, 72, 153, 0.06) 50%, transparent 70%);
-        filter: blur(55px);
-        animation: orbDriftAmber 28s ease-in-out infinite alternate;
-        transform: translateZ(0);
-        will-change: transform;
-    }
-
-    /* Liquid Frosted Glass Surface Card */
+    /* High-Readability Business Surface Card */
     .sd-card {
-        background: var(--glass-surface);
-        backdrop-filter: blur(28px) saturate(190%);
-        -webkit-backdrop-filter: blur(28px) saturate(190%);
-        border: 1px solid var(--glass-border);
-        border-radius: 24px;
-        box-shadow: var(--glass-specular), var(--glass-shadow);
-        transition: border-color .25s ease, box-shadow .25s ease, transform .25s cubic-bezier(0.16, 1, 0.3, 1), background .25s ease;
+        background: var(--surface-primary, rgba(255, 255, 255, 0.96));
+        border: 1px solid var(--border-subtle, rgba(226, 232, 240, 0.92));
+        border-radius: var(--radius-xl, 18px);
+        box-shadow: var(--highlight-top, inset 0 1px 0 rgba(255,255,255,0.95)), var(--shadow-card, 0 2px 12px -2px rgba(15, 23, 42, 0.05));
+        transition: border-color 180ms ease, box-shadow 180ms ease;
     }
     .sd-card:hover {
-        background: var(--glass-surface-hover);
-        border-color: #FFFFFF;
-        box-shadow: inset 0 1px 2px 0 #FFFFFF, var(--glass-shadow-hover);
+        border-color: var(--border-strong, rgba(203, 213, 225, 0.95));
+        box-shadow: var(--highlight-top, inset 0 1px 0 rgba(255,255,255,0.95)), var(--shadow-card-hover, 0 8px 24px -4px rgba(15, 23, 42, 0.08));
     }
     .sd-accent {
         height: 3px;
-        background: linear-gradient(90deg, var(--seg) 0%, rgba(var(--seg-rgb), 0.7) 35%, rgba(var(--seg-rgb), 0.12) 100%);
-        box-shadow: 0 1px 10px rgba(var(--seg-rgb), 0.35);
-        transition: background .35s ease, box-shadow .35s ease;
+        background: linear-gradient(90deg, var(--seg) 0%, rgba(var(--seg-rgb), 0.65) 45%, rgba(var(--seg-rgb), 0.1) 100%);
+        transition: background 220ms ease;
     }
     .sd-eyebrow {
         font-size: 11px;
@@ -126,30 +68,27 @@
     .sd-stats {
         display: flex;
         flex-wrap: wrap;
-        gap: 8px 16px;
+        gap: 8px 12px;
     }
     .sd-stat {
         text-align: right;
         min-width: 0;
-        padding: 8px 16px;
-        border-radius: 14px;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.94) 0%, rgba(248, 250, 252, 0.82) 100%);
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border: 1px solid rgba(255, 255, 255, 0.98);
-        box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.05), inset 0 1px 0 #FFFFFF, inset 0 -1px 0 rgba(0, 0, 0, 0.03);
-        transition: all .25s cubic-bezier(0.16, 1, 0.3, 1);
+        padding: 8px 14px;
+        border-radius: var(--radius-md, 10px);
+        background: #F8FAFC;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        box-shadow: inset 0 1px 0 #FFFFFF;
+        transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
         position: relative;
     }
     .sd-stat:hover {
         background: #FFFFFF;
-        border-color: rgba(59, 130, 246, 0.4);
-        transform: translateY(-2px);
-        box-shadow: 0 10px 24px -4px rgba(37, 99, 235, 0.12), inset 0 1px 0 #FFFFFF;
+        border-color: #CBD5E1;
+        box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.06), inset 0 1px 0 #FFFFFF;
     }
     .sd-stat .v {
         font-size: 15px;
-        font-weight: 800;
+        font-weight: 700;
         color: #0F172A;
         font-variant-numeric: tabular-nums;
         letter-spacing: -0.02em;
@@ -158,9 +97,9 @@
     }
     .sd-stat .k {
         font-size: 10px;
-        font-weight: 700;
+        font-weight: 600;
         text-transform: uppercase;
-        letter-spacing: 0.06em;
+        letter-spacing: 0.05em;
         color: #64748B;
         white-space: nowrap;
         margin-top: 3px;
@@ -180,7 +119,7 @@
         .sd-stat {
             text-align: left !important;
             padding: 8px 12px !important;
-            border-radius: 12px !important;
+            border-radius: 10px !important;
         }
         .sd-stat .v { font-size: 14px !important; }
         .sd-stat .k { font-size: 9.5px !important; }
@@ -205,7 +144,7 @@
     }
     .sd-kpi-sub {
         font-size: 12px;
-        color: #94A3B8;
+        color: #64748B;
         font-variant-numeric: tabular-nums;
         white-space: nowrap;
         overflow: hidden;
@@ -220,17 +159,17 @@
             grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
             gap: 4px !important;
             padding: 4px !important;
-            background: rgba(241, 245, 249, 0.9) !important;
-            border-radius: 14px !important;
+            background: rgba(241, 245, 249, 0.92) !important;
+            border-radius: 12px !important;
             box-sizing: border-box !important;
         }
         .sd-seg button {
             width: 100% !important;
-            height: 38px !important;
+            height: 36px !important;
             padding: 0 6px !important;
             font-size: 12px !important;
             justify-content: center !important;
-            border-radius: 9px !important;
+            border-radius: 8px !important;
             box-sizing: border-box !important;
         }
         .sd-seg-dot {
@@ -254,19 +193,19 @@
         .sd-seg button { font-size: 11px !important; padding: 0 4px !important; }
     }
 
-    /* ── Apple Tactile Segmented Control (iOS 27 Liquid Capsule) ──── */
+    /* ── Apple Liquid Glass Segmented Control ──── */
     .sd-seg {
         display: inline-flex;
         align-items: center;
-        padding: 4px;
-        background: rgba(241, 245, 249, 0.82);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
-        border: 1px solid rgba(255, 255, 255, 0.92);
-        border-radius: 14px;
-        gap: 4px;
+        padding: 3.5px;
+        background: rgba(241, 245, 249, 0.88);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(226, 232, 240, 0.95);
+        border-radius: 12px;
+        gap: 3px;
         box-sizing: border-box;
-        box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.04), 0 1px 2px rgba(255, 255, 255, 0.8);
+        box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
         max-width: 100%;
         overflow-x: auto;
         scrollbar-width: none;
@@ -280,9 +219,9 @@
         align-items: center;
         justify-content: center;
         flex-direction: row;
-        height: 34px;
-        padding: 0 16px;
-        border-radius: 10px;
+        height: 33px;
+        padding: 0 15px;
+        border-radius: 9px;
         font-size: 13px;
         font-weight: 500;
         color: #475569;
@@ -291,22 +230,22 @@
         border: 1px solid transparent;
         background: transparent;
         cursor: pointer;
-        transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
     }
     .sd-seg button:hover {
         color: var(--ink);
-        background: rgba(255, 255, 255, 0.65);
+        background: rgba(255, 255, 255, 0.6);
     }
     .sd-seg button.active {
         background: #FFFFFF;
         color: var(--ink);
-        border-color: rgba(255, 255, 255, 0.95);
-        box-shadow: 0 3px 10px -1px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04), inset 0 1px 0 #FFFFFF;
+        border-color: rgba(226, 232, 240, 0.9);
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
         font-weight: 600;
     }
     .sd-seg button.active .sd-seg-dot {
         background: var(--seg);
-        box-shadow: 0 0 0 3px rgba(var(--seg-rgb), 0.22), 0 0 12px rgba(var(--seg-rgb), 0.6);
+        box-shadow: 0 0 0 2.5px rgba(var(--seg-rgb), 0.2);
     }
     .sd-seg-dot {
         display: inline-block;
@@ -314,29 +253,27 @@
         height: 7px;
         border-radius: 99px;
         background: #CBD5E1;
-        margin-right: 8px;
+        margin-right: 7px;
         flex-shrink: 0;
-        transition: all .25s ease;
+        transition: background-color 150ms ease, box-shadow 150ms ease;
     }
 
-    /* ── Apple Tactile Glass Action Buttons ────────────────────── */
+    /* ── Tactile Action Buttons & Selectors ────────────────────── */
     .sd-btn {
         display: inline-flex;
         align-items: center;
         gap: 6px;
         height: 38px;
         min-height: 38px;
-        padding: 0 16px;
-        border: 1px solid rgba(203, 213, 225, 0.95);
-        border-radius: 12px;
+        padding: 0 15px;
+        border: 1px solid var(--border-strong, rgba(203, 213, 225, 0.95));
+        border-radius: var(--radius-md, 10px);
         font-size: 13px;
-        font-weight: 700;
+        font-weight: 600;
         color: #0F172A;
-        background: linear-gradient(135deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 250, 252, 0.90) 100%);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
-        box-shadow: inset 0 1px 0 #FFFFFF, 0 2px 6px -1px rgba(15, 23, 42, 0.05);
-        transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
+        background: rgba(255, 255, 255, 0.94);
+        box-shadow: inset 0 1px 0 #FFFFFF, 0 1px 2px rgba(15, 23, 42, 0.04);
+        transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
         white-space: nowrap;
         cursor: pointer;
         text-decoration: none;
@@ -345,80 +282,67 @@
         background: #FFFFFF;
         border-color: #94A3B8;
         color: #0F172A;
-        box-shadow: inset 0 1px 0 #FFFFFF, 0 6px 18px -2px rgba(15, 23, 42, 0.1);
-        transform: translateY(-1.5px);
-    }
-    .sd-btn:active {
-        transform: scale(0.97);
+        box-shadow: inset 0 1px 0 #FFFFFF, 0 3px 8px -2px rgba(15, 23, 42, 0.08);
     }
     .sd-btn-primary {
-        background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%) !important;
-        border-color: rgba(255, 255, 255, 0.28) !important;
+        background: linear-gradient(180deg, #2563EB 0%, #1D4ED8 100%) !important;
+        border-color: rgba(29, 78, 216, 0.9) !important;
         color: #FFFFFF !important;
-        font-weight: 700 !important;
-        box-shadow: 0 4px 14px -2px rgba(29, 78, 216, 0.4), inset 0 1px 0.5px rgba(255, 255, 255, 0.5) !important;
+        font-weight: 600 !important;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 2px 6px -1px rgba(37, 99, 235, 0.32) !important;
     }
     .sd-btn-primary:hover {
-        background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important;
+        background: linear-gradient(180deg, #1D4ED8 0%, #1E40AF 100%) !important;
         color: #FFFFFF !important;
-        box-shadow: 0 8px 22px -3px rgba(37, 99, 235, 0.5), inset 0 1px 1px #FFFFFF !important;
-        transform: translateY(-1.5px);
-    }
-    .sd-btn-primary:active {
-        transform: scale(0.97);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35), 0 4px 12px -2px rgba(37, 99, 235, 0.4) !important;
     }
 
     .sd-select {
         height: 36px;
-        padding: 0 32px 0 13px;
-        border: 1px solid rgba(226, 232, 240, 0.9);
-        border-radius: 11px;
+        padding: 0 32px 0 12px;
+        border: 1px solid var(--border-strong, rgba(203, 213, 225, 0.95));
+        border-radius: var(--radius-md, 10px);
         font-size: 13px;
         font-weight: 500;
-        color: #334155;
-        background: rgba(255, 255, 255, 0.85) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 11px center;
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
+        color: #0F172A;
+        background: #FFFFFF url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 11px center;
         appearance: none;
         -webkit-appearance: none;
         cursor: pointer;
         max-width: 260px;
         text-overflow: ellipsis;
-        box-shadow: inset 0 1px 0 #FFFFFF, 0 1px 3px rgba(15, 23, 42, 0.03);
-        transition: all .18s ease;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+        transition: border-color 150ms ease, box-shadow 150ms ease;
     }
-    .sd-select:hover { border-color: #CBD5E1; background-color: #FFFFFF; }
+    .sd-select:hover { border-color: #94A3B8; }
     .sd-select:focus, .sd-input:focus { outline: none; border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16); background-color: #FFFFFF; }
     .sd-input {
         height: 36px;
-        padding: 0 13px;
-        border: 1px solid rgba(226, 232, 240, 0.9);
-        border-radius: 11px;
+        padding: 0 12px;
+        border: 1px solid var(--border-strong, rgba(203, 213, 225, 0.95));
+        border-radius: var(--radius-md, 10px);
         font-size: 13px;
-        color: #334155;
-        background: rgba(255, 255, 255, 0.85);
-        backdrop-filter: blur(14px);
-        -webkit-backdrop-filter: blur(14px);
-        box-shadow: inset 0 1px 0 #FFFFFF, 0 1px 3px rgba(15, 23, 42, 0.03);
-        transition: all .18s ease;
+        color: #0F172A;
+        background: #FFFFFF;
+        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+        transition: border-color 150ms ease, box-shadow 150ms ease;
     }
-    .sd-input:hover { border-color: #CBD5E1; background-color: #FFFFFF; }
+    .sd-input:hover { border-color: #94A3B8; }
 
     /* ── Progress & Health Indicators ────────────────────────────── */
     .sd-track {
-        height: 8px;
-        background: rgba(241, 245, 249, 0.9);
+        height: 7px;
+        background: #F1F5F9;
         border-radius: 99px;
         overflow: hidden;
         position: relative;
-        box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.06);
+        box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.05);
     }
     .sd-fill {
         height: 100%;
-        background: linear-gradient(90deg, var(--seg) 0%, rgba(var(--seg-rgb), 0.85) 100%);
+        background: var(--seg);
         border-radius: 99px;
-        transition: width .5s cubic-bezier(0.16, 1, 0.3, 1);
-        box-shadow: 0 0 8px rgba(var(--seg-rgb), 0.4);
+        transition: width 350ms ease;
     }
     .sd-dot { display: inline-block; width: 9px; height: 9px; border-radius: 3px; flex-shrink: 0; }
 
@@ -426,25 +350,25 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        color: #94A3B8;
+        color: #64748B;
         font-size: 13px;
-        border: 1px dashed rgba(203, 213, 225, 0.8);
-        border-radius: 14px;
-        background: rgba(250, 251, 252, 0.7);
+        border: 1px dashed #CBD5E1;
+        border-radius: var(--radius-lg, 14px);
+        background: #F8FAFC;
     }
 
-    /* ── Apple VisionOS / iOS 27 Floating Dark Glass Tooltip (Zero Washout) ── */
+    /* ── Floating Chart Tooltip (High Contrast, Legible) ── */
     .apexcharts-tooltip,
     .apexcharts-tooltip.apexcharts-theme-dark,
     .apexcharts-tooltip.apexcharts-theme-light,
     div.apexcharts-tooltip {
-        background: rgba(15, 23, 42, 0.95) !important;
-        background-color: rgba(15, 23, 42, 0.95) !important;
-        backdrop-filter: blur(24px) saturate(200%) !important;
-        -webkit-backdrop-filter: blur(24px) saturate(200%) !important;
-        border: 1px solid rgba(255, 255, 255, 0.18) !important;
-        box-shadow: 0 20px 48px -6px rgba(0, 0, 0, 0.6), 0 8px 16px -2px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.35) !important;
-        border-radius: 16px !important;
+        background: rgba(15, 23, 42, 0.96) !important;
+        background-color: rgba(15, 23, 42, 0.96) !important;
+        backdrop-filter: blur(16px) !important;
+        -webkit-backdrop-filter: blur(16px) !important;
+        border: 1px solid rgba(255, 255, 255, 0.14) !important;
+        box-shadow: 0 12px 32px -4px rgba(15, 23, 42, 0.35), 0 4px 12px -2px rgba(15, 23, 42, 0.2) !important;
+        border-radius: 12px !important;
         color: #FFFFFF !important;
         overflow: hidden !important;
         pointer-events: none !important;
@@ -453,33 +377,31 @@
         color: #F8FAFC !important;
     }
     .apexcharts-tooltip-title {
-        background: rgba(30, 41, 59, 0.92) !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+        background: rgba(30, 41, 59, 0.95) !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.1) !important;
         color: #FFFFFF !important;
-        font-weight: 700 !important;
-        font-size: 12.5px !important;
+        font-weight: 600 !important;
+        font-size: 12px !important;
         font-family: Inter, system-ui, sans-serif !important;
-        padding: 9px 15px !important;
-        letter-spacing: -0.01em;
+        padding: 8px 14px !important;
     }
     .sd-tip {
-        background: rgba(15, 23, 42, 0.95) !important;
-        padding: 14px 18px !important;
+        background: rgba(15, 23, 42, 0.96) !important;
+        padding: 12px 16px !important;
         font-family: Inter, system-ui, sans-serif !important;
-        min-width: 220px !important;
-        border-radius: 16px !important;
+        min-width: 210px !important;
+        border-radius: 12px !important;
         color: #FFFFFF !important;
     }
     .sd-tip-t {
-        font-size: 13px !important;
+        font-size: 12.5px !important;
         font-weight: 700 !important;
         color: #FFFFFF !important;
-        margin-bottom: 8px !important;
+        margin-bottom: 6px !important;
         max-width: 280px !important;
         white-space: normal !important;
-        border-bottom: 1px solid rgba(255, 255, 255, 0.14) !important;
-        padding-bottom: 7px !important;
-        letter-spacing: -0.01em !important;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.12) !important;
+        padding-bottom: 6px !important;
     }
     .sd-tip-r {
         display: flex !important;
@@ -487,7 +409,7 @@
         align-items: center !important;
         gap: 16px !important;
         font-size: 12px !important;
-        line-height: 1.8 !important;
+        line-height: 1.75 !important;
     }
     .sd-tip-r span {
         color: #94A3B8 !important;
@@ -500,11 +422,11 @@
     }
     .sd-tip-hint {
         font-size: 11px !important;
-        color: #818CF8 !important;
-        margin-top: 8px !important;
-        border-top: 1px dashed rgba(255, 255, 255, 0.15) !important;
-        padding-top: 6px !important;
-        font-weight: 600 !important;
+        color: #93C5FD !important;
+        margin-top: 6px !important;
+        border-top: 1px dashed rgba(255, 255, 255, 0.14) !important;
+        padding-top: 5px !important;
+        font-weight: 500 !important;
     }
 
     /* Map: isolate Leaflet stacking context */
@@ -512,14 +434,13 @@
         position: relative;
         z-index: 0;
         isolation: isolate;
-        border-radius: 16px;
+        border-radius: var(--radius-lg, 14px);
         overflow: hidden;
-        border: 1px solid rgba(226, 232, 240, 0.85);
-        box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.05);
+        border: 1px solid var(--border-subtle, rgba(226, 232, 240, 0.92));
     }
     #sd-map { height: 440px; background: #F8FAFC; }
     @media (max-width: 640px) { #sd-map { height: 320px; } }
-    .leaflet-tooltip.sd-map-tip { background: rgba(255, 255, 255, 0.96) !important; backdrop-filter: blur(16px) !important; border: 1px solid rgba(255, 255, 255, 0.9) !important; border-radius: 10px !important; box-shadow: 0 10px 24px rgba(15,23,42,.14) !important; color: #0F172A !important; padding: 9px 12px !important; font-family: Inter, system-ui, sans-serif; }
+    .leaflet-tooltip.sd-map-tip { background: rgba(255, 255, 255, 0.96) !important; backdrop-filter: blur(12px) !important; border: 1px solid rgba(226, 232, 240, 0.95) !important; border-radius: 10px !important; box-shadow: 0 8px 20px rgba(15,23,42,.12) !important; color: #0F172A !important; padding: 8px 12px !important; font-family: Inter, system-ui, sans-serif; }
     .leaflet-tooltip.sd-map-tip::before { display: none; }
     .leaflet-container { font-family: Inter, system-ui, sans-serif; }
     .leaflet-control-attribution { font-size: 10px !important; }
@@ -529,74 +450,63 @@
     .sd-table th {
         position: sticky;
         top: 0;
-        background: rgba(255, 255, 255, 0.92);
-        backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px);
+        background: rgba(248, 250, 252, 0.96);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
         z-index: 10;
         font-size: 11px;
         font-weight: 700;
-        letter-spacing: .06em;
+        letter-spacing: .05em;
         text-transform: uppercase;
         color: #475569;
-        padding: 12px 16px;
-        border-bottom: 1px solid rgba(226, 232, 240, 0.85);
+        padding: 11px 16px;
+        border-bottom: 1px solid var(--border-subtle, rgba(226, 232, 240, 0.92));
         white-space: nowrap;
     }
     .sd-table td {
         padding: 11px 16px;
-        border-bottom: 1px solid rgba(241, 245, 249, 0.85);
+        border-bottom: 1px solid #F1F5F9;
         font-size: 12.5px;
         color: #334155;
         white-space: nowrap;
-        transition: background .12s ease;
-    }
-    .sd-table tbody tr {
-        transition: background-color .15s ease;
+        transition: background-color 120ms ease;
     }
     .sd-table tbody tr:hover td {
-        background: rgba(248, 250, 252, 0.9);
+        background: #F8FAFC;
     }
     .sd-pill {
         display: inline-flex;
         align-items: center;
         gap: 5px;
-        padding: 3px 10px;
+        padding: 2.5px 9px;
         border-radius: 99px;
         font-size: 11px;
         font-weight: 600;
-        letter-spacing: .02em;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+        letter-spacing: .01em;
     }
     .subsheet-btn {
-        transition: all .18s cubic-bezier(0.16, 1, 0.3, 1);
+        transition: all 150ms ease;
     }
     .subsheet-btn.active {
         background: #FFFFFF !important;
         color: #0F172A !important;
         font-weight: 600 !important;
-        box-shadow: 0 3px 8px -1px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.06), inset 0 1px 0 #FFFFFF !important;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.05) !important;
     }
 
-    /* Spatial Liquid Glass Modals */
+    /* Selective Liquid Glass Modals */
     .sd-glass-modal {
-        background: rgba(255, 255, 255, 0.96) !important;
-        backdrop-filter: blur(32px) saturate(190%) !important;
-        -webkit-backdrop-filter: blur(32px) saturate(190%) !important;
-        border: 1px solid rgba(255, 255, 255, 0.95) !important;
-        border-radius: 26px !important;
-        box-shadow: 0 30px 80px -15px rgba(15, 23, 42, 0.28), inset 0 1px 1px #FFFFFF !important;
+        background: var(--surface-glass-modal, rgba(255, 255, 255, 0.95)) !important;
+        backdrop-filter: blur(24px) saturate(180%) !important;
+        -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+        border: 1px solid var(--border-subtle, rgba(226, 232, 240, 0.95)) !important;
+        border-radius: var(--radius-xl, 18px) !important;
+        box-shadow: var(--shadow-modal, 0 24px 60px -12px rgba(15, 23, 42, 0.22)) !important;
     }
 </style>
 {% endblock %}
 
 {% block content %}
-<!-- Ambient Liquid Mesh Gradient Layer (iOS 27 Refraction) -->
-<div class="sd-ambient-mesh" aria-hidden="true">
-    <div class="sd-orb-1"></div>
-    <div class="sd-orb-2"></div>
-    <div class="sd-orb-3"></div>
-</div>
-
 {% set summary = report_data.summary or {} %}
 <div id="sd-root" class="max-w-7xl mx-auto space-y-5 pb-16 px-2 sm:px-4">
 
@@ -1828,26 +1738,18 @@
             colors: [c],
             stroke: { 
                 curve: 'smooth', 
-                width: 3, 
-                lineCap: 'round',
-                dropShadow: {
-                    enabled: true,
-                    top: 4,
-                    left: 0,
-                    blur: 8,
-                    color: c,
-                    opacity: 0.35
-                }
+                width: 2.5, 
+                lineCap: 'round'
             },
             fill: { 
                 type: 'gradient', 
                 gradient: { 
                     type: 'vertical',
-                    shadeIntensity: 0.5, 
+                    shadeIntensity: 0.4, 
                     gradientToColors: [c],
-                    opacityFrom: 0.42, 
+                    opacityFrom: 0.28, 
                     opacityTo: 0.02, 
-                    stops: [0, 85, 100] 
+                    stops: [0, 90, 100] 
                 } 
             },
             dataLabels: { enabled: false },

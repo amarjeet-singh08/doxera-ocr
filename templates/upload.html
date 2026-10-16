@@ -3,22 +3,22 @@
 
 {% block content %}
 <div class="max-w-3xl mx-auto dox-card overflow-hidden">
-    <div class="p-6 sm:p-7 border-b border-white/80 bg-white/40 backdrop-blur-md flex items-center justify-between">
+    <div class="p-6 sm:p-7 border-b border-slate-200/80 bg-slate-50/70 flex items-center justify-between">
         <div>
             <div class="flex items-center gap-2 mb-1">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50/90 text-blue-700 border border-blue-200/80 shadow-2xs">
+                <span class="dox-badge dox-badge-processing">
                     <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
                     Batch Pipeline
                 </span>
-                <span class="text-xs text-slate-400 font-medium">Multi-Image OCR Ingestion</span>
+                <span class="text-xs text-slate-500 font-medium">Multi-Image OCR Ingestion</span>
             </div>
-            <h2 class="text-xl sm:text-2xl font-extrabold text-slate-900 tracking-tight">New Batch Upload</h2>
-            <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">New Batch Upload</h2>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
                 Upload docket images (JPG, PNG) for automated handwriting OCR extraction and validation.
             </p>
         </div>
-        <div class="hidden sm:flex w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white items-center justify-center shadow-md shadow-blue-500/25 ring-2 ring-white/80 shrink-0">
-            <i data-lucide="upload-cloud" class="h-6 w-6"></i>
+        <div class="hidden sm:flex w-11 h-11 rounded-xl bg-blue-50 border border-blue-200/80 text-blue-600 items-center justify-center shrink-0">
+            <i data-lucide="upload-cloud" class="h-5 w-5"></i>
         </div>
     </div>
     
@@ -26,104 +26,78 @@
         <form action="{{ url_for('ops.upload') }}" method="POST" enctype="multipart/form-data" id="uploadForm">
             <style>
                 .drop-lens {
-                    background: rgba(255, 255, 255, 0.75);
-                    backdrop-filter: blur(20px);
-                    -webkit-backdrop-filter: blur(20px);
-                    border: 2px dashed rgba(191, 219, 254, 0.9);
-                    border-radius: 20px;
-                    box-shadow: inset 0 1px 1px 0 rgba(255, 255, 255, 0.95), 0 4px 20px -2px rgba(15, 23, 42, 0.04);
-                    transition: all 0.24s cubic-bezier(0.16, 1, 0.3, 1);
+                    background: #F8FAFC;
+                    border: 1.5px dashed #CBD5E1;
+                    border-radius: var(--radius-lg, 14px);
+                    transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
                 }
                 .drop-lens:hover {
                     border-color: #2563EB;
-                    background: rgba(255, 255, 255, 0.92);
-                    box-shadow: 0 12px 32px -4px rgba(37, 99, 235, 0.16), inset 0 1px 1px #FFFFFF;
-                    transform: translateY(-2px);
+                    background: #FFFFFF;
+                    box-shadow: 0 4px 16px -4px rgba(37, 99, 235, 0.12);
                 }
                 .drop-active {
-                    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2), inset 0 0 24px rgba(59, 130, 246, 0.15) !important;
+                    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18) !important;
                     border-color: #2563EB !important;
-                    background-color: rgba(239, 246, 255, 0.92) !important;
-                }
-                .scanner-line {
-                    position: absolute;
-                    left: 0;
-                    right: 0;
-                    height: 3px;
-                    background: linear-gradient(90deg, transparent 0%, #38BDF8 30%, #60A5FA 70%, transparent 100%);
-                    box-shadow: 0 0 16px #38BDF8, 0 0 32px #2563EB;
-                    animation: scan 2s infinite ease-in-out alternate;
-                    z-index: 20;
-                }
-                @keyframes scan {
-                    0% { top: 4%; }
-                    100% { top: 96%; }
-                }
-                @keyframes shine {
-                    0% { left: -100%; }
-                    100% { left: 200%; }
-                }
-                @keyframes shimmer {
-                    100% { transform: translateX(100%); }
+                    background-color: #EFF6FF !important;
                 }
             </style>
             
-            <div id="drop-zone" class="drop-lens p-10 sm:p-14 text-center relative group flex flex-col items-center justify-center min-h-[300px] overflow-hidden cursor-pointer">
-                <input type="file" name="files[]" multiple accept="image/*" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" id="file-input">
+            <div id="drop-zone" class="drop-lens p-10 sm:p-14 text-center relative group flex flex-col items-center justify-center min-h-[280px] overflow-hidden cursor-pointer">
+                <input type="file" name="files[]" aria-label="Select docket images to upload" multiple accept="image/*" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" id="file-input">
                 
                 <div id="default-ui" class="pointer-events-none flex flex-col items-center">
-                    <div class="h-16 w-16 bg-gradient-to-tr from-blue-50 to-indigo-50 border border-blue-200/80 rounded-2xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform shadow-[0_4px_16px_rgba(59,130,246,0.15)] ring-4 ring-white/90">
-                        <i data-lucide="upload-cloud" class="h-8 w-8 text-blue-600"></i>
+                    <div class="h-14 w-14 bg-white border border-slate-200/90 rounded-2xl flex items-center justify-center mb-4 group-hover:border-blue-300 group-hover:text-blue-600 transition-colors shadow-2xs">
+                        <i data-lucide="upload-cloud" class="h-7 w-7 text-blue-600"></i>
                     </div>
-                    <p class="text-base sm:text-lg font-bold text-slate-800 mb-1">Click to browse or drop images here</p>
-                    <p class="text-xs sm:text-sm text-slate-500 mb-4 max-w-md font-medium" id="file-msg">
+                    <p class="text-base sm:text-lg font-bold text-slate-900 mb-1">Click to browse or drop images here</p>
+                    <p class="text-xs sm:text-sm text-slate-500 mb-4 max-w-md" id="file-msg">
                         Supports high-resolution JPG & PNG dockets (recommended 30–40 per batch).
                     </p>
                     
                     <div id="file-list" class="flex flex-wrap gap-2 justify-center hidden"></div>
                 </div>
                 
-                <!-- Scanning UI Overlay -->
-                <div id="scanning-ui" class="hidden absolute inset-0 w-full h-full bg-slate-950/85 backdrop-blur-md flex flex-col items-center justify-center overflow-hidden z-20">
-                    <div class="scanner-line"></div>
-                    <img id="preview-img" class="absolute inset-0 w-full h-full object-contain opacity-40 blur-[2px]" src="">
+                <!-- Scanning UI Overlay (Apple Liquid Glass Progress Surface) -->
+                <div id="scanning-ui" class="hidden absolute inset-0 w-full h-full bg-white/92 backdrop-blur-xl flex flex-col items-center justify-center overflow-hidden z-20 p-6">
+                    <img id="preview-img" class="absolute inset-0 w-full h-full object-contain opacity-15 blur-[2px] pointer-events-none" src="" alt="">
                     
-                    <div class="absolute top-0 bottom-0 z-20 pointer-events-none" style="background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent); transform: skewX(-20deg); width: 220px; animation: shine 2.5s infinite ease-in-out;"></div>
-                    
-                    <div class="z-30 flex flex-col items-center dox-card !bg-slate-900/90 !border-slate-700/80 p-6 sm:p-8 rounded-2xl shadow-2xl relative overflow-hidden max-w-sm mx-4">
-                        <div class="absolute inset-0 w-full h-full bg-gradient-to-r from-transparent via-white/10 to-transparent -translate-x-full animate-[shimmer_2s_infinite]"></div>
-                        <img src="{{ url_for('static', filename='doxera_logo.png') }}" class="h-10 mb-4 object-contain brightness-0 invert" alt="DOXERA Logo">
-                        <div class="flex items-center gap-2 text-cyan-400 font-bold text-sm z-10 relative">
-                            <i data-lucide="loader-2" class="h-4 w-4 animate-spin"></i>
-                            <span>Extracting docket metadata...</span>
+                    <div class="z-30 flex flex-col items-center sd-glass-modal p-6 sm:p-8 max-w-sm mx-4 text-center">
+                        <div class="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200/80 text-blue-600 flex items-center justify-center mb-3.5">
+                            <i data-lucide="loader-2" class="h-6 w-6 animate-spin"></i>
                         </div>
-                        <p class="text-slate-300 text-xs mt-2 z-10 relative text-center">
-                            Analyzing <span id="scan-count" class="font-bold text-white"></span> docket(s) with Vision OCR.
+                        <div class="text-slate-900 font-bold text-sm sm:text-base">
+                            Extracting Docket Metadata
+                        </div>
+                        <p class="text-slate-500 text-xs mt-1.5 text-center">
+                            Analyzing <span id="scan-count" class="font-bold text-blue-600 tabular-nums"></span> docket(s) with Vision OCR...
                         </p>
                     </div>
                 </div>
 
-                <!-- Rate Limit UI -->
-                <div id="limit-ui" class="hidden absolute inset-0 w-full h-full bg-slate-950/90 backdrop-blur-xl flex flex-col items-center justify-center overflow-hidden z-40 p-6">
-                    <img src="{{ url_for('static', filename='doxera_logo.png') }}" class="h-12 mb-4 object-contain brightness-0 invert" alt="DOXERA Logo">
-                    <div class="text-rose-500 font-extrabold text-xl uppercase tracking-wider mb-1">Quota Exceeded</div>
-                    <div class="text-rose-400 font-semibold text-sm mb-3">Resets Daily at 6:00 AM IST</div>
-                    <p class="text-slate-300 text-xs text-center max-w-sm leading-relaxed mb-5">
+                <!-- Rate Limit UI (Apple Liquid Glass Alert Surface) -->
+                <div id="limit-ui" class="hidden absolute inset-0 w-full h-full bg-white/95 backdrop-blur-xl flex flex-col items-center justify-center overflow-hidden z-40 p-6">
+                    <div class="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center mb-3.5">
+                        <i data-lucide="alert-triangle" class="h-6 w-6"></i>
+                    </div>
+                    <div class="text-rose-700 font-bold text-lg tracking-tight mb-0.5">Daily Quota Reached</div>
+                    <div class="text-rose-600 font-medium text-xs mb-2.5">Resets Daily at 6:00 AM IST</div>
+                    <p class="text-slate-600 text-xs text-center max-w-sm leading-relaxed mb-5">
                         DOXERA AI has reached its rate limit for this session. Please wait until quota resets or add credits to your account.
                     </p>
-                    <button type="button" onclick="window.location.reload()" class="dox-btn-secondary !h-9 !px-6 !font-bold">
+                    <button type="button" onclick="window.location.reload()" class="dox-btn-secondary !h-9 !px-5">
                         Go Back
                     </button>
                 </div>
             </div>
             
-            <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-white/80 pt-6">
-                <div class="text-xs sm:text-sm text-slate-500 font-semibold flex items-center gap-2" id="selection-count">
+            <div class="mt-6 flex flex-col sm:flex-row items-center justify-between gap-4 border-t border-slate-200/80 pt-5">
+                <div class="text-xs sm:text-sm text-slate-500 font-medium flex items-center gap-2 tabular-nums" id="selection-count">
                     <span class="w-2 h-2 rounded-full bg-slate-300"></span>
                     <span>0 files selected</span>
                 </div>
-                <button type="submit" id="uploadBtn" disabled class="w-full sm:w-auto dox-btn-primary !h-12 !px-8 text-sm font-extrabold shadow-xl shadow-blue-600/30">
-                    <i data-lucide="play" class="h-4 w-4 mr-2"></i> START DOXERA AI INGESTION
+                <button type="submit" id="uploadBtn" disabled class="w-full sm:w-auto dox-btn-primary !h-10 !px-6">
+                    <i data-lucide="play" class="h-4 w-4"></i> Start AI Ingestion
                 </button>
             </div>
         </form>

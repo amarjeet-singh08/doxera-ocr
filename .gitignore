@@ -7,7 +7,3 @@ dockets.db
 *.db
 uploads/
 exports/
-frontend/node_modules/
-frontend/.next/
-frontend/out/
-

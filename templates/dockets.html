@@ -168,18 +168,20 @@
     </div>
 </div>
 
-<!-- Limit UI Overlay (Modal with Liquid Glass Backdrop) -->
-<div id="limit-ui" class="hidden fixed inset-0 w-full h-full bg-slate-950/70 backdrop-blur-xl flex flex-col items-center justify-center overflow-hidden z-[999] p-4">
-    <div class="dox-card max-w-md w-full p-8 text-center space-y-4 border-white/90 shadow-2xl">
-        <img src="{{ url_for('static', filename='doxera_logo.png') }}" class="h-12 mx-auto object-contain brightness-0 invert" alt="DOXERA Logo">
-        <div>
-            <div class="text-rose-500 font-extrabold text-xl uppercase tracking-wider">AI Daily Quota Reached</div>
-            <div class="text-slate-400 font-semibold text-sm mt-1">Resets Daily at 6:00 AM IST</div>
+<!-- Limit UI Overlay (Apple Liquid Glass Alert Modal) -->
+<div id="limit-ui" class="hidden fixed inset-0 w-full h-full bg-slate-900/40 backdrop-blur-xs flex flex-col items-center justify-center overflow-hidden z-[999] p-4">
+    <div class="sd-glass-modal max-w-md w-full p-8 text-center space-y-4">
+        <div class="w-12 h-12 rounded-2xl bg-rose-50 border border-rose-200 text-rose-600 flex items-center justify-center mx-auto">
+            <i data-lucide="alert-triangle" class="h-6 w-6"></i>
         </div>
-        <p class="text-slate-300 text-xs leading-relaxed">
+        <div>
+            <div class="text-rose-700 font-bold text-lg tracking-tight">AI Daily Quota Reached</div>
+            <div class="text-slate-500 font-medium text-xs mt-1">Resets Daily at 6:00 AM IST</div>
+        </div>
+        <p class="text-slate-600 text-xs leading-relaxed">
             DOXERA AI has reached its rate limit for this billing period. Please wait until quota resets or add credits to your account.
         </p>
-        <button type="button" onclick="window.location.reload()" class="dox-btn-secondary !h-10 !px-6 mx-auto !font-bold">
+        <button type="button" onclick="window.location.reload()" class="dox-btn-secondary !h-9 !px-6 mx-auto">
             Close & Refresh
         </button>
     </div>
