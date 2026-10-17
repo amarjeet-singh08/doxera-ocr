@@ -2,22 +2,22 @@
 {% block header_title %}Batch Upload Dockets - DOXERA Enterprise{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto dox-card overflow-hidden">
-    <div class="p-6 sm:p-7 border-b border-slate-200/80 bg-slate-50/70 flex items-center justify-between">
+<div data-liquid-glass="card" class="max-w-3xl mx-auto dox-card overflow-hidden">
+    <div class="dox-card-header !p-6 sm:!p-7">
         <div>
             <div class="flex items-center gap-2 mb-1">
                 <span class="dox-badge dox-badge-processing">
                     <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
                     Batch Pipeline
                 </span>
-                <span class="text-xs text-slate-500 font-medium">Multi-Image OCR Ingestion</span>
+                <span class="text-xs text-slate-600 font-medium">Multi-Image OCR Ingestion</span>
             </div>
             <h2 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">New Batch Upload</h2>
-            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
+            <p class="text-xs sm:text-sm text-slate-600 mt-0.5">
                 Upload docket images (JPG, PNG) for automated handwriting OCR extraction and validation.
             </p>
         </div>
-        <div class="hidden sm:flex w-11 h-11 rounded-xl bg-blue-50 border border-blue-200/80 text-blue-600 items-center justify-center shrink-0">
+        <div class="hidden sm:flex w-11 h-11 dox-glass-icon text-blue-600 items-center justify-center shrink-0">
             <i data-lucide="upload-cloud" class="h-5 w-5"></i>
         </div>
     </div>
@@ -26,20 +26,21 @@
         <form action="{{ url_for('ops.upload') }}" method="POST" enctype="multipart/form-data" id="uploadForm">
             <style>
                 .drop-lens {
-                    background: #F8FAFC;
-                    border: 1.5px dashed #CBD5E1;
+                    background: linear-gradient(145deg, rgba(255, 255, 255, 0.58) 0%, rgba(244, 249, 255, 0.38) 100%);
+                    border: 1.5px dashed rgba(100, 116, 139, 0.45);
                     border-radius: var(--radius-lg, 14px);
+                    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
                     transition: border-color 180ms ease, background-color 180ms ease, box-shadow 180ms ease;
                 }
                 .drop-lens:hover {
                     border-color: #2563EB;
-                    background: #FFFFFF;
-                    box-shadow: 0 4px 16px -4px rgba(37, 99, 235, 0.12);
+                    background: rgba(255, 255, 255, 0.76);
+                    box-shadow: inset 0 1px 0 #FFFFFF, 0 6px 20px -4px rgba(37, 99, 235, 0.14);
                 }
                 .drop-active {
                     box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.18) !important;
                     border-color: #2563EB !important;
-                    background-color: #EFF6FF !important;
+                    background-color: rgba(239, 246, 255, 0.85) !important;
                 }
             </style>
             
@@ -47,11 +48,11 @@
                 <input type="file" name="files[]" aria-label="Select docket images to upload" multiple accept="image/*" required class="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" id="file-input">
                 
                 <div id="default-ui" class="pointer-events-none flex flex-col items-center">
-                    <div class="h-14 w-14 bg-white border border-slate-200/90 rounded-2xl flex items-center justify-center mb-4 group-hover:border-blue-300 group-hover:text-blue-600 transition-colors shadow-2xs">
+                    <div class="h-14 w-14 dox-glass-icon flex items-center justify-center mb-4 group-hover:border-blue-300 group-hover:text-blue-600 transition-colors">
                         <i data-lucide="upload-cloud" class="h-7 w-7 text-blue-600"></i>
                     </div>
                     <p class="text-base sm:text-lg font-bold text-slate-900 mb-1">Click to browse or drop images here</p>
-                    <p class="text-xs sm:text-sm text-slate-500 mb-4 max-w-md" id="file-msg">
+                    <p class="text-xs sm:text-sm text-slate-600 mb-4 max-w-md" id="file-msg">
                         Supports high-resolution JPG & PNG dockets (recommended 30–40 per batch).
                     </p>
                     

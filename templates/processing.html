@@ -45,9 +45,9 @@
             <span class="dox-badge dox-badge-neutral text-xs tabular-nums">{{ jobs|length }} Batches</span>
         </div>
         
-        <div class="divide-y divide-slate-200/80">
+        <div class="divide-y divide-slate-900/[0.06]">
             {% for job in jobs %}
-            <div class="p-6 transition-colors hover:bg-slate-50/70">
+            <div class="p-6 transition-colors bg-white/20 hover:bg-white/45">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
                     <div>
                         <div class="flex items-center gap-3">
@@ -66,34 +66,34 @@
                                 </span>
                             {% endif %}
                         </div>
-                        <div class="text-xs text-slate-500 mt-1.5 flex items-center gap-4 font-medium">
-                            <span class="flex items-center tabular-nums"><i data-lucide="clock" class="h-3.5 w-3.5 mr-1.5 text-slate-400"></i> {{ job.created_at|localdt }}</span>
-                            <span class="flex items-center"><i data-lucide="user" class="h-3.5 w-3.5 mr-1.5 text-slate-400"></i> {{ job.created_by }}</span>
+                        <div class="text-xs text-slate-600 mt-1.5 flex items-center gap-4 font-medium">
+                            <span class="flex items-center tabular-nums"><i data-lucide="clock" class="h-3.5 w-3.5 mr-1.5 text-blue-600"></i> {{ job.created_at|localdt }}</span>
+                            <span class="flex items-center"><i data-lucide="user" class="h-3.5 w-3.5 mr-1.5 text-slate-500"></i> {{ job.created_by }}</span>
                         </div>
                     </div>
                     
-                    <!-- Status counts -->
-                    <div class="flex items-center gap-4 sm:gap-5 bg-slate-50/90 px-4 py-2.5 rounded-xl border border-slate-200/80">
+                    <!-- Status counts (Translucent Frosted Subpanel) -->
+                    <div class="flex items-center gap-4 sm:gap-5 dox-subpanel px-4 py-2.5">
                         <div class="text-center">
                             <div class="text-base sm:text-lg font-extrabold text-slate-900 font-mono tabular-nums">{{ job.processed_count }}/{{ job.total_images }}</div>
                             <div class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Processed</div>
                         </div>
-                        <div class="w-px h-7 bg-slate-200/90"></div>
+                        <div class="w-px h-7 bg-slate-900/[0.08]"></div>
                         <div class="text-center">
                             <div class="text-base sm:text-lg font-extrabold text-emerald-700 font-mono tabular-nums">{{ job.verified_count }}</div>
                             <div class="text-[10px] font-bold text-emerald-600 uppercase tracking-wider">Verified</div>
                         </div>
-                        <div class="w-px h-7 bg-slate-200/90"></div>
+                        <div class="w-px h-7 bg-slate-900/[0.08]"></div>
                         <div class="text-center">
                             <div class="text-base sm:text-lg font-extrabold text-amber-700 font-mono tabular-nums">{{ job.review_count }}</div>
                             <div class="text-[10px] font-bold text-amber-600 uppercase tracking-wider">Review</div>
                         </div>
-                        <div class="w-px h-7 bg-slate-200/90"></div>
+                        <div class="w-px h-7 bg-slate-900/[0.08]"></div>
                         <div class="text-center">
                             <div class="text-base sm:text-lg font-extrabold text-rose-700 font-mono tabular-nums">{{ job.rejected_count }}</div>
                             <div class="text-[10px] font-bold text-rose-600 uppercase tracking-wider">Rejected</div>
                         </div>
-                        <div class="w-px h-7 bg-slate-200/90"></div>
+                        <div class="w-px h-7 bg-slate-900/[0.08]"></div>
                         <div class="text-center">
                             <div class="text-base sm:text-lg font-extrabold text-red-700 font-mono tabular-nums">{{ job.failed_count }}</div>
                             <div class="text-[10px] font-bold text-red-600 uppercase tracking-wider">Failed</div>
@@ -102,17 +102,17 @@
                 </div>
                 
                 <!-- Progress bar -->
-                <div class="w-full bg-slate-200/75 rounded-full h-2.5 overflow-hidden">
+                <div class="w-full bg-white/70 border border-white/90 rounded-full h-2.5 overflow-hidden shadow-inner">
                     <div class="bg-gradient-to-r from-blue-600 to-indigo-600 h-full rounded-full transition-all duration-500 ease-in-out" style="width: {{ (job.processed_count / job.total_images * 100) if job.total_images > 0 else 0 }}%"></div>
                 </div>
             </div>
             {% else %}
-            <div class="p-16 text-center text-slate-500 flex flex-col items-center">
-                <div class="w-12 h-12 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-center text-slate-400 mb-3">
+            <div class="p-16 text-center text-slate-600 flex flex-col items-center">
+                <div class="w-12 h-12 rounded-2xl dox-glass-icon text-slate-500 mb-3">
                     <i data-lucide="inbox" class="h-6 w-6"></i>
                 </div>
                 <p class="font-bold text-slate-800 text-sm">No active batch jobs</p>
-                <p class="text-xs text-slate-400 mt-1">Upload dockets to initiate async OCR workers.</p>
+                <p class="text-xs text-slate-500 mt-1">Upload dockets to initiate async OCR workers.</p>
             </div>
             {% endfor %}
         </div>

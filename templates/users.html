@@ -34,11 +34,11 @@
         <!-- ══════════════════════════════════════════════════════════ -->
         <!-- LEFT: CREATE / EDIT USER FORM (5 Columns)                   -->
         <!-- ══════════════════════════════════════════════════════════ -->
-        <div class="lg:col-span-5 dox-card overflow-hidden">
+        <div data-liquid-glass="card" class="lg:col-span-5 dox-card overflow-hidden">
             
-            <div class="px-6 py-4 bg-slate-50/90 text-slate-900 flex items-center justify-between border-b border-slate-200/80">
+            <div class="dox-card-header !px-6 !py-4">
                 <div class="flex items-center gap-2.5">
-                    <span class="w-7 h-7 rounded-lg bg-blue-50 border border-blue-200/80 text-blue-600 flex items-center justify-center">
+                    <span class="w-8 h-8 dox-glass-icon text-blue-600 flex items-center justify-center">
                         <i data-lucide="user-plus" class="h-4 w-4" id="form-icon"></i>
                     </span>
                     <h2 class="text-sm font-bold tracking-tight text-slate-900" id="form-heading">Create New User</h2>
@@ -63,7 +63,7 @@
                             placeholder="e.g. auditor_rajesh"
                             class="dox-input pl-9 w-full text-xs sm:text-sm font-semibold">
                     </div>
-                    <p class="text-[11px] text-slate-400 mt-1">Unique identifier. Cannot duplicate existing IDs.</p>
+                    <p class="text-[11px] text-slate-500 mt-1">Unique identifier. Cannot duplicate existing IDs.</p>
                 </div>
 
                 <!-- Password Input -->
@@ -77,7 +77,7 @@
                             placeholder="Enter secure password"
                             class="dox-input pl-9 w-full text-xs sm:text-sm font-semibold">
                     </div>
-                    <p class="text-[11px] text-slate-400 mt-1" id="help-password">
+                    <p class="text-[11px] text-slate-500 mt-1" id="help-password">
                         Must be unique. System rejects passwords reused across existing accounts.
                     </p>
                 </div>
@@ -88,46 +88,46 @@
                         Assigned Feature Access (Select Multiple) <span class="text-rose-500">*</span>
                     </label>
                     
-                    <div class="space-y-2 bg-slate-50/80 p-3 rounded-xl border border-slate-200/80">
+                    <div class="space-y-2 dox-subpanel p-3">
                         
                         <!-- Role 1: REVIEWER -->
-                        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200/80 hover:border-blue-400 cursor-pointer transition-all shadow-2xs">
+                        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/70 hover:bg-white/95 border border-white/90 hover:border-blue-400 cursor-pointer transition-all shadow-2xs">
                             <input type="checkbox" name="roles" value="REVIEWER" id="role-reviewer" class="mt-0.5 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
                             <div class="text-xs">
                                 <span class="font-bold text-slate-900 flex items-center gap-1.5">
                                     <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                                     REVIEWER
                                 </span>
-                                <p class="text-[11px] text-slate-500 mt-0.5">Upload dockets, verify OCR extractions, and edit corrections.</p>
+                                <p class="text-[11px] text-slate-600 mt-0.5">Upload dockets, verify OCR extractions, and edit corrections.</p>
                             </div>
                         </label>
 
                         <!-- Role 2: AUDITOR -->
-                        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200/80 hover:border-blue-400 cursor-pointer transition-all shadow-2xs">
+                        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/70 hover:bg-white/95 border border-white/90 hover:border-blue-400 cursor-pointer transition-all shadow-2xs">
                             <input type="checkbox" name="roles" value="AUDITOR" id="role-auditor" class="mt-0.5 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
                             <div class="text-xs">
                                 <span class="font-bold text-slate-900 flex items-center gap-1.5">
                                     <span class="w-2 h-2 rounded-full bg-blue-500"></span>
                                     AUDITOR
                                 </span>
-                                <p class="text-[11px] text-slate-500 mt-0.5">Access Sales Intelligence Dashboard, MIS spreadsheet upload & PDF/PPTX exports.</p>
+                                <p class="text-[11px] text-slate-600 mt-0.5">Access Sales Intelligence Dashboard, MIS spreadsheet upload & PDF/PPTX exports.</p>
                             </div>
                         </label>
 
                         <!-- Role 3: VIEWER -->
-                        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200/80 hover:border-blue-400 cursor-pointer transition-all shadow-2xs">
+                        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/70 hover:bg-white/95 border border-white/90 hover:border-blue-400 cursor-pointer transition-all shadow-2xs">
                             <input type="checkbox" name="roles" value="VIEWER" id="role-viewer" class="mt-0.5 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
                             <div class="text-xs">
                                 <span class="font-bold text-slate-900 flex items-center gap-1.5">
                                     <span class="w-2 h-2 rounded-full bg-slate-400"></span>
                                     VIEWER
                                 </span>
-                                <p class="text-[11px] text-slate-500 mt-0.5">Read-only view for general operations and dockets listing.</p>
+                                <p class="text-[11px] text-slate-600 mt-0.5">Read-only view for general operations and dockets listing.</p>
                             </div>
                         </label>
 
                         <!-- Role 4: ADMIN -->
-                        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-purple-50/50 border border-purple-200/80 hover:border-purple-400 cursor-pointer transition-all shadow-2xs">
+                        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-purple-50/75 hover:bg-purple-50/95 border border-purple-200/85 hover:border-purple-400 cursor-pointer transition-all shadow-2xs">
                             <input type="checkbox" name="roles" value="ADMIN" id="role-admin" class="mt-0.5 h-4 w-4 text-purple-600 rounded border-slate-300 focus:ring-purple-500">
                             <div class="text-xs">
                                 <span class="font-bold text-purple-900 flex items-center gap-1.5">

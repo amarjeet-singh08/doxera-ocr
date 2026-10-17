@@ -110,8 +110,20 @@
         </span>
     </div>
 
-    <!-- High-Readability Registry Container -->
-    <div class="dox-card overflow-hidden">
+    <!-- High-Readability Frosted Glass Registry Container -->
+    <div data-liquid-glass="card" class="dox-card overflow-hidden">
+        <div class="dox-card-header">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 dox-glass-icon text-blue-600 shrink-0">
+                    <i data-lucide="database" class="h-4 w-4"></i>
+                </div>
+                <div>
+                    <h2 class="text-sm font-bold text-slate-900 tracking-tight">Extraction Records</h2>
+                    <p class="text-[11px] text-slate-600 font-medium">Filtered by: <strong class="text-slate-800">{{ current_filter }}</strong></p>
+                </div>
+            </div>
+            <span class="dox-badge dox-badge-processing tabular-nums">{{ dockets|length }} Records</span>
+        </div>
         <!-- Table -->
         <div class="overflow-x-auto">
             <table class="dox-table">

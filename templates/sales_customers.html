@@ -36,7 +36,7 @@
     <div data-liquid-glass="toolbar" data-lg-radius="18" data-lg-refraction="84" data-lg-blur="10" data-lg-light="32" class="sm:sticky sm:top-[76px] z-20 rounded-[18px] p-4 sm:p-5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 shadow-md">
         <form method="GET" action="{{ url_for('sales.customers_page') }}" class="flex flex-col sm:flex-row flex-1 items-stretch sm:items-center gap-3 w-full">
             <div class="relative flex-1">
-                <i data-lucide="search" class="h-4 w-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none"></i>
+                <i data-lucide="search" class="h-4 w-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 z-10 pointer-events-none"></i>
                 <input type="text" name="q" value="{{ search_query }}" placeholder="Search by customer name or code..."
                     class="dox-input pl-9 pr-3 w-full">
             </div>
@@ -62,13 +62,24 @@
             </div>
         </form>
 
-        <span class="text-xs font-semibold text-slate-700 whitespace-nowrap bg-slate-50 border border-slate-200/90 px-3.5 py-1.5 rounded-full tabular-nums self-start md:self-auto">
+        <span class="text-xs font-semibold text-slate-700 whitespace-nowrap bg-white/60 border border-white/80 px-3.5 py-1.5 rounded-full tabular-nums self-start md:self-auto shadow-2xs">
             {{ customers|length }} Accounts
         </span>
     </div>
 
     <!-- Customer Mapping Table -->
     <div class="dox-card overflow-hidden">
+        <div class="px-5 sm:px-6 py-4 dox-card-header flex items-center justify-between gap-3">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg dox-glass-icon flex items-center justify-center text-blue-600">
+                    <i data-lucide="building-2" class="h-4 w-4"></i>
+                </div>
+                <div>
+                    <h2 class="text-sm font-bold text-slate-900">Account Attribution Directory</h2>
+                    <p class="text-[11px] text-slate-600">Mapped client codes, active representatives, and billing territories</p>
+                </div>
+            </div>
+        </div>
         <div class="overflow-x-auto">
             <table class="dox-table text-left">
                 <thead>
@@ -85,13 +96,13 @@
                     {% for c in customers %}
                     <tr>
                         <td>
-                            <span class="px-2 py-0.5 rounded-md font-mono font-bold text-xs bg-slate-100 text-slate-800 border border-slate-200/80">
+                            <span class="px-2 py-0.5 rounded-md font-mono font-bold text-xs bg-white/60 text-slate-800 border border-white/80">
                                 {{ c.customer_code }}
                             </span>
                         </td>
                         <td>
                             <div class="flex items-center gap-2.5">
-                                <div class="w-7 h-7 rounded-lg bg-slate-100 text-slate-700 font-bold text-xs flex items-center justify-center shrink-0 border border-slate-200/70">
+                                <div class="w-7 h-7 rounded-lg dox-glass-icon text-slate-700 font-bold text-xs flex items-center justify-center shrink-0">
                                     {{ c.customer_name[:1]|upper }}
                                 </div>
                                 <span class="font-semibold text-slate-900 max-w-[280px] truncate" title="{{ c.customer_name }}">
@@ -100,7 +111,7 @@
                             </div>
                         </td>
                         <td>
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {% if c.sales_person == 'NEL' %}bg-slate-100 text-slate-700{% elif c.sales_person == 'Jeetendra Prasad' %}bg-blue-50 text-blue-800 border border-blue-200{% elif c.sales_person == 'Sarita Singh' %}bg-purple-50 text-purple-800 border border-purple-200{% elif c.sales_person == 'Ramkrishna' %}bg-emerald-50 text-emerald-800 border border-emerald-200{% else %}bg-amber-50 text-amber-800 border border-amber-200{% endif %}">
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold {% if c.sales_person == 'NEL' %}bg-white/60 text-slate-700 border border-white/80{% elif c.sales_person == 'Jeetendra Prasad' %}bg-blue-50/80 text-blue-800 border border-blue-200{% elif c.sales_person == 'Sarita Singh' %}bg-purple-50/80 text-purple-800 border border-purple-200{% elif c.sales_person == 'Ramkrishna' %}bg-emerald-50/80 text-emerald-800 border border-emerald-200{% else %}bg-amber-50/80 text-amber-800 border border-amber-200{% endif %}">
                                 <span class="w-1.5 h-1.5 rounded-full mr-1.5 {% if c.sales_person == 'NEL' %}bg-slate-400{% elif c.sales_person == 'Jeetendra Prasad' %}bg-blue-600{% elif c.sales_person == 'Sarita Singh' %}bg-purple-600{% elif c.sales_person == 'Ramkrishna' %}bg-emerald-600{% else %}bg-amber-600{% endif %}"></span>
                                 {{ c.sales_person or 'NEL' }}
                             </span>

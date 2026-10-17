@@ -36,33 +36,36 @@
            Centralized tokens for optical glass, standard content surfaces & depth
            ══════════════════════════════════════════════════════════════════════ */
         :root {
-            /* Surface & Background Tokens (3-Tier Material Hierarchy) */
-            --bg-page: #EEF2F7;
-            --surface-primary: rgba(255, 255, 255, 0.96);
-            --surface-elevated: #FFFFFF;
-            --surface-glass: rgba(255, 255, 255, 0.56);
+            /* Surface & Background Tokens (Cohesive Liquid Frosted Glass Hierarchy) */
+            --bg-page: #E3ECF7;
+            --surface-primary: rgba(255, 255, 255, 0.64);
+            --surface-elevated: rgba(255, 255, 255, 0.76);
+            --surface-glass: rgba(255, 255, 255, 0.58);
             --surface-glass-nav: rgba(255, 255, 255, 0.60);
-            --surface-glass-modal: rgba(255, 255, 255, 0.70);
-            --surface-subtle: #F8FAFC;
+            --surface-glass-modal: rgba(255, 255, 255, 0.72);
+            --surface-subtle: rgba(248, 251, 255, 0.52);
 
             /* Optical Glass Tokens (consumed by static/vendor/liquid-glass) */
             --lg-tint-nav: rgba(255, 255, 255, 0.58);
-            --lg-tint-toolbar: rgba(255, 255, 255, 0.52);
-            --lg-tint-popover: rgba(255, 255, 255, 0.60);
+            --lg-tint-toolbar: rgba(255, 255, 255, 0.54);
+            --lg-tint-metric: rgba(255, 255, 255, 0.62);
+            --lg-tint-card: rgba(255, 255, 255, 0.60);
+            --lg-tint-alert: rgba(255, 252, 245, 0.64);
+            --lg-tint-popover: rgba(255, 255, 255, 0.62);
             --lg-tint-modal: rgba(255, 255, 255, 0.68);
-            --lg-saturate: 1.60;
+            --lg-saturate: 1.80;
 
             /* Border & Specular Highlight Tokens */
-            --border-subtle: rgba(203, 213, 225, 0.75);
-            --border-strong: rgba(148, 163, 184, 0.62);
-            --border-glass: rgba(255, 255, 255, 0.80);
-            --highlight-top: inset 0 1px 0 0 rgba(255, 255, 255, 0.98);
-            --highlight-bottom: inset 0 -1px 0 0 rgba(15, 23, 42, 0.03);
+            --border-subtle: rgba(255, 255, 255, 0.84);
+            --border-strong: rgba(148, 163, 184, 0.52);
+            --border-glass: rgba(255, 255, 255, 0.86);
+            --highlight-top: inset 0 1.5px 0 0 rgba(255, 255, 255, 0.98);
+            --highlight-bottom: inset 0 -1px 0 0 rgba(15, 23, 42, 0.045);
 
             /* Realistic Depth & Shadow Tokens */
-            --shadow-card: 0 4px 20px -4px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03);
-            --shadow-card-hover: 0 10px 28px -6px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
-            --shadow-toolbar: 0 10px 28px -6px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.035);
+            --shadow-card: 0 12px 32px -8px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04), 0 0 0 1px rgba(148, 163, 184, 0.20);
+            --shadow-card-hover: 0 18px 40px -10px rgba(15, 23, 42, 0.12), 0 4px 10px -2px rgba(37, 99, 235, 0.06), 0 0 0 1px rgba(148, 163, 184, 0.28);
+            --shadow-toolbar: 0 12px 30px -6px rgba(15, 23, 42, 0.085), 0 2px 6px -1px rgba(15, 23, 42, 0.04), 0 0 0 1px rgba(148, 163, 184, 0.18);
             --shadow-popover: 0 24px 56px -12px rgba(15, 23, 42, 0.20), 0 6px 16px -4px rgba(15, 23, 42, 0.07);
             --shadow-modal: 0 28px 68px -12px rgba(15, 23, 42, 0.24), 0 8px 20px -4px rgba(15, 23, 42, 0.09);
 
@@ -111,34 +114,95 @@
             font-variant-numeric: tabular-nums;
         }
 
-        /* Family C: Quiet Background Canvas — Calm, grid-free light-neutral foundation */
+        /* Quiet Architectural Background Canvas — Grid-free cool-ice & slate-blue depth so frosted glass visibly refracts */
         .dox-bg-canvas, .sales-bg-canvas {
             background-color: var(--bg-page);
             background-image:
-                radial-gradient(ellipse 85% 55% at 10% -5%, rgba(37, 99, 235, 0.065) 0%, transparent 65%),
-                radial-gradient(ellipse 75% 50% at 92% 4%, rgba(99, 102, 241, 0.045) 0%, transparent 60%),
-                radial-gradient(ellipse 80% 60% at 50% 105%, rgba(14, 165, 233, 0.045) 0%, transparent 65%),
-                linear-gradient(180deg, #F3F6FB 0%, #EEF2F7 52%, #E9EEF5 100%);
+                radial-gradient(ellipse 70% 50% at 14% 6%, rgba(37, 99, 235, 0.13) 0%, transparent 68%),
+                radial-gradient(ellipse 65% 48% at 88% 12%, rgba(79, 70, 229, 0.095) 0%, transparent 64%),
+                radial-gradient(ellipse 75% 55% at 78% 88%, rgba(14, 165, 233, 0.105) 0%, transparent 66%),
+                radial-gradient(ellipse 60% 50% at 18% 82%, rgba(59, 130, 246, 0.085) 0%, transparent 62%),
+                linear-gradient(165deg, #EAF1FA 0%, #E2ECF7 48%, #DAE5F2 100%);
             background-attachment: fixed;
         }
 
-        /* Family B: Analytical Surfaces — High-contrast, calm cards for KPIs, tables, charts & forms */
+        /* Cohesive Liquid Frosted Glass Content Cards, Chart Containers & Table Containers */
         .dox-card, .sd-card, .sd-glass-card {
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 100%);
-            border: 1px solid var(--border-subtle);
+            background: linear-gradient(
+                145deg,
+                rgba(255, 255, 255, 0.68) 0%,
+                rgba(245, 249, 255, 0.52) 55%,
+                rgba(235, 243, 255, 0.62) 100%
+            );
+            backdrop-filter: blur(18px) saturate(180%);
+            -webkit-backdrop-filter: blur(18px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.84);
             border-radius: var(--radius-xl);
             box-shadow: var(--highlight-top), var(--highlight-bottom), var(--shadow-card);
-            transition: border-color 180ms ease, box-shadow 180ms ease;
+            transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
             position: relative;
         }
+        .dox-card.lg-host, .sd-card.lg-host, .sd-glass-card.lg-host {
+            background: transparent;
+        }
         .dox-card:hover, .sd-card:hover, .sd-glass-card:hover {
-            border-color: rgba(148, 163, 184, 0.48);
+            border-color: rgba(255, 255, 255, 0.96);
             box-shadow: var(--highlight-top), var(--highlight-bottom), var(--shadow-card-hover);
         }
+
+        /* Sculpted Liquid Frosted Glass KPI Metric Cards */
+        .dox-metric-card {
+            background: linear-gradient(
+                140deg,
+                rgba(255, 255, 255, 0.72) 0%,
+                rgba(244, 249, 255, 0.54) 52%,
+                rgba(232, 242, 255, 0.64) 100%
+            );
+            backdrop-filter: blur(18px) saturate(185%);
+            -webkit-backdrop-filter: blur(18px) saturate(185%);
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            border-radius: var(--radius-xl);
+            padding: 18px 20px;
+            box-shadow: var(--highlight-top), var(--highlight-bottom), var(--shadow-card);
+            transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .dox-metric-card.lg-host {
+            background: transparent;
+        }
+        .dox-metric-card:hover {
+            transform: translateY(-1.5px);
+            border-color: #FFFFFF;
+            box-shadow: var(--highlight-top), var(--highlight-bottom), var(--shadow-card-hover);
+        }
+
+        /* Liquid Frosted Glass Alert & Attention Panels */
+        .dox-alert-card {
+            background: linear-gradient(
+                140deg,
+                rgba(255, 253, 247, 0.72) 0%,
+                rgba(254, 249, 235, 0.54) 55%,
+                rgba(255, 255, 255, 0.64) 100%
+            );
+            backdrop-filter: blur(18px) saturate(180%);
+            -webkit-backdrop-filter: blur(18px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.86);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--highlight-top), var(--highlight-bottom), var(--shadow-card);
+            position: relative;
+            overflow: hidden;
+        }
+        .dox-alert-card.lg-host {
+            background: transparent;
+        }
+
+        /* Translucent Glass Card Header Strip (Matches Reference A Notification Header) */
         .dox-card-header {
             padding: 14px 22px;
-            background: rgba(248, 250, 252, 0.86);
-            border-bottom: 1px solid rgba(226, 232, 240, 0.88);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.46) 0%, rgba(248, 251, 255, 0.26) 100%);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.07);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.82);
             display: flex;
             flex-wrap: wrap;
             align-items: center;
@@ -146,20 +210,39 @@
             gap: 12px;
         }
 
-        /* Family A: Selective Liquid Glass Functional Surfaces (Navigation, Toolbars, Popovers, Modals) */
+        /* Translucent Inner Glass Sub-Panels & Stat Wells (Never opaque white) */
+        .dox-subpanel {
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.56) 0%, rgba(246, 250, 255, 0.38) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.82);
+            border-radius: var(--radius-lg);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 2px 8px -2px rgba(15, 23, 42, 0.04), 0 0 0 1px rgba(148, 163, 184, 0.14);
+        }
+
+        /* Sculpted Frosted Icon Squircle (Matches Reference A & B) */
+        .dox-glass-icon {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 12px;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.82) 0%, rgba(241, 245, 249, 0.58) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.92);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.98), 0 2px 6px -1px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(148, 163, 184, 0.16);
+        }
+
+        /* Selective Liquid Glass Functional Surfaces (Navigation, Toolbars, Popovers, Modals) */
         .dox-glass-panel, .sd-glass-modal {
             background: var(--surface-glass);
-            backdrop-filter: blur(18px) saturate(165%);
-            -webkit-backdrop-filter: blur(18px) saturate(165%);
+            backdrop-filter: blur(18px) saturate(180%);
+            -webkit-backdrop-filter: blur(18px) saturate(180%);
             border: 1px solid var(--border-glass);
             box-shadow: var(--highlight-top), var(--highlight-bottom), var(--shadow-toolbar);
         }
         .dox-glass-pill {
-            background: rgba(255, 255, 255, 0.64);
-            backdrop-filter: blur(16px) saturate(160%);
-            -webkit-backdrop-filter: blur(16px) saturate(160%);
-            border: 1px solid rgba(255, 255, 255, 0.85);
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 14px -3px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(203, 213, 225, 0.55);
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.72) 0%, rgba(244, 249, 255, 0.54) 100%);
+            backdrop-filter: blur(16px) saturate(175%);
+            -webkit-backdrop-filter: blur(16px) saturate(175%);
+            border: 1px solid rgba(255, 255, 255, 0.88);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.96), 0 4px 14px -3px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(148, 163, 184, 0.20);
             border-radius: 14px;
         }
 
@@ -208,23 +291,25 @@
             height: 38px;
             min-height: 38px;
             padding: 0 15px;
-            background: rgba(255, 255, 255, 0.94) !important;
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.82) 0%, rgba(248, 251, 255, 0.68) 100%) !important;
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
             color: var(--text-primary) !important;
             font-size: 13px !important;
             font-weight: 600 !important;
             border-radius: var(--radius-md);
-            border: 1px solid var(--border-strong) !important;
-            box-shadow: var(--highlight-top), 0 1px 2px rgba(15, 23, 42, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.90) !important;
+            box-shadow: var(--highlight-top), 0 2px 5px -1px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(148, 163, 184, 0.26);
             transition: background 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
             cursor: pointer;
             text-decoration: none;
             white-space: nowrap;
         }
         .dox-btn-secondary:hover, .sd-btn:hover {
-            background: #FFFFFF !important;
-            border-color: #94A3B8 !important;
+            background: rgba(255, 255, 255, 0.94) !important;
+            border-color: #FFFFFF !important;
             color: var(--text-primary) !important;
-            box-shadow: var(--highlight-top), 0 3px 8px -2px rgba(15, 23, 42, 0.08);
+            box-shadow: var(--highlight-top), 0 4px 10px -2px rgba(15, 23, 42, 0.10), 0 0 0 1px rgba(148, 163, 184, 0.36);
         }
 
         .dox-btn-danger {
@@ -252,7 +337,10 @@
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.3), 0 4px 12px -2px rgba(225, 29, 72, 0.36);
         }
 
-        /* 3. Form Inputs & Select Controls */
+        /* 3. Form Inputs & Select Controls (Frosted Glass Field Wells) */
+        .relative > svg.lucide {
+            z-index: 2;
+        }
         .dox-input, .sd-input, .sd-select {
             height: 38px;
             padding: 0 12px;
@@ -260,22 +348,23 @@
             font-size: 13px;
             font-weight: 500;
             color: var(--text-primary);
-            background: #FFFFFF;
-            border: 1px solid var(--border-strong);
-            box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
-            transition: border-color 150ms ease, box-shadow 150ms ease;
+            background: rgba(255, 255, 255, 0.78);
+            border: 1px solid rgba(148, 163, 184, 0.42);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 1px 2px rgba(15, 23, 42, 0.03);
+            transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
         }
         .dox-input:hover, .sd-input:hover, .sd-select:hover {
-            border-color: #94A3B8;
+            background: rgba(255, 255, 255, 0.88);
+            border-color: rgba(100, 116, 139, 0.55);
         }
         .dox-input:focus, .sd-input:focus, .sd-select:focus {
-            background: #FFFFFF;
+            background: rgba(255, 255, 255, 0.96);
             border-color: var(--accent-primary);
             outline: none;
             box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16);
         }
 
-        /* 4. Data Tables (High Readability, Sticky Glass Header) */
+        /* 4. Data Tables (Frosted Glass Container, Translucent Rows & Sticky Glass Header) */
         .dox-table, .sd-table {
             width: 100%;
             border-collapse: separate;
@@ -284,9 +373,9 @@
         .dox-table th, .sd-table th {
             position: sticky;
             top: 0;
-            background: rgba(248, 250, 252, 0.96);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
+            background: rgba(244, 248, 255, 0.72);
+            backdrop-filter: blur(14px) saturate(165%);
+            -webkit-backdrop-filter: blur(14px) saturate(165%);
             z-index: 10;
             font-size: 11px;
             font-weight: 700;
@@ -294,22 +383,24 @@
             text-transform: uppercase;
             color: #475569;
             padding: 11px 16px;
-            border-bottom: 1px solid var(--border-subtle);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
             white-space: nowrap;
         }
         .dox-table td, .sd-table td {
             padding: 11px 16px;
-            border-bottom: 1px solid #F1F5F9;
+            background: rgba(255, 255, 255, 0.22);
+            border-bottom: 1px solid rgba(15, 23, 42, 0.055);
             font-size: 13px;
             color: var(--text-secondary);
             white-space: nowrap;
             transition: background-color 120ms ease;
         }
         .dox-table tbody tr:hover td, .sd-table tbody tr:hover td {
-            background: #F8FAFC;
+            background: rgba(255, 255, 255, 0.58);
         }
 
-        /* 5. Clean Semantic Status Badges (No Neon Glows) */
+        /* 5. Clean Semantic Status Badges (Frosted Glass Tinted Pills) */
         .dox-badge {
             display: inline-flex;
             align-items: center;
@@ -320,30 +411,31 @@
             font-weight: 600;
             letter-spacing: 0.01em;
             line-height: 1.4;
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
         }
         .dox-badge-verified {
-            background: #ECFDF5 !important;
-            border: 1px solid #A7F3D0 !important;
+            background: rgba(236, 253, 245, 0.88) !important;
+            border: 1px solid rgba(110, 231, 183, 0.85) !important;
             color: #065F46 !important;
         }
         .dox-badge-review {
-            background: #FFFBEB !important;
-            border: 1px solid #FDE68A !important;
+            background: rgba(255, 251, 235, 0.88) !important;
+            border: 1px solid rgba(252, 211, 77, 0.85) !important;
             color: #92400E !important;
         }
         .dox-badge-rejected, .dox-badge-failed {
-            background: #FFF1F2 !important;
-            border: 1px solid #FECDD3 !important;
+            background: rgba(255, 241, 242, 0.88) !important;
+            border: 1px solid rgba(253, 164, 175, 0.85) !important;
             color: #9F1239 !important;
         }
         .dox-badge-processing {
-            background: #EFF6FF !important;
-            border: 1px solid #BFDBFE !important;
+            background: rgba(239, 246, 255, 0.88) !important;
+            border: 1px solid rgba(147, 197, 253, 0.85) !important;
             color: #1E40AF !important;
         }
         .dox-badge-neutral {
-            background: #F1F5F9 !important;
-            border: 1px solid #E2E8F0 !important;
+            background: rgba(241, 245, 249, 0.82) !important;
+            border: 1px solid rgba(203, 213, 225, 0.85) !important;
             color: #334155 !important;
         }
 

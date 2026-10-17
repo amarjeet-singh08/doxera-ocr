@@ -2,51 +2,53 @@
 {% block header_title %}Sales Intelligence - DOXERA Enterprise{% endblock %}
 
 {% block content %}
-<div class="max-w-3xl mx-auto py-14 text-center space-y-6">
-    <div class="w-16 h-16 mx-auto rounded-2xl bg-blue-50 border border-blue-200/80 text-blue-600 flex items-center justify-center shadow-xs">
-        <i data-lucide="bar-chart-3" class="h-8 w-8"></i>
-    </div>
+<div class="max-w-4xl mx-auto py-10 space-y-6">
+    <div class="dox-card p-8 sm:p-10 text-center space-y-5">
+        <div class="w-16 h-16 mx-auto rounded-2xl dox-glass-icon text-blue-600 flex items-center justify-center">
+            <i data-lucide="bar-chart-3" class="h-8 w-8"></i>
+        </div>
 
-    <div class="space-y-2">
-        <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">No Audit Reports Generated</h1>
-        <p class="text-sm text-slate-500 max-w-md mx-auto leading-relaxed">
-            Upload Billed, Unbilled, and Booking registers to generate sales audit dashboards and executive presentations.
-        </p>
-    </div>
+        <div class="space-y-2">
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">No Audit Reports Generated</h1>
+            <p class="text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
+                Upload Billed, Unbilled, and Booking registers to generate sales audit dashboards and executive presentations.
+            </p>
+        </div>
 
-    <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3 w-full sm:w-auto max-w-xs sm:max-w-none mx-auto">
-        <a href="{{ url_for('sales.upload_page') }}" class="dox-btn-primary !px-5 !h-10">
-            <i data-lucide="upload-cloud" class="h-4 w-4"></i> Upload MIS Registers
-        </a>
-        <a href="{{ url_for('sales.customers_page') }}" class="dox-btn-secondary !px-4 !h-10">
-            <i data-lucide="users" class="h-4 w-4 text-slate-400"></i> Customer Accounts
-        </a>
+        <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3 w-full sm:w-auto max-w-xs sm:max-w-none mx-auto">
+            <a href="{{ url_for('sales.upload_page') }}" class="dox-btn-primary !px-5 !h-10">
+                <i data-lucide="upload-cloud" class="h-4 w-4"></i> Upload MIS Registers
+            </a>
+            <a href="{{ url_for('sales.customers_page') }}" class="dox-btn-secondary !px-4 !h-10">
+                <i data-lucide="users" class="h-4 w-4 text-slate-500"></i> Customer Accounts
+            </a>
+        </div>
     </div>
 
     <!-- Features -->
-    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-8 text-left">
-        <div class="p-5 dox-card space-y-2">
-            <div class="w-9 h-9 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center border border-blue-200/80">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-left">
+        <div class="p-5 dox-metric-card space-y-2" data-liquid-glass="metric">
+            <div class="w-9 h-9 rounded-xl dox-glass-icon text-blue-600 flex items-center justify-center">
                 <i data-lucide="git-merge" class="h-4 w-4"></i>
             </div>
             <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Reconciliation</h3>
-            <p class="text-xs text-slate-500 leading-relaxed">Three-way cross correlation of Billed and Unbilled consignments against Booking registers.</p>
+            <p class="text-xs text-slate-600 leading-relaxed">Three-way cross correlation of Billed and Unbilled consignments against Booking registers.</p>
         </div>
 
-        <div class="p-5 dox-card space-y-2">
-            <div class="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center border border-indigo-200/80">
+        <div class="p-5 dox-metric-card space-y-2" data-liquid-glass="metric">
+            <div class="w-9 h-9 rounded-xl dox-glass-icon text-indigo-600 flex items-center justify-center">
                 <i data-lucide="user-check" class="h-4 w-4"></i>
             </div>
             <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Attribution</h3>
-            <p class="text-xs text-slate-500 leading-relaxed">Direct customer account mapping to assigned sales representatives and branch territories.</p>
+            <p class="text-xs text-slate-600 leading-relaxed">Direct customer account mapping to assigned sales representatives and branch territories.</p>
         </div>
 
-        <div class="p-5 dox-card space-y-2">
-            <div class="w-9 h-9 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center border border-emerald-200/80">
+        <div class="p-5 dox-metric-card space-y-2" data-liquid-glass="metric">
+            <div class="w-9 h-9 rounded-xl dox-glass-icon text-emerald-600 flex items-center justify-center">
                 <i data-lucide="presentation" class="h-4 w-4"></i>
             </div>
             <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Presentations</h3>
-            <p class="text-xs text-slate-500 leading-relaxed">Direct export into widescreen PowerPoint boardroom decks and reconciled CSV registers.</p>
+            <p class="text-xs text-slate-600 leading-relaxed">Direct export into widescreen PowerPoint boardroom decks and reconciled CSV registers.</p>
         </div>
     </div>
 </div>

@@ -22,13 +22,16 @@ export const defaults = Object.freeze({
 });
 
 export const presets = Object.freeze({
-  nav:      Object.freeze({ refraction: 72, blur: 12, light: 26, radius: 22, shape: 'rounded', pointer: true }),
-  toolbar:  Object.freeze({ refraction: 84, blur: 10, light: 32, radius: 20, shape: 'rounded', pointer: true }),
-  pill:     Object.freeze({ refraction: 78, blur: 8,  light: 30, radius: 999, shape: 'pill',    pointer: true }),
+  nav:      Object.freeze({ refraction: 76, blur: 13, light: 30, radius: 22, shape: 'rounded', pointer: true }),
+  toolbar:  Object.freeze({ refraction: 84, blur: 11, light: 34, radius: 20, shape: 'rounded', pointer: true }),
+  pill:     Object.freeze({ refraction: 78, blur: 10, light: 32, radius: 999, shape: 'pill',    pointer: true }),
+  metric:   Object.freeze({ refraction: 80, blur: 14, light: 36, radius: 20, shape: 'rounded', pointer: true }),
+  card:     Object.freeze({ refraction: 72, blur: 14, light: 32, radius: 20, shape: 'rounded', pointer: true }),
+  alert:    Object.freeze({ refraction: 78, blur: 14, light: 34, radius: 20, shape: 'rounded', pointer: true }),
   floating: Object.freeze({ refraction: 86, blur: 11, light: 34, radius: 16, shape: 'rounded', pointer: true }),
   popover:  Object.freeze({ refraction: 90, blur: 12, light: 35, radius: 20, shape: 'rounded', pointer: true }),
-  modal:    Object.freeze({ refraction: 86, blur: 14, light: 32, radius: 22, shape: 'rounded', pointer: true }),
-  subtle:   Object.freeze({ refraction: 60, blur: 8,  light: 22, radius: 14, shape: 'rounded', pointer: false })
+  modal:    Object.freeze({ refraction: 86, blur: 14, light: 34, radius: 22, shape: 'rounded', pointer: true }),
+  subtle:   Object.freeze({ refraction: 60, blur: 9,  light: 24, radius: 14, shape: 'rounded', pointer: false })
 });
 
 function optionsFrom(current, changes) {
@@ -222,7 +225,14 @@ class LiquidGlass {
         ? '50%'
         : `${shape === 'pill' ? Math.min(width, height) / 2 : Math.min(radius, width / 2, height / 2)}px`;
       this.setStyle('--lg-radius', computedRadius);
-      if (this.renderer === 'css') return;
+      const presetAttr = this.element.getAttribute('data-liquid-glass') || '';
+      if (presetAttr === 'card' && (height > 640 || width * height > 680000)) {
+        this.element.setAttribute('data-lg-renderer', 'css');
+        return;
+      }
+      if (this.element.getAttribute('data-lg-renderer') !== 'svg') {
+        this.element.setAttribute('data-lg-renderer', 'svg');
+      }
       if (width === this.lastWidth && height === this.lastHeight && this.image.getAttribute('href')) return;
       this.lastWidth = width;
       this.lastHeight = height;
@@ -274,10 +284,19 @@ class LiquidGlass {
 }
 
 /**
- * Mounts Liquid Glass on all elements matching `[data-liquid-glass]` within root.
+ * Mounts Liquid Glass on all elements matching `[data-liquid-glass]` and all card surfaces within root.
  * Reads optional `data-lg-preset`, `data-lg-radius`, `data-lg-refraction`, `data-lg-blur`, `data-lg-light`, `data-lg-shape`.
  */
 export function mountAllLiquidGlass(root = document) {
+  root.querySelectorAll('.dox-metric-card').forEach((el) => {
+    if (!el.hasAttribute('data-liquid-glass')) el.setAttribute('data-liquid-glass', 'metric');
+  });
+  root.querySelectorAll('.dox-alert-card').forEach((el) => {
+    if (!el.hasAttribute('data-liquid-glass')) el.setAttribute('data-liquid-glass', 'alert');
+  });
+  root.querySelectorAll('.dox-card, .sd-card').forEach((el) => {
+    if (!el.hasAttribute('data-liquid-glass')) el.setAttribute('data-liquid-glass', 'card');
+  });
   const nodes = root.querySelectorAll('[data-liquid-glass]');
   const mounted = [];
   nodes.forEach((node) => {

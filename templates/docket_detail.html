@@ -96,7 +96,7 @@
                 </div>
             </div>
             
-            <div class="px-5 py-2.5 border-t border-slate-200/80 bg-slate-50/85 flex justify-center gap-2 flex-shrink-0">
+            <div class="px-5 py-2.5 border-t border-slate-900/[0.06] bg-white/35 flex justify-center gap-2 flex-shrink-0">
                 <button type="button" onclick="zoomImage(0.2)" class="dox-btn-secondary !h-8 !px-3 text-xs font-bold" title="Zoom In"><i data-lucide="zoom-in" class="h-4 w-4 mr-1"></i> In</button>
                 <button type="button" onclick="zoomImage(-0.2)" class="dox-btn-secondary !h-8 !px-3 text-xs font-bold" title="Zoom Out"><i data-lucide="zoom-out" class="h-4 w-4 mr-1"></i> Out</button>
                 <button type="button" onclick="resetZoom()" class="dox-btn-secondary !h-8 !px-3 text-xs font-bold" title="Reset Zoom"><i data-lucide="minimize" class="h-4 w-4 mr-1"></i> Reset</button>
@@ -242,10 +242,10 @@
                         {% set ns = namespace(total_wt=0) %}
                         {% for dim in dims %}
                             {% set ns.total_wt = ns.total_wt + (dim.dimension_weight or 0) %}
-                            <div class="dim-row bg-slate-50/90 border border-slate-200/80 rounded-xl p-3.5 relative group">
+                            <div class="dim-row dox-subpanel p-3.5 relative group">
                                 <input type="hidden" name="dim_id[]" value="{{ dim.id }}">
                                 <div class="flex justify-between items-center mb-2.5">
-                                    <span class="text-[10px] font-bold text-slate-600 uppercase bg-white border border-slate-200/80 px-2 py-0.5 rounded-md dim-index">Row {{ loop.index }}</span>
+                                    <span class="text-[10px] font-bold text-slate-700 uppercase bg-white/75 border border-white/90 px-2 py-0.5 rounded-md dim-index">Row {{ loop.index }}</span>
                                     <div class="flex items-center gap-2.5">
                                         {% if dim.dimension_weight %}
                                         <span class="dox-badge dox-badge-verified text-[11px] font-mono">
@@ -258,19 +258,19 @@
                                 
                                 <div class="grid grid-cols-4 gap-2">
                                     <div>
-                                        <label class="block text-[10px] font-bold text-slate-500 mb-1">Length</label>
+                                        <label class="block text-[10px] font-bold text-slate-600 mb-1">Length</label>
                                         <input type="number" step="0.1" name="length[]" value="{{ dim.length or '' }}" class="dox-input !h-8 w-full text-xs font-bold">
                                     </div>
                                     <div>
-                                        <label class="block text-[10px] font-bold text-slate-500 mb-1">Breadth</label>
+                                        <label class="block text-[10px] font-bold text-slate-600 mb-1">Breadth</label>
                                         <input type="number" step="0.1" name="breadth[]" value="{{ dim.breadth or '' }}" class="dox-input !h-8 w-full text-xs font-bold">
                                     </div>
                                     <div>
-                                        <label class="block text-[10px] font-bold text-slate-500 mb-1">Height</label>
+                                        <label class="block text-[10px] font-bold text-slate-600 mb-1">Height</label>
                                         <input type="number" step="0.1" name="height[]" value="{{ dim.height or '' }}" class="dox-input !h-8 w-full text-xs font-bold">
                                     </div>
                                     <div>
-                                        <label class="block text-[10px] font-bold text-slate-500 mb-1">Boxes</label>
+                                        <label class="block text-[10px] font-bold text-slate-600 mb-1">Boxes</label>
                                         <input type="number" step="0.1" name="num_packages[]" value="{{ dim.num_packages or '' }}" class="dox-input !h-8 w-full text-xs font-bold">
                                     </div>
                                 </div>
@@ -280,7 +280,7 @@
                         {% endfor %}
                         
                         {% if dims %}
-                        <div class="flex justify-between items-center pt-3 border-t border-slate-200/80 px-1">
+                        <div class="flex justify-between items-center pt-3 border-t border-slate-900/[0.06] px-1">
                             <span class="text-xs font-bold text-slate-700">Calculated Volumetric Weight:</span>
                             <span class="text-sm font-extrabold text-blue-700 font-mono tabular-nums">{{ "%.2f"|format(ns.total_wt) }} kg</span>
                         </div>
@@ -298,7 +298,7 @@
 
             <!-- History Tabs -->
             <div class="dox-card overflow-hidden">
-                <div class="flex border-b border-slate-200/80 bg-slate-50/85 text-xs font-bold text-slate-500 uppercase tracking-wider">
+                <div class="flex border-b border-slate-900/[0.06] bg-white/35 text-xs font-bold text-slate-600 uppercase tracking-wider">
                     {% if session.get('role') == 'ADMIN' %}
                     <button class="px-5 py-3.5 text-blue-700 border-b-2 border-blue-600" id="tabAudit" onclick="switchTab('audit')">Audit Log</button>
                     <button class="px-5 py-3.5 hover:text-slate-800" id="tabCorr" onclick="switchTab('corr')">Field Corrections</button>
@@ -316,8 +316,8 @@
                         </div>
                         <div>
                             <p class="text-slate-800 font-semibold"><span class="font-bold text-slate-900">{{ log.user }}</span> {{ log.action|replace('_', ' ')|lower }}</p>
-                            <p class="text-slate-500 mt-0.5">{{ log.details }}</p>
-                            <p class="text-[10px] text-slate-400 font-mono mt-1 tabular-nums">{{ log.timestamp|localdt }}</p>
+                            <p class="text-slate-600 mt-0.5">{{ log.details }}</p>
+                            <p class="text-[10px] text-slate-500 font-mono mt-1 tabular-nums">{{ log.timestamp|localdt }}</p>
                         </div>
                     </div>
                     {% else %}
@@ -328,14 +328,14 @@
                 
                 <div id="contentCorr" class="p-5 max-h-64 overflow-y-auto space-y-3 {% if session.get('role') == 'ADMIN' %}hidden{% endif %}">
                     {% for c in corrections %}
-                    <div class="text-xs text-slate-700 border-l-2 border-blue-500 pl-3.5 py-1.5 bg-slate-50/80 rounded-r-xl border border-slate-200/80">
-                        <span class="font-bold text-slate-900">{{ c.corrected_by }}</span> modified <span class="font-mono bg-white border border-slate-200 px-1.5 py-0.5 rounded text-[11px] font-bold">{{ c.field_name }}</span><br>
+                    <div class="text-xs text-slate-700 border-l-2 border-blue-500 pl-3.5 py-2 dox-subpanel">
+                        <span class="font-bold text-slate-900">{{ c.corrected_by }}</span> modified <span class="font-mono bg-white/80 border border-white/90 px-1.5 py-0.5 rounded text-[11px] font-bold">{{ c.field_name }}</span><br>
                         <div class="mt-1 flex items-center gap-2">
                             <span class="text-rose-600 line-through font-mono">{{ c.original_value or 'empty' }}</span>
                             <span class="text-slate-400">&rarr;</span>
                             <span class="text-emerald-700 font-bold font-mono">{{ c.corrected_value or 'empty' }}</span>
                         </div>
-                        <div class="text-[10px] text-slate-400 font-mono mt-1 tabular-nums">{{ c.corrected_at|localdt }}</div>
+                        <div class="text-[10px] text-slate-500 font-mono mt-1 tabular-nums">{{ c.corrected_at|localdt }}</div>
                     </div>
                     {% else %}
                     <p class="text-xs text-slate-500 font-medium">No field corrections made yet.</p>

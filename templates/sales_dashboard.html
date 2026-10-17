@@ -16,17 +16,27 @@
         --subtle: #94A3B8;
     }
 
-    /* High-Readability Business Surface Card */
+    /* Cohesive Liquid Frosted Glass Business Surface Card */
     .sd-card {
-        background: var(--surface-primary, rgba(255, 255, 255, 0.96));
-        border: 1px solid var(--border-subtle, rgba(226, 232, 240, 0.92));
+        background: linear-gradient(
+            145deg,
+            rgba(255, 255, 255, 0.68) 0%,
+            rgba(245, 249, 255, 0.52) 55%,
+            rgba(235, 243, 255, 0.62) 100%
+        );
+        backdrop-filter: blur(18px) saturate(180%);
+        -webkit-backdrop-filter: blur(18px) saturate(180%);
+        border: 1px solid rgba(255, 255, 255, 0.86);
         border-radius: var(--radius-xl, 18px);
-        box-shadow: var(--highlight-top, inset 0 1px 0 rgba(255,255,255,0.95)), var(--shadow-card, 0 2px 12px -2px rgba(15, 23, 42, 0.05));
+        box-shadow: var(--highlight-top), var(--highlight-bottom), var(--shadow-card);
         transition: border-color 180ms ease, box-shadow 180ms ease;
     }
+    .sd-card.lg-host {
+        background: transparent;
+    }
     .sd-card:hover {
-        border-color: var(--border-strong, rgba(203, 213, 225, 0.95));
-        box-shadow: var(--highlight-top, inset 0 1px 0 rgba(255,255,255,0.95)), var(--shadow-card-hover, 0 8px 24px -4px rgba(15, 23, 42, 0.08));
+        border-color: rgba(255, 255, 255, 0.96);
+        box-shadow: var(--highlight-top), var(--highlight-bottom), var(--shadow-card-hover);
     }
     .sd-accent {
         height: 3px;
@@ -63,7 +73,11 @@
         align-items: flex-start;
         justify-content: space-between;
         gap: 16px 32px;
-        padding: 20px 24px 6px;
+        padding: 16px 24px 14px;
+        margin-bottom: 10px;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.44) 0%, rgba(248, 251, 255, 0.22) 100%);
+        border-bottom: 1px solid rgba(15, 23, 42, 0.065);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
     }
     .sd-stats {
         display: flex;
@@ -74,17 +88,19 @@
         text-align: right;
         min-width: 0;
         padding: 8px 14px;
-        border-radius: var(--radius-md, 10px);
-        background: #F8FAFC;
-        border: 1px solid rgba(226, 232, 240, 0.9);
-        box-shadow: inset 0 1px 0 #FFFFFF;
+        border-radius: 12px;
+        background: linear-gradient(145deg, rgba(255, 255, 255, 0.72) 0%, rgba(244, 249, 255, 0.52) 100%);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        border: 1px solid rgba(255, 255, 255, 0.90);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.96), 0 3px 10px -2px rgba(15, 23, 42, 0.05), 0 0 0 1px rgba(148, 163, 184, 0.18);
         transition: background-color 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
         position: relative;
     }
     .sd-stat:hover {
-        background: #FFFFFF;
-        border-color: #CBD5E1;
-        box-shadow: 0 2px 8px -2px rgba(15, 23, 42, 0.06), inset 0 1px 0 #FFFFFF;
+        background: rgba(255, 255, 255, 0.86);
+        border-color: #FFFFFF;
+        box-shadow: 0 4px 12px -2px rgba(15, 23, 42, 0.08), inset 0 1px 0 #FFFFFF, 0 0 0 1px rgba(148, 163, 184, 0.28);
     }
     .sd-stat .v {
         font-size: 15px;
@@ -106,7 +122,7 @@
     }
     
     @media (max-width: 640px) {
-        .sd-sec-head { padding: 14px 14px 4px; gap: 10px 14px; }
+        .sd-sec-head { padding: 14px 14px 10px; gap: 10px 14px; }
         .sd-stats {
             display: grid !important;
             grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
@@ -114,7 +130,7 @@
             width: 100% !important;
             margin-top: 6px !important;
             padding-top: 8px !important;
-            border-top: 1px solid rgba(241, 245, 249, 0.9) !important;
+            border-top: 1px solid rgba(15, 23, 42, 0.06) !important;
         }
         .sd-stat {
             text-align: left !important;
@@ -125,7 +141,7 @@
         .sd-stat .k { font-size: 9.5px !important; }
     }
     @media (min-width: 641px) and (max-width: 1024px) {
-        .sd-sec-head { padding: 16px 20px 4px; gap: 12px 20px; }
+        .sd-sec-head { padding: 16px 20px 12px; gap: 12px 20px; }
         .sd-stats { gap: 8px 14px; }
         .sd-stat .v { font-size: 14px; }
     }
@@ -159,7 +175,7 @@
             grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
             gap: 4px !important;
             padding: 4px !important;
-            background: rgba(241, 245, 249, 0.92) !important;
+            background: rgba(241, 245, 249, 0.68) !important;
             border-radius: 12px !important;
             box-sizing: border-box !important;
         }
@@ -198,14 +214,14 @@
         display: inline-flex;
         align-items: center;
         padding: 3.5px;
-        background: rgba(241, 245, 249, 0.88);
+        background: rgba(241, 245, 249, 0.65);
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
-        border: 1px solid rgba(226, 232, 240, 0.95);
+        border: 1px solid rgba(255, 255, 255, 0.88);
         border-radius: 12px;
         gap: 3px;
         box-sizing: border-box;
-        box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.04);
+        box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.05), 0 0 0 1px rgba(148, 163, 184, 0.20);
         max-width: 100%;
         overflow-x: auto;
         scrollbar-width: none;
@@ -234,13 +250,13 @@
     }
     .sd-seg button:hover {
         color: var(--ink);
-        background: rgba(255, 255, 255, 0.6);
+        background: rgba(255, 255, 255, 0.62);
     }
     .sd-seg button.active {
-        background: #FFFFFF;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.96) 0%, rgba(248, 251, 255, 0.88) 100%);
         color: var(--ink);
-        border-color: rgba(226, 232, 240, 0.9);
-        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 1px 2px rgba(15, 23, 42, 0.04);
+        border-color: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 2px 6px rgba(15, 23, 42, 0.08), inset 0 1px 0 #FFFFFF, 0 0 0 1px rgba(148, 163, 184, 0.18);
         font-weight: 600;
     }
     .sd-seg button.active .sd-seg-dot {
@@ -266,23 +282,25 @@
         height: 38px;
         min-height: 38px;
         padding: 0 15px;
-        border: 1px solid var(--border-strong, rgba(203, 213, 225, 0.95));
+        border: 1px solid rgba(255, 255, 255, 0.90);
         border-radius: var(--radius-md, 10px);
         font-size: 13px;
         font-weight: 600;
         color: #0F172A;
-        background: rgba(255, 255, 255, 0.94);
-        box-shadow: inset 0 1px 0 #FFFFFF, 0 1px 2px rgba(15, 23, 42, 0.04);
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.84) 0%, rgba(248, 251, 255, 0.68) 100%);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        box-shadow: inset 0 1px 0 #FFFFFF, 0 2px 5px -1px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(148, 163, 184, 0.26);
         transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease;
         white-space: nowrap;
         cursor: pointer;
         text-decoration: none;
     }
     .sd-btn:hover {
-        background: #FFFFFF;
-        border-color: #94A3B8;
+        background: rgba(255, 255, 255, 0.96);
+        border-color: #FFFFFF;
         color: #0F172A;
-        box-shadow: inset 0 1px 0 #FFFFFF, 0 3px 8px -2px rgba(15, 23, 42, 0.08);
+        box-shadow: inset 0 1px 0 #FFFFFF, 0 4px 10px -2px rgba(15, 23, 42, 0.10), 0 0 0 1px rgba(148, 163, 184, 0.36);
     }
     .sd-btn-primary {
         background: linear-gradient(180deg, #2563EB 0%, #1D4ED8 100%) !important;
@@ -300,43 +318,48 @@
     .sd-select {
         height: 36px;
         padding: 0 32px 0 12px;
-        border: 1px solid var(--border-strong, rgba(203, 213, 225, 0.95));
+        border: 1px solid rgba(148, 163, 184, 0.42);
         border-radius: var(--radius-md, 10px);
         font-size: 13px;
         font-weight: 500;
         color: #0F172A;
-        background: #FFFFFF url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 11px center;
+        background: rgba(255, 255, 255, 0.78) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%2364748B' stroke-width='2'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E") no-repeat right 11px center;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
         appearance: none;
         -webkit-appearance: none;
         cursor: pointer;
         max-width: 260px;
         text-overflow: ellipsis;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
-        transition: border-color 150ms ease, box-shadow 150ms ease;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 1px 2px rgba(15, 23, 42, 0.03);
+        transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
     }
-    .sd-select:hover { border-color: #94A3B8; }
-    .sd-select:focus, .sd-input:focus { outline: none; border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16); background-color: #FFFFFF; }
+    .sd-select:hover { border-color: rgba(100, 116, 139, 0.55); background-color: rgba(255, 255, 255, 0.90); }
+    .sd-select:focus, .sd-input:focus { outline: none; border-color: #2563EB; box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.16); background-color: rgba(255, 255, 255, 0.96); }
     .sd-input {
         height: 36px;
         padding: 0 12px;
-        border: 1px solid var(--border-strong, rgba(203, 213, 225, 0.95));
+        border: 1px solid rgba(148, 163, 184, 0.42);
         border-radius: var(--radius-md, 10px);
         font-size: 13px;
         color: #0F172A;
-        background: #FFFFFF;
-        box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
-        transition: border-color 150ms ease, box-shadow 150ms ease;
+        background: rgba(255, 255, 255, 0.78);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 1px 2px rgba(15, 23, 42, 0.03);
+        transition: border-color 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
     }
-    .sd-input:hover { border-color: #94A3B8; }
+    .sd-input:hover { border-color: rgba(100, 116, 139, 0.55); background-color: rgba(255, 255, 255, 0.90); }
 
     /* ── Progress & Health Indicators ────────────────────────────── */
     .sd-track {
         height: 7px;
-        background: #F1F5F9;
+        background: rgba(255, 255, 255, 0.72);
+        border: 1px solid rgba(255, 255, 255, 0.88);
         border-radius: 99px;
         overflow: hidden;
         position: relative;
-        box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.05);
+        box-shadow: inset 0 1px 2px rgba(15, 23, 42, 0.06);
     }
     .sd-fill {
         height: 100%;
@@ -352,9 +375,9 @@
         justify-content: center;
         color: #64748B;
         font-size: 13px;
-        border: 1px dashed #CBD5E1;
+        border: 1px dashed rgba(148, 163, 184, 0.55);
         border-radius: var(--radius-lg, 14px);
-        background: #F8FAFC;
+        background: rgba(255, 255, 255, 0.35);
     }
 
     /* ── Floating Chart Tooltip (High Contrast, Legible) ── */
@@ -436,23 +459,24 @@
         isolation: isolate;
         border-radius: var(--radius-lg, 14px);
         overflow: hidden;
-        border: 1px solid var(--border-subtle, rgba(226, 232, 240, 0.92));
+        border: 1px solid rgba(255, 255, 255, 0.88);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 4px 14px -4px rgba(15, 23, 42, 0.06);
     }
-    #sd-map { height: 440px; background: #F8FAFC; }
+    #sd-map { height: 440px; background: #EEF4FB; }
     @media (max-width: 640px) { #sd-map { height: 320px; } }
     .leaflet-tooltip.sd-map-tip { background: rgba(255, 255, 255, 0.96) !important; backdrop-filter: blur(12px) !important; border: 1px solid rgba(226, 232, 240, 0.95) !important; border-radius: 10px !important; box-shadow: 0 8px 20px rgba(15,23,42,.12) !important; color: #0F172A !important; padding: 8px 12px !important; font-family: Inter, system-ui, sans-serif; }
     .leaflet-tooltip.sd-map-tip::before { display: none; }
     .leaflet-container { font-family: Inter, system-ui, sans-serif; }
     .leaflet-control-attribution { font-size: 10px !important; }
 
-    /* Register table */
+    /* Register table (Translucent Frosted Glass Rows & Sticky Glass Header) */
     .sd-table { border-collapse: separate; border-spacing: 0; }
     .sd-table th {
         position: sticky;
         top: 0;
-        background: rgba(248, 250, 252, 0.96);
-        backdrop-filter: blur(12px);
-        -webkit-backdrop-filter: blur(12px);
+        background: rgba(244, 248, 255, 0.76);
+        backdrop-filter: blur(14px) saturate(165%);
+        -webkit-backdrop-filter: blur(14px) saturate(165%);
         z-index: 10;
         font-size: 11px;
         font-weight: 700;
@@ -460,19 +484,21 @@
         text-transform: uppercase;
         color: #475569;
         padding: 11px 16px;
-        border-bottom: 1px solid var(--border-subtle, rgba(226, 232, 240, 0.92));
+        border-bottom: 1px solid rgba(15, 23, 42, 0.08);
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
         white-space: nowrap;
     }
     .sd-table td {
         padding: 11px 16px;
-        border-bottom: 1px solid #F1F5F9;
+        background: rgba(255, 255, 255, 0.22);
+        border-bottom: 1px solid rgba(15, 23, 42, 0.055);
         font-size: 12.5px;
         color: #334155;
         white-space: nowrap;
         transition: background-color 120ms ease;
     }
     .sd-table tbody tr:hover td {
-        background: #F8FAFC;
+        background: rgba(255, 255, 255, 0.58);
     }
     .sd-pill {
         display: inline-flex;
@@ -488,10 +514,10 @@
         transition: all 150ms ease;
     }
     .subsheet-btn.active {
-        background: #FFFFFF !important;
+        background: rgba(255, 255, 255, 0.94) !important;
         color: #0F172A !important;
         font-weight: 600 !important;
-        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), 0 0 0 1px rgba(15, 23, 42, 0.05) !important;
+        box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08), inset 0 1px 0 #FFFFFF !important;
     }
 
     /* Selective Liquid Glass Modals & Floating Control Bar */
@@ -513,32 +539,32 @@
 {% set summary = report_data.summary or {} %}
 <div id="sd-root" class="max-w-7xl mx-auto space-y-5 pb-16 px-2 sm:px-4">
 
-    <!-- ═══════════════ HEADER ═══════════════ -->
-    <section class="sd-card overflow-hidden">
+    <!-- ═══════════════ HEADER (Liquid Frosted Glass Card) ═══════════════ -->
+    <section data-liquid-glass="card" class="sd-card overflow-hidden">
         <div class="sd-accent"></div>
         <div class="p-5 sm:p-6">
             <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                 <div class="min-w-0">
                     <div class="flex items-center gap-2 mb-1">
-                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200/80">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-white/75 text-slate-800 border border-white/90 shadow-2xs">
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                             North Express Logistics
                         </span>
-                        <span class="text-xs text-slate-400">Enterprise Audit</span>
+                        <span class="text-xs text-slate-500 font-medium">Enterprise Audit</span>
                     </div>
                     <h1 id="seg-title" class="text-[22px] sm:text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight mt-1">Unbilled Revenue</h1>
-                    <p class="text-[12.5px] sm:text-[13px] text-slate-500 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
-                        <span class="font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded text-xs">{{ summary.period_label or current_report.period_label or '—' }}</span>
-                        <span class="text-slate-300">·</span>
+                    <p class="text-[12.5px] sm:text-[13px] text-slate-600 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
+                        <span class="font-semibold text-slate-800 bg-white/70 border border-white/90 px-2 py-0.5 rounded-md text-xs shadow-2xs">{{ summary.period_label or current_report.period_label or '—' }}</span>
+                        <span class="text-slate-400">·</span>
                         <span>Generated {{ current_report.created_at|localdt }}</span>
                     </p>
                 </div>
                 <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto mt-3 sm:mt-0">
                     <a href="{{ url_for('sales.export_pdf', report_id=current_report.id) }}" class="sd-btn flex-1 sm:flex-initial justify-center text-center !px-3 sm:!px-4 shrink-0" title="Export Audit PDF">
-                        <i data-lucide="file-text" class="h-4 w-4 text-slate-500"></i> <span>PDF</span>
+                        <i data-lucide="file-text" class="h-4 w-4 text-blue-600"></i> <span>PDF</span>
                     </a>
                     <a href="{{ url_for('sales.export_pptx', report_id=current_report.id) }}" class="sd-btn flex-1 sm:flex-initial justify-center text-center !px-3 sm:!px-4 shrink-0" title="Export Presentation">
-                        <i data-lucide="presentation" class="h-4 w-4 text-slate-500"></i> <span>PPTX</span>
+                        <i data-lucide="presentation" class="h-4 w-4 text-indigo-600"></i> <span>PPTX</span>
                     </a>
                     <a href="{{ url_for('sales.upload_page') }}" class="sd-btn sd-btn-primary flex-1 sm:flex-initial justify-center text-center !px-3.5 sm:!px-4 shrink-0 shadow-md shadow-blue-500/20">
                         <i data-lucide="upload" class="h-4 w-4"></i> <span>New Upload</span>
@@ -553,8 +579,8 @@
              data-liquid-glass="toolbar"
              data-lg-radius="18"
              data-lg-refraction="88"
-             data-lg-blur="10"
-             data-lg-light="34"
+             data-lg-blur="14"
+             data-lg-light="36"
              class="sm:sticky sm:top-[76px] z-20 rounded-[18px] p-3.5 sm:px-5 sm:py-3.5">
         <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-2.5">
             <!-- Left: View Segments & Month Filter (Data Dimensions) -->
@@ -585,8 +611,8 @@
                     {% endfor %}
                 </select>
                 <div class="flex items-center gap-2 shrink-0 w-full sm:w-auto">
-                    <button type="button" onclick="openManageReportsModal()" class="sd-btn flex-1 sm:flex-initial !px-3.5 text-slate-700 hover:text-slate-900 hover:bg-slate-100 transition inline-flex items-center justify-center gap-1.5 shrink-0" title="Manage all saved reports">
-                        <i data-lucide="layers" class="h-4 w-4 text-slate-500 shrink-0"></i>
+                    <button type="button" onclick="openManageReportsModal()" class="sd-btn flex-1 sm:flex-initial !px-3.5 text-slate-700 hover:text-slate-900 transition inline-flex items-center justify-center gap-1.5 shrink-0" title="Manage all saved reports">
+                        <i data-lucide="layers" class="h-4 w-4 text-blue-600 shrink-0"></i>
                         <span class="whitespace-nowrap">All Reports ({{ reports|length }})</span>
                     </button>
                     <button type="button"
@@ -595,7 +621,7 @@
                             data-del-period="{{ summary.period_label or current_report.period_label or '—' }}"
                             data-del-date="{{ current_report.created_at|localdt }}"
                             onclick="triggerDeleteReport(this)"
-                            class="sd-btn !px-3 text-rose-600 hover:text-rose-700 hover:bg-rose-50 hover:border-rose-300 transition inline-flex items-center justify-center shrink-0"
+                            class="sd-btn !px-3 text-rose-600 hover:text-rose-700 hover:bg-rose-50/90 hover:border-rose-300 transition inline-flex items-center justify-center shrink-0"
                             title="Delete only currently selected report (Report #{{ current_report.id }})">
                         <i data-lucide="trash-2" class="h-4 w-4 text-rose-500 shrink-0"></i>
                     </button>
@@ -604,7 +630,7 @@
         </div>
 
         <!-- Active Drill-down Filter Banner -->
-        <div id="sd-filter-banner" class="hidden mt-3 pt-3 border-t border-slate-200/70 flex flex-wrap items-center justify-between gap-2.5 bg-blue-50/65 px-3.5 py-2.5 rounded-xl border border-blue-200/70">
+        <div id="sd-filter-banner" class="hidden mt-3 pt-3 border-t border-slate-900/[0.06] flex flex-wrap items-center justify-between gap-2.5 bg-blue-50/75 px-3.5 py-2.5 rounded-xl border border-blue-200/80">
             <div class="flex flex-wrap items-center gap-2">
                 <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-900 tracking-wide uppercase">
                     <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
@@ -612,15 +638,14 @@
                 </span>
                 <div id="sd-filter-chips" class="flex flex-wrap items-center gap-1.5"></div>
             </div>
-            <button type="button" id="sd-clear-filters-btn" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-slate-700 bg-white hover:bg-slate-100 rounded-md border border-slate-200 shadow-sm transition">
+            <button type="button" id="sd-clear-filters-btn" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-slate-700 bg-white/85 hover:bg-white rounded-md border border-white/90 shadow-2xs transition">
                 <span>✕</span> Clear Filter
             </button>
         </div>
     </section>
 
     <!-- Commercial Rate Update Notice Banner (Visible when For Update segment is active) -->
-    <!-- Rate Revision Notice Banner -->
-    <div id="for-update-notice" class="hidden sd-card p-3.5 sm:p-4 bg-amber-50/90 border border-amber-200 text-amber-950 flex items-start gap-3">
+    <div id="for-update-notice" data-liquid-glass="alert" class="hidden dox-alert-card p-3.5 sm:p-4 text-amber-950 flex items-start gap-3">
         <div class="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
         </div>
@@ -632,132 +657,132 @@
         </div>
     </div>
 
-    <!-- ═══════════════ EXECUTIVE KPI TELEMETRY STRIP (Analytical Surface) ═══════════════ -->
-    <section class="sd-card overflow-hidden" aria-label="Executive Financial KPIs">
-        <div class="grid grid-cols-2 lg:grid-cols-4 divide-y sm:divide-y-0 sm:divide-x divide-slate-200/75 bg-white/95">
+    <!-- ═══════════════ EXECUTIVE FINANCIAL KPI CARDS (4 Sculpted Liquid Frosted Glass Cards) ═══════════════ -->
+    <section aria-label="Executive Financial KPIs">
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- 1. Total Revenue -->
-            <div class="p-4 sm:p-5 min-w-0 relative overflow-hidden group hover:bg-slate-50/80 transition-colors">
-                <div class="absolute inset-x-0 top-0 h-[2.5px] bg-blue-600 opacity-85 group-hover:opacity-100 transition-opacity"></div>
+            <div data-liquid-glass="metric" class="dox-metric-card min-w-0 group">
+                <div class="absolute inset-x-5 top-0 h-[2.5px] rounded-b-full bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-600 opacity-90 group-hover:opacity-100 transition-opacity"></div>
                 <div class="flex items-center justify-between gap-2">
-                    <span class="sd-kpi-label font-semibold uppercase tracking-wider !text-[11px] text-slate-500">Total Revenue</span>
-                    <div class="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 border border-blue-200/80 flex items-center justify-center shrink-0">
+                    <span class="sd-kpi-label font-bold uppercase tracking-wider !text-[11px] text-slate-600">Total Revenue</span>
+                    <div class="w-8 h-8 rounded-xl bg-blue-50/85 text-blue-600 border border-blue-200/80 shadow-2xs flex items-center justify-center shrink-0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                     </div>
                 </div>
                 <p class="sd-kpi mt-2.5 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900" id="kpi-sales">—</p>
-                <div class="mt-2.5 pt-2 border-t border-slate-100/90 flex items-center justify-between text-xs">
-                    <span class="text-slate-400 font-medium">Reconciled</span>
-                    <span class="font-semibold text-slate-700 sd-num truncate" id="kpi-sales-sub">&nbsp;</span>
+                <div class="mt-2.5 pt-2 border-t border-slate-900/[0.06] flex items-center justify-between text-xs">
+                    <span class="text-slate-500 font-medium">Reconciled</span>
+                    <span class="font-semibold text-slate-800 sd-num truncate" id="kpi-sales-sub">&nbsp;</span>
                 </div>
             </div>
 
             <!-- 2. Shipment Volume -->
-            <div class="p-4 sm:p-5 min-w-0 relative overflow-hidden group hover:bg-slate-50/80 transition-colors">
-                <div class="absolute inset-x-0 top-0 h-[2.5px] bg-sky-500 opacity-85 group-hover:opacity-100 transition-opacity"></div>
+            <div data-liquid-glass="metric" class="dox-metric-card min-w-0 group">
+                <div class="absolute inset-x-5 top-0 h-[2.5px] rounded-b-full bg-gradient-to-r from-sky-500 via-cyan-400 to-sky-600 opacity-90 group-hover:opacity-100 transition-opacity"></div>
                 <div class="flex items-center justify-between gap-2">
-                    <span class="sd-kpi-label font-semibold uppercase tracking-wider !text-[11px] text-slate-500">Shipment Volume</span>
-                    <div class="w-8 h-8 rounded-lg bg-sky-50 text-sky-600 border border-sky-200/80 flex items-center justify-center shrink-0">
+                    <span class="sd-kpi-label font-bold uppercase tracking-wider !text-[11px] text-slate-600">Shipment Volume</span>
+                    <div class="w-8 h-8 rounded-xl bg-sky-50/85 text-sky-600 border border-sky-200/80 shadow-2xs flex items-center justify-center shrink-0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                     </div>
                 </div>
                 <p class="sd-kpi mt-2.5 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900" id="kpi-awbs">—</p>
-                <div class="mt-2.5 pt-2 border-t border-slate-100/90 flex items-center justify-between text-xs">
-                    <span class="text-slate-400 font-medium">Verified AWBs</span>
-                    <span class="font-semibold text-slate-700 sd-num truncate" id="kpi-awbs-sub">&nbsp;</span>
+                <div class="mt-2.5 pt-2 border-t border-slate-900/[0.06] flex items-center justify-between text-xs">
+                    <span class="text-slate-500 font-medium">Verified AWBs</span>
+                    <span class="font-semibold text-slate-800 sd-num truncate" id="kpi-awbs-sub">&nbsp;</span>
                 </div>
             </div>
 
             <!-- 3. Total Weight -->
-            <div class="p-4 sm:p-5 min-w-0 relative overflow-hidden group hover:bg-slate-50/80 transition-colors">
-                <div class="absolute inset-x-0 top-0 h-[2.5px] bg-emerald-500 opacity-85 group-hover:opacity-100 transition-opacity"></div>
+            <div data-liquid-glass="metric" class="dox-metric-card min-w-0 group">
+                <div class="absolute inset-x-5 top-0 h-[2.5px] rounded-b-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600 opacity-90 group-hover:opacity-100 transition-opacity"></div>
                 <div class="flex items-center justify-between gap-2">
-                    <span class="sd-kpi-label font-semibold uppercase tracking-wider !text-[11px] text-slate-500">Total Weight</span>
-                    <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 border border-emerald-200/80 flex items-center justify-center shrink-0">
+                    <span class="sd-kpi-label font-bold uppercase tracking-wider !text-[11px] text-slate-600">Total Weight</span>
+                    <div class="w-8 h-8 rounded-xl bg-emerald-50/85 text-emerald-600 border border-emerald-200/80 shadow-2xs flex items-center justify-center shrink-0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"></path></svg>
                     </div>
                 </div>
                 <p class="sd-kpi mt-2.5 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900" id="kpi-wt">—</p>
-                <div class="mt-2.5 pt-2 border-t border-slate-100/90 flex items-center justify-between text-xs">
-                    <span class="text-slate-400 font-medium">Billed Weight</span>
-                    <span class="font-semibold text-slate-700 sd-num truncate" id="kpi-wt-sub">&nbsp;</span>
+                <div class="mt-2.5 pt-2 border-t border-slate-900/[0.06] flex items-center justify-between text-xs">
+                    <span class="text-slate-500 font-medium">Billed Weight</span>
+                    <span class="font-semibold text-slate-800 sd-num truncate" id="kpi-wt-sub">&nbsp;</span>
                 </div>
             </div>
 
             <!-- 4. Average Value -->
-            <div class="p-4 sm:p-5 min-w-0 relative overflow-hidden group hover:bg-slate-50/80 transition-colors">
-                <div class="absolute inset-x-0 top-0 h-[2.5px] bg-indigo-500 opacity-85 group-hover:opacity-100 transition-opacity"></div>
+            <div data-liquid-glass="metric" class="dox-metric-card min-w-0 group">
+                <div class="absolute inset-x-5 top-0 h-[2.5px] rounded-b-full bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 opacity-90 group-hover:opacity-100 transition-opacity"></div>
                 <div class="flex items-center justify-between gap-2">
-                    <span class="sd-kpi-label font-semibold uppercase tracking-wider !text-[11px] text-slate-500">Average Value</span>
-                    <div class="w-8 h-8 rounded-lg bg-indigo-50 text-indigo-600 border border-indigo-200/80 flex items-center justify-center shrink-0">
+                    <span class="sd-kpi-label font-bold uppercase tracking-wider !text-[11px] text-slate-600">Average Value</span>
+                    <div class="w-8 h-8 rounded-xl bg-indigo-50/85 text-indigo-600 border border-indigo-200/80 shadow-2xs flex items-center justify-center shrink-0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
                     </div>
                 </div>
                 <p class="sd-kpi mt-2.5 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900" id="kpi-avg">—</p>
-                <div class="mt-2.5 pt-2 border-t border-slate-100/90 flex items-center justify-between text-xs">
-                    <span class="text-slate-400 font-medium">Per Consignment</span>
-                    <span class="font-semibold text-slate-700 sd-num truncate" id="kpi-avg-sub">&nbsp;</span>
+                <div class="mt-2.5 pt-2 border-t border-slate-900/[0.06] flex items-center justify-between text-xs">
+                    <span class="text-slate-500 font-medium">Per Consignment</span>
+                    <span class="font-semibold text-slate-800 sd-num truncate" id="kpi-avg-sub">&nbsp;</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ═══════════════ AUDIT RECONCILIATION ═══════════════ -->
-    <section class="sd-card">
-        <div class="sd-sec-head">
+    <!-- ═══════════════ AUDIT RECONCILIATION (Liquid Frosted Glass Card + Subpanels) ═══════════════ -->
+    <section data-liquid-glass="card" class="sd-card overflow-hidden">
+        <div class="sd-sec-head !mb-0">
             <div>
                 <h2 class="sd-title">Operational &amp; Billing Reconciliation</h2>
                 <p class="sd-desc">Physical delivery aligned against billing status</p>
             </div>
         </div>
-        <div class="grid grid-cols-1 sm:grid-cols-3 divide-y sm:divide-y-0 sm:divide-x divide-slate-100 px-2 pb-3">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 p-4 sm:p-5">
             <!-- Physical Delivery Rate -->
-            <div class="p-4 cursor-pointer hover:bg-slate-50/80 transition rounded-xl border border-transparent hover:border-slate-200 group relative" onclick="openPendingDeliveryModal()" title="View in-transit consignments">
+            <div class="p-4 dox-subpanel cursor-pointer hover:bg-white/75 transition group relative" onclick="openPendingDeliveryModal()" title="View in-transit consignments">
                 <div class="flex items-center justify-between">
-                    <p class="sd-kpi-label text-slate-700">Delivery Rate</p>
-                    <span id="aud-deliv-btn" class="inline-flex items-center gap-1 text-[11px] font-medium text-blue-700 bg-blue-50 group-hover:bg-blue-100 px-2 py-0.5 rounded-full border border-blue-200/70 transition shadow-2xs">
+                    <p class="sd-kpi-label font-semibold text-slate-700">Delivery Rate</p>
+                    <span id="aud-deliv-btn" class="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700 bg-blue-50/90 group-hover:bg-blue-100 px-2.5 py-0.5 rounded-full border border-blue-200/80 transition shadow-2xs">
                         <span>Pending AWBs</span>
                         <svg class="w-3 h-3 text-blue-600 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </span>
                 </div>
                 <div class="flex items-baseline justify-between mt-1.5">
-                    <span class="text-xl font-semibold text-slate-900 sd-num" id="aud-deliv">—</span>
-                    <span class="text-xs font-semibold text-amber-700 bg-amber-50 px-2 py-0.5 rounded border border-amber-200/80 hidden" id="aud-pending-badge"></span>
+                    <span class="text-xl font-bold text-slate-900 sd-num" id="aud-deliv">—</span>
+                    <span class="text-xs font-semibold text-amber-700 bg-amber-50/90 px-2 py-0.5 rounded border border-amber-200/80 hidden" id="aud-pending-badge"></span>
                 </div>
                 <div class="sd-track mt-2.5"><div class="sd-fill" id="aud-deliv-bar" style="width:0"></div></div>
-                <p class="sd-kpi-sub" id="aud-deliv-sub">&nbsp;</p>
+                <p class="sd-kpi-sub mt-1.5" id="aud-deliv-sub">&nbsp;</p>
             </div>
 
             <!-- Invoicing Status -->
-            <div class="p-4">
-                <p class="sd-kpi-label">Invoicing Rate</p>
+            <div class="p-4 dox-subpanel">
+                <p class="sd-kpi-label font-semibold text-slate-700">Invoicing Rate</p>
                 <div class="flex items-baseline justify-between mt-1.5">
-                    <span class="text-xl font-semibold text-slate-900 sd-num" id="aud-bill">—</span>
+                    <span class="text-xl font-bold text-slate-900 sd-num" id="aud-bill">—</span>
                 </div>
                 <div class="sd-track mt-2.5"><div class="sd-fill" id="aud-bill-bar" style="width:0"></div></div>
-                <p class="sd-kpi-sub" id="aud-bill-sub">&nbsp;</p>
+                <p class="sd-kpi-sub mt-1.5" id="aud-bill-sub">&nbsp;</p>
             </div>
 
             <!-- Delivered but Unbilled Risk -->
-            <div class="p-4 cursor-pointer hover:bg-rose-50/40 transition rounded-xl border border-transparent hover:border-rose-100 group relative" onclick="openDeliveredUnbilledModal()" title="View delivered unbilled consignments">
+            <div class="p-4 dox-subpanel cursor-pointer hover:bg-rose-50/60 transition group relative" onclick="openDeliveredUnbilledModal()" title="View delivered unbilled consignments">
                 <div class="flex items-center justify-between">
-                    <p class="sd-kpi-label">Delivered Unbilled</p>
-                    <span class="inline-flex items-center gap-1 text-[11px] font-medium text-rose-700 bg-rose-50 group-hover:bg-rose-100 px-2 py-0.5 rounded-full border border-rose-200/70 transition shadow-2xs">
+                    <p class="sd-kpi-label font-semibold text-slate-700">Delivered Unbilled</p>
+                    <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-rose-700 bg-rose-50/90 group-hover:bg-rose-100 px-2.5 py-0.5 rounded-full border border-rose-200/80 transition shadow-2xs">
                         <span>Exposure</span>
                         <svg class="w-3 h-3 text-rose-600 transition group-hover:translate-x-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path></svg>
                     </span>
                 </div>
                 <div class="flex items-baseline justify-between mt-1.5">
-                    <span class="text-xl font-semibold sd-num" id="aud-dnb">—</span>
+                    <span class="text-xl font-bold text-slate-900 sd-num" id="aud-dnb">—</span>
                     <span class="text-[12px] font-semibold text-rose-700 sd-num" id="aud-dnb-exact"></span>
                 </div>
                 <div class="sd-track mt-2.5"><div class="sd-fill" id="aud-dnb-bar" style="width:0;background:#BE123C"></div></div>
-                <p class="sd-kpi-sub" id="aud-dnb-sub">&nbsp;</p>
+                <p class="sd-kpi-sub mt-1.5" id="aud-dnb-sub">&nbsp;</p>
             </div>
         </div>
     </section>
 
     <!-- ═══════════════ DAILY REVENUE TREND ═══════════════ -->
-    <section class="sd-card">
+    <section data-liquid-glass="card" class="sd-card overflow-hidden">
         <div class="sd-sec-head">
             <div>
                 <h2 class="sd-title">Daily Revenue Trend</h2>
@@ -786,7 +811,7 @@
     </section>
 
     <!-- ═══════════════ SALES REPRESENTATIVES ═══════════════ -->
-    <section class="sd-card">
+    <section data-liquid-glass="card" class="sd-card overflow-hidden">
         <div class="sd-sec-head">
             <div>
                 <h2 class="sd-title">Sales Representative Performance</h2>
@@ -805,7 +830,7 @@
     </section>
 
     <!-- ═══════════════ TRANSPORT MODE MIX ═══════════════ -->
-    <section class="sd-card">
+    <section data-liquid-glass="card" class="sd-card overflow-hidden">
         <div class="sd-sec-head">
             <div>
                 <h2 class="sd-title">Transport Mode Mix</h2>
@@ -814,12 +839,12 @@
         </div>
         <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center px-4 sm:px-6 pb-5">
             <div class="md:col-span-2"><div id="chart-modes" style="min-height:280px"></div></div>
-            <div class="md:col-span-3" id="mode-list"></div>
+            <div class="md:col-span-3 dox-subpanel p-3.5 sm:p-4" id="mode-list"></div>
         </div>
     </section>
 
     <!-- ═══════════════ KEY CLIENT ACCOUNTS ═══════════════ -->
-    <section class="sd-card">
+    <section data-liquid-glass="card" class="sd-card overflow-hidden">
         <div class="sd-sec-head">
             <div>
                 <h2 class="sd-title">Key Client Accounts</h2>
@@ -838,7 +863,7 @@
     </section>
 
     <!-- ═══════════════ GEOGRAPHIC NETWORK & LANES ═══════════════ -->
-    <section class="sd-card">
+    <section data-liquid-glass="card" class="sd-card overflow-hidden">
         <div class="sd-sec-head">
             <div>
                 <h2 class="sd-title">Geographic Network &amp; Lanes</h2>
@@ -851,7 +876,7 @@
         </div>
         <div class="px-4 sm:px-6 pb-5">
             <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
-                <div class="flex flex-wrap items-center gap-4 text-[13px] text-slate-600">
+                <div class="flex flex-wrap items-center gap-4 text-[13px] text-slate-700 font-medium">
                     <label class="inline-flex items-center gap-2 cursor-pointer select-none">
                         <input type="checkbox" id="tg-dest" checked class="h-4 w-4 rounded border-slate-300"> Destinations
                     </label>
@@ -859,15 +884,15 @@
                         <input type="checkbox" id="tg-lanes" checked class="h-4 w-4 rounded border-slate-300"> Lanes
                     </label>
                 </div>
-                <div id="lane-legend" class="flex flex-wrap items-center gap-3 text-[12px] text-slate-500"></div>
+                <div id="lane-legend" class="flex flex-wrap items-center gap-3 text-[12px] text-slate-600"></div>
             </div>
             <div class="grid grid-cols-1 lg:grid-cols-5 gap-5">
                 <div class="lg:col-span-3">
                     <div class="sd-map-wrap"><div id="sd-map"></div></div>
-                    <p class="text-[11.5px] text-slate-400 mt-2" id="net-note">&nbsp;</p>
+                    <p class="text-[11.5px] text-slate-500 mt-2" id="net-note">&nbsp;</p>
                 </div>
-                <div class="lg:col-span-2">
-                    <p class="sd-kpi-label mb-2">Top Destinations by Revenue</p>
+                <div class="lg:col-span-2 dox-subpanel p-3.5 sm:p-4">
+                    <p class="sd-kpi-label font-semibold text-slate-700 mb-2.5">Top Destinations by Revenue</p>
                     <div id="dest-list" class="space-y-3"></div>
                 </div>
             </div>
@@ -875,8 +900,8 @@
     </section>
 
     <!-- ═══════════════ CONSIGNMENT REGISTER ═══════════════ -->
-    <section id="reg-section" class="sd-card overflow-hidden">
-        <div class="sd-sec-head">
+    <section id="reg-section" data-liquid-glass="card" class="sd-card overflow-hidden">
+        <div class="sd-sec-head !mb-0">
             <div>
                 <h2 class="sd-title" id="reg-title">Consignment Register</h2>
                 <p class="sd-desc" id="reg-desc">Complete record of verified consignments</p>
@@ -892,9 +917,9 @@
         </div>
 
         <!-- Consolidated Sub-sheet Switcher -->
-        <div id="reg-subsheet-bar" class="hidden px-4 sm:px-6 pt-2 pb-1">
-            <div class="grid grid-cols-1 sm:inline-flex sm:flex-row p-1 bg-slate-100 rounded-xl gap-1 border border-slate-200 w-full sm:w-auto">
-                <button type="button" class="subsheet-btn flex-1 sm:flex-initial px-4 py-2 sm:py-1.5 rounded-lg text-xs font-semibold text-slate-800 bg-white shadow-sm transition text-center justify-center min-h-[36px]" data-sub="billed">
+        <div id="reg-subsheet-bar" class="hidden px-4 sm:px-6 pt-3 pb-1 bg-white/25">
+            <div class="grid grid-cols-1 sm:inline-flex sm:flex-row p-1 bg-white/60 rounded-xl gap-1 border border-white/85 shadow-2xs w-full sm:w-auto">
+                <button type="button" class="subsheet-btn flex-1 sm:flex-initial px-4 py-2 sm:py-1.5 rounded-lg text-xs font-semibold text-slate-800 bg-white/95 shadow-sm transition text-center justify-center min-h-[36px]" data-sub="billed">
                     Billed (<span id="sub-billed-count">0</span> · <span id="sub-billed-amt">₹0</span> <span id="sub-billed-amt-exact" class="text-[11px] font-medium text-slate-500 hidden sm:inline"></span>)
                 </button>
                 <button type="button" class="subsheet-btn flex-1 sm:flex-initial px-4 py-2 sm:py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition text-center justify-center min-h-[36px]" data-sub="unbilled">
@@ -906,7 +931,7 @@
             </div>
         </div>
 
-        <div class="px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-slate-50/50 border-y border-slate-100">
+        <div class="px-4 sm:px-6 py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-white/30 border-b border-slate-900/[0.06]">
             <div class="grid grid-cols-2 sm:flex sm:flex-wrap items-center gap-2 w-full sm:w-auto">
                 <select id="reg-rep" class="sd-select w-full sm:w-auto sm:flex-initial" aria-label="Sales person">
                     <option value="ALL">All sales persons</option>
@@ -926,9 +951,9 @@
                     <span>Reset</span>
                 </button>
             </div>
-            <div class="flex items-center justify-between gap-2 text-[12px] text-slate-500 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-200/60">
+            <div class="flex items-center justify-between gap-2 text-[12px] text-slate-600 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-900/[0.06]">
                 <button type="button" id="reg-export-btn" onclick="exportRegisterCsv()" class="sd-btn !h-8 !px-3 text-xs font-bold justify-center" title="Export currently filtered register consignments as CSV">
-                    <svg class="w-3.5 h-3.5 text-slate-500 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
+                    <svg class="w-3.5 h-3.5 text-blue-600 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path></svg>
                     <span>Export CSV</span>
                 </button>
                 <div class="flex items-center gap-1.5">
@@ -953,32 +978,32 @@
                 </thead>
                 <tbody id="reg-tbody"></tbody>
             </table>
-            <div id="reg-empty" class="hidden p-12 text-center text-[13px] text-slate-400">No consignments match these filters.</div>
+            <div id="reg-empty" class="hidden p-12 text-center text-[13px] text-slate-500">No consignments match these filters.</div>
         </div>
 
-        <div class="px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-2.5 border-t border-slate-100 text-[12px] text-slate-600 bg-slate-50/30">
+        <div class="px-4 sm:px-6 py-3 flex flex-col sm:flex-row items-center justify-between gap-2.5 border-t border-slate-900/[0.06] text-[12px] text-slate-600 bg-white/30">
             <div id="reg-page-info" class="text-center sm:text-left w-full sm:w-auto">Showing 1 to 50 of 797 consignments</div>
             <div id="reg-pagination" class="flex flex-wrap items-center justify-center gap-1 w-full sm:w-auto"></div>
         </div>
     </section>
 <!-- ═══════════════ DELETE PARTICULAR REPORT CONFIRMATION MODAL ═══════════════ -->
 <div id="delete-report-modal" class="fixed inset-0 z-[60] hidden flex items-center justify-center p-3 sm:p-5 bg-slate-900/35 transition-opacity duration-200">
-    <div data-liquid-glass="modal" data-lg-radius="20" data-lg-refraction="86" data-lg-blur="13" data-lg-light="36" class="sd-glass-modal max-w-md w-full overflow-hidden transform transition-all duration-200">
+    <div data-liquid-glass="modal" data-lg-radius="20" data-lg-refraction="86" data-lg-blur="14" data-lg-light="36" class="sd-glass-modal max-w-md w-full overflow-hidden transform transition-all duration-200">
         <div class="p-5 sm:p-6 text-center">
-            <div class="w-12 h-12 mx-auto rounded-full bg-rose-100 text-rose-600 flex items-center justify-center mb-3">
+            <div class="w-12 h-12 mx-auto rounded-full bg-rose-100/90 border border-rose-200 text-rose-600 flex items-center justify-center mb-3 shadow-2xs">
                 <i data-lucide="trash-2" class="h-6 w-6"></i>
             </div>
-            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50 text-rose-700 border border-rose-200 mb-2">
+            <div class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-rose-50/90 text-rose-700 border border-rose-200 mb-2">
                 <span>Targeting Single Report</span>
                 <span id="del-modal-id-badge" class="font-bold">#{{ current_report.id }}</span>
             </div>
             <h3 class="text-lg font-bold text-slate-900">Delete This Particular Report?</h3>
-            <p class="text-xs text-slate-500 mt-1 leading-relaxed">
+            <p class="text-xs text-slate-600 mt-1 leading-relaxed">
                 You are about to delete one specific sales intelligence report.
             </p>
 
             <!-- Safe Deletion Guarantee Callout -->
-            <div class="mt-3.5 p-3 bg-emerald-50/90 border border-emerald-200 rounded-xl text-left text-xs text-emerald-800 flex items-start gap-2.5">
+            <div class="mt-3.5 p-3 bg-emerald-50/85 border border-emerald-200/80 rounded-xl text-left text-xs text-emerald-800 flex items-start gap-2.5">
                 <i data-lucide="shield-check" class="h-4 w-4 text-emerald-600 shrink-0 mt-0.5"></i>
                 <div class="leading-relaxed">
                     <span class="font-bold text-emerald-900">Safe Deletion Guarantee:</span>
@@ -986,30 +1011,30 @@
                 </div>
             </div>
 
-            <div class="mt-3 p-3.5 bg-white/80 rounded-xl border border-slate-200/80 text-left text-xs space-y-1.5">
-                <div class="flex justify-between items-start gap-2 text-slate-500">
+            <div class="mt-3 p-3.5 dox-subpanel text-left text-xs space-y-1.5">
+                <div class="flex justify-between items-start gap-2 text-slate-600">
                     <span class="shrink-0">Target Report:</span>
-                    <span id="del-modal-title" class="font-semibold text-slate-800 text-right truncate max-w-[220px]" title="{{ current_report.title or ('Report #' ~ current_report.id) }}">{{ current_report.title or ('Report #' ~ current_report.id) }}</span>
+                    <span id="del-modal-title" class="font-semibold text-slate-900 text-right truncate max-w-[220px]" title="{{ current_report.title or ('Report #' ~ current_report.id) }}">{{ current_report.title or ('Report #' ~ current_report.id) }}</span>
                 </div>
-                <div class="flex justify-between text-slate-500">
+                <div class="flex justify-between text-slate-600">
                     <span>Report ID:</span>
-                    <span id="del-modal-id" class="font-mono font-medium text-slate-800">#{{ current_report.id }}</span>
+                    <span id="del-modal-id" class="font-mono font-medium text-slate-900">#{{ current_report.id }}</span>
                 </div>
-                <div class="flex justify-between text-slate-500">
+                <div class="flex justify-between text-slate-600">
                     <span>Billing Period:</span>
-                    <span id="del-modal-period" class="font-medium text-slate-800">{{ summary.period_label or current_report.period_label or '—' }}</span>
+                    <span id="del-modal-period" class="font-medium text-slate-900">{{ summary.period_label or current_report.period_label or '—' }}</span>
                 </div>
-                <div class="flex justify-between text-slate-500">
+                <div class="flex justify-between text-slate-600">
                     <span>Generated:</span>
-                    <span id="del-modal-date" class="font-medium text-slate-800">{{ current_report.created_at|localdt }}</span>
+                    <span id="del-modal-date" class="font-medium text-slate-900">{{ current_report.created_at|localdt }}</span>
                 </div>
             </div>
             <p class="text-xs text-rose-600 font-medium mt-3 text-center">
                 This action is permanent and cannot be undone.
             </p>
         </div>
-        <div class="px-5 sm:px-6 py-3.5 bg-white/40 border-t border-slate-200/70 flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
-            <button type="button" onclick="closeDeleteReportModal()" class="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs transition text-center justify-center">
+        <div class="px-5 sm:px-6 py-3.5 bg-white/40 border-t border-slate-900/[0.07] flex flex-col-reverse sm:flex-row items-stretch sm:items-center justify-end gap-2.5">
+            <button type="button" onclick="closeDeleteReportModal()" class="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-slate-700 bg-white/85 hover:bg-white border border-white/90 rounded-lg shadow-2xs transition text-center justify-center">
                 Cancel
             </button>
             <form id="delete-report-form" method="POST" action="{{ url_for('sales.delete_report', report_id=current_report.id) }}" class="w-full sm:w-auto">
@@ -1024,40 +1049,40 @@
 
 <!-- ═══════════════ MANAGE SAVED REPORTS MODAL ═══════════════ -->
 <div id="manage-reports-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-900/35 transition-opacity duration-200">
-    <div data-liquid-glass="modal" data-lg-radius="20" data-lg-refraction="86" data-lg-blur="13" data-lg-light="36" class="sd-glass-modal max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden transform transition-all duration-200">
+    <div data-liquid-glass="modal" data-lg-radius="20" data-lg-refraction="86" data-lg-blur="14" data-lg-light="36" class="sd-glass-modal max-w-4xl w-full max-h-[90vh] flex flex-col overflow-hidden transform transition-all duration-200">
         <!-- Header -->
-        <div class="px-5 sm:px-6 py-4 border-b border-slate-200/70 flex items-start justify-between gap-4 bg-white/45">
+        <div class="px-5 sm:px-6 py-4 border-b border-slate-900/[0.07] flex items-start justify-between gap-4 bg-white/40">
             <div>
                 <div class="flex items-center gap-2">
-                    <span class="px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-indigo-800 bg-indigo-50 rounded border border-indigo-200">Directory</span>
+                    <span class="px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-indigo-800 bg-indigo-50/90 rounded border border-indigo-200/80">Directory</span>
                     <h3 class="text-base sm:text-lg font-bold text-slate-900">Audit Reports</h3>
                 </div>
-                <p class="text-xs text-slate-500 mt-1">
+                <p class="text-xs text-slate-600 mt-1">
                     Select a report to inspect or manage historical audit snapshots.
                 </p>
             </div>
             <div class="flex items-center gap-2">
-                <span class="px-2.5 py-1 text-xs font-semibold text-slate-700 bg-white rounded-md border border-slate-200 shadow-2xs">{{ reports|length }} Reports</span>
-                <button type="button" onclick="closeManageReportsModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition flex items-center justify-center ml-1 text-lg font-semibold" title="Close (Esc)">&times;</button>
+                <span class="px-2.5 py-1 text-xs font-semibold text-slate-700 bg-white/80 rounded-md border border-white/90 shadow-2xs">{{ reports|length }} Reports</span>
+                <button type="button" onclick="closeManageReportsModal()" class="w-8 h-8 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-white/60 transition flex items-center justify-center ml-1 text-lg font-semibold" title="Close (Esc)">&times;</button>
             </div>
         </div>
 
         <!-- Filter / Search toolbar -->
-        <div class="px-5 sm:px-6 py-3 border-b border-slate-200/70 bg-white/55 flex flex-wrap items-center justify-between gap-3">
+        <div class="px-5 sm:px-6 py-3 border-b border-slate-900/[0.06] bg-white/30 flex flex-wrap items-center justify-between gap-3">
             <div class="relative flex-1 min-w-[220px] max-w-sm">
-                <input type="text" id="manage-rep-search" oninput="filterManageReports(this.value)" placeholder="Search by title, period, or ID..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-slate-200 bg-white/95 focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 placeholder-slate-400">
+                <input type="text" id="manage-rep-search" oninput="filterManageReports(this.value)" placeholder="Search by title, period, or ID..." class="w-full pl-8 pr-3 py-1.5 text-xs rounded-lg border border-white/90 bg-white/80 focus:bg-white focus:outline-none focus:ring-2 focus:ring-blue-500 text-slate-800 placeholder-slate-400">
                 <i data-lucide="search" class="h-3.5 w-3.5 text-slate-400 absolute left-2.5 top-2.5 pointer-events-none"></i>
             </div>
-            <div class="flex items-center gap-2 text-xs text-slate-500">
+            <div class="flex items-center gap-2 text-xs text-slate-600">
                 <span class="inline-flex items-center gap-1.5"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Active Audit</span>
             </div>
         </div>
 
         <!-- List table -->
         <div class="overflow-y-auto flex-1 p-2 sm:p-5">
-            <div class="border border-slate-200/90 rounded-xl overflow-x-auto bg-white/90">
-                <table class="w-full text-left text-xs text-slate-600 border-collapse">
-                    <thead class="bg-slate-50 border-b border-slate-200 font-semibold text-slate-700 uppercase text-[11px] tracking-wider">
+            <div class="dox-subpanel overflow-x-auto">
+                <table class="w-full text-left text-xs text-slate-700 border-collapse">
+                    <thead class="bg-white/55 border-b border-slate-900/[0.07] font-semibold text-slate-700 uppercase text-[11px] tracking-wider">
                         <tr>
                             <th class="py-3 px-3.5 text-center w-14">ID</th>
                             <th class="py-3 px-3.5">Report Title</th>
@@ -1066,17 +1091,17 @@
                             <th class="py-3 px-3.5 text-right w-40">Actions</th>
                         </tr>
                     </thead>
-                    <tbody class="divide-y divide-slate-100">
+                    <tbody class="divide-y divide-slate-900/[0.06]">
                         {% for rep in reports %}
-                        <tr class="manage-rep-row hover:bg-slate-50/80 transition" data-search="{{ rep.id }} {{ rep.title|e }} {{ rep.period_label|e }} {{ rep.created_by|e }}">
-                            <td class="py-3 px-3.5 text-center font-mono font-medium text-slate-500">
-                                <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-700 font-semibold text-[11px]">#{{ rep.id }}</span>
+                        <tr class="manage-rep-row hover:bg-white/60 transition" data-search="{{ rep.id }} {{ rep.title|e }} {{ rep.period_label|e }} {{ rep.created_by|e }}">
+                            <td class="py-3 px-3.5 text-center font-mono font-medium text-slate-600">
+                                <span class="px-2 py-0.5 rounded bg-white/75 border border-white/90 text-slate-700 font-semibold text-[11px]">#{{ rep.id }}</span>
                             </td>
                             <td class="py-3 px-3.5">
                                 <div class="flex items-center gap-2">
                                     <span class="font-bold text-slate-900 truncate max-w-[280px]" title="{{ rep.title or ('Report #' ~ rep.id) }}">{{ rep.title or ('Report #' ~ rep.id) }}</span>
                                     {% if rep.id == current_report.id %}
-                                    <span class="px-2 py-0.5 text-[10px] font-bold text-emerald-800 bg-emerald-50 border border-emerald-200 rounded-full shrink-0">Current</span>
+                                    <span class="px-2 py-0.5 text-[10px] font-bold text-emerald-800 bg-emerald-50/90 border border-emerald-200 rounded-full shrink-0">Current</span>
                                     {% endif %}
                                 </div>
                                 <div class="text-[11px] text-slate-500 mt-0.5 flex items-center gap-2">
@@ -1100,9 +1125,9 @@
                             <td class="py-3 px-3.5 text-right">
                                 <div class="inline-flex items-center gap-1.5 justify-end">
                                     {% if rep.id == current_report.id %}
-                                    <span class="px-2.5 py-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 rounded-lg border border-emerald-200">Active</span>
+                                    <span class="px-2.5 py-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50/90 rounded-lg border border-emerald-200">Active</span>
                                     {% else %}
-                                    <a href="{{ url_for('sales.dashboard', report_id=rep.id) }}" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-blue-700 bg-blue-50 hover:bg-blue-100 rounded-lg border border-blue-200 transition" title="View this report">
+                                    <a href="{{ url_for('sales.dashboard', report_id=rep.id) }}" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-blue-700 bg-blue-50/90 hover:bg-blue-100 rounded-lg border border-blue-200 transition" title="View this report">
                                         <i data-lucide="eye" class="h-3.5 w-3.5"></i> View
                                     </a>
                                     {% endif %}
@@ -1112,7 +1137,7 @@
                                             data-del-period="{{ rep.period_label or '—' }}"
                                             data-del-date="{{ rep.created_at|localdt }}"
                                             onclick="triggerDeleteReport(this)"
-                                            class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-rose-700 bg-rose-50 hover:bg-rose-100 rounded-lg border border-rose-200 transition"
+                                            class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-semibold text-rose-700 bg-rose-50/90 hover:bg-rose-100 rounded-lg border border-rose-200 transition"
                                             title="Delete only Report #{{ rep.id }}">
                                         <i data-lucide="trash-2" class="h-3.5 w-3.5"></i> Delete
                                     </button>
@@ -1122,19 +1147,19 @@
                         {% endfor %}
                     </tbody>
                 </table>
-                <div id="manage-rep-empty" class="hidden p-8 text-center text-xs text-slate-400">
+                <div id="manage-rep-empty" class="hidden p-8 text-center text-xs text-slate-500">
                     No reports match your search query.
                 </div>
             </div>
         </div>
 
         <!-- Footer Notice -->
-        <div class="px-5 sm:px-6 py-3 bg-white/45 border-t border-slate-200/70 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-500">
-            <div class="flex items-center gap-1.5 text-slate-600 font-medium">
+        <div class="px-5 sm:px-6 py-3 bg-white/40 border-t border-slate-900/[0.07] flex flex-wrap items-center justify-between gap-3 text-xs text-slate-600">
+            <div class="flex items-center gap-1.5 text-slate-700 font-medium">
                 <i data-lucide="shield-check" class="h-4 w-4 text-emerald-600"></i>
                 <span>Audit reports are managed independently. Deleting a report does not affect other periods.</span>
             </div>
-            <button type="button" onclick="closeManageReportsModal()" class="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 rounded-lg shadow-2xs transition text-center justify-center min-h-[38px]">
+            <button type="button" onclick="closeManageReportsModal()" class="w-full sm:w-auto px-4 py-2 text-xs font-semibold text-slate-700 bg-white/85 hover:bg-white border border-white/90 rounded-lg shadow-2xs transition text-center justify-center min-h-[38px]">
                 Close
             </button>
         </div>
@@ -1143,39 +1168,39 @@
 
 <!-- ═══════════════ PENDING & IN-TRANSIT AWBS AUDIT MODAL ═══════════════ -->
 <div id="pending-modal" class="fixed inset-0 z-50 hidden flex items-center justify-center p-3 sm:p-5 bg-slate-900/35 transition-opacity duration-200">
-    <div data-liquid-glass="modal" data-lg-radius="20" data-lg-refraction="86" data-lg-blur="13" data-lg-light="36" class="sd-glass-modal max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden transform transition-all duration-200">
+    <div data-liquid-glass="modal" data-lg-radius="20" data-lg-refraction="86" data-lg-blur="14" data-lg-light="36" class="sd-glass-modal max-w-5xl w-full max-h-[92vh] flex flex-col overflow-hidden transform transition-all duration-200">
         <!-- Header -->
-        <div class="px-5 sm:px-6 py-4 border-b border-slate-200/70 flex items-start justify-between gap-4 bg-white/45">
+        <div class="px-5 sm:px-6 py-4 border-b border-slate-900/[0.07] flex items-start justify-between gap-4 bg-white/40">
             <div>
                 <div class="flex items-center gap-2">
-                    <span id="pending-modal-tag" class="px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-amber-800 bg-amber-50 rounded border border-amber-200">Delivery Audit</span>
+                    <span id="pending-modal-tag" class="px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider text-amber-800 bg-amber-50/90 rounded border border-amber-200">Delivery Audit</span>
                     <h3 class="text-base sm:text-lg font-bold text-slate-900" id="pending-modal-title">Pending Deliveries</h3>
                 </div>
-                <p class="text-xs text-slate-500 mt-1" id="pending-modal-desc">Consignments awaiting physical delivery or POD confirmation.</p>
+                <p class="text-xs text-slate-600 mt-1" id="pending-modal-desc">Consignments awaiting physical delivery or POD confirmation.</p>
             </div>
             <div class="flex items-center gap-2">
-                <span id="pending-modal-count-badge" class="px-2.5 py-1 text-xs font-semibold text-slate-700 bg-white rounded-md border border-slate-200 shadow-2xs">—</span>
-                <span id="pending-modal-amt-badge" class="px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50 rounded-md border border-emerald-200 shadow-2xs">—</span>
-                <button type="button" onclick="closePendingModal()" class="w-8 h-8 rounded-lg text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition flex items-center justify-center ml-1 text-lg font-semibold" title="Close (Esc)">&times;</button>
+                <span id="pending-modal-count-badge" class="px-2.5 py-1 text-xs font-semibold text-slate-700 bg-white/80 rounded-md border border-white/90 shadow-2xs">—</span>
+                <span id="pending-modal-amt-badge" class="px-2.5 py-1 text-xs font-semibold text-emerald-700 bg-emerald-50/90 rounded-md border border-emerald-200 shadow-2xs">—</span>
+                <button type="button" onclick="closePendingModal()" class="w-8 h-8 rounded-lg text-slate-500 hover:text-slate-800 hover:bg-white/60 transition flex items-center justify-center ml-1 text-lg font-semibold" title="Close (Esc)">&times;</button>
             </div>
         </div>
 
         <!-- Controls Toolbar -->
-        <div class="px-4 sm:px-6 py-3 border-b border-slate-200/70 bg-white/55 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
+        <div class="px-4 sm:px-6 py-3 border-b border-slate-900/[0.06] bg-white/30 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 text-xs">
             <!-- Search -->
             <div class="relative w-full sm:flex-1 sm:min-w-[220px]">
-                <input type="text" id="pending-search" placeholder="Search by AWB, customer, destination..." class="w-full pl-8 pr-3 py-2 sm:py-1.5 text-xs bg-white/95 border border-slate-200 rounded-lg text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition" oninput="renderPendingModalTable()">
+                <input type="text" id="pending-search" placeholder="Search by AWB, customer, destination..." class="w-full pl-8 pr-3 py-2 sm:py-1.5 text-xs bg-white/80 border border-white/90 rounded-lg text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500 transition" oninput="renderPendingModalTable()">
                 <svg class="w-4 h-4 text-slate-400 absolute left-2.5 top-2.5 sm:top-2 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
             </div>
             <!-- Status Filter Tabs -->
             <div id="pending-status-filters" class="flex items-center gap-1.5 overflow-x-auto py-1 w-full sm:w-auto"></div>
             <!-- Action Buttons -->
             <div class="grid grid-cols-3 sm:flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
-                <button type="button" id="copy-awbs-btn" onclick="copyPendingAwbs()" class="inline-flex items-center justify-center gap-1 px-2.5 py-2 sm:py-1.5 rounded-lg border border-slate-200 bg-white/90 text-slate-700 hover:bg-slate-50 font-medium transition shadow-2xs text-[11px] sm:text-xs min-h-[36px]">
+                <button type="button" id="copy-awbs-btn" onclick="copyPendingAwbs()" class="inline-flex items-center justify-center gap-1 px-2.5 py-2 sm:py-1.5 rounded-lg border border-white/90 bg-white/80 text-slate-700 hover:bg-white font-medium transition shadow-2xs text-[11px] sm:text-xs min-h-[36px]">
                     <svg class="w-3.5 h-3.5 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"></path></svg>
                     <span id="copy-awbs-txt">Copy AWBs</span>
                 </button>
-                <button type="button" onclick="exportPendingCsv()" class="inline-flex items-center justify-center gap-1 px-2.5 py-2 sm:py-1.5 rounded-lg border border-slate-200 bg-white/90 text-slate-700 hover:bg-slate-50 font-medium transition shadow-2xs text-[11px] sm:text-xs min-h-[36px]">
+                <button type="button" onclick="exportPendingCsv()" class="inline-flex items-center justify-center gap-1 px-2.5 py-2 sm:py-1.5 rounded-lg border border-white/90 bg-white/80 text-slate-700 hover:bg-white font-medium transition shadow-2xs text-[11px] sm:text-xs min-h-[36px]">
                     <svg class="w-3.5 h-3.5 text-slate-500 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
                     <span>Export CSV</span>
                 </button>
@@ -1187,9 +1212,9 @@
         </div>
 
         <!-- Table Container -->
-        <div class="overflow-y-auto overflow-x-auto flex-1 min-h-[280px] max-h-[58vh] bg-white/88">
+        <div class="overflow-y-auto overflow-x-auto flex-1 min-h-[280px] max-h-[58vh] bg-white/35">
             <table class="w-full text-left border-collapse text-xs">
-                <thead class="sticky top-0 bg-slate-50/95 backdrop-blur-xs text-[11px] font-semibold uppercase tracking-wider text-slate-500 border-b border-slate-200 z-10">
+                <thead class="sticky top-0 bg-white/75 backdrop-blur-md text-[11px] font-semibold uppercase tracking-wider text-slate-600 border-b border-slate-900/[0.08] z-10">
                     <tr>
                         <th class="py-2.5 px-3 w-10 text-center">#</th>
                         <th class="py-2.5 px-3">AWB No.</th>
@@ -1203,19 +1228,19 @@
                         <th class="py-2.5 px-3">Bill No.</th>
                     </tr>
                 </thead>
-                <tbody id="pending-modal-tbody" class="divide-y divide-slate-100 font-normal text-slate-700">
+                <tbody id="pending-modal-tbody" class="divide-y divide-slate-900/[0.06] font-normal text-slate-700">
                     <!-- Populated via JavaScript -->
                 </tbody>
             </table>
-            <div id="pending-modal-empty" class="hidden py-16 text-center text-slate-400 text-sm">
+            <div id="pending-modal-empty" class="hidden py-16 text-center text-slate-500 text-sm">
                 No matching in-transit or pending consignments found.
             </div>
         </div>
 
         <!-- Footer -->
-        <div class="px-5 sm:px-6 py-3 border-t border-slate-200/70 bg-white/45 flex items-center justify-between text-xs text-slate-600">
+        <div class="px-5 sm:px-6 py-3 border-t border-slate-900/[0.07] bg-white/40 flex items-center justify-between text-xs text-slate-600">
             <div id="pending-modal-footer-info">Showing consignments</div>
-            <button type="button" onclick="closePendingModal()" class="px-4 py-1.5 rounded-lg bg-white border border-slate-200 text-slate-700 hover:bg-slate-50 font-medium transition shadow-2xs">Close</button>
+            <button type="button" onclick="closePendingModal()" class="px-4 py-1.5 rounded-lg bg-white/85 border border-white/90 text-slate-700 hover:bg-white font-medium transition shadow-2xs">Close</button>
         </div>
     </div>
 </div>
