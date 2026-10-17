@@ -19,19 +19,32 @@
             </p>
         </div>
         
-        <a href="{{ url_for('ops.dockets') }}" class="dox-btn-secondary !h-10 text-xs">
-            <i data-lucide="arrow-left" class="h-3.5 w-3.5 mr-1.5"></i> All Dockets
-        </a>
+        <div class="flex items-center gap-2">
+            <a href="{{ url_for('ops.dockets') }}" class="dox-btn-secondary !h-10 text-xs">
+                <i data-lucide="files" class="h-3.5 w-3.5"></i>
+                <span>All Dockets</span>
+            </a>
+            <a href="{{ url_for('ops.dashboard') }}" class="dox-btn-secondary !h-10 text-xs">
+                <i data-lucide="arrow-left" class="h-3.5 w-3.5"></i>
+                <span>Dashboard</span>
+            </a>
+        </div>
     </div>
 
-    <!-- Liquid Glass Card Container -->
+    <!-- Analytical Queue Container -->
     <div class="dox-card overflow-hidden">
-        <div class="px-6 py-4 border-b border-white/80 bg-white/40 flex items-center justify-between backdrop-blur-md">
-            <div class="flex items-center gap-2">
-                <i data-lucide="alert-triangle" class="h-4 w-4 text-amber-600"></i>
-                <h2 class="text-sm font-bold text-slate-900">Action Required Queue</h2>
+        <div class="h-[3px] {% if dockets|length > 0 %}bg-amber-500{% else %}bg-emerald-500{% endif %}"></div>
+        <div class="dox-card-header">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200/80 text-amber-600 flex items-center justify-center shrink-0">
+                    <i data-lucide="inbox" class="h-4 w-4"></i>
+                </div>
+                <div>
+                    <h2 class="text-sm font-bold text-slate-900 tracking-tight">Action Required Queue</h2>
+                    <p class="text-[11px] text-slate-500 font-medium">Consignments flagged for mathematical or field verification</p>
+                </div>
             </div>
-            <span class="dox-badge dox-badge-review">{{ dockets|length }} Dockets</span>
+            <span class="dox-badge dox-badge-review tabular-nums">{{ dockets|length }} Dockets</span>
         </div>
         
         <div class="overflow-x-auto">

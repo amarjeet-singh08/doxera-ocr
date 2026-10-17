@@ -81,22 +81,22 @@
 
     <div class="grid grid-cols-1 xl:grid-cols-2 gap-6 items-start">
         
-        <!-- Left Column: Image Viewer (Liquid Glass Inspector) -->
+        <!-- Left Column: Image Viewer (Document Inspector) -->
         <div class="xl:sticky xl:top-24 dox-card overflow-hidden flex flex-col h-[460px] xl:h-[calc(100vh-160px)]">
-            <div class="px-5 py-3.5 border-b border-white/80 bg-white/40 flex justify-between items-center flex-shrink-0 backdrop-blur-md">
+            <div class="dox-card-header !py-3.5 !px-5 flex-shrink-0">
                 <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                     <i data-lucide="image" class="h-4 w-4 text-blue-600"></i> Original Document
                 </h3>
-                <span class="text-[11px] text-slate-500 font-mono bg-white/80 px-2.5 py-0.5 rounded-md border border-white/90">{{ docket.original_filename }}</span>
+                <span class="text-[11px] text-slate-500 font-mono bg-white px-2.5 py-0.5 rounded-md border border-slate-200/80">{{ docket.original_filename }}</span>
             </div>
             
-            <div class="flex-1 bg-slate-900/5 p-3 overflow-auto relative" id="imageContainer">
+            <div class="flex-1 bg-slate-900/[0.04] p-3 overflow-auto relative" id="imageContainer">
                 <div class="flex items-center justify-center min-h-full">
-                    <img src="{{ url_for('ops.serve_image', filename=docket.image_filename) }}" alt="Docket Image" class="max-w-full object-contain rounded-xl shadow-md border border-white/80 transition-all duration-200" id="docketImage" style="width: 100%; max-width: 100%;">
+                    <img src="{{ url_for('ops.serve_image', filename=docket.image_filename) }}" alt="Docket Image" class="max-w-full object-contain rounded-xl shadow-md border border-slate-200/80 transition-all duration-200" id="docketImage" style="width: 100%; max-width: 100%;">
                 </div>
             </div>
             
-            <div class="px-5 py-2.5 border-t border-white/80 bg-white/50 backdrop-blur-md flex justify-center gap-2 flex-shrink-0">
+            <div class="px-5 py-2.5 border-t border-slate-200/80 bg-slate-50/85 flex justify-center gap-2 flex-shrink-0">
                 <button type="button" onclick="zoomImage(0.2)" class="dox-btn-secondary !h-8 !px-3 text-xs font-bold" title="Zoom In"><i data-lucide="zoom-in" class="h-4 w-4 mr-1"></i> In</button>
                 <button type="button" onclick="zoomImage(-0.2)" class="dox-btn-secondary !h-8 !px-3 text-xs font-bold" title="Zoom Out"><i data-lucide="zoom-out" class="h-4 w-4 mr-1"></i> Out</button>
                 <button type="button" onclick="resetZoom()" class="dox-btn-secondary !h-8 !px-3 text-xs font-bold" title="Reset Zoom"><i data-lucide="minimize" class="h-4 w-4 mr-1"></i> Reset</button>
@@ -109,9 +109,9 @@
             
             <!-- Validation Summary Card -->
             <div class="dox-card overflow-hidden">
-                <div class="px-5 py-3.5 border-b border-white/80 bg-white/40 flex justify-between items-center cursor-pointer backdrop-blur-md" onclick="document.getElementById('valContent').classList.toggle('hidden')">
+                <div class="dox-card-header !py-3.5 !px-5 cursor-pointer" onclick="document.getElementById('valContent').classList.toggle('hidden')">
                     <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
-                        <i data-lucide="check-square" class="h-4 w-4 text-blue-600"></i> Mathematical & Field Validation
+                        <i data-lucide="check-square" class="h-4 w-4 text-blue-600"></i> Mathematical &amp; Field Validation
                     </h3>
                     {% if is_valid %}
                         <span class="dox-badge dox-badge-verified text-xs font-bold"><i data-lucide="check-circle" class="h-3.5 w-3.5 mr-1"></i> Passed</span>
@@ -135,8 +135,9 @@
             </div>
 
             {% if docket.status in ['REJECTED', 'FAILED'] and docket.rejection_reasons %}
-            <div class="dox-card overflow-hidden border-rose-200/80 bg-rose-50/70">
-                <div class="px-5 py-3.5 border-b border-rose-200/60 bg-rose-100/50 flex justify-between items-center">
+            <div class="dox-card overflow-hidden">
+                <div class="h-[3px] bg-rose-500"></div>
+                <div class="dox-card-header !py-3.5 !px-5">
                     <h3 class="text-xs font-bold text-rose-900 uppercase tracking-wider flex items-center gap-2">
                         <i data-lucide="alert-octagon" class="h-4 w-4 text-rose-600"></i> {% if docket.status == 'FAILED' %}Processing Failure Log{% else %}Rejection Rationales{% endif %}
                     </h3>
@@ -153,14 +154,14 @@
 
             <!-- Quick Action Palette -->
             <div class="dox-card overflow-hidden">
-                <div class="px-5 py-3.5 border-b border-white/80 bg-white/40 flex justify-between items-center backdrop-blur-md">
+                <div class="dox-card-header !py-3.5 !px-5">
                     <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider">Workflow State Transition</h3>
                 </div>
                 <div class="p-5 flex flex-wrap gap-2.5">
                     {% if docket.status != 'VERIFIED' and is_valid %}
                     <form method="POST" action="{{ url_for('ops.docket_detail', docket_id=docket.id) }}">
                         <input type="hidden" name="action" value="verify">
-                        <button type="submit" class="dox-btn-secondary !bg-gradient-to-tr !from-emerald-600 !to-emerald-700 !text-white !border-emerald-500 hover:!from-emerald-500 hover:!to-emerald-600 !h-9 text-xs font-bold shadow-md shadow-emerald-600/25">
+                        <button type="submit" class="dox-btn-secondary !bg-emerald-600 hover:!bg-emerald-700 !text-white !border-emerald-600 !h-9 text-xs font-bold shadow-xs">
                             <i data-lucide="check-circle" class="h-3.5 w-3.5 mr-1.5"></i> Mark as Verified
                         </button>
                     </form>
@@ -204,7 +205,7 @@
             <form method="POST" action="{{ url_for('ops.edit_all', docket_id=docket.id) }}" id="docketForm">
                 <!-- Basic Info Card -->
                 <div class="dox-card overflow-hidden mb-6">
-                    <div class="px-5 py-3.5 border-b border-white/80 bg-white/40 backdrop-blur-md">
+                    <div class="dox-card-header !py-3.5 !px-5">
                         <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                             <i data-lucide="file-text" class="h-4 w-4 text-blue-600"></i> Basic Extraction Fields
                         </h3>
@@ -228,7 +229,7 @@
 
                 <!-- Dimensions Card -->
                 <div class="dox-card overflow-hidden mb-6">
-                    <div class="px-5 py-3.5 border-b border-white/80 bg-white/40 flex justify-between items-center backdrop-blur-md">
+                    <div class="dox-card-header !py-3.5 !px-5">
                         <h3 class="text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
                             <i data-lucide="box" class="h-4 w-4 text-blue-600"></i> Dimension Groups (L × B × H)
                         </h3>
@@ -241,10 +242,10 @@
                         {% set ns = namespace(total_wt=0) %}
                         {% for dim in dims %}
                             {% set ns.total_wt = ns.total_wt + (dim.dimension_weight or 0) %}
-                            <div class="dim-row bg-white/70 border border-white/90 rounded-2xl p-3.5 relative group shadow-2xs">
+                            <div class="dim-row bg-slate-50/90 border border-slate-200/80 rounded-xl p-3.5 relative group">
                                 <input type="hidden" name="dim_id[]" value="{{ dim.id }}">
                                 <div class="flex justify-between items-center mb-2.5">
-                                    <span class="text-[10px] font-bold text-slate-600 uppercase bg-slate-100 px-2 py-0.5 rounded-md dim-index">Row {{ loop.index }}</span>
+                                    <span class="text-[10px] font-bold text-slate-600 uppercase bg-white border border-slate-200/80 px-2 py-0.5 rounded-md dim-index">Row {{ loop.index }}</span>
                                     <div class="flex items-center gap-2.5">
                                         {% if dim.dimension_weight %}
                                         <span class="dox-badge dox-badge-verified text-[11px] font-mono">
@@ -279,9 +280,9 @@
                         {% endfor %}
                         
                         {% if dims %}
-                        <div class="flex justify-between items-center pt-3 border-t border-white/80 px-1">
+                        <div class="flex justify-between items-center pt-3 border-t border-slate-200/80 px-1">
                             <span class="text-xs font-bold text-slate-700">Calculated Volumetric Weight:</span>
-                            <span class="text-sm font-extrabold text-blue-700 font-mono">{{ "%.2f"|format(ns.total_wt) }} kg</span>
+                            <span class="text-sm font-extrabold text-blue-700 font-mono tabular-nums">{{ "%.2f"|format(ns.total_wt) }} kg</span>
                         </div>
                         {% endif %}
                     </div>
@@ -289,15 +290,15 @@
 
                 <!-- Sticky Save Changes Floating Action Bar -->
                 <div class="sticky bottom-4 z-10 flex justify-end">
-                    <button type="submit" class="dox-btn-primary !h-12 !px-8 text-sm font-extrabold shadow-2xl shadow-blue-600/40">
-                        <i data-lucide="save" class="h-4 w-4 mr-2"></i> Save All Modifications
+                    <button type="submit" class="dox-btn-primary !h-11 !px-7 text-sm font-bold shadow-xl shadow-blue-600/30">
+                        <i data-lucide="save" class="h-4 w-4 mr-1.5"></i> Save All Modifications
                     </button>
                 </div>
             </form>
 
             <!-- History Tabs -->
             <div class="dox-card overflow-hidden">
-                <div class="flex border-b border-white/80 bg-white/40 text-xs font-bold text-slate-500 uppercase tracking-wider backdrop-blur-md">
+                <div class="flex border-b border-slate-200/80 bg-slate-50/85 text-xs font-bold text-slate-500 uppercase tracking-wider">
                     {% if session.get('role') == 'ADMIN' %}
                     <button class="px-5 py-3.5 text-blue-700 border-b-2 border-blue-600" id="tabAudit" onclick="switchTab('audit')">Audit Log</button>
                     <button class="px-5 py-3.5 hover:text-slate-800" id="tabCorr" onclick="switchTab('corr')">Field Corrections</button>
@@ -316,7 +317,7 @@
                         <div>
                             <p class="text-slate-800 font-semibold"><span class="font-bold text-slate-900">{{ log.user }}</span> {{ log.action|replace('_', ' ')|lower }}</p>
                             <p class="text-slate-500 mt-0.5">{{ log.details }}</p>
-                            <p class="text-[10px] text-slate-400 font-mono mt-1">{{ log.timestamp|localdt }}</p>
+                            <p class="text-[10px] text-slate-400 font-mono mt-1 tabular-nums">{{ log.timestamp|localdt }}</p>
                         </div>
                     </div>
                     {% else %}
@@ -327,14 +328,14 @@
                 
                 <div id="contentCorr" class="p-5 max-h-64 overflow-y-auto space-y-3 {% if session.get('role') == 'ADMIN' %}hidden{% endif %}">
                     {% for c in corrections %}
-                    <div class="text-xs text-slate-700 border-l-2 border-blue-500 pl-3.5 py-1.5 bg-white/60 rounded-r-xl border border-white/80">
+                    <div class="text-xs text-slate-700 border-l-2 border-blue-500 pl-3.5 py-1.5 bg-slate-50/80 rounded-r-xl border border-slate-200/80">
                         <span class="font-bold text-slate-900">{{ c.corrected_by }}</span> modified <span class="font-mono bg-white border border-slate-200 px-1.5 py-0.5 rounded text-[11px] font-bold">{{ c.field_name }}</span><br>
                         <div class="mt-1 flex items-center gap-2">
                             <span class="text-rose-600 line-through font-mono">{{ c.original_value or 'empty' }}</span>
                             <span class="text-slate-400">&rarr;</span>
                             <span class="text-emerald-700 font-bold font-mono">{{ c.corrected_value or 'empty' }}</span>
                         </div>
-                        <div class="text-[10px] text-slate-400 font-mono mt-1">{{ c.corrected_at|localdt }}</div>
+                        <div class="text-[10px] text-slate-400 font-mono mt-1 tabular-nums">{{ c.corrected_at|localdt }}</div>
                     </div>
                     {% else %}
                     <p class="text-xs text-slate-500 font-medium">No field corrections made yet.</p>
@@ -346,17 +347,20 @@
     </div>
 </div>
 
-<!-- Rejection Modal -->
-<div id="rejectModal" class="hidden fixed inset-0 bg-slate-950/70 backdrop-blur-md flex items-center justify-center z-50 p-4">
-    <div class="dox-card max-w-md w-full overflow-hidden shadow-2xl border-white/95">
-        <form method="POST">
+<!-- Rejection Modal (Liquid Glass Modal) -->
+<div id="rejectModal" class="hidden fixed inset-0 bg-slate-900/35 flex items-center justify-center z-50 p-4">
+    <div data-liquid-glass="modal" data-lg-radius="20" data-lg-refraction="86" data-lg-blur="13" data-lg-light="36" class="max-w-md w-full rounded-[20px] overflow-hidden shadow-2xl p-6 space-y-4">
+        <form method="POST" class="space-y-4">
             <input type="hidden" name="action" value="reject">
-            <div class="px-6 py-4 border-b border-slate-100 bg-white/60">
-                <h3 class="text-base font-extrabold text-slate-900">Reject Docket</h3>
+            <div class="pb-3 border-b border-slate-200/80 flex items-center justify-between">
+                <h3 class="text-base font-bold text-slate-900">Reject Docket</h3>
+                <button type="button" onclick="document.getElementById('rejectModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100">
+                    <i data-lucide="x" class="h-4 w-4"></i>
+                </button>
             </div>
-            <div class="p-6">
+            <div>
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Rejection Reason</label>
-                <select name="rejection_reason" class="dox-input w-full font-semibold mb-4">
+                <select name="rejection_reason" class="dox-input w-full font-semibold mb-3">
                     <option>Image too blurry / illegible</option>
                     <option>Missing required signature or stamp</option>
                     <option>Docket number unreadable</option>
@@ -365,7 +369,7 @@
                 </select>
                 <p class="text-xs text-slate-500 leading-relaxed font-medium">A rejected docket can be reviewed and manually reverified later.</p>
             </div>
-            <div class="px-6 py-3.5 border-t border-slate-100 bg-white/40 flex justify-end gap-2">
+            <div class="pt-3 border-t border-slate-200/80 flex justify-end gap-2">
                 <button type="button" onclick="document.getElementById('rejectModal').classList.add('hidden')" class="dox-btn-secondary !h-9 text-xs font-bold">Cancel</button>
                 <button type="submit" class="dox-btn-danger !h-9 text-xs font-bold">Confirm Rejection</button>
             </div>
@@ -373,19 +377,22 @@
     </div>
 </div>
 
-<!-- Reopen Modal -->
-<div id="reopenModal" class="hidden fixed inset-0 bg-slate-950/70 backdrop-blur-md flex items-center justify-center z-50 p-4">
-    <div class="dox-card max-w-md w-full overflow-hidden shadow-2xl border-white/95">
-        <form method="POST">
+<!-- Reopen Modal (Liquid Glass Modal) -->
+<div id="reopenModal" class="hidden fixed inset-0 bg-slate-900/35 flex items-center justify-center z-50 p-4">
+    <div data-liquid-glass="modal" data-lg-radius="20" data-lg-refraction="86" data-lg-blur="13" data-lg-light="36" class="max-w-md w-full rounded-[20px] overflow-hidden shadow-2xl p-6 space-y-4">
+        <form method="POST" class="space-y-4">
             <input type="hidden" name="action" value="reopen">
-            <div class="px-6 py-4 border-b border-slate-100 bg-white/60">
-                <h3 class="text-base font-extrabold text-slate-900">Reopen Docket</h3>
+            <div class="pb-3 border-b border-slate-200/80 flex items-center justify-between">
+                <h3 class="text-base font-bold text-slate-900">Reopen Docket</h3>
+                <button type="button" onclick="document.getElementById('reopenModal').classList.add('hidden')" class="text-slate-400 hover:text-slate-600 p-1 rounded-lg hover:bg-slate-100">
+                    <i data-lucide="x" class="h-4 w-4"></i>
+                </button>
             </div>
-            <div class="p-6">
+            <div>
                 <label class="block text-xs font-bold uppercase tracking-wider text-slate-700 mb-2">Reason for Reopening</label>
                 <input type="text" name="reopen_reason" required class="dox-input w-full font-semibold" placeholder="e.g. Supervisor audit correction">
             </div>
-            <div class="px-6 py-3.5 border-t border-slate-100 bg-white/40 flex justify-end gap-2">
+            <div class="pt-3 border-t border-slate-200/80 flex justify-end gap-2">
                 <button type="button" onclick="document.getElementById('reopenModal').classList.add('hidden')" class="dox-btn-secondary !h-9 text-xs font-bold">Cancel</button>
                 <button type="submit" class="dox-btn-primary !h-9 text-xs font-bold">Confirm Reopen</button>
             </div>

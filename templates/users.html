@@ -88,10 +88,10 @@
                         Assigned Feature Access (Select Multiple) <span class="text-rose-500">*</span>
                     </label>
                     
-                    <div class="space-y-2 bg-white/50 p-3 rounded-2xl border border-white/80">
+                    <div class="space-y-2 bg-slate-50/80 p-3 rounded-xl border border-slate-200/80">
                         
                         <!-- Role 1: REVIEWER -->
-                        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/80 border border-slate-200/80 hover:border-blue-400 cursor-pointer transition-all shadow-2xs">
+                        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200/80 hover:border-blue-400 cursor-pointer transition-all shadow-2xs">
                             <input type="checkbox" name="roles" value="REVIEWER" id="role-reviewer" class="mt-0.5 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
                             <div class="text-xs">
                                 <span class="font-bold text-slate-900 flex items-center gap-1.5">
@@ -103,7 +103,7 @@
                         </label>
 
                         <!-- Role 2: AUDITOR -->
-                        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/80 border border-slate-200/80 hover:border-blue-400 cursor-pointer transition-all shadow-2xs">
+                        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200/80 hover:border-blue-400 cursor-pointer transition-all shadow-2xs">
                             <input type="checkbox" name="roles" value="AUDITOR" id="role-auditor" class="mt-0.5 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
                             <div class="text-xs">
                                 <span class="font-bold text-slate-900 flex items-center gap-1.5">
@@ -115,7 +115,7 @@
                         </label>
 
                         <!-- Role 3: VIEWER -->
-                        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-white/80 border border-slate-200/80 hover:border-blue-400 cursor-pointer transition-all shadow-2xs">
+                        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-white border border-slate-200/80 hover:border-blue-400 cursor-pointer transition-all shadow-2xs">
                             <input type="checkbox" name="roles" value="VIEWER" id="role-viewer" class="mt-0.5 h-4 w-4 text-blue-600 rounded border-slate-300 focus:ring-blue-500">
                             <div class="text-xs">
                                 <span class="font-bold text-slate-900 flex items-center gap-1.5">
@@ -127,7 +127,7 @@
                         </label>
 
                         <!-- Role 4: ADMIN -->
-                        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-purple-50/60 border border-purple-200/80 hover:border-purple-400 cursor-pointer transition-all shadow-2xs">
+                        <label class="flex items-start gap-2.5 p-2.5 rounded-xl bg-purple-50/50 border border-purple-200/80 hover:border-purple-400 cursor-pointer transition-all shadow-2xs">
                             <input type="checkbox" name="roles" value="ADMIN" id="role-admin" class="mt-0.5 h-4 w-4 text-purple-600 rounded border-slate-300 focus:ring-purple-500">
                             <div class="text-xs">
                                 <span class="font-bold text-purple-900 flex items-center gap-1.5">
@@ -144,10 +144,10 @@
                     </p>
                 </div>
 
-                <div class="pt-3 border-t border-white/80 flex items-center gap-2">
+                <div class="pt-3 border-t border-slate-200/80 flex items-center gap-2">
                     <button type="submit" id="btn-submit"
-                        class="dox-btn-primary w-full !h-11 font-bold shadow-lg shadow-blue-600/25">
-                        <i data-lucide="user-check" class="h-4 w-4 mr-1.5"></i>
+                        class="dox-btn-primary w-full !h-10 font-bold shadow-md shadow-blue-600/20">
+                        <i data-lucide="user-check" class="h-4 w-4"></i>
                         <span id="btn-submit-text">Create Account</span>
                     </button>
                 </div>
@@ -160,12 +160,14 @@
         <!-- ══════════════════════════════════════════════════════════ -->
         <div class="lg:col-span-7 dox-card overflow-hidden">
             
-            <div class="px-6 py-4 border-b border-white/80 bg-white/40 flex items-center justify-between backdrop-blur-md">
+            <div class="dox-card-header">
                 <div class="flex items-center gap-2.5">
-                    <i data-lucide="users" class="h-4 w-4 text-slate-500"></i>
-                    <h2 class="text-sm font-bold text-slate-900 uppercase tracking-wide">Registered Accounts</h2>
+                    <div class="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200/80 text-slate-600 flex items-center justify-center shrink-0">
+                        <i data-lucide="users" class="h-4 w-4"></i>
+                    </div>
+                    <h2 class="text-sm font-bold text-slate-900 tracking-tight">Registered Accounts</h2>
                 </div>
-                <span class="dox-badge dox-badge-neutral text-xs">
+                <span class="dox-badge dox-badge-neutral text-xs tabular-nums">
                     {{ users|length }} Total Accounts
                 </span>
             </div>

@@ -28,13 +28,14 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-6xl">
         
         <!-- 1. All Dockets Export -->
-        <div class="dox-card overflow-hidden flex flex-col h-full group hover:-translate-y-1 transition-all">
-            <div class="px-6 py-4 border-b border-blue-200/60 bg-blue-50/60 flex items-center justify-between backdrop-blur-md">
+        <div class="dox-card overflow-hidden flex flex-col h-full">
+            <div class="h-[3px] bg-blue-600"></div>
+            <div class="dox-card-header">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-blue-600 text-white flex items-center justify-center shadow-sm">
+                    <div class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200/80 text-blue-600 flex items-center justify-center shrink-0">
                         <i data-lucide="layers" class="h-4 w-4"></i>
                     </div>
-                    <h2 class="text-sm font-bold text-blue-950">All Dockets Export</h2>
+                    <h2 class="text-sm font-bold text-slate-900">All Dockets Export</h2>
                 </div>
                 <span class="dox-badge dox-badge-neutral text-[10px]">Complete</span>
             </div>
@@ -54,21 +55,23 @@
                             <input type="date" required name="end_date" class="dox-input w-full text-xs">
                         </div>
                     </div>
-                    <button type="submit" class="dox-btn-primary w-full !h-11 justify-center text-xs font-bold shadow-md shadow-blue-600/25">
-                        <i data-lucide="download" class="h-4 w-4 mr-1.5"></i> Download All Excel
+                    <button type="submit" class="dox-btn-primary w-full !h-10 justify-center text-xs font-semibold">
+                        <i data-lucide="download" class="h-4 w-4"></i>
+                        <span>Download All Excel</span>
                     </button>
                 </form>
             </div>
         </div>
 
         <!-- 2. Verified Export -->
-        <div class="dox-card overflow-hidden flex flex-col h-full group hover:-translate-y-1 transition-all border-emerald-200/70">
-            <div class="px-6 py-4 border-b border-emerald-200/60 bg-emerald-50/60 flex items-center justify-between backdrop-blur-md">
+        <div class="dox-card overflow-hidden flex flex-col h-full">
+            <div class="h-[3px] bg-emerald-500"></div>
+            <div class="dox-card-header">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-emerald-600 text-white flex items-center justify-center shadow-sm">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200/80 text-emerald-600 flex items-center justify-center shrink-0">
                         <i data-lucide="check-circle" class="h-4 w-4"></i>
                     </div>
-                    <h2 class="text-sm font-bold text-emerald-950">Verified Dockets</h2>
+                    <h2 class="text-sm font-bold text-slate-900">Verified Dockets</h2>
                 </div>
                 <span class="dox-badge dox-badge-verified text-[10px]">Production</span>
             </div>
@@ -88,21 +91,23 @@
                             <input type="date" required name="end_date" class="dox-input w-full text-xs">
                         </div>
                     </div>
-                    <button type="submit" class="dox-btn-secondary !bg-gradient-to-tr !from-emerald-600 !to-emerald-700 !text-white !border-emerald-500 hover:!from-emerald-500 hover:!to-emerald-600 w-full !h-11 justify-center text-xs font-bold shadow-md shadow-emerald-600/25">
-                        <i data-lucide="download" class="h-4 w-4 mr-1.5"></i> Download Verified Excel
+                    <button type="submit" class="dox-btn-secondary !bg-emerald-600 hover:!bg-emerald-700 !text-white !border-emerald-600 w-full !h-10 justify-center text-xs font-semibold shadow-xs">
+                        <i data-lucide="download" class="h-4 w-4"></i>
+                        <span>Download Verified Excel</span>
                     </button>
                 </form>
             </div>
         </div>
 
         <!-- 3. Rejected Export -->
-        <div class="dox-card overflow-hidden flex flex-col h-full group hover:-translate-y-1 transition-all border-rose-200/70">
-            <div class="px-6 py-4 border-b border-rose-200/60 bg-rose-50/60 flex items-center justify-between backdrop-blur-md">
+        <div class="dox-card overflow-hidden flex flex-col h-full">
+            <div class="h-[3px] bg-rose-500"></div>
+            <div class="dox-card-header">
                 <div class="flex items-center gap-2.5">
-                    <div class="w-8 h-8 rounded-xl bg-rose-600 text-white flex items-center justify-center shadow-sm">
+                    <div class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200/80 text-rose-600 flex items-center justify-center shrink-0">
                         <i data-lucide="x-circle" class="h-4 w-4"></i>
                     </div>
-                    <h2 class="text-sm font-bold text-rose-950">Rejected Dockets</h2>
+                    <h2 class="text-sm font-bold text-slate-900">Rejected Dockets</h2>
                 </div>
                 <span class="dox-badge dox-badge-rejected text-[10px]">Audit</span>
             </div>
@@ -122,8 +127,9 @@
                             <input type="date" required name="end_date" class="dox-input w-full text-xs">
                         </div>
                     </div>
-                    <button type="submit" class="dox-btn-danger w-full !h-11 justify-center text-xs font-bold shadow-md shadow-rose-600/25">
-                        <i data-lucide="download" class="h-4 w-4 mr-1.5"></i> Download Rejected Excel
+                    <button type="submit" class="dox-btn-danger w-full !h-10 justify-center text-xs font-semibold">
+                        <i data-lucide="download" class="h-4 w-4"></i>
+                        <span>Download Rejected Excel</span>
                     </button>
                 </form>
             </div>

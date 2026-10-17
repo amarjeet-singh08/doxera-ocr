@@ -36,42 +36,42 @@
            Centralized tokens for optical glass, standard content surfaces & depth
            ══════════════════════════════════════════════════════════════════════ */
         :root {
-            /* Surface & Background Tokens */
-            --bg-page: #EDF2F8;
-            --surface-primary: rgba(255, 255, 255, 0.90);
-            --surface-elevated: rgba(255, 255, 255, 0.96);
-            --surface-glass: rgba(255, 255, 255, 0.54);
-            --surface-glass-nav: rgba(255, 255, 255, 0.58);
-            --surface-glass-modal: rgba(255, 255, 255, 0.68);
-            --surface-subtle: rgba(248, 250, 252, 0.85);
+            /* Surface & Background Tokens (3-Tier Material Hierarchy) */
+            --bg-page: #EEF2F7;
+            --surface-primary: rgba(255, 255, 255, 0.96);
+            --surface-elevated: #FFFFFF;
+            --surface-glass: rgba(255, 255, 255, 0.56);
+            --surface-glass-nav: rgba(255, 255, 255, 0.60);
+            --surface-glass-modal: rgba(255, 255, 255, 0.70);
+            --surface-subtle: #F8FAFC;
 
             /* Optical Glass Tokens (consumed by static/vendor/liquid-glass) */
-            --lg-tint-nav: rgba(255, 255, 255, 0.56);
-            --lg-tint-toolbar: rgba(255, 255, 255, 0.48);
-            --lg-tint-popover: rgba(255, 255, 255, 0.58);
-            --lg-tint-modal: rgba(255, 255, 255, 0.66);
-            --lg-saturate: 1.55;
+            --lg-tint-nav: rgba(255, 255, 255, 0.58);
+            --lg-tint-toolbar: rgba(255, 255, 255, 0.52);
+            --lg-tint-popover: rgba(255, 255, 255, 0.60);
+            --lg-tint-modal: rgba(255, 255, 255, 0.68);
+            --lg-saturate: 1.60;
 
             /* Border & Specular Highlight Tokens */
-            --border-subtle: rgba(203, 213, 225, 0.68);
-            --border-strong: rgba(148, 163, 184, 0.58);
-            --border-glass: rgba(255, 255, 255, 0.78);
-            --highlight-top: inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.96);
-            --highlight-bottom: inset 0 -1px 1px 0 rgba(15, 23, 42, 0.04);
+            --border-subtle: rgba(203, 213, 225, 0.75);
+            --border-strong: rgba(148, 163, 184, 0.62);
+            --border-glass: rgba(255, 255, 255, 0.80);
+            --highlight-top: inset 0 1px 0 0 rgba(255, 255, 255, 0.98);
+            --highlight-bottom: inset 0 -1px 0 0 rgba(15, 23, 42, 0.03);
 
             /* Realistic Depth & Shadow Tokens */
-            --shadow-card: 0 6px 24px -6px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.035);
-            --shadow-card-hover: 0 12px 32px -6px rgba(15, 23, 42, 0.10), 0 4px 10px -2px rgba(15, 23, 42, 0.05);
-            --shadow-toolbar: 0 10px 28px -6px rgba(15, 23, 42, 0.09), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
-            --shadow-popover: 0 24px 56px -12px rgba(15, 23, 42, 0.22), 0 6px 16px -4px rgba(15, 23, 42, 0.08);
-            --shadow-modal: 0 28px 68px -12px rgba(15, 23, 42, 0.26), 0 8px 20px -4px rgba(15, 23, 42, 0.10);
+            --shadow-card: 0 4px 20px -4px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03);
+            --shadow-card-hover: 0 10px 28px -6px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+            --shadow-toolbar: 0 10px 28px -6px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.035);
+            --shadow-popover: 0 24px 56px -12px rgba(15, 23, 42, 0.20), 0 6px 16px -4px rgba(15, 23, 42, 0.07);
+            --shadow-modal: 0 28px 68px -12px rgba(15, 23, 42, 0.24), 0 8px 20px -4px rgba(15, 23, 42, 0.09);
 
             /* Border Radius Scale */
-            --radius-xl: 20px;
-            --radius-lg: 16px;
-            --radius-md: 12px;
+            --radius-xl: 18px;
+            --radius-lg: 14px;
+            --radius-md: 11px;
             --radius-sm: 8px;
-            --squircle-radius: 20px;
+            --squircle-radius: 18px;
 
             /* Semantic Color Tokens */
             --text-primary: #0F172A;
@@ -111,40 +111,56 @@
             font-variant-numeric: tabular-nums;
         }
 
-        /* Architectural Light Canvas with Subtle Tonal Variation & Structural Grid */
+        /* Family C: Quiet Background Canvas — Calm, grid-free light-neutral foundation */
         .dox-bg-canvas, .sales-bg-canvas {
             background-color: var(--bg-page);
             background-image:
-                radial-gradient(ellipse 80% 50% at 12% 0%, rgba(37, 99, 235, 0.09) 0%, transparent 65%),
-                radial-gradient(ellipse 70% 45% at 88% 8%, rgba(79, 70, 229, 0.07) 0%, transparent 60%),
-                radial-gradient(ellipse 75% 55% at 50% 100%, rgba(14, 165, 233, 0.06) 0%, transparent 65%),
-                linear-gradient(to right, rgba(15, 23, 42, 0.026) 1px, transparent 1px),
-                linear-gradient(to bottom, rgba(15, 23, 42, 0.026) 1px, transparent 1px);
-            background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px, 28px 28px;
+                radial-gradient(ellipse 85% 55% at 10% -5%, rgba(37, 99, 235, 0.065) 0%, transparent 65%),
+                radial-gradient(ellipse 75% 50% at 92% 4%, rgba(99, 102, 241, 0.045) 0%, transparent 60%),
+                radial-gradient(ellipse 80% 60% at 50% 105%, rgba(14, 165, 233, 0.045) 0%, transparent 65%),
+                linear-gradient(180deg, #F3F6FB 0%, #EEF2F7 52%, #E9EEF5 100%);
             background-attachment: fixed;
         }
 
-        /* 1. Standard Content Layer Cards (High Readability with Specular Rim) */
+        /* Family B: Analytical Surfaces — High-contrast, calm cards for KPIs, tables, charts & forms */
         .dox-card, .sd-card, .sd-glass-card {
-            background: linear-gradient(160deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.87) 100%);
+            background: linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 100%);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-xl);
             box-shadow: var(--highlight-top), var(--highlight-bottom), var(--shadow-card);
-            transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
+            transition: border-color 180ms ease, box-shadow 180ms ease;
             position: relative;
         }
         .dox-card:hover, .sd-card:hover, .sd-glass-card:hover {
-            border-color: var(--border-strong);
+            border-color: rgba(148, 163, 184, 0.48);
             box-shadow: var(--highlight-top), var(--highlight-bottom), var(--shadow-card-hover);
         }
+        .dox-card-header {
+            padding: 14px 22px;
+            background: rgba(248, 250, 252, 0.86);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.88);
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+        }
 
-        /* 2. Selective Liquid Glass Functional Surfaces (Navigation, Toolbars, Popovers, Modals) */
+        /* Family A: Selective Liquid Glass Functional Surfaces (Navigation, Toolbars, Popovers, Modals) */
         .dox-glass-panel, .sd-glass-modal {
             background: var(--surface-glass);
-            backdrop-filter: blur(16px) saturate(160%);
-            -webkit-backdrop-filter: blur(16px) saturate(160%);
+            backdrop-filter: blur(18px) saturate(165%);
+            -webkit-backdrop-filter: blur(18px) saturate(165%);
             border: 1px solid var(--border-glass);
             box-shadow: var(--highlight-top), var(--highlight-bottom), var(--shadow-toolbar);
+        }
+        .dox-glass-pill {
+            background: rgba(255, 255, 255, 0.64);
+            backdrop-filter: blur(16px) saturate(160%);
+            -webkit-backdrop-filter: blur(16px) saturate(160%);
+            border: 1px solid rgba(255, 255, 255, 0.85);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 4px 14px -3px rgba(15, 23, 42, 0.06), 0 0 0 1px rgba(203, 213, 225, 0.55);
+            border-radius: 14px;
         }
 
         /* 2. Tactile Action Buttons */
@@ -333,10 +349,30 @@
 
         /* 6. Selective Liquid Glass Sidebar & Floating Top Header */
         #sidebar {
-            border: 1px solid rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.76);
+        }
+        #sidebar nav {
+            scrollbar-width: thin;
+            scrollbar-color: transparent transparent;
+        }
+        #sidebar nav:hover {
+            scrollbar-color: rgba(148, 163, 184, 0.35) transparent;
+        }
+        #sidebar nav::-webkit-scrollbar {
+            width: 4px;
+        }
+        #sidebar nav::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        #sidebar nav::-webkit-scrollbar-thumb {
+            background: transparent;
+            border-radius: 9999px;
+        }
+        #sidebar nav:hover::-webkit-scrollbar-thumb {
+            background: rgba(148, 163, 184, 0.35);
         }
         #app-topbar {
-            border: 1px solid rgba(255, 255, 255, 0.72);
+            border: 1px solid rgba(255, 255, 255, 0.76);
         }
         /* Ensure interactive children of .lg-host sit cleanly above .lg-layer and receive pointer events */
         .lg-host > *:not(.lg-layer):not(.lg-sheen) {
@@ -346,10 +382,10 @@
         .sidebar-link {
             display: flex;
             align-items: center;
-            padding: 8.5px 12px;
+            padding: 7.5px 12px;
             color: #334155;
             border-radius: var(--radius-md);
-            font-size: 13.5px;
+            font-size: 13px;
             font-weight: 500;
             transition: background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
             position: relative;
@@ -360,7 +396,7 @@
             box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
         }
         .sidebar-link.active {
-            background: linear-gradient(135deg, rgba(239, 246, 255, 0.90) 0%, rgba(219, 234, 254, 0.75) 100%);
+            background: linear-gradient(135deg, rgba(239, 246, 255, 0.92) 0%, rgba(219, 234, 254, 0.78) 100%);
             color: #1D4ED8;
             font-weight: 600;
             border: 1px solid rgba(147, 197, 253, 0.85);
@@ -370,9 +406,9 @@
             color: #2563EB;
         }
         .sidebar-icon {
-            margin-right: 0.75rem;
-            width: 1.15rem;
-            height: 1.15rem;
+            margin-right: 0.7rem;
+            width: 1.1rem;
+            height: 1.1rem;
             flex-shrink: 0;
         }
 
@@ -427,14 +463,14 @@
            data-lg-blur="12"
            data-lg-light="28"
            class="fixed inset-y-2 left-2 z-50 w-64 flex flex-col h-[calc(100vh-16px)] rounded-[22px] transform -translate-x-[110%] lg:relative lg:inset-auto lg:my-3 lg:ml-3 lg:h-[calc(100vh-24px)] lg:translate-x-0 lg:transform-none transition-transform duration-200 ease-out shrink-0">
-        <div class="h-16 flex items-center justify-between px-5 border-b border-slate-900/[0.06]">
-            <img src="{{ url_for('static', filename='doxera_logo.png') }}" alt="DOXERA" class="h-11 lg:h-12 w-auto object-contain">
+        <div class="h-15 py-3 flex items-center justify-between px-5 border-b border-slate-900/[0.06]">
+            <img src="{{ url_for('static', filename='doxera_logo.png') }}" alt="DOXERA" class="h-10 lg:h-11 w-auto object-contain">
             <button type="button" aria-label="Close navigation menu" class="lg:hidden text-slate-500 hover:text-slate-800 p-1.5 rounded-lg hover:bg-white/60" onclick="toggleSidebar()">
                 <i data-lucide="x" class="h-5 w-5"></i>
             </button>
         </div>
         
-        <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-5">
+        <nav class="flex-1 overflow-y-auto py-3 px-3 space-y-4">
             <div>
                 <a href="{{ url_for('ops.dashboard') }}" class="sidebar-link {% if request.endpoint == 'ops.dashboard' %}active{% endif %}">
                     <i data-lucide="layout-dashboard" class="sidebar-icon"></i> Dashboard
@@ -442,8 +478,8 @@
             </div>
             
             <div>
-                <div class="px-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Operations</div>
-                <div class="space-y-1">
+                <div class="px-3 text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-1">Logistics OCR</div>
+                <div class="space-y-0.5">
                     <a href="{{ url_for('ops.upload') }}" class="sidebar-link {% if request.endpoint == 'ops.upload' %}active{% endif %} {% if not user_has_role('ADMIN', 'REVIEWER') %}opacity-50 cursor-not-allowed pointer-events-none{% endif %}">
                         <i data-lucide="upload-cloud" class="sidebar-icon"></i> Upload Dockets
                     </a>
@@ -458,11 +494,11 @@
             
             {% if user_has_role('ADMIN', 'AUDITOR') %}
             <div>
-                <div class="px-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5 flex items-center">
+                <div class="px-3 text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-1 flex items-center">
                     <span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-600 mr-1.5"></span>
                     Sales Intelligence
                 </div>
-                <div class="space-y-1">
+                <div class="space-y-0.5">
                     <a href="{{ url_for('sales.dashboard') }}" class="sidebar-link {% if request.endpoint in ['sales.dashboard', 'sales.view_report'] %}active{% endif %}">
                         <i data-lucide="bar-chart-3" class="sidebar-icon"></i> Sales Dashboard
                     </a>
@@ -477,8 +513,8 @@
             {% endif %}
             
             <div>
-                <div class="px-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Data & Settings</div>
-                <div class="space-y-1">
+                <div class="px-3 text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-1">Data & Settings</div>
+                <div class="space-y-0.5">
                     <a href="{{ url_for('ops.exports_page') }}" class="sidebar-link {% if request.endpoint == 'ops.exports_page' %}active{% endif %}">
                         <i data-lucide="download" class="sidebar-icon"></i> Exports
                     </a>
@@ -492,7 +528,7 @@
             </div>
         </nav>
         
-        <div class="p-3.5 border-t border-slate-900/[0.06] bg-white/35 rounded-b-[22px]">
+        <div class="p-3 border-t border-slate-900/[0.06] bg-white/35 rounded-b-[22px]">
             <div class="flex items-center">
                 <div class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold text-xs shadow-2xs shrink-0">
                     {{ session.get('username')[0]|upper }}
@@ -502,7 +538,7 @@
                     <p class="text-[11px] text-slate-600 font-medium">{{ session.get('role') }}</p>
                 </div>
             </div>
-            <a href="{{ url_for('auth.logout') }}" class="mt-2.5 dox-btn-secondary !h-8 !text-xs w-full !text-slate-700 hover:!text-rose-600">
+            <a href="{{ url_for('auth.logout') }}" class="mt-2 dox-btn-secondary !h-8 !text-xs w-full !text-slate-700 hover:!text-rose-600">
                 <i data-lucide="log-out" class="h-3.5 w-3.5 mr-1.5"></i> Sign Out
             </a>
         </div>
