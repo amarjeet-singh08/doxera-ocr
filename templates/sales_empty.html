@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block header_title %}Sales Intelligence - DOXERA Enterprise{% endblock %}
+{% block header_title %}Sales Dashboard{% endblock %}
 
 {% block content %}
 <div class="max-w-4xl mx-auto py-10 space-y-6">
@@ -9,18 +9,18 @@
         </div>
 
         <div class="space-y-2">
-            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">No Audit Reports Generated</h1>
+            <h1 class="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">No Sales Reports</h1>
             <p class="text-sm text-slate-600 max-w-md mx-auto leading-relaxed">
-                Upload Billed, Unbilled, and Booking registers to generate sales audit dashboards and executive presentations.
+                Upload Billed, Unbilled, and Booking registers to generate a sales report.
             </p>
         </div>
 
         <div class="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-2.5 sm:gap-3 w-full sm:w-auto max-w-xs sm:max-w-none mx-auto">
             <a href="{{ url_for('sales.upload_page') }}" class="dox-btn-primary !px-5 !h-10">
-                <i data-lucide="upload-cloud" class="h-4 w-4"></i> Upload MIS Registers
+                <i data-lucide="upload-cloud" class="h-4 w-4"></i> Upload MIS
             </a>
             <a href="{{ url_for('sales.customers_page') }}" class="dox-btn-secondary !px-4 !h-10">
-                <i data-lucide="users" class="h-4 w-4 text-slate-500"></i> Customer Accounts
+                <i data-lucide="users" class="h-4 w-4 text-slate-500"></i> Customers
             </a>
         </div>
     </div>
@@ -32,7 +32,7 @@
                 <i data-lucide="git-merge" class="h-4 w-4"></i>
             </div>
             <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Reconciliation</h3>
-            <p class="text-xs text-slate-600 leading-relaxed">Three-way cross correlation of Billed and Unbilled consignments against Booking registers.</p>
+            <p class="text-xs text-slate-600 leading-relaxed">Match Billed and Unbilled consignments against Booking registers.</p>
         </div>
 
         <div class="p-5 dox-metric-card space-y-2" data-liquid-glass="metric">
@@ -40,15 +40,15 @@
                 <i data-lucide="user-check" class="h-4 w-4"></i>
             </div>
             <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Attribution</h3>
-            <p class="text-xs text-slate-600 leading-relaxed">Direct customer account mapping to assigned sales representatives and branch territories.</p>
+            <p class="text-xs text-slate-600 leading-relaxed">Map customer accounts to sales representatives and branches.</p>
         </div>
 
         <div class="p-5 dox-metric-card space-y-2" data-liquid-glass="metric">
             <div class="w-9 h-9 rounded-xl dox-glass-icon text-emerald-600 flex items-center justify-center">
                 <i data-lucide="presentation" class="h-4 w-4"></i>
             </div>
-            <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Presentations</h3>
-            <p class="text-xs text-slate-600 leading-relaxed">Direct export into widescreen PowerPoint boardroom decks and reconciled CSV registers.</p>
+            <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wider">Exports</h3>
+            <p class="text-xs text-slate-600 leading-relaxed">Export reports to PowerPoint presentations and CSV spreadsheets.</p>
         </div>
     </div>
 </div>

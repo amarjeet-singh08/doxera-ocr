@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block header_title %}Operations Dashboard - DOXERA Enterprise{% endblock %}
+{% block header_title %}Dashboard{% endblock %}
 
 {% block content %}
 {% set total_active = (stats.processing or 0) + (stats.verified or 0) + (stats.review or 0) + (stats.rejected or 0) + (stats.failed or 0) %}
@@ -9,23 +9,18 @@
 {% set exception_pct = (((stats.rejected + stats.failed) / total_active * 100)|round|int) if total_active > 0 else 0 %}
 
 <div class="space-y-5 max-w-7xl mx-auto pb-10">
-    <!-- 6.1 Header & Control Area -->
+    <!-- Header & Control Area -->
     <div class="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-4">
         <div>
-            <div class="flex flex-wrap items-center gap-2 mb-1.5">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-blue-50/85 text-blue-700 border border-white/90 shadow-2xs backdrop-blur-md">
-                    <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-                    Logistics OCR Engine
-                </span>
-                <span class="text-slate-400 text-xs">&bull;</span>
+            <div class="flex flex-wrap items-center gap-2 mb-1">
                 <span class="inline-flex items-center gap-1.5 text-xs text-slate-700 font-medium bg-white/65 px-2.5 py-0.5 rounded-full border border-white/90 shadow-2xs backdrop-blur-md">
                     <i data-lucide="calendar" class="h-3 w-3 text-blue-600"></i>
-                    <span>Scope: <strong class="font-semibold text-slate-900">{{ period_label }}</strong></span>
+                    <span class="font-semibold text-slate-800">{{ period_label }}</span>
                 </span>
             </div>
-            <h1 class="text-2xl sm:text-[28px] font-extrabold text-slate-900 tracking-tight leading-tight">Operations Dashboard</h1>
-            <p class="text-xs sm:text-sm text-slate-600 font-medium mt-1">
-                Automated docket extraction, mathematical verification, and quality control telemetry.
+            <h1 class="text-2xl sm:text-[26px] font-bold text-slate-900 tracking-tight leading-tight">Dashboard</h1>
+            <p class="text-xs sm:text-sm text-slate-600 mt-0.5">
+                Docket extraction and verification overview.
             </p>
         </div>
 
@@ -44,12 +39,12 @@
                 <span class="text-slate-400 text-[11px] font-semibold px-0.5">&rarr;</span>
                 <input type="date" name="end_date" value="{{ end_date or '' }}" aria-label="End date"
                        class="h-7 px-2 text-xs rounded-lg border border-white/80 hover:border-blue-300/80 focus:border-blue-500 bg-white/65 focus:bg-white/95 text-slate-800 font-semibold max-w-[126px] transition-colors" required>
-                <button type="submit" class="dox-btn-secondary !h-7 !min-h-0 !px-2.5 !text-xs !rounded-lg text-slate-800" title="Apply date range filter">
+                <button type="submit" class="dox-btn-secondary !h-7 !min-h-0 !px-2.5 !text-xs !rounded-lg text-slate-800" title="Apply date filter">
                     <i data-lucide="filter" class="h-3 w-3 text-blue-600"></i>
                     <span class="hidden sm:inline">Apply</span>
                 </button>
                 {% if start_date %}
-                <a href="{{ url_for('ops.dashboard') }}" class="dox-btn-secondary !h-7 !min-h-0 !px-2 !text-xs !rounded-lg !text-rose-600 hover:!bg-rose-50/90" title="Clear date filter">
+                <a href="{{ url_for('ops.dashboard') }}" class="dox-btn-secondary !h-7 !min-h-0 !px-2 !text-xs !rounded-lg !text-rose-600 hover:!bg-rose-50/90" title="Clear filter">
                     <i data-lucide="x" class="h-3.5 w-3.5"></i>
                 </a>
                 {% endif %}
@@ -62,23 +57,22 @@
         </div>
     </div>
 
-    <!-- 6.2 Six Coordinated Liquid Frosted Glass KPI Metric Cards -->
+    <!-- Six Coordinated Liquid Frosted Glass KPI Metric Cards -->
     <section aria-label="Operational KPI Summary" class="space-y-3">
         <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
-            <!-- 1. Today's Batch / Period Uploaded -->
+            <!-- 1. Today / Period Uploaded -->
             <a href="{{ url_for('ops.dockets', start_date=start_date, end_date=end_date) }}"
                data-liquid-glass="metric"
-               class="dox-metric-card flex flex-col justify-between group min-h-[132px]">
-                <div class="absolute inset-x-4 top-0 h-[2.5px] rounded-b-full bg-gradient-to-r from-slate-400/80 via-blue-500/80 to-slate-400/80 opacity-75 group-hover:opacity-100 transition-opacity"></div>
+               class="dox-metric-card flex flex-col justify-between group min-h-[126px]">
                 <div class="flex items-center justify-between gap-2">
-                    <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">{% if start_date %}Uploaded{% else %}Today's Batch{% endif %}</span>
+                    <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider">{% if start_date %}Uploaded{% else %}Today{% endif %}</span>
                     <div class="w-8 h-8 dox-glass-icon text-slate-700 group-hover:text-blue-600 transition-colors shrink-0">
                         <i data-lucide="layers" class="h-4 w-4"></i>
                     </div>
                 </div>
                 <p class="text-[28px] font-extrabold text-slate-900 tracking-tight tabular-nums leading-none my-2.5">{{ stats.today }}</p>
                 <div class="flex items-center justify-between pt-2 border-t border-slate-900/[0.06] text-[11px] font-semibold text-slate-600 group-hover:text-blue-700 transition-colors">
-                    <span>View Registry</span>
+                    <span>View all</span>
                     <i data-lucide="arrow-right" class="h-3 w-3 text-slate-400 group-hover:text-blue-600 group-hover:translate-x-0.5 transition-all"></i>
                 </div>
             </a>
@@ -86,8 +80,7 @@
             <!-- 2. Processing -->
             <a href="{{ url_for('ops.dockets', status='PROCESSING', start_date=start_date, end_date=end_date) }}"
                data-liquid-glass="metric"
-               class="dox-metric-card flex flex-col justify-between group min-h-[132px]">
-                <div class="absolute inset-x-4 top-0 h-[2.5px] rounded-b-full bg-gradient-to-r from-blue-500 via-sky-400 to-blue-600 {% if stats.processing > 0 %}opacity-100{% else %}opacity-65 group-hover:opacity-100{% endif %} transition-opacity"></div>
+               class="dox-metric-card flex flex-col justify-between group min-h-[126px]">
                 <div class="flex items-center justify-between gap-2">
                     <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-blue-600 {% if stats.processing > 0 %}animate-pulse{% endif %}"></span>
@@ -99,7 +92,7 @@
                 </div>
                 <p class="text-[28px] font-extrabold text-slate-900 tracking-tight tabular-nums leading-none my-2.5">{{ stats.processing }}</p>
                 <div class="flex items-center justify-between pt-2 border-t border-slate-900/[0.06] text-[11px] font-semibold text-blue-700">
-                    <span>Active pipeline</span>
+                    <span>In queue</span>
                     <i data-lucide="arrow-right" class="h-3 w-3 group-hover:translate-x-0.5 transition-transform"></i>
                 </div>
             </a>
@@ -107,8 +100,7 @@
             <!-- 3. Verified -->
             <a href="{{ url_for('ops.dockets', status='VERIFIED', start_date=start_date, end_date=end_date) }}"
                data-liquid-glass="metric"
-               class="dox-metric-card flex flex-col justify-between group min-h-[132px]">
-                <div class="absolute inset-x-4 top-0 h-[2.5px] rounded-b-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600 opacity-90 group-hover:opacity-100 transition-opacity"></div>
+               class="dox-metric-card flex flex-col justify-between group min-h-[126px]">
                 <div class="flex items-center justify-between gap-2">
                     <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
@@ -120,7 +112,7 @@
                 </div>
                 <p class="text-[28px] font-extrabold text-slate-900 tracking-tight tabular-nums leading-none my-2.5">{{ stats.verified }}</p>
                 <div class="flex items-center justify-between pt-2 border-t border-slate-900/[0.06] text-[11px] font-semibold text-emerald-700">
-                    <span>Ready for export</span>
+                    <span>Approved</span>
                     <i data-lucide="arrow-right" class="h-3 w-3 group-hover:translate-x-0.5 transition-transform"></i>
                 </div>
             </a>
@@ -128,8 +120,7 @@
             <!-- 4. Needs Review -->
             <a href="{{ url_for('ops.review_center', start_date=start_date, end_date=end_date) }}"
                data-liquid-glass="metric"
-               class="dox-metric-card flex flex-col justify-between group min-h-[132px]">
-                <div class="absolute inset-x-4 top-0 h-[2.5px] rounded-b-full bg-gradient-to-r from-amber-500 via-orange-400 to-amber-500 {% if stats.review > 0 %}opacity-100{% else %}opacity-65 group-hover:opacity-100{% endif %} transition-opacity"></div>
+               class="dox-metric-card flex flex-col justify-between group min-h-[126px]">
                 <div class="flex items-center justify-between gap-2">
                     <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
@@ -141,7 +132,7 @@
                 </div>
                 <p class="text-[28px] font-extrabold text-slate-900 tracking-tight tabular-nums leading-none my-2.5">{{ stats.review }}</p>
                 <div class="flex items-center justify-between pt-2 border-t border-slate-900/[0.06] text-[11px] font-semibold text-amber-700">
-                    <span>Review queue</span>
+                    <span>Pending</span>
                     <i data-lucide="arrow-right" class="h-3 w-3 group-hover:translate-x-0.5 transition-transform"></i>
                 </div>
             </a>
@@ -149,8 +140,7 @@
             <!-- 5. Rejected -->
             <a href="{{ url_for('ops.dockets', status='REJECTED', start_date=start_date, end_date=end_date) }}"
                data-liquid-glass="metric"
-               class="dox-metric-card flex flex-col justify-between group min-h-[132px]">
-                <div class="absolute inset-x-4 top-0 h-[2.5px] rounded-b-full bg-gradient-to-r from-rose-500 via-pink-500 to-rose-600 {% if stats.rejected > 0 %}opacity-100{% else %}opacity-65 group-hover:opacity-100{% endif %} transition-opacity"></div>
+               class="dox-metric-card flex flex-col justify-between group min-h-[126px]">
                 <div class="flex items-center justify-between gap-2">
                     <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
@@ -162,7 +152,7 @@
                 </div>
                 <p class="text-[28px] font-extrabold text-slate-900 tracking-tight tabular-nums leading-none my-2.5">{{ stats.rejected }}</p>
                 <div class="flex items-center justify-between pt-2 border-t border-slate-900/[0.06] text-[11px] font-semibold text-rose-700">
-                    <span>Manual audit</span>
+                    <span>Declined</span>
                     <i data-lucide="arrow-right" class="h-3 w-3 group-hover:translate-x-0.5 transition-transform"></i>
                 </div>
             </a>
@@ -170,8 +160,7 @@
             <!-- 6. Failed -->
             <a href="{{ url_for('ops.dockets', status='FAILED', start_date=start_date, end_date=end_date) }}"
                data-liquid-glass="metric"
-               class="dox-metric-card flex flex-col justify-between group min-h-[132px]">
-                <div class="absolute inset-x-4 top-0 h-[2.5px] rounded-b-full bg-gradient-to-r from-red-600 via-rose-500 to-red-600 {% if stats.failed > 0 %}opacity-100{% else %}opacity-65 group-hover:opacity-100{% endif %} transition-opacity"></div>
+               class="dox-metric-card flex flex-col justify-between group min-h-[126px]">
                 <div class="flex items-center justify-between gap-2">
                     <span class="text-[11px] font-bold text-slate-600 uppercase tracking-wider flex items-center gap-1.5">
                         <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>
@@ -183,23 +172,22 @@
                 </div>
                 <p class="text-[28px] font-extrabold text-slate-900 tracking-tight tabular-nums leading-none my-2.5">{{ stats.failed }}</p>
                 <div class="flex items-center justify-between pt-2 border-t border-slate-900/[0.06] text-[11px] font-semibold text-red-700">
-                    <span>OCR retries</span>
+                    <span>Errors</span>
                     <i data-lucide="arrow-right" class="h-3 w-3 group-hover:translate-x-0.5 transition-transform"></i>
                 </div>
             </a>
         </div>
 
-        <!-- 6.3 Integrated Frosted Glass Pipeline Telemetry Strip -->
+        <!-- Integrated Verification Progress Bar -->
         <div data-liquid-glass="toolbar"
-             class="dox-card !rounded-2xl px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+             data-lg-radius="20"
+             class="dox-card px-4 py-2.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div class="flex flex-wrap items-center gap-2.5">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold uppercase tracking-wider bg-white/65 text-slate-800 border border-white/90 shadow-2xs">
+                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold uppercase tracking-wider bg-white/65 text-slate-800 border border-white/90 shadow-2xs">
                     <span class="w-2 h-2 rounded-full {% if stats.processing > 0 %}bg-blue-600 animate-pulse{% else %}bg-emerald-500{% endif %}"></span>
-                    Pipeline Telemetry
+                    Verification Status
                 </span>
-                <span class="text-xs font-semibold text-slate-700 tabular-nums">{{ total_active }} Total Tracked Dockets</span>
-                <span class="text-slate-300 hidden md:inline">&bull;</span>
-                <span class="text-[11px] font-medium text-slate-500 hidden md:inline">Real-time OCR verification distribution</span>
+                <span class="text-xs font-semibold text-slate-700 tabular-nums">{{ total_active }} Total Dockets</span>
             </div>
 
             <div class="flex items-center gap-3.5">
@@ -222,7 +210,7 @@
                 </div>
 
                 <a href="{{ url_for('ops.processing') }}" class="dox-btn-secondary !h-7 !min-h-0 !px-2.5 !text-[11px] !rounded-lg">
-                    <span>Batch Queue</span>
+                    <span>Batch Activity</span>
                     <i data-lucide="chevron-right" class="h-3.5 w-3.5 text-blue-600"></i>
                 </a>
             </div>
@@ -232,24 +220,21 @@
     <!-- Main Workspace Grid -->
     <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
-        <!-- 6.4 Left Column: Recent Docket Extractions Table Card (8 Columns) -->
+        <!-- Left Column: Recent Dockets Table Card (8 Columns) -->
         <div class="lg:col-span-8">
             <div data-liquid-glass="card" class="dox-card overflow-hidden">
                 <div class="dox-card-header">
                     <div class="flex items-center gap-3">
-                        <div class="w-9 h-9 dox-glass-icon text-blue-600 shrink-0">
+                        <div class="w-8 h-8 dox-glass-icon text-blue-600 shrink-0">
                             <i data-lucide="file-text" class="h-4 w-4"></i>
                         </div>
-                        <div>
-                            <div class="flex items-center gap-2">
-                                <h2 class="text-sm font-bold text-slate-900 tracking-tight">Recent Docket Extractions</h2>
-                                <span class="dox-badge dox-badge-processing !text-[10px] !py-0.5 !px-2 tabular-nums">{{ dockets|length }} Recent</span>
-                            </div>
-                            <p class="text-[11px] text-slate-600 font-medium">Latest ingested consignments and verification telemetry</p>
+                        <div class="flex items-center gap-2">
+                            <h2 class="text-sm font-bold text-slate-900 tracking-tight">Recent Dockets</h2>
+                            <span class="dox-badge dox-badge-processing !text-[10px] !py-0.5 !px-2 tabular-nums">{{ dockets|length }}</span>
                         </div>
                     </div>
                     <a href="{{ url_for('ops.dockets') }}" class="dox-btn-secondary !h-8 !min-h-0 !px-3 !text-xs !font-semibold">
-                        <span>View Registry</span>
+                        <span>View All</span>
                         <i data-lucide="arrow-right" class="h-3.5 w-3.5 text-blue-600"></i>
                     </a>
                 </div>
@@ -259,7 +244,7 @@
                         <thead>
                             <tr>
                                 <th>Docket / AWB</th>
-                                <th>Verification Status</th>
+                                <th>Status</th>
                                 <th>Weight &amp; Pkgs</th>
                                 <th>Uploaded</th>
                                 <th class="text-right">Action</th>
@@ -277,7 +262,7 @@
                                         </div>
                                         <div>
                                             <span class="font-bold text-slate-900 font-mono tracking-tight text-[13px] block">
-                                                {{ d.docket_number or 'Processing OCR...' }}
+                                                {{ d.docket_number or 'Processing...' }}
                                             </span>
                                             {% if d.invoice_no %}
                                             <span class="text-[10.5px] text-slate-500 font-mono block">Inv: {{ d.invoice_no }}</span>
@@ -327,7 +312,7 @@
                                     {% if is_ready %}
                                     <a href="{{ url_for('ops.docket_detail', docket_id=d.id) }}"
                                        class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-semibold text-slate-800 hover:text-blue-700 bg-white/65 hover:bg-white/95 border border-white/90 shadow-2xs transition-all">
-                                        <span>Inspect</span>
+                                        <span>Open</span>
                                         <i data-lucide="arrow-up-right" class="h-3 w-3 text-blue-600"></i>
                                     </a>
                                     {% else %}
@@ -345,8 +330,8 @@
                                         <div class="w-12 h-12 rounded-2xl dox-glass-icon text-slate-500 mb-3">
                                             <i data-lucide="inbox" class="h-6 w-6"></i>
                                         </div>
-                                        <p class="font-bold text-slate-800 text-sm">No recent docket extractions</p>
-                                        <p class="text-xs text-slate-500 mt-1">Upload docket images to start automated OCR extraction.</p>
+                                        <p class="font-bold text-slate-800 text-sm">No recent dockets</p>
+                                        <p class="text-xs text-slate-500 mt-1">Upload docket images to start automated extraction.</p>
                                     </div>
                                 </td>
                             </tr>
@@ -357,17 +342,16 @@
             </div>
         </div>
         
-        <!-- Right Column: Attention Required & Batch Ingestion Workflow Cards (4 Columns) -->
+        <!-- Right Column: Review Queue & Quick Upload Cards (4 Columns) -->
         <div class="lg:col-span-4 space-y-5">
-            <!-- 6.5 Attention Required Panel (Liquid Frosted Glass Alert Module) -->
-            <div data-liquid-glass="alert" class="dox-alert-card overflow-hidden">
-                <div class="h-[3px] {% if stats.review > 0 %}bg-gradient-to-r from-amber-500 via-orange-400 to-amber-500{% else %}bg-gradient-to-r from-emerald-500 to-teal-500{% endif %}"></div>
+            <!-- Review Queue Card -->
+            <div data-liquid-glass="card" class="dox-card overflow-hidden">
                 <div class="dox-card-header !py-3.5 !px-5">
                     <div class="flex items-center gap-2.5">
                         <div class="w-8 h-8 rounded-xl {% if stats.review > 0 %}bg-amber-50/90 border-amber-200/85 text-amber-600{% else %}bg-emerald-50/90 border-emerald-200/85 text-emerald-600{% endif %} border shadow-2xs flex items-center justify-center shrink-0">
                             <i data-lucide="{% if stats.review > 0 %}alert-triangle{% else %}check-circle-2{% endif %}" class="h-4 w-4"></i>
                         </div>
-                        <h2 class="text-sm font-bold text-slate-900 tracking-tight">Attention Required</h2>
+                        <h2 class="text-sm font-bold text-slate-900 tracking-tight">Review Queue</h2>
                     </div>
                     <span class="dox-badge {% if stats.review > 0 %}dox-badge-review{% else %}dox-badge-verified{% endif %} tabular-nums">
                         {{ stats.review }} Pending
@@ -377,25 +361,24 @@
                 <div class="p-5 space-y-4">
                     <p class="text-xs text-slate-700 leading-relaxed">
                         {% if stats.review > 0 %}
-                        <strong class="text-slate-900 font-bold tabular-nums">{{ stats.review }}</strong> docket{{ 's' if stats.review != 1 else '' }} require human verification of volumetric dimensions or missing stamps before production export.
+                        <strong class="text-slate-900 font-bold tabular-nums">{{ stats.review }}</strong> docket{{ 's' if stats.review != 1 else '' }} awaiting manual verification.
                         {% else %}
-                        All extracted dockets have been verified or resolved. The manual verification queue is currently clear.
+                        All dockets verified. No pending items in the review queue.
                         {% endif %}
                     </p>
 
-                    <!-- Exception Telemetry Breakdown (Translucent Frosted Sub-Panel) -->
                     <div class="dox-subpanel divide-y divide-slate-900/[0.06] overflow-hidden">
                         <a href="{{ url_for('ops.review_center') }}" class="px-3.5 py-2.5 flex items-center justify-between text-xs hover:bg-white/60 transition-colors">
                             <span class="font-semibold text-slate-700 flex items-center gap-2">
                                 <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                                Manual Review Queue
+                                Pending Review
                             </span>
                             <span class="font-bold text-slate-900 tabular-nums">{{ stats.review }}</span>
                         </a>
                         <a href="{{ url_for('ops.dockets', status='FAILED') }}" class="px-3.5 py-2.5 flex items-center justify-between text-xs hover:bg-white/60 transition-colors">
                             <span class="font-semibold text-slate-700 flex items-center gap-2">
                                 <span class="w-1.5 h-1.5 rounded-full bg-rose-500"></span>
-                                Failed / Rejected Exceptions
+                                Failed / Rejected
                             </span>
                             <span class="font-bold text-slate-900 tabular-nums">{{ (stats.failed or 0) + (stats.rejected or 0) }}</span>
                         </a>
@@ -408,31 +391,22 @@
                 </div>
             </div>
 
-            <!-- 6.6 Batch Ingestion Panel (Signature Frosted Operational Workflow Module) -->
+            <!-- Upload Dockets Panel -->
             <div data-liquid-glass="card" class="dox-card overflow-hidden">
-                <div class="h-[3px] bg-gradient-to-r from-blue-600 via-indigo-500 to-sky-500"></div>
                 <div class="dox-card-header !py-3.5 !px-5">
                     <div class="flex items-center gap-2.5">
                         <div class="w-8 h-8 rounded-xl bg-blue-50/90 border border-blue-200/85 text-blue-600 shadow-2xs flex items-center justify-center shrink-0">
                             <i data-lucide="upload-cloud" class="h-4 w-4"></i>
                         </div>
-                        <div>
-                            <h3 class="text-sm font-bold text-slate-900 tracking-tight">Batch Ingestion</h3>
-                        </div>
+                        <h3 class="text-sm font-bold text-slate-900 tracking-tight">Upload Dockets</h3>
                     </div>
-                    <span class="dox-badge dox-badge-processing !text-[10px]">30–40 / Batch</span>
+                    <span class="dox-badge dox-badge-processing !text-[10px]">JPG / PNG</span>
                 </div>
 
                 <div class="p-5 space-y-4">
                     <p class="text-xs text-slate-700 leading-relaxed">
-                        Upload multi-image docket batches for automated AWB, package count, volumetric dimension (<span class="font-mono font-semibold text-slate-800">L&times;B&times;H</span>), and stamp/signature verification.
+                        Upload docket images for automated AWB, weight, package count, and dimension extraction.
                     </p>
-
-                    <div class="flex flex-wrap gap-1.5">
-                        <span class="px-2.5 py-1 rounded-lg bg-white/60 border border-white/85 text-[11px] font-semibold text-slate-700 shadow-2xs">Handwriting OCR</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-white/60 border border-white/85 text-[11px] font-semibold text-slate-700 shadow-2xs">Volumetric Math</span>
-                        <span class="px-2.5 py-1 rounded-lg bg-white/60 border border-white/85 text-[11px] font-semibold text-slate-700 shadow-2xs">Stamp &amp; Sign QA</span>
-                    </div>
 
                     {% if jobs %}
                     {% set latest_job = jobs[0] %}
@@ -449,12 +423,12 @@
 
                     <div class="pt-1 flex flex-col gap-2">
                         <a href="{{ url_for('ops.upload') }}" class="dox-btn-primary w-full justify-center !h-9.5">
-                            <i data-lucide="play" class="h-3.5 w-3.5"></i>
-                            <span>Start New Ingestion</span>
+                            <i data-lucide="upload-cloud" class="h-3.5 w-3.5"></i>
+                            <span>Upload Dockets</span>
                         </a>
                         <a href="{{ url_for('ops.exports_page') }}" class="dox-btn-secondary w-full justify-center !h-9 !text-xs">
                             <i data-lucide="download" class="h-3.5 w-3.5 text-blue-600"></i>
-                            <span>Export Verified Excel</span>
+                            <span>Export Excel</span>
                         </a>
                     </div>
                 </div>

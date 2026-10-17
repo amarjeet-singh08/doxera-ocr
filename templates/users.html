@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block header_title %}User & Access Management - DOXERA Enterprise{% endblock %}
+{% block header_title %}User Management{% endblock %}
 
 {% block content %}
 <div class="max-w-7xl mx-auto space-y-6 pb-12">
@@ -7,19 +7,9 @@
     <!-- Header & Subtitle -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <div class="flex items-center space-x-2 text-xs text-slate-500 font-medium mb-1">
-                <span>Administration</span>
-                <span>/</span>
-                <span class="text-slate-800 font-semibold">Access Control</span>
-            </div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center gap-2.5">
-                <span class="p-2 rounded-xl bg-blue-50/90 text-blue-700 border border-blue-200/80 shadow-2xs flex items-center justify-center">
-                    <i data-lucide="shield-check" class="h-5 w-5"></i>
-                </span>
-                User & Multi-Role Permissions
-            </h1>
-            <p class="text-xs sm:text-sm text-slate-500 mt-1 font-medium">
-                Configure user access levels, grant multiple operational features simultaneously (e.g. Reviewer + Auditor), and enforce strict credential uniqueness.
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">User Management</h1>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5 font-medium">
+                Manage user accounts and role permissions.
             </p>
         </div>
         
@@ -41,7 +31,7 @@
                     <span class="w-8 h-8 dox-glass-icon text-blue-600 flex items-center justify-center">
                         <i data-lucide="user-plus" class="h-4 w-4" id="form-icon"></i>
                     </span>
-                    <h2 class="text-sm font-bold tracking-tight text-slate-900" id="form-heading">Create New User</h2>
+                    <h2 class="text-sm font-bold tracking-tight text-slate-900" id="form-heading">Create User</h2>
                 </div>
                 <button type="button" id="cancel-edit-btn" onclick="resetFormToCreate()" class="hidden text-xs text-blue-600 hover:text-blue-800 underline font-semibold">
                     Cancel Edit
@@ -63,7 +53,6 @@
                             placeholder="e.g. auditor_rajesh"
                             class="dox-input pl-9 w-full text-xs sm:text-sm font-semibold">
                     </div>
-                    <p class="text-[11px] text-slate-500 mt-1">Unique identifier. Cannot duplicate existing IDs.</p>
                 </div>
 
                 <!-- Password Input -->
@@ -74,18 +63,18 @@
                     <div class="relative">
                         <i data-lucide="key" class="h-4 w-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2"></i>
                         <input type="password" name="password" id="input-password" required autocomplete="new-password"
-                            placeholder="Enter secure password"
+                            placeholder="Enter password"
                             class="dox-input pl-9 w-full text-xs sm:text-sm font-semibold">
                     </div>
                     <p class="text-[11px] text-slate-500 mt-1" id="help-password">
-                        Must be unique. System rejects passwords reused across existing accounts.
+                        Must be unique across accounts.
                     </p>
                 </div>
 
                 <!-- MULTI-ROLE / MULTI-FEATURE CHECKBOXES -->
                 <div class="pt-2">
                     <label class="block text-[11px] font-bold uppercase tracking-wider text-slate-700 mb-2">
-                        Assigned Feature Access (Select Multiple) <span class="text-rose-500">*</span>
+                        Roles <span class="text-rose-500">*</span>
                     </label>
                     
                     <div class="space-y-2 dox-subpanel p-3">
@@ -98,7 +87,7 @@
                                     <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                                     REVIEWER
                                 </span>
-                                <p class="text-[11px] text-slate-600 mt-0.5">Upload dockets, verify OCR extractions, and edit corrections.</p>
+                                <p class="text-[11px] text-slate-600 mt-0.5">Upload dockets, verify extractions, and edit fields.</p>
                             </div>
                         </label>
 
@@ -110,7 +99,7 @@
                                     <span class="w-2 h-2 rounded-full bg-blue-500"></span>
                                     AUDITOR
                                 </span>
-                                <p class="text-[11px] text-slate-600 mt-0.5">Access Sales Intelligence Dashboard, MIS spreadsheet upload & PDF/PPTX exports.</p>
+                                <p class="text-[11px] text-slate-600 mt-0.5">Access Sales Dashboard, MIS uploads, and exports.</p>
                             </div>
                         </label>
 
@@ -122,7 +111,7 @@
                                     <span class="w-2 h-2 rounded-full bg-slate-400"></span>
                                     VIEWER
                                 </span>
-                                <p class="text-[11px] text-slate-600 mt-0.5">Read-only view for general operations and dockets listing.</p>
+                                <p class="text-[11px] text-slate-600 mt-0.5">Read-only access to dockets and dashboard.</p>
                             </div>
                         </label>
 
@@ -134,21 +123,18 @@
                                     <span class="w-2 h-2 rounded-full bg-purple-600"></span>
                                     ADMIN
                                 </span>
-                                <p class="text-[11px] text-purple-700 mt-0.5">Unrestricted master access: OCR, Sales Intelligence, user management & system settings.</p>
+                                <p class="text-[11px] text-purple-700 mt-0.5">Full access to all modules and user management.</p>
                             </div>
                         </label>
 
                     </div>
-                    <p class="text-[11px] text-slate-500 mt-1.5 font-medium">
-                        Tip: You can select multiple access levels (e.g. <b>REVIEWER + AUDITOR</b>) for one user.
-                    </p>
                 </div>
 
                 <div class="pt-3 border-t border-slate-200/80 flex items-center gap-2">
                     <button type="submit" id="btn-submit"
                         class="dox-btn-primary w-full !h-10 font-bold shadow-md shadow-blue-600/20">
                         <i data-lucide="user-check" class="h-4 w-4"></i>
-                        <span id="btn-submit-text">Create Account</span>
+                        <span id="btn-submit-text">Create User</span>
                     </button>
                 </div>
 
@@ -165,10 +151,10 @@
                     <div class="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200/80 text-slate-600 flex items-center justify-center shrink-0">
                         <i data-lucide="users" class="h-4 w-4"></i>
                     </div>
-                    <h2 class="text-sm font-bold text-slate-900 tracking-tight">Registered Accounts</h2>
+                    <h2 class="text-sm font-bold text-slate-900 tracking-tight">Users</h2>
                 </div>
                 <span class="dox-badge dox-badge-neutral text-xs tabular-nums">
-                    {{ users|length }} Total Accounts
+                    {{ users|length }} Users
                 </span>
             </div>
 
@@ -177,7 +163,7 @@
                     <thead>
                         <tr>
                             <th>User</th>
-                            <th>Granted Access Roles</th>
+                            <th>Roles</th>
                             <th>Last Active</th>
                             <th class="text-right">Actions</th>
                         </tr>

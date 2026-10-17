@@ -1,21 +1,14 @@
 {% extends "base.html" %}
-{% block header_title %}Docket Registry - DOXERA Enterprise{% endblock %}
+{% block header_title %}All Dockets{% endblock %}
 
 {% block content %}
 <div class="space-y-6 max-w-7xl mx-auto">
     <!-- Header & Action Bar -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
-            <div class="flex items-center gap-2 mb-1">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50/90 text-blue-700 border border-blue-200/80 shadow-2xs">
-                    <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-                    Registry Master
-                </span>
-                <span class="text-xs text-slate-400 font-medium">Archive & Live Extractions</span>
-            </div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Docket Registry</h1>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">All Dockets</h1>
             <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-                Browse, search, inspect OCR results, and manage verification status.
+                View and manage extracted dockets.
             </p>
         </div>
         
@@ -51,7 +44,7 @@
                 <input type="hidden" name="status" value="{{ current_filter }}">
                 <button type="submit" class="dox-btn-danger !h-10 text-xs shadow-sm">
                     <i data-lucide="trash-2" class="h-3.5 w-3.5"></i>
-                    <span>Delete All {{ current_filter }}</span>
+                    <span>Delete All</span>
                 </button>
             </form>
             {% endif %}
@@ -59,29 +52,29 @@
             {% if session.role in ['ADMIN', 'REVIEWER'] and current_filter == 'FAILED' %}
             <button type="button" onclick="retryAllFailed(this)" class="dox-btn-secondary !h-10 text-xs !bg-amber-500 !text-white !border-amber-400 hover:!bg-amber-600 shadow-sm">
                 <i data-lucide="refresh-cw" class="h-3.5 w-3.5"></i>
-                <span>Retry All Failed</span>
+                <span>Retry Failed</span>
             </button>
             {% endif %}
             
             <a href="{{ url_for('ops.upload') }}" class="dox-btn-primary !h-10 text-xs shadow-md shadow-blue-600/20">
                 <i data-lucide="upload-cloud" class="h-3.5 w-3.5"></i>
-                <span>New Upload</span>
+                <span>Upload Dockets</span>
             </a>
         </div>
     </div>
 
     <!-- Filter Tabs (Apple Liquid Glass Floating Segmented Bar) -->
     <div data-liquid-glass="toolbar"
-         data-lg-radius="16"
+         data-lg-radius="20"
          data-lg-refraction="84"
          data-lg-blur="10"
          data-lg-light="32"
-         class="sm:sticky sm:top-[76px] z-20 rounded-[16px] px-3.5 py-2.5 flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
+         class="sm:sticky sm:top-[76px] z-20 rounded-[20px] px-3.5 py-2.5 flex items-center justify-between gap-3 overflow-x-auto no-scrollbar">
         <div class="flex items-center gap-1.5">
             {% set statuses = [
-                ('ALL', 'All Dockets', 'neutral'),
+                ('ALL', 'All', 'neutral'),
                 ('VERIFIED', 'Verified', 'verified'),
-                ('REVIEW', 'Review / Modified', 'review'),
+                ('REVIEW', 'Needs Review', 'review'),
                 ('REJECTED', 'Rejected', 'rejected'),
                 ('FAILED', 'Failed', 'failed'),
                 ('PROCESSING', 'Processing', 'processing')
@@ -118,8 +111,8 @@
                     <i data-lucide="database" class="h-4 w-4"></i>
                 </div>
                 <div>
-                    <h2 class="text-sm font-bold text-slate-900 tracking-tight">Extraction Records</h2>
-                    <p class="text-[11px] text-slate-600 font-medium">Filtered by: <strong class="text-slate-800">{{ current_filter }}</strong></p>
+                    <h2 class="text-sm font-bold text-slate-900 tracking-tight">Docket Records</h2>
+                    <p class="text-[11px] text-slate-500 font-medium">Filter: <strong class="text-slate-800">{{ current_filter }}</strong></p>
                 </div>
             </div>
             <span class="dox-badge dox-badge-processing tabular-nums">{{ dockets|length }} Records</span>

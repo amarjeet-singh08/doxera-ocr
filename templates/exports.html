@@ -1,21 +1,14 @@
 {% extends "base.html" %}
-{% block header_title %}Data Exports - DOXERA Enterprise{% endblock %}
+{% block header_title %}Data Exports{% endblock %}
 
 {% block content %}
 <div class="space-y-6 max-w-7xl mx-auto">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <div class="flex items-center gap-2 mb-1">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50/90 text-blue-700 border border-blue-200/80 shadow-2xs">
-                    <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-                    Reports & Downloads
-                </span>
-                <span class="text-xs text-slate-400 font-medium">Excel Spreadsheet Exporter</span>
-            </div>
             <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Data Exports</h1>
             <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-                Download structured Excel spreadsheets filtered by date range and verification status.
+                Download Excel spreadsheets by date range and status.
             </p>
         </div>
         
@@ -29,19 +22,18 @@
         
         <!-- 1. All Dockets Export -->
         <div class="dox-card overflow-hidden flex flex-col h-full">
-            <div class="h-[3px] bg-blue-600"></div>
             <div class="dox-card-header">
                 <div class="flex items-center gap-2.5">
                     <div class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200/80 text-blue-600 flex items-center justify-center shrink-0">
                         <i data-lucide="layers" class="h-4 w-4"></i>
                     </div>
-                    <h2 class="text-sm font-bold text-slate-900">All Dockets Export</h2>
+                    <h2 class="text-sm font-bold text-slate-900">All Dockets</h2>
                 </div>
-                <span class="dox-badge dox-badge-neutral text-[10px]">Complete</span>
+                <span class="dox-badge dox-badge-neutral text-[10px]">All</span>
             </div>
             <div class="p-6 flex flex-col h-full">
                 <p class="text-xs text-slate-600 leading-relaxed mb-6 font-medium">
-                    Generates a master Excel workbook containing <strong>ALL</strong> dockets, including those Pending Review, Verified, and Rejected with full extraction metadata.
+                    Export all dockets including verified, pending review, and rejected records.
                 </p>
                 
                 <form class="space-y-4 mt-auto" action="{{ url_for('ops.do_export_all') }}" method="GET">
@@ -57,7 +49,7 @@
                     </div>
                     <button type="submit" class="dox-btn-primary w-full !h-10 justify-center text-xs font-semibold">
                         <i data-lucide="download" class="h-4 w-4"></i>
-                        <span>Download All Excel</span>
+                        <span>Download Excel</span>
                     </button>
                 </form>
             </div>
@@ -65,7 +57,6 @@
 
         <!-- 2. Verified Export -->
         <div class="dox-card overflow-hidden flex flex-col h-full">
-            <div class="h-[3px] bg-emerald-500"></div>
             <div class="dox-card-header">
                 <div class="flex items-center gap-2.5">
                     <div class="w-8 h-8 rounded-lg bg-emerald-50 border border-emerald-200/80 text-emerald-600 flex items-center justify-center shrink-0">
@@ -73,11 +64,11 @@
                     </div>
                     <h2 class="text-sm font-bold text-slate-900">Verified Dockets</h2>
                 </div>
-                <span class="dox-badge dox-badge-verified text-[10px]">Production</span>
+                <span class="dox-badge dox-badge-verified text-[10px]">Verified</span>
             </div>
             <div class="p-6 flex flex-col h-full">
                 <p class="text-xs text-slate-600 leading-relaxed mb-6 font-medium">
-                    Generates an Excel workbook containing only dockets with final <strong>VERIFIED</strong> status. Any unverified or rejected records are strictly excluded.
+                    Export only dockets with verified status. Unverified and rejected records are excluded.
                 </p>
                 
                 <form class="space-y-4 mt-auto" action="{{ url_for('ops.do_export_verified') }}" method="GET">
@@ -93,7 +84,7 @@
                     </div>
                     <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-[11px] bg-gradient-to-b from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white border border-emerald-700/80 shadow-md shadow-emerald-600/20 w-full h-10 text-xs font-semibold transition-all cursor-pointer">
                         <i data-lucide="download" class="h-4 w-4"></i>
-                        <span>Download Verified Excel</span>
+                        <span>Download Excel</span>
                     </button>
                 </form>
             </div>
@@ -101,7 +92,6 @@
 
         <!-- 3. Rejected Export -->
         <div class="dox-card overflow-hidden flex flex-col h-full">
-            <div class="h-[3px] bg-rose-500"></div>
             <div class="dox-card-header">
                 <div class="flex items-center gap-2.5">
                     <div class="w-8 h-8 rounded-lg bg-rose-50 border border-rose-200/80 text-rose-600 flex items-center justify-center shrink-0">
@@ -109,11 +99,11 @@
                     </div>
                     <h2 class="text-sm font-bold text-slate-900">Rejected Dockets</h2>
                 </div>
-                <span class="dox-badge dox-badge-rejected text-[10px]">Audit</span>
+                <span class="dox-badge dox-badge-rejected text-[10px]">Rejected</span>
             </div>
             <div class="p-6 flex flex-col h-full">
                 <p class="text-xs text-slate-600 leading-relaxed mb-6 font-medium">
-                    Generates an Excel workbook containing explicitly <strong>REJECTED</strong> dockets along with all associated rejection reasons and error diagnostics.
+                    Export rejected dockets along with rejection reasons.
                 </p>
                 
                 <form class="space-y-4 mt-auto" action="{{ url_for('ops.do_export_rejected') }}" method="GET">
@@ -129,7 +119,7 @@
                     </div>
                     <button type="submit" class="dox-btn-danger w-full !h-10 justify-center text-xs font-semibold">
                         <i data-lucide="download" class="h-4 w-4"></i>
-                        <span>Download Rejected Excel</span>
+                        <span>Download Excel</span>
                     </button>
                 </form>
             </div>

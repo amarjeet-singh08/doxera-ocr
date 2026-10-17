@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block header_title %}Sales Intelligence{% endblock %}
+{% block header_title %}Sales Dashboard{% endblock %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="{{ url_for('static', filename='css/leaflet.css') }}">
@@ -27,9 +27,11 @@
         backdrop-filter: blur(18px) saturate(180%);
         -webkit-backdrop-filter: blur(18px) saturate(180%);
         border: 1px solid rgba(255, 255, 255, 0.86);
-        border-radius: var(--radius-xl, 18px);
+        border-radius: var(--radius-xl, 20px);
         box-shadow: var(--highlight-top), var(--highlight-bottom), var(--shadow-card);
         transition: border-color 180ms ease, box-shadow 180ms ease;
+        position: relative;
+        overflow: hidden;
     }
     .sd-card.lg-host {
         background: transparent;
@@ -37,11 +39,6 @@
     .sd-card:hover {
         border-color: rgba(255, 255, 255, 0.96);
         box-shadow: var(--highlight-top), var(--highlight-bottom), var(--shadow-card-hover);
-    }
-    .sd-accent {
-        height: 3px;
-        background: linear-gradient(90deg, var(--seg) 0%, rgba(var(--seg-rgb), 0.65) 45%, rgba(var(--seg-rgb), 0.1) 100%);
-        transition: background 220ms ease;
     }
     .sd-eyebrow {
         font-size: 11px;
@@ -51,14 +48,13 @@
         color: var(--muted);
     }
     .sd-title {
-        font-size: 16px;
+        font-size: 15px;
         font-weight: 700;
         color: var(--ink);
-        letter-spacing: -.02em;
-        margin-top: 2px;
+        letter-spacing: -.015em;
     }
     .sd-desc {
-        font-size: 13px;
+        font-size: 12px;
         color: var(--muted);
         margin-top: 2px;
     }
@@ -70,13 +66,15 @@
     .sd-sec-head {
         display: flex;
         flex-wrap: wrap;
-        align-items: flex-start;
+        align-items: center;
         justify-content: space-between;
-        gap: 16px 32px;
-        padding: 16px 24px 14px;
+        gap: 14px 28px;
+        padding: 15px 22px 13px;
         margin-bottom: 10px;
         background: linear-gradient(180deg, rgba(255, 255, 255, 0.44) 0%, rgba(248, 251, 255, 0.22) 100%);
         border-bottom: 1px solid rgba(15, 23, 42, 0.065);
+        border-top-left-radius: inherit;
+        border-top-right-radius: inherit;
         box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.85);
     }
     .sd-stats {
@@ -541,7 +539,6 @@
 
     <!-- ═══════════════ HEADER (Liquid Frosted Glass Card) ═══════════════ -->
     <section data-liquid-glass="card" class="sd-card overflow-hidden">
-        <div class="sd-accent"></div>
         <div class="p-5 sm:p-6">
             <div class="flex flex-col lg:flex-row lg:items-start lg:justify-between gap-4">
                 <div class="min-w-0">
@@ -550,24 +547,23 @@
                             <span class="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
                             North Express Logistics
                         </span>
-                        <span class="text-xs text-slate-500 font-medium">Enterprise Audit</span>
                     </div>
-                    <h1 id="seg-title" class="text-[22px] sm:text-2xl lg:text-3xl font-bold text-slate-900 tracking-tight mt-1">Unbilled Revenue</h1>
+                    <h1 id="seg-title" class="text-[22px] sm:text-2xl lg:text-[26px] font-bold text-slate-900 tracking-tight mt-1">Unbilled Revenue</h1>
                     <p class="text-[12.5px] sm:text-[13px] text-slate-600 mt-1 flex flex-wrap items-center gap-x-2 gap-y-1">
                         <span class="font-semibold text-slate-800 bg-white/70 border border-white/90 px-2 py-0.5 rounded-md text-xs shadow-2xs">{{ summary.period_label or current_report.period_label or '—' }}</span>
                         <span class="text-slate-400">·</span>
-                        <span>Generated {{ current_report.created_at|localdt }}</span>
+                        <span>{{ current_report.created_at|localdt }}</span>
                     </p>
                 </div>
                 <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full sm:w-auto mt-3 sm:mt-0">
-                    <a href="{{ url_for('sales.export_pdf', report_id=current_report.id) }}" class="sd-btn flex-1 sm:flex-initial justify-center text-center !px-3 sm:!px-4 shrink-0" title="Export Audit PDF">
+                    <a href="{{ url_for('sales.export_pdf', report_id=current_report.id) }}" class="sd-btn flex-1 sm:flex-initial justify-center text-center !px-3 sm:!px-4 shrink-0" title="Export PDF">
                         <i data-lucide="file-text" class="h-4 w-4 text-blue-600"></i> <span>PDF</span>
                     </a>
                     <a href="{{ url_for('sales.export_pptx', report_id=current_report.id) }}" class="sd-btn flex-1 sm:flex-initial justify-center text-center !px-3 sm:!px-4 shrink-0" title="Export Presentation">
                         <i data-lucide="presentation" class="h-4 w-4 text-indigo-600"></i> <span>PPTX</span>
                     </a>
                     <a href="{{ url_for('sales.upload_page') }}" class="sd-btn sd-btn-primary flex-1 sm:flex-initial justify-center text-center !px-3.5 sm:!px-4 shrink-0 shadow-md shadow-blue-500/20">
-                        <i data-lucide="upload" class="h-4 w-4"></i> <span>New Upload</span>
+                        <i data-lucide="upload" class="h-4 w-4"></i> <span>Upload MIS</span>
                     </a>
                 </div>
             </div>
@@ -577,13 +573,13 @@
     <!-- ═══════════════ FLOATING LIQUID GLASS DIMENSION & REPORT CONTROL BAR ═══════════════ -->
     <section id="sd-control-bar"
              data-liquid-glass="toolbar"
-             data-lg-radius="18"
+             data-lg-radius="20"
              data-lg-refraction="88"
              data-lg-blur="14"
              data-lg-light="36"
-             class="sm:sticky sm:top-[76px] z-20 rounded-[18px] p-3.5 sm:px-5 sm:py-3.5">
+             class="sm:sticky sm:top-[76px] z-20 rounded-[20px] p-3.5 sm:px-5 sm:py-3.5">
         <div class="flex flex-col xl:flex-row xl:items-center xl:justify-between gap-2.5">
-            <!-- Left: View Segments & Month Filter (Data Dimensions) -->
+            <!-- Left: View Segments & Month Filter -->
             <div class="flex flex-wrap sm:flex-nowrap items-center gap-2 w-full xl:w-auto shrink-0">
                 <div class="sd-seg w-full sm:w-auto shrink-0" role="tablist" aria-label="Sales segment">
                     <button type="button" data-seg="unbilled" role="tab"><span class="sd-seg-dot"></span><span>Unbilled</span></button>
@@ -611,9 +607,9 @@
                     {% endfor %}
                 </select>
                 <div class="flex items-center gap-2 shrink-0 w-full sm:w-auto">
-                    <button type="button" onclick="openManageReportsModal()" class="sd-btn flex-1 sm:flex-initial !px-3.5 text-slate-700 hover:text-slate-900 transition inline-flex items-center justify-center gap-1.5 shrink-0" title="Manage all saved reports">
+                    <button type="button" onclick="openManageReportsModal()" class="sd-btn flex-1 sm:flex-initial !px-3.5 text-slate-700 hover:text-slate-900 transition inline-flex items-center justify-center gap-1.5 shrink-0" title="Manage saved reports">
                         <i data-lucide="layers" class="h-4 w-4 text-blue-600 shrink-0"></i>
-                        <span class="whitespace-nowrap">All Reports ({{ reports|length }})</span>
+                        <span class="whitespace-nowrap">Reports ({{ reports|length }})</span>
                     </button>
                     <button type="button"
                             data-del-id="{{ current_report.id }}"
@@ -622,7 +618,7 @@
                             data-del-date="{{ current_report.created_at|localdt }}"
                             onclick="triggerDeleteReport(this)"
                             class="sd-btn !px-3 text-rose-600 hover:text-rose-700 hover:bg-rose-50/90 hover:border-rose-300 transition inline-flex items-center justify-center shrink-0"
-                            title="Delete only currently selected report (Report #{{ current_report.id }})">
+                            title="Delete selected report">
                         <i data-lucide="trash-2" class="h-4 w-4 text-rose-500 shrink-0"></i>
                     </button>
                 </div>
@@ -634,17 +630,17 @@
             <div class="flex flex-wrap items-center gap-2">
                 <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-blue-900 tracking-wide uppercase">
                     <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z"></path></svg>
-                    Filtered View:
+                    Filtered:
                 </span>
                 <div id="sd-filter-chips" class="flex flex-wrap items-center gap-1.5"></div>
             </div>
             <button type="button" id="sd-clear-filters-btn" class="inline-flex items-center gap-1 px-2.5 py-1 text-xs font-medium text-slate-700 bg-white/85 hover:bg-white rounded-md border border-white/90 shadow-2xs transition">
-                <span>✕</span> Clear Filter
+                <span>✕</span> Clear
             </button>
         </div>
     </section>
 
-    <!-- Commercial Rate Update Notice Banner (Visible when For Update segment is active) -->
+    <!-- Commercial Rate Update Notice Banner -->
     <div id="for-update-notice" data-liquid-glass="alert" class="hidden dox-alert-card p-3.5 sm:p-4 text-amber-950 flex items-start gap-3">
         <div class="w-7 h-7 rounded-lg bg-amber-500 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-2xs">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path></svg>
@@ -652,17 +648,16 @@
         <div class="flex-1 min-w-0">
             <h3 class="text-xs sm:text-sm font-semibold text-amber-950">Pending Rate Revisions (≤ ₹10)</h3>
             <p class="text-xs text-amber-900 mt-0.5 leading-relaxed">
-                Consignments recorded with placeholder rates are segregated pending commercial ERP rate entry.
+                Consignments with placeholder rates awaiting final commercial rate entry.
             </p>
         </div>
     </div>
 
-    <!-- ═══════════════ EXECUTIVE FINANCIAL KPI CARDS (4 Sculpted Liquid Frosted Glass Cards) ═══════════════ -->
+    <!-- ═══════════════ EXECUTIVE FINANCIAL KPI CARDS ═══════════════ -->
     <section aria-label="Executive Financial KPIs">
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
             <!-- 1. Total Revenue -->
             <div data-liquid-glass="metric" class="dox-metric-card min-w-0 group">
-                <div class="absolute inset-x-5 top-0 h-[2.5px] rounded-b-full bg-gradient-to-r from-blue-600 via-indigo-500 to-blue-600 opacity-90 group-hover:opacity-100 transition-opacity"></div>
                 <div class="flex items-center justify-between gap-2">
                     <span class="sd-kpi-label font-bold uppercase tracking-wider !text-[11px] text-slate-600">Total Revenue</span>
                     <div class="w-8 h-8 rounded-xl bg-blue-50/85 text-blue-600 border border-blue-200/80 shadow-2xs flex items-center justify-center shrink-0">
@@ -678,23 +673,21 @@
 
             <!-- 2. Shipment Volume -->
             <div data-liquid-glass="metric" class="dox-metric-card min-w-0 group">
-                <div class="absolute inset-x-5 top-0 h-[2.5px] rounded-b-full bg-gradient-to-r from-sky-500 via-cyan-400 to-sky-600 opacity-90 group-hover:opacity-100 transition-opacity"></div>
                 <div class="flex items-center justify-between gap-2">
-                    <span class="sd-kpi-label font-bold uppercase tracking-wider !text-[11px] text-slate-600">Shipment Volume</span>
+                    <span class="sd-kpi-label font-bold uppercase tracking-wider !text-[11px] text-slate-600">Shipments</span>
                     <div class="w-8 h-8 rounded-xl bg-sky-50/85 text-sky-600 border border-sky-200/80 shadow-2xs flex items-center justify-center shrink-0">
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"></path></svg>
                     </div>
                 </div>
                 <p class="sd-kpi mt-2.5 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900" id="kpi-awbs">—</p>
                 <div class="mt-2.5 pt-2 border-t border-slate-900/[0.06] flex items-center justify-between text-xs">
-                    <span class="text-slate-500 font-medium">Verified AWBs</span>
+                    <span class="text-slate-500 font-medium">AWBs</span>
                     <span class="font-semibold text-slate-800 sd-num truncate" id="kpi-awbs-sub">&nbsp;</span>
                 </div>
             </div>
 
             <!-- 3. Total Weight -->
             <div data-liquid-glass="metric" class="dox-metric-card min-w-0 group">
-                <div class="absolute inset-x-5 top-0 h-[2.5px] rounded-b-full bg-gradient-to-r from-emerald-500 via-teal-400 to-emerald-600 opacity-90 group-hover:opacity-100 transition-opacity"></div>
                 <div class="flex items-center justify-between gap-2">
                     <span class="sd-kpi-label font-bold uppercase tracking-wider !text-[11px] text-slate-600">Total Weight</span>
                     <div class="w-8 h-8 rounded-xl bg-emerald-50/85 text-emerald-600 border border-emerald-200/80 shadow-2xs flex items-center justify-center shrink-0">
@@ -710,7 +703,6 @@
 
             <!-- 4. Average Value -->
             <div data-liquid-glass="metric" class="dox-metric-card min-w-0 group">
-                <div class="absolute inset-x-5 top-0 h-[2.5px] rounded-b-full bg-gradient-to-r from-indigo-500 via-purple-500 to-indigo-600 opacity-90 group-hover:opacity-100 transition-opacity"></div>
                 <div class="flex items-center justify-between gap-2">
                     <span class="sd-kpi-label font-bold uppercase tracking-wider !text-[11px] text-slate-600">Average Value</span>
                     <div class="w-8 h-8 rounded-xl bg-indigo-50/85 text-indigo-600 border border-indigo-200/80 shadow-2xs flex items-center justify-center shrink-0">
@@ -719,19 +711,19 @@
                 </div>
                 <p class="sd-kpi mt-2.5 text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900" id="kpi-avg">—</p>
                 <div class="mt-2.5 pt-2 border-t border-slate-900/[0.06] flex items-center justify-between text-xs">
-                    <span class="text-slate-500 font-medium">Per Consignment</span>
+                    <span class="text-slate-500 font-medium">Per Shipment</span>
                     <span class="font-semibold text-slate-800 sd-num truncate" id="kpi-avg-sub">&nbsp;</span>
                 </div>
             </div>
         </div>
     </section>
 
-    <!-- ═══════════════ AUDIT RECONCILIATION (Liquid Frosted Glass Card + Subpanels) ═══════════════ -->
+    <!-- ═══════════════ AUDIT RECONCILIATION ═══════════════ -->
     <section data-liquid-glass="card" class="sd-card overflow-hidden">
         <div class="sd-sec-head !mb-0">
             <div>
-                <h2 class="sd-title">Operational &amp; Billing Reconciliation</h2>
-                <p class="sd-desc">Physical delivery aligned against billing status</p>
+                <h2 class="sd-title">Delivery &amp; Billing Summary</h2>
+                <p class="sd-desc">Delivery status aligned with billing</p>
             </div>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5 p-4 sm:p-5">
@@ -785,8 +777,8 @@
     <section data-liquid-glass="card" class="sd-card overflow-hidden">
         <div class="sd-sec-head">
             <div>
-                <h2 class="sd-title">Daily Revenue Trend</h2>
-                <p class="sd-desc">Daily booking progression across the audit period</p>
+                <h2 class="sd-title">Daily Revenue</h2>
+                <p class="sd-desc">Daily booking trend</p>
             </div>
             <div class="sd-stats">
                 <div class="sd-stat">
@@ -814,8 +806,8 @@
     <section data-liquid-glass="card" class="sd-card overflow-hidden">
         <div class="sd-sec-head">
             <div>
-                <h2 class="sd-title">Sales Representative Performance</h2>
-                <p class="sd-desc">Revenue distribution by assigned sales representative</p>
+                <h2 class="sd-title">Sales Representatives</h2>
+                <p class="sd-desc">Revenue by assigned representative</p>
             </div>
             <div class="sd-stats">
                 <div class="sd-stat">
@@ -833,8 +825,8 @@
     <section data-liquid-glass="card" class="sd-card overflow-hidden">
         <div class="sd-sec-head">
             <div>
-                <h2 class="sd-title">Transport Mode Mix</h2>
-                <p class="sd-desc">Revenue and volume allocation across transport modes</p>
+                <h2 class="sd-title">Transport Modes</h2>
+                <p class="sd-desc">Revenue and volume by mode</p>
             </div>
         </div>
         <div class="grid grid-cols-1 md:grid-cols-5 gap-4 items-center px-4 sm:px-6 pb-5">
@@ -847,14 +839,14 @@
     <section data-liquid-glass="card" class="sd-card overflow-hidden">
         <div class="sd-sec-head">
             <div>
-                <h2 class="sd-title">Key Client Accounts</h2>
-                <p class="sd-desc">Top 10 commercial client accounts by revenue</p>
+                <h2 class="sd-title">Top Customers</h2>
+                <p class="sd-desc">Top 10 client accounts by revenue</p>
             </div>
             <div class="sd-stats">
                 <div class="sd-stat">
                     <div class="v" id="cust-conc">—</div>
                     <div class="text-[11.5px] font-semibold text-slate-700 sd-num mt-0.5" id="cust-conc-exact"></div>
-                    <div class="k">Top 5 Concentration</div>
+                    <div class="k">Top 5 Share</div>
                 </div>
                 <div class="sd-stat"><div class="v" id="cust-count">—</div><div class="k">Active Accounts</div></div>
             </div>
@@ -866,8 +858,8 @@
     <section data-liquid-glass="card" class="sd-card overflow-hidden">
         <div class="sd-sec-head">
             <div>
-                <h2 class="sd-title">Geographic Network &amp; Lanes</h2>
-                <p class="sd-desc">Transit corridors and destination hubs</p>
+                <h2 class="sd-title">Network &amp; Lanes</h2>
+                <p class="sd-desc">Transit corridors and destinations</p>
             </div>
             <div class="sd-stats">
                 <div class="sd-stat"><div class="v" id="net-dest">—</div><div class="k">Destinations</div></div>
@@ -892,7 +884,7 @@
                     <p class="text-[11.5px] text-slate-500 mt-2" id="net-note">&nbsp;</p>
                 </div>
                 <div class="lg:col-span-2 dox-subpanel p-3.5 sm:p-4">
-                    <p class="sd-kpi-label font-semibold text-slate-700 mb-2.5">Top Destinations by Revenue</p>
+                    <p class="sd-kpi-label font-semibold text-slate-700 mb-2.5">Top Destinations</p>
                     <div id="dest-list" class="space-y-3"></div>
                 </div>
             </div>
@@ -904,7 +896,7 @@
         <div class="sd-sec-head !mb-0">
             <div>
                 <h2 class="sd-title" id="reg-title">Consignment Register</h2>
-                <p class="sd-desc" id="reg-desc">Complete record of verified consignments</p>
+                <p class="sd-desc" id="reg-desc">Verified consignment records</p>
             </div>
             <div class="sd-stats">
                 <div class="sd-stat"><div class="v" id="reg-count">—</div><div class="k">Shipments</div></div>

@@ -1,21 +1,14 @@
 {% extends "base.html" %}
-{% block header_title %}Review Center - DOXERA Enterprise{% endblock %}
+{% block header_title %}Review Center{% endblock %}
 
 {% block content %}
 <div class="space-y-6 max-w-7xl mx-auto">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <div class="flex items-center gap-2 mb-1">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-amber-50/90 text-amber-800 border border-amber-200/80 shadow-2xs">
-                    <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                    Verification Queue
-                </span>
-                <span class="text-xs text-slate-400 font-medium">Quality Assurance</span>
-            </div>
             <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Review Center</h1>
             <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-                Dockets requiring manual verification, edge-case resolution, or field confirmation.
+                Dockets requiring manual verification or field review.
             </p>
         </div>
         
@@ -33,15 +26,14 @@
 
     <!-- Analytical Queue Container -->
     <div class="dox-card overflow-hidden">
-        <div class="h-[3px] {% if dockets|length > 0 %}bg-amber-500{% else %}bg-emerald-500{% endif %}"></div>
         <div class="dox-card-header">
             <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 rounded-lg bg-amber-50 border border-amber-200/80 text-amber-600 flex items-center justify-center shrink-0">
                     <i data-lucide="inbox" class="h-4 w-4"></i>
                 </div>
                 <div>
-                    <h2 class="text-sm font-bold text-slate-900 tracking-tight">Action Required Queue</h2>
-                    <p class="text-[11px] text-slate-500 font-medium">Consignments flagged for mathematical or field verification</p>
+                    <h2 class="text-sm font-bold text-slate-900 tracking-tight">Review Queue</h2>
+                    <p class="text-[11px] text-slate-500 font-medium">Dockets pending manual verification</p>
                 </div>
             </div>
             <span class="dox-badge dox-badge-review tabular-nums">{{ dockets|length }} Dockets</span>
@@ -53,9 +45,9 @@
                     <tr>
                         <th>Docket No</th>
                         <th>Status</th>
-                        <th>Extracted Weight</th>
-                        <th>Validation Reason / Flag</th>
-                        <th>Upload Timestamp</th>
+                        <th>Weight (kg)</th>
+                        <th>Reason</th>
+                        <th>Date Uploaded</th>
                         <th class="text-right">Action</th>
                     </tr>
                 </thead>
@@ -67,7 +59,7 @@
                             {% if d.status == 'MODIFIED_REVERIFICATION_REQUIRED' %}
                                 <span class="dox-badge dox-badge-review">Reverification</span>
                             {% else %}
-                                <span class="dox-badge dox-badge-review">Review Required</span>
+                                <span class="dox-badge dox-badge-review">Needs Review</span>
                             {% endif %}
                         </td>
                         <td class="font-mono text-slate-700 font-semibold">{{ d.actual_weight or '---' }} kg</td>
@@ -92,8 +84,8 @@
                                 <div class="w-14 h-14 rounded-2xl bg-emerald-50/90 border border-emerald-200/80 flex items-center justify-center mb-3 shadow-sm ring-4 ring-white">
                                     <i data-lucide="check" class="h-7 w-7 text-emerald-600"></i>
                                 </div>
-                                <p class="font-extrabold text-slate-900 text-base">All Caught Up!</p>
-                                <p class="text-xs text-slate-500 mt-1 max-w-sm">There are no dockets currently requiring manual review or field corrections.</p>
+                                <p class="font-extrabold text-slate-900 text-base">Queue Clear</p>
+                                <p class="text-xs text-slate-500 mt-1 max-w-sm">No dockets currently require manual review.</p>
                             </div>
                         </td>
                     </tr>

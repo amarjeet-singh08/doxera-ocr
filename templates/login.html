@@ -3,15 +3,15 @@
 {% block auth_content %}
 <div id="login-glass-card"
      data-liquid-glass="modal"
-     data-lg-radius="24"
+     data-lg-radius="20"
      data-lg-refraction="84"
      data-lg-blur="14"
      data-lg-light="36"
-     class="max-w-md w-full overflow-hidden rounded-[24px] p-8 sm:p-10 shadow-2xl relative z-10">
+     class="max-w-md w-full overflow-hidden rounded-[20px] p-8 sm:p-10 shadow-2xl relative z-10">
     <div class="text-center mb-8">
         <img src="{{ url_for('static', filename='doxera_logo.png') }}" alt="DOXERA" class="h-12 mx-auto mb-5 drop-shadow-sm">
-        <h2 class="text-2xl font-black text-slate-900 tracking-tight">Enterprise Access</h2>
-        <p class="text-xs sm:text-sm text-slate-500 font-medium mt-1">Sign in to DOXERA Operations & Intelligence</p>
+        <h2 class="text-2xl font-black text-slate-900 tracking-tight">Sign In</h2>
+        <p class="text-xs sm:text-sm text-slate-500 font-medium mt-1">Sign in to your account</p>
     </div>
     
     <div>
@@ -35,7 +35,7 @@
                     <i data-lucide="user" class="h-4 w-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 z-10 pointer-events-none"></i>
                     <input type="text" id="username" name="username" required 
                            class="dox-input pl-10 w-full text-sm font-semibold" 
-                           placeholder="Enter registered username" autocomplete="username">
+                           placeholder="Enter username" autocomplete="username">
                 </div>
             </div>
             
@@ -51,14 +51,14 @@
             
             <div class="pt-2">
                 <button type="submit" class="dox-btn-primary w-full !h-12 !text-sm font-extrabold shadow-xl shadow-blue-600/30">
-                    <i data-lucide="log-in" class="h-4 w-4 mr-2"></i> Sign In to Portal
+                    <i data-lucide="log-in" class="h-4 w-4 mr-2"></i> Sign In
                 </button>
             </div>
         </form>
 
         <div class="mt-8 pt-5 border-t border-slate-200/60 text-center">
             <p class="text-[11px] text-slate-400 font-medium">
-                DOXERA Document Extraction & Sales Intelligence © 2026
+                DOXERA © 2026
             </p>
         </div>
     </div>

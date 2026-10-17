@@ -1,20 +1,13 @@
 {% extends "base.html" %}
-{% block header_title %}Batch Upload Dockets - DOXERA Enterprise{% endblock %}
+{% block header_title %}Upload Dockets{% endblock %}
 
 {% block content %}
 <div data-liquid-glass="card" class="max-w-3xl mx-auto dox-card overflow-hidden">
     <div class="dox-card-header !p-6 sm:!p-7">
         <div>
-            <div class="flex items-center gap-2 mb-1">
-                <span class="dox-badge dox-badge-processing">
-                    <span class="w-1.5 h-1.5 rounded-full bg-blue-600"></span>
-                    Batch Pipeline
-                </span>
-                <span class="text-xs text-slate-600 font-medium">Multi-Image OCR Ingestion</span>
-            </div>
-            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">New Batch Upload</h2>
-            <p class="text-xs sm:text-sm text-slate-600 mt-0.5">
-                Upload docket images (JPG, PNG) for automated handwriting OCR extraction and validation.
+            <h2 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">Upload Dockets</h2>
+            <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
+                Upload docket images (JPG, PNG) for automated extraction.
             </p>
         </div>
         <div class="hidden sm:flex w-11 h-11 dox-glass-icon text-blue-600 items-center justify-center shrink-0">
@@ -52,8 +45,8 @@
                         <i data-lucide="upload-cloud" class="h-7 w-7 text-blue-600"></i>
                     </div>
                     <p class="text-base sm:text-lg font-bold text-slate-900 mb-1">Click to browse or drop images here</p>
-                    <p class="text-xs sm:text-sm text-slate-600 mb-4 max-w-md" id="file-msg">
-                        Supports high-resolution JPG & PNG dockets (recommended 30–40 per batch).
+                    <p class="text-xs sm:text-sm text-slate-500 mb-4 max-w-md" id="file-msg">
+                        Supports JPG &amp; PNG images (recommended 30–40 per batch).
                     </p>
                     
                     <div id="file-list" class="flex flex-wrap gap-2 justify-center hidden"></div>
@@ -68,10 +61,10 @@
                             <i data-lucide="loader-2" class="h-6 w-6 animate-spin"></i>
                         </div>
                         <div class="text-slate-900 font-bold text-sm sm:text-base">
-                            Extracting Docket Metadata
+                            Processing Dockets
                         </div>
                         <p class="text-slate-500 text-xs mt-1.5 text-center">
-                            Analyzing <span id="scan-count" class="font-bold text-blue-600 tabular-nums"></span> docket(s) with Vision OCR...
+                            Extracting data from <span id="scan-count" class="font-bold text-blue-600 tabular-nums"></span> docket(s)...
                         </p>
                     </div>
                 </div>
@@ -84,7 +77,7 @@
                     <div class="text-rose-700 font-bold text-lg tracking-tight mb-0.5">Daily Quota Reached</div>
                     <div class="text-rose-600 font-medium text-xs mb-2.5">Resets Daily at 6:00 AM IST</div>
                     <p class="text-slate-600 text-xs text-center max-w-sm leading-relaxed mb-5">
-                        DOXERA AI has reached its rate limit for this session. Please wait until quota resets or add credits to your account.
+                        Daily processing quota reached. Please wait until reset or add credits.
                     </p>
                     <button type="button" onclick="window.location.reload()" class="dox-btn-secondary !h-9 !px-5">
                         Go Back
@@ -98,7 +91,7 @@
                     <span>0 files selected</span>
                 </div>
                 <button type="submit" id="uploadBtn" disabled class="w-full sm:w-auto dox-btn-primary !h-10 !px-6">
-                    <i data-lucide="play" class="h-4 w-4"></i> Start AI Ingestion
+                    <i data-lucide="play" class="h-4 w-4"></i> Upload &amp; Process
                 </button>
             </div>
         </form>
@@ -175,7 +168,7 @@
             scanningUi.classList.remove('hidden');
             if (fileData) previewImg.src = fileData;
             
-            uploadBtn.innerHTML = '<i data-lucide="loader-2" class="h-4 w-4 mr-2 animate-spin"></i> PROCESSING BATCH...';
+            uploadBtn.innerHTML = '<i data-lucide="loader-2" class="h-4 w-4 mr-2 animate-spin"></i> Processing...';
             uploadBtn.disabled = true;
             lucide.createIcons();
             
@@ -205,8 +198,8 @@
                 successBanner.innerHTML = `
                     <i data-lucide="check-circle" class="h-5 w-5"></i>
                     <div>
-                        <div class="font-bold text-sm">Upload Complete!</div>
-                        <div class="text-xs text-emerald-100">Files are safely on the server. You can close the app or watch the scan below.</div>
+                        <div class="font-bold text-sm">Upload Complete</div>
+                        <div class="text-xs text-emerald-100">Files uploaded. Extraction running in the background.</div>
                     </div>
                 `;
                 scanningUi.appendChild(successBanner);
@@ -225,7 +218,7 @@
                         if (statusData.rate_limited) {
                             scanningUi.classList.add('hidden');
                             document.getElementById('limit-ui').classList.remove('hidden');
-                            uploadBtn.innerHTML = '<i data-lucide="alert-triangle" class="h-4 w-4 mr-2"></i> OUT OF LIMIT';
+                            uploadBtn.innerHTML = '<i data-lucide="alert-triangle" class="h-4 w-4 mr-2"></i> Quota Reached';
                             lucide.createIcons();
                         } else if (statusData.processed > 0 || statusData.complete) {
                             window.location.href = '{{ url_for("ops.dashboard") }}';
@@ -243,7 +236,7 @@
             .catch(err => {
                 scanningUi.classList.add('hidden');
                 defaultUi.classList.remove('hidden');
-                uploadBtn.innerHTML = '<i data-lucide="play" class="h-4 w-4 mr-2"></i> START DOXERA AI INGESTION';
+                uploadBtn.innerHTML = '<i data-lucide="play" class="h-4 w-4 mr-2"></i> Upload &amp; Process';
                 uploadBtn.disabled = false;
                 lucide.createIcons();
                 alert('Upload failed: ' + err.message);

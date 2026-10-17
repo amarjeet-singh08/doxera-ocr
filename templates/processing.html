@@ -1,21 +1,14 @@
 {% extends "base.html" %}
-{% block header_title %}Batch Processing Pipeline - DOXERA Enterprise{% endblock %}
+{% block header_title %}Processing Queue{% endblock %}
 
 {% block content %}
 <div class="space-y-6 max-w-7xl mx-auto">
     <!-- Header -->
     <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-            <div class="flex items-center gap-2 mb-1">
-                <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-bold bg-blue-50/90 text-blue-700 border border-blue-200/80 shadow-2xs">
-                    <span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
-                    Async Queue
-                </span>
-                <span class="text-xs text-slate-400 font-medium">Background Worker Pool</span>
-            </div>
-            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Active Processing Jobs</h1>
+            <h1 class="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">Processing Queue</h1>
             <p class="text-xs sm:text-sm text-slate-500 font-medium mt-0.5">
-                Real-time status of OCR extraction batches, verification splits, and throughput metrics.
+                Status and progress of uploaded docket batches.
             </p>
         </div>
         
@@ -31,15 +24,14 @@
 
     <!-- Active Jobs Container -->
     <div class="dox-card overflow-hidden">
-        <div class="h-[3px] bg-blue-600"></div>
         <div class="dox-card-header">
             <div class="flex items-center gap-2.5">
                 <div class="w-8 h-8 rounded-lg bg-blue-50 border border-blue-200/80 text-blue-600 flex items-center justify-center shrink-0">
                     <i data-lucide="server" class="h-4 w-4"></i>
                 </div>
                 <div>
-                    <h2 class="text-sm font-bold text-slate-900 tracking-tight">Active Pipeline Queue</h2>
-                    <p class="text-[11px] text-slate-500 font-medium">Asynchronous OCR batch jobs and stage distribution</p>
+                    <h2 class="text-sm font-bold text-slate-900 tracking-tight">Batch Jobs</h2>
+                    <p class="text-[11px] text-slate-500 font-medium">Upload batches and extraction status</p>
                 </div>
             </div>
             <span class="dox-badge dox-badge-neutral text-xs tabular-nums">{{ jobs|length }} Batches</span>
@@ -112,7 +104,7 @@
                     <i data-lucide="inbox" class="h-6 w-6"></i>
                 </div>
                 <p class="font-bold text-slate-800 text-sm">No active batch jobs</p>
-                <p class="text-xs text-slate-500 mt-1">Upload dockets to initiate async OCR workers.</p>
+                <p class="text-xs text-slate-500 mt-1">Upload dockets to start a new batch.</p>
             </div>
             {% endfor %}
         </div>

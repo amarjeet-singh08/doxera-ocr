@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block header_title %}Customer Accounts - DOXERA Enterprise{% endblock %}
+{% block header_title %}Customers{% endblock %}
 
 {% block content %}
 <div class="space-y-6">
@@ -7,33 +7,27 @@
     <!-- Top Banner -->
     <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-            <nav class="flex items-center space-x-2 text-xs text-slate-500 mb-1">
-                <a href="{{ url_for('sales.dashboard') }}" class="hover:text-blue-600 transition-colors">Sales Intelligence</a>
-                <span>/</span>
-                <span class="text-slate-800 font-medium">Customer Accounts</span>
-            </nav>
-            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight flex items-center">
-                <i data-lucide="contact-2" class="h-6 w-6 text-blue-600 mr-2.5 shrink-0"></i>
-                <span>Customer Accounts</span>
+            <h1 class="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
+                Customers
             </h1>
             <p class="text-xs sm:text-sm text-slate-500 mt-0.5">
-                Client directory and assigned sales representatives for commercial attribution.
+                Customer directory and assigned sales representatives.
             </p>
         </div>
 
         <div class="flex items-center gap-2 sm:gap-3 flex-wrap">
             <button type="button" onclick="document.getElementById('add-customer-modal').classList.remove('hidden'); requestAnimationFrame(() => window.DoxeraLiquidGlass?.refreshAll())"
                 class="dox-btn-primary">
-                <i data-lucide="plus" class="h-4 w-4"></i> Add Account
+                <i data-lucide="plus" class="h-4 w-4"></i> Add Customer
             </button>
             <a href="{{ url_for('sales.dashboard') }}" class="dox-btn-secondary">
-                <i data-lucide="arrow-left" class="h-4 w-4"></i> Dashboard
+                <i data-lucide="arrow-left" class="h-4 w-4"></i> Sales Dashboard
             </a>
         </div>
     </div>
 
     <!-- Filters & Search Toolbar (Liquid Glass) -->
-    <div data-liquid-glass="toolbar" data-lg-radius="18" data-lg-refraction="84" data-lg-blur="10" data-lg-light="32" class="sm:sticky sm:top-[76px] z-20 rounded-[18px] p-4 sm:p-5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 shadow-md">
+    <div data-liquid-glass="toolbar" data-lg-radius="20" data-lg-refraction="84" data-lg-blur="10" data-lg-light="32" class="sm:sticky sm:top-[76px] z-20 rounded-[20px] p-4 sm:p-5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4 shadow-md">
         <form method="GET" action="{{ url_for('sales.customers_page') }}" class="flex flex-col sm:flex-row flex-1 items-stretch sm:items-center gap-3 w-full">
             <div class="relative flex-1">
                 <i data-lucide="search" class="h-4 w-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 z-10 pointer-events-none"></i>
@@ -63,7 +57,7 @@
         </form>
 
         <span class="text-xs font-semibold text-slate-700 whitespace-nowrap bg-white/60 border border-white/80 px-3.5 py-1.5 rounded-full tabular-nums self-start md:self-auto shadow-2xs">
-            {{ customers|length }} Accounts
+            {{ customers|length }} Customers
         </span>
     </div>
 
@@ -75,8 +69,8 @@
                     <i data-lucide="building-2" class="h-4 w-4"></i>
                 </div>
                 <div>
-                    <h2 class="text-sm font-bold text-slate-900">Account Attribution Directory</h2>
-                    <p class="text-[11px] text-slate-600">Mapped client codes, active representatives, and billing territories</p>
+                    <h2 class="text-sm font-bold text-slate-900">Customer Directory</h2>
+                    <p class="text-[11px] text-slate-500">Customer codes, sales representatives, and locations</p>
                 </div>
             </div>
         </div>

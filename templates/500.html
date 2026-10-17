@@ -1,20 +1,20 @@
 {% extends 'base.html' %}
 
-{% block title %}System Error - DOXERA Enterprise{% endblock %}
+{% block header_title %}Server Error{% endblock %}
 
 {% block content %}
 <div class="flex items-center justify-center h-full min-h-[60vh] p-4">
-    <div class="dox-card p-8 sm:p-10 max-w-md w-full text-center relative overflow-hidden shadow-2xl border-white/95 flex flex-col items-center">
+    <div class="dox-card p-8 sm:p-10 max-w-md w-full text-center relative overflow-hidden shadow-2xl flex flex-col items-center">
         <img src="{{ url_for('static', filename='doxera_logo.png') }}" alt="DOXERA" class="h-10 mb-6">
         <div class="flex items-center justify-center h-14 w-14 rounded-2xl bg-amber-50/90 border border-amber-200/80 mb-4 shadow-sm ring-4 ring-white">
             <i data-lucide="server-crash" class="h-7 w-7 text-amber-600"></i>
         </div>
-        <h2 class="text-xl font-black text-slate-900 mb-2">Internal Server Error</h2>
+        <h2 class="text-xl font-black text-slate-900 mb-2">Server Error</h2>
         <p class="text-slate-500 text-xs sm:text-sm font-medium mb-6 leading-relaxed">
-            The server encountered an unexpected condition while fulfilling this request. Please refresh the page or contact the system administrator.
+            An unexpected error occurred. Please refresh the page or try again.
         </p>
         <button onclick="window.history.back()" class="dox-btn-secondary w-full !h-11 justify-center text-xs font-bold">
-            <i data-lucide="arrow-left" class="h-4 w-4 mr-2"></i> Return to Previous Screen
+            <i data-lucide="arrow-left" class="h-4 w-4 mr-2"></i> Go Back
         </button>
     </div>
 </div>
