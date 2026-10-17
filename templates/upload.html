@@ -59,10 +59,10 @@
                 </div>
                 
                 <!-- Scanning UI Overlay (Apple Liquid Glass Progress Surface) -->
-                <div id="scanning-ui" class="hidden absolute inset-0 w-full h-full bg-white/92 backdrop-blur-xl flex flex-col items-center justify-center overflow-hidden z-20 p-6">
-                    <img id="preview-img" class="absolute inset-0 w-full h-full object-contain opacity-15 blur-[2px] pointer-events-none" src="" alt="">
+                <div id="scanning-ui" class="hidden absolute inset-0 w-full h-full bg-white/45 flex flex-col items-center justify-center overflow-hidden z-20 p-6">
+                    <img id="preview-img" class="absolute inset-0 w-full h-full object-contain opacity-25 pointer-events-none" src="" alt="">
                     
-                    <div class="z-30 flex flex-col items-center sd-glass-modal p-6 sm:p-8 max-w-sm mx-4 text-center">
+                    <div data-liquid-glass="modal" data-lg-radius="20" data-lg-refraction="86" data-lg-blur="13" data-lg-light="36" class="z-30 flex flex-col items-center rounded-[20px] shadow-2xl p-6 sm:p-8 max-w-sm mx-4 text-center">
                         <div class="w-12 h-12 rounded-2xl bg-blue-50 border border-blue-200/80 text-blue-600 flex items-center justify-center mb-3.5">
                             <i data-lucide="loader-2" class="h-6 w-6 animate-spin"></i>
                         </div>

@@ -26,44 +26,52 @@
             }
         }
     </script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <script src="{{ url_for('static', filename='vendor/lucide/lucide.min.js') }}"></script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='vendor/liquid-glass/liquid-glass.css') }}">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
         /* ══════════════════════════════════════════════════════════════════════
            DOXERA — APPLE LIQUID GLASS DESIGN SYSTEM FOR BUSINESS SOFTWARE
-           Centralized tokens for surfaces, borders, depth, typography & states
+           Centralized tokens for optical glass, standard content surfaces & depth
            ══════════════════════════════════════════════════════════════════════ */
         :root {
             /* Surface & Background Tokens */
-            --bg-page: #F5F7FA;
-            --surface-primary: rgba(255, 255, 255, 0.96);
-            --surface-elevated: #FFFFFF;
-            --surface-glass: rgba(255, 255, 255, 0.84);
-            --surface-glass-nav: rgba(255, 255, 255, 0.82);
-            --surface-glass-modal: rgba(255, 255, 255, 0.94);
-            --surface-subtle: #F8FAFC;
+            --bg-page: #EDF2F8;
+            --surface-primary: rgba(255, 255, 255, 0.90);
+            --surface-elevated: rgba(255, 255, 255, 0.96);
+            --surface-glass: rgba(255, 255, 255, 0.54);
+            --surface-glass-nav: rgba(255, 255, 255, 0.58);
+            --surface-glass-modal: rgba(255, 255, 255, 0.68);
+            --surface-subtle: rgba(248, 250, 252, 0.85);
+
+            /* Optical Glass Tokens (consumed by static/vendor/liquid-glass) */
+            --lg-tint-nav: rgba(255, 255, 255, 0.56);
+            --lg-tint-toolbar: rgba(255, 255, 255, 0.48);
+            --lg-tint-popover: rgba(255, 255, 255, 0.58);
+            --lg-tint-modal: rgba(255, 255, 255, 0.66);
+            --lg-saturate: 1.55;
 
             /* Border & Specular Highlight Tokens */
-            --border-subtle: rgba(226, 232, 240, 0.92);
-            --border-strong: rgba(203, 213, 225, 0.95);
-            --border-glass: rgba(255, 255, 255, 0.88);
-            --highlight-top: inset 0 1px 0 0 rgba(255, 255, 255, 0.95);
-            --highlight-bottom: inset 0 -1px 0 0 rgba(15, 23, 42, 0.03);
+            --border-subtle: rgba(203, 213, 225, 0.68);
+            --border-strong: rgba(148, 163, 184, 0.58);
+            --border-glass: rgba(255, 255, 255, 0.78);
+            --highlight-top: inset 0 1.5px 1px 0 rgba(255, 255, 255, 0.96);
+            --highlight-bottom: inset 0 -1px 1px 0 rgba(15, 23, 42, 0.04);
 
             /* Realistic Depth & Shadow Tokens */
-            --shadow-card: 0 2px 12px -2px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03);
-            --shadow-card-hover: 0 8px 24px -4px rgba(15, 23, 42, 0.08), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
-            --shadow-toolbar: 0 4px 16px -2px rgba(15, 23, 42, 0.04), 0 1px 2px 0 rgba(15, 23, 42, 0.02);
-            --shadow-popover: 0 20px 48px -12px rgba(15, 23, 42, 0.16), 0 4px 12px -2px rgba(15, 23, 42, 0.06);
-            --shadow-modal: 0 24px 60px -12px rgba(15, 23, 42, 0.22), 0 0 0 1px rgba(15, 23, 42, 0.06);
+            --shadow-card: 0 6px 24px -6px rgba(15, 23, 42, 0.06), 0 2px 6px -1px rgba(15, 23, 42, 0.035);
+            --shadow-card-hover: 0 12px 32px -6px rgba(15, 23, 42, 0.10), 0 4px 10px -2px rgba(15, 23, 42, 0.05);
+            --shadow-toolbar: 0 10px 28px -6px rgba(15, 23, 42, 0.09), 0 2px 6px -1px rgba(15, 23, 42, 0.04);
+            --shadow-popover: 0 24px 56px -12px rgba(15, 23, 42, 0.22), 0 6px 16px -4px rgba(15, 23, 42, 0.08);
+            --shadow-modal: 0 28px 68px -12px rgba(15, 23, 42, 0.26), 0 8px 20px -4px rgba(15, 23, 42, 0.10);
 
             /* Border Radius Scale */
-            --radius-xl: 18px;
-            --radius-lg: 14px;
-            --radius-md: 10px;
+            --radius-xl: 20px;
+            --radius-lg: 16px;
+            --radius-md: 12px;
             --radius-sm: 8px;
-            --squircle-radius: 18px;
+            --squircle-radius: 20px;
 
             /* Semantic Color Tokens */
             --text-primary: #0F172A;
@@ -103,36 +111,40 @@
             font-variant-numeric: tabular-nums;
         }
 
-        /* Controlled Neutral Background with Subtle Static Depth */
+        /* Architectural Light Canvas with Subtle Tonal Variation & Structural Grid */
         .dox-bg-canvas, .sales-bg-canvas {
             background-color: var(--bg-page);
             background-image:
-                radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.045) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(79, 70, 229, 0.035) 0px, transparent 50%),
-                radial-gradient(at 50% 100%, rgba(14, 165, 233, 0.03) 0px, transparent 55%);
+                radial-gradient(ellipse 80% 50% at 12% 0%, rgba(37, 99, 235, 0.09) 0%, transparent 65%),
+                radial-gradient(ellipse 70% 45% at 88% 8%, rgba(79, 70, 229, 0.07) 0%, transparent 60%),
+                radial-gradient(ellipse 75% 55% at 50% 100%, rgba(14, 165, 233, 0.06) 0%, transparent 65%),
+                linear-gradient(to right, rgba(15, 23, 42, 0.026) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(15, 23, 42, 0.026) 1px, transparent 1px);
+            background-size: 100% 100%, 100% 100%, 100% 100%, 28px 28px, 28px 28px;
+            background-attachment: fixed;
         }
 
-        /* 1. Business Content Cards (High Readability with Subtle Top Highlight) */
+        /* 1. Standard Content Layer Cards (High Readability with Specular Rim) */
         .dox-card, .sd-card, .sd-glass-card {
-            background: var(--surface-primary);
+            background: linear-gradient(160deg, rgba(255, 255, 255, 0.94) 0%, rgba(255, 255, 255, 0.87) 100%);
             border: 1px solid var(--border-subtle);
             border-radius: var(--radius-xl);
-            box-shadow: var(--highlight-top), var(--shadow-card);
+            box-shadow: var(--highlight-top), var(--highlight-bottom), var(--shadow-card);
             transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease;
             position: relative;
         }
         .dox-card:hover, .sd-card:hover, .sd-glass-card:hover {
             border-color: var(--border-strong);
-            box-shadow: var(--highlight-top), var(--shadow-card-hover);
+            box-shadow: var(--highlight-top), var(--highlight-bottom), var(--shadow-card-hover);
         }
 
-        /* Selective Liquid Glass Surface (for toolbars, floating bars, dialogs, overlays) */
+        /* 2. Selective Liquid Glass Functional Surfaces (Navigation, Toolbars, Popovers, Modals) */
         .dox-glass-panel, .sd-glass-modal {
             background: var(--surface-glass);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border: 1px solid var(--border-subtle);
-            box-shadow: var(--highlight-top), var(--shadow-toolbar);
+            backdrop-filter: blur(16px) saturate(160%);
+            -webkit-backdrop-filter: blur(16px) saturate(160%);
+            border: 1px solid var(--border-glass);
+            box-shadow: var(--highlight-top), var(--highlight-bottom), var(--shadow-toolbar);
         }
 
         /* 2. Tactile Action Buttons */
@@ -319,35 +331,40 @@
             color: #334155 !important;
         }
 
-        /* 6. Selective Liquid Glass Sidebar & Top Header */
+        /* 6. Selective Liquid Glass Sidebar & Floating Top Header */
         #sidebar {
-            background: var(--surface-glass-nav);
-            backdrop-filter: blur(20px) saturate(180%);
-            -webkit-backdrop-filter: blur(20px) saturate(180%);
-            border-right: 1px solid var(--border-subtle);
-            box-shadow: 2px 0 16px -4px rgba(15, 23, 42, 0.04);
+            border: 1px solid rgba(255, 255, 255, 0.72);
+        }
+        #app-topbar {
+            border: 1px solid rgba(255, 255, 255, 0.72);
+        }
+        /* Ensure interactive children of .lg-host sit cleanly above .lg-layer and receive pointer events */
+        .lg-host > *:not(.lg-layer):not(.lg-sheen) {
+            position: relative;
+            z-index: 2;
         }
         .sidebar-link {
             display: flex;
             align-items: center;
             padding: 8.5px 12px;
-            color: #475569;
+            color: #334155;
             border-radius: var(--radius-md);
             font-size: 13.5px;
             font-weight: 500;
-            transition: background-color 150ms ease, color 150ms ease;
+            transition: background-color 150ms ease, color 150ms ease, box-shadow 150ms ease;
             position: relative;
         }
         .sidebar-link:hover {
-            background: rgba(241, 245, 249, 0.85);
+            background: rgba(255, 255, 255, 0.65);
             color: var(--text-primary);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
         }
         .sidebar-link.active {
-            background: #EFF6FF;
+            background: linear-gradient(135deg, rgba(239, 246, 255, 0.90) 0%, rgba(219, 234, 254, 0.75) 100%);
             color: #1D4ED8;
             font-weight: 600;
-            border: 1px solid #BFDBFE;
-            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8), 0 1px 2px rgba(37, 99, 235, 0.06);
+            border: 1px solid rgba(147, 197, 253, 0.85);
+            box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 2px 6px -1px rgba(37, 99, 235, 0.10);
         }
         .sidebar-link.active .sidebar-icon {
             color: #2563EB;
@@ -373,6 +390,7 @@
         /* 8. Solid Surface Fallbacks for Browsers Without backdrop-filter */
         @supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
             #sidebar,
+            #app-topbar,
             header,
             .dox-glass-panel,
             .sd-glass-modal,
@@ -398,13 +416,20 @@
     
     {% if session.get('user_id') %}
     <!-- Mobile Sidebar Backdrop -->
-    <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/35 backdrop-blur-xs z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
+    <div id="sidebar-backdrop" class="fixed inset-0 bg-slate-900/25 z-40 hidden lg:hidden" onclick="toggleSidebar()"></div>
 
-    <!-- Sidebar -->
-    <aside id="sidebar" aria-label="Primary Navigation" class="fixed inset-y-0 left-0 z-50 w-64 flex flex-col h-screen transform -translate-x-full lg:relative lg:translate-x-0 transition-transform duration-200 ease-out shadow-xl lg:shadow-none">
-        <div class="h-16 flex items-center justify-between px-5 border-b border-slate-200/80">
+    <!-- Primary Navigation Sidebar (Liquid Glass Surface) -->
+    <aside id="sidebar"
+           aria-label="Primary Navigation"
+           data-liquid-glass="nav"
+           data-lg-radius="22"
+           data-lg-refraction="76"
+           data-lg-blur="12"
+           data-lg-light="28"
+           class="fixed inset-y-2 left-2 z-50 w-64 flex flex-col h-[calc(100vh-16px)] rounded-[22px] transform -translate-x-[110%] lg:relative lg:inset-auto lg:my-3 lg:ml-3 lg:h-[calc(100vh-24px)] lg:translate-x-0 lg:transform-none transition-transform duration-200 ease-out shrink-0">
+        <div class="h-16 flex items-center justify-between px-5 border-b border-slate-900/[0.06]">
             <img src="{{ url_for('static', filename='doxera_logo.png') }}" alt="DOXERA" class="h-11 lg:h-12 w-auto object-contain">
-            <button type="button" aria-label="Close navigation menu" class="lg:hidden text-slate-500 hover:text-slate-800 p-1.5 rounded-lg hover:bg-slate-100" onclick="toggleSidebar()">
+            <button type="button" aria-label="Close navigation menu" class="lg:hidden text-slate-500 hover:text-slate-800 p-1.5 rounded-lg hover:bg-white/60" onclick="toggleSidebar()">
                 <i data-lucide="x" class="h-5 w-5"></i>
             </button>
         </div>
@@ -417,7 +442,7 @@
             </div>
             
             <div>
-                <div class="px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Operations</div>
+                <div class="px-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Operations</div>
                 <div class="space-y-1">
                     <a href="{{ url_for('ops.upload') }}" class="sidebar-link {% if request.endpoint == 'ops.upload' %}active{% endif %} {% if not user_has_role('ADMIN', 'REVIEWER') %}opacity-50 cursor-not-allowed pointer-events-none{% endif %}">
                         <i data-lucide="upload-cloud" class="sidebar-icon"></i> Upload Dockets
@@ -433,7 +458,7 @@
             
             {% if user_has_role('ADMIN', 'AUDITOR') %}
             <div>
-                <div class="px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5 flex items-center">
+                <div class="px-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5 flex items-center">
                     <span class="inline-block w-1.5 h-1.5 rounded-full bg-blue-600 mr-1.5"></span>
                     Sales Intelligence
                 </div>
@@ -452,7 +477,7 @@
             {% endif %}
             
             <div>
-                <div class="px-3 text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-1.5">Data & Settings</div>
+                <div class="px-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider mb-1.5">Data & Settings</div>
                 <div class="space-y-1">
                     <a href="{{ url_for('ops.exports_page') }}" class="sidebar-link {% if request.endpoint == 'ops.exports_page' %}active{% endif %}">
                         <i data-lucide="download" class="sidebar-icon"></i> Exports
@@ -467,14 +492,14 @@
             </div>
         </nav>
         
-        <div class="p-3.5 border-t border-slate-200/80 bg-white/60">
+        <div class="p-3.5 border-t border-slate-900/[0.06] bg-white/35 rounded-b-[22px]">
             <div class="flex items-center">
                 <div class="h-8 w-8 rounded-full bg-blue-600 flex items-center justify-center text-white font-semibold text-xs shadow-2xs shrink-0">
                     {{ session.get('username')[0]|upper }}
                 </div>
                 <div class="ml-2.5 truncate">
                     <p class="text-xs font-semibold text-slate-900 truncate">{{ session.get('username') }}</p>
-                    <p class="text-[11px] text-slate-500 font-medium">{{ session.get('role') }}</p>
+                    <p class="text-[11px] text-slate-600 font-medium">{{ session.get('role') }}</p>
                 </div>
             </div>
             <a href="{{ url_for('auth.logout') }}" class="mt-2.5 dox-btn-secondary !h-8 !text-xs w-full !text-slate-700 hover:!text-rose-600">
@@ -483,23 +508,29 @@
         </div>
     </aside>
 
-    <!-- Main Content -->
-    <div class="flex-1 flex flex-col h-screen w-full overflow-hidden">
-        <!-- Top Header (Selective Liquid Glass Toolbar) -->
-        <header class="h-16 bg-white/82 backdrop-blur-xl border-b border-slate-200/85 flex items-center justify-between px-4 lg:px-6 flex-shrink-0 z-30 shadow-[0_1px_3px_rgba(15,23,42,0.03)] relative">
+    <!-- Main Scroll Viewport (Allows page content to pass directly underneath sticky Liquid Glass topbar) -->
+    <main id="main-scroll-container" class="flex-1 h-screen w-full overflow-x-hidden overflow-y-auto relative">
+        <!-- Sticky Floating Top Header (Liquid Glass Toolbar) -->
+        <header id="app-topbar"
+                data-liquid-glass="toolbar"
+                data-lg-radius="20"
+                data-lg-refraction="88"
+                data-lg-blur="9"
+                data-lg-light="34"
+                class="sticky top-3 z-30 mx-3 sm:mx-4 lg:mx-6 mt-3 h-15 rounded-[20px] flex items-center justify-between px-4 lg:px-6">
             <div class="flex items-center min-w-0">
-                <button type="button" aria-label="Open navigation menu" class="lg:hidden text-slate-600 hover:text-slate-900 mr-2.5 sm:mr-3 p-1.5 rounded-lg hover:bg-slate-100 shrink-0" onclick="toggleSidebar()">
+                <button type="button" aria-label="Open navigation menu" class="lg:hidden text-slate-700 hover:text-slate-950 mr-2.5 sm:mr-3 p-1.5 rounded-lg hover:bg-white/60 shrink-0" onclick="toggleSidebar()">
                     <i data-lucide="menu" class="h-5 w-5"></i>
                 </button>
                 <h2 class="text-sm sm:text-base lg:text-[17px] font-bold text-slate-900 tracking-tight truncate">
                     {% block header_title %}DOXERA Operations{% endblock %}
                 </h2>
             </div>
-            <div class="flex items-center space-x-2 sm:space-x-3 shrink-0">
+            <div class="flex items-center space-x-2 sm:space-x-3 shrink-0" style="z-index: 40;">
                 <div class="relative">
                     <form action="{{ url_for('ops.dockets') }}" method="GET" class="flex items-center" role="search">
                         <i data-lucide="search" class="h-3.5 w-3.5 sm:h-4 sm:w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none"></i>
-                        <input type="text" name="search" aria-label="Search dockets" placeholder="Search dockets..." class="dox-input !h-9 pl-8 sm:pl-9 pr-3 text-xs sm:text-sm w-28 sm:w-44 lg:w-64" required>
+                        <input type="text" name="search" aria-label="Search dockets" placeholder="Search dockets..." class="dox-input !h-9 pl-8 sm:pl-9 pr-3 text-xs sm:text-sm w-28 sm:w-44 lg:w-64 !bg-white/85" required>
                     </form>
                 </div>
 
@@ -508,7 +539,7 @@
                     <button type="button" 
                             id="notif-bell-btn" 
                             onclick="toggleNotifDropdown(event)"
-                            class="text-slate-600 hover:text-slate-900 p-2 rounded-xl hover:bg-slate-100/90 transition-colors relative border border-transparent hover:border-slate-200/80" 
+                            class="text-slate-700 hover:text-slate-950 p-2 rounded-xl hover:bg-white/70 transition-colors relative border border-white/60 shadow-2xs bg-white/45" 
                             aria-label="View notifications and quota" 
                             aria-expanded="false">
                         <i data-lucide="bell" class="h-5 w-5"></i>
@@ -519,89 +550,93 @@
                         {% endif %}
                     </button>
 
-                    <!-- Popover Dropdown Panel -->
+                    <!-- Popover Dropdown Panel (Liquid Glass Popover) -->
                     <div id="notif-dropdown" 
-                         class="hidden absolute right-0 mt-2 w-[calc(100vw-32px)] sm:w-80 max-w-sm rounded-2xl border border-slate-200/95 overflow-hidden z-50 transform opacity-0 translate-y-2 transition-all duration-150 ease-out origin-top-right bg-white/96 backdrop-blur-xl"
-                         style="box-shadow: var(--shadow-popover);">
+                         data-liquid-glass="popover"
+                         data-lg-radius="20"
+                         data-lg-refraction="92"
+                         data-lg-blur="11"
+                         data-lg-light="36"
+                         class="hidden absolute right-0 mt-2.5 w-[calc(100vw-32px)] sm:w-80 max-w-sm rounded-[20px] border border-white/80 z-50 origin-top-right">
                         
                         <!-- Popover Header -->
-                        <div class="px-4 py-3 bg-slate-50/90 border-b border-slate-200/80 flex items-center justify-between">
+                        <div class="px-4 py-3 bg-white/35 border-b border-slate-900/[0.07] rounded-t-[20px] flex items-center justify-between">
                             <div class="flex items-center gap-2">
                                 <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                                <span class="font-bold text-xs uppercase tracking-wider text-slate-800">Notifications</span>
+                                <span class="font-bold text-xs uppercase tracking-wider text-slate-900">Notifications</span>
                             </div>
-                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white text-slate-600 border border-slate-200/90">
+                            <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-white/80 text-slate-700 border border-white/90 shadow-2xs">
                                 Live Status
                             </span>
                         </div>
 
-                        <!-- Notification Rows -->
-                        <div class="divide-y divide-slate-100 bg-white">
+                        <!-- Notification Rows (Translucent so underlying refracted backdrop remains perceptible) -->
+                        <div class="divide-y divide-slate-900/[0.06] bg-white/25">
                             <!-- 1. Pending Review -->
                             <a href="{{ url_for('ops.dockets', status='REVIEW') }}" 
-                               class="group/item px-4 py-3 hover:bg-slate-50 transition-colors flex items-center justify-between gap-3">
+                               class="group/item px-4 py-3 hover:bg-white/55 transition-colors flex items-center justify-between gap-3">
                                 <div class="flex items-center gap-3 min-w-0">
-                                    <div class="w-8 h-8 rounded-lg bg-amber-50 text-amber-700 flex items-center justify-center shrink-0 border border-amber-200/80">
+                                    <div class="w-8 h-8 rounded-lg bg-amber-50/90 text-amber-700 flex items-center justify-center shrink-0 border border-amber-200/80">
                                         <i data-lucide="inbox" class="h-4 w-4"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <p class="text-xs font-semibold text-slate-900 truncate">Pending Review</p>
-                                        <p class="text-[11px] text-slate-500 truncate">Awaiting human verification</p>
+                                        <p class="text-[11px] text-slate-600 truncate">Awaiting human verification</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-1.5 shrink-0">
                                     <span class="dox-badge dox-badge-review tabular-nums">
                                         {{ notif_pending|default(0) }}
                                     </span>
-                                    <i data-lucide="chevron-right" class="h-3.5 w-3.5 text-slate-400"></i>
+                                    <i data-lucide="chevron-right" class="h-3.5 w-3.5 text-slate-500"></i>
                                 </div>
                             </a>
 
                             <!-- 2. Failed AI Extraction -->
                             <a href="{{ url_for('ops.dockets', status='FAILED') }}" 
-                               class="group/item px-4 py-3 hover:bg-slate-50 transition-colors flex items-center justify-between gap-3">
+                               class="group/item px-4 py-3 hover:bg-white/55 transition-colors flex items-center justify-between gap-3">
                                 <div class="flex items-center gap-3 min-w-0">
-                                    <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-700 flex items-center justify-center shrink-0 border border-rose-200/80">
+                                    <div class="w-8 h-8 rounded-lg bg-rose-50/90 text-rose-700 flex items-center justify-center shrink-0 border border-rose-200/80">
                                         <i data-lucide="alert-triangle" class="h-4 w-4"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <p class="text-xs font-semibold text-slate-900 truncate">Failed AI Extraction</p>
-                                        <p class="text-[11px] text-slate-500 truncate">OCR / formatting errors</p>
+                                        <p class="text-[11px] text-slate-600 truncate">OCR / formatting errors</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-1.5 shrink-0">
                                     <span class="dox-badge dox-badge-failed tabular-nums">
                                         {{ notif_failed|default(0) }}
                                     </span>
-                                    <i data-lucide="chevron-right" class="h-3.5 w-3.5 text-slate-400"></i>
+                                    <i data-lucide="chevron-right" class="h-3.5 w-3.5 text-slate-500"></i>
                                 </div>
                             </a>
 
                             <!-- 3. Rejected Dockets -->
                             <a href="{{ url_for('ops.dockets', status='REJECTED') }}" 
-                               class="group/item px-4 py-3 hover:bg-slate-50 transition-colors flex items-center justify-between gap-3">
+                               class="group/item px-4 py-3 hover:bg-white/55 transition-colors flex items-center justify-between gap-3">
                                 <div class="flex items-center gap-3 min-w-0">
-                                    <div class="w-8 h-8 rounded-lg bg-rose-50 text-rose-700 flex items-center justify-center shrink-0 border border-rose-200/80">
+                                    <div class="w-8 h-8 rounded-lg bg-rose-50/90 text-rose-700 flex items-center justify-center shrink-0 border border-rose-200/80">
                                         <i data-lucide="x-circle" class="h-4 w-4"></i>
                                     </div>
                                     <div class="min-w-0">
                                         <p class="text-xs font-semibold text-slate-900 truncate">Rejected Dockets</p>
-                                        <p class="text-[11px] text-slate-500 truncate">Declined during inspection</p>
+                                        <p class="text-[11px] text-slate-600 truncate">Declined during inspection</p>
                                     </div>
                                 </div>
                                 <div class="flex items-center gap-1.5 shrink-0">
                                     <span class="dox-badge dox-badge-rejected tabular-nums">
                                         {{ notif_rejected|default(0) }}
                                     </span>
-                                    <i data-lucide="chevron-right" class="h-3.5 w-3.5 text-slate-400"></i>
+                                    <i data-lucide="chevron-right" class="h-3.5 w-3.5 text-slate-500"></i>
                                 </div>
                             </a>
                         </div>
 
                         <!-- Quota Meter Footer -->
-                        <div class="px-4 py-3 bg-slate-50/90 border-t border-slate-200/80">
+                        <div class="px-4 py-3 bg-white/35 border-t border-slate-900/[0.07] rounded-b-[20px]">
                             <div class="flex items-center justify-between mb-1.5">
-                                <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-1.5">
+                                <span class="text-[11px] font-semibold uppercase tracking-wider text-slate-600 flex items-center gap-1.5">
                                     <i data-lucide="zap" class="h-3.5 w-3.5 text-amber-500"></i>
                                     Remaining AI Limit
                                 </span>
@@ -610,7 +645,7 @@
                                 </span>
                             </div>
                             {% set limit_pct = [(notif_limit|default(50) / 200 * 100)|round, 100]|min %}
-                            <div class="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+                            <div class="w-full h-1.5 bg-slate-200/80 rounded-full overflow-hidden">
                                 <div class="h-full rounded-full transition-all duration-300 {% if notif_limit and notif_limit < 20 %}bg-rose-500{% else %}bg-emerald-500{% endif %}" style="width: {{ limit_pct }}%;"></div>
                             </div>
                         </div>
@@ -620,13 +655,13 @@
         </header>
         
         <!-- Page Content -->
-        <main class="flex-1 overflow-x-hidden overflow-y-auto p-3 sm:p-4 lg:p-6 dox-bg-canvas relative">
+        <div class="p-3 sm:p-4 lg:p-6 pt-4 sm:pt-5 lg:pt-5 relative">
             <!-- Flash Messages -->
             {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
                     <div class="mb-4 lg:mb-6 space-y-2">
                     {% for category, message in messages %}
-                        {% set bg_color = 'bg-emerald-50 border-emerald-200 text-emerald-900' if category == 'success' else 'bg-rose-50 border-rose-200 text-rose-900' if category == 'error' else 'bg-amber-50 border-amber-200 text-amber-900' %}
+                        {% set bg_color = 'bg-emerald-50/90 border-emerald-200 text-emerald-900' if category == 'success' else 'bg-rose-50/90 border-rose-200 text-rose-900' if category == 'error' else 'bg-amber-50/90 border-amber-200 text-amber-900' %}
                         {% set icon = 'check-circle' if category == 'success' else 'alert-circle' if category == 'error' else 'alert-triangle' %}
                         <div class="flex items-center p-3.5 rounded-xl border {{ bg_color }} shadow-2xs text-sm font-medium">
                             <i data-lucide="{{ icon }}" class="h-4 w-4 mr-2.5 flex-shrink-0"></i>
@@ -638,8 +673,8 @@
             {% endwith %}
 
             {% block content %}{% endblock %}
-        </main>
-    </div>
+        </div>
+    </main>
     {% else %}
         <!-- Auth Layout -->
         <main class="w-full min-h-screen dox-bg-canvas flex items-center justify-center p-4 relative">
@@ -647,6 +682,15 @@
         </main>
     {% endif %}
 
+    <script type="module">
+        import { mountAllLiquidGlass, refreshAllLiquidGlass } from "{{ url_for('static', filename='vendor/liquid-glass/liquid-glass.js') }}";
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => mountAllLiquidGlass());
+        } else {
+            mountAllLiquidGlass();
+        }
+        window.addEventListener('load', () => refreshAllLiquidGlass());
+    </script>
     <script>
         lucide.createIcons();
         
@@ -654,8 +698,9 @@
             const sidebar = document.getElementById('sidebar');
             const backdrop = document.getElementById('sidebar-backdrop');
             if (sidebar && backdrop) {
-                sidebar.classList.toggle('-translate-x-full');
+                sidebar.classList.toggle('-translate-x-[110%]');
                 backdrop.classList.toggle('hidden');
+                if (window.DoxeraLiquidGlass) window.DoxeraLiquidGlass.refreshAll();
             }
         }
 
@@ -672,11 +717,7 @@
             const isHidden = dropdown.classList.contains('hidden');
             if (isHidden) {
                 dropdown.classList.remove('hidden');
-                // Trigger smooth Apple spring animation
-                requestAnimationFrame(() => {
-                    dropdown.classList.remove('opacity-0', 'translate-y-2');
-                    dropdown.classList.add('opacity-100', 'translate-y-0');
-                });
+                if (window.DoxeraLiquidGlass) window.DoxeraLiquidGlass.refreshAll();
                 if (btn) btn.setAttribute('aria-expanded', 'true');
             } else {
                 closeNotifDropdown();
@@ -688,11 +729,7 @@
             const btn = document.getElementById('notif-bell-btn');
             if (!dropdown || dropdown.classList.contains('hidden')) return;
 
-            dropdown.classList.remove('opacity-100', 'translate-y-0');
-            dropdown.classList.add('opacity-0', 'translate-y-2');
-            setTimeout(() => {
-                dropdown.classList.add('hidden');
-            }, 180);
+            dropdown.classList.add('hidden');
             if (btn) btn.setAttribute('aria-expanded', 'false');
         }
 

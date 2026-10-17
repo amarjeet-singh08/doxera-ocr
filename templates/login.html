@@ -1,7 +1,13 @@
 {% extends "base.html" %}
 
 {% block auth_content %}
-<div class="dox-card max-w-md w-full overflow-hidden p-8 sm:p-10 shadow-2xl border-white/95 relative z-10">
+<div id="login-glass-card"
+     data-liquid-glass="modal"
+     data-lg-radius="24"
+     data-lg-refraction="84"
+     data-lg-blur="14"
+     data-lg-light="36"
+     class="max-w-md w-full overflow-hidden rounded-[24px] p-8 sm:p-10 shadow-2xl relative z-10">
     <div class="text-center mb-8">
         <img src="{{ url_for('static', filename='doxera_logo.png') }}" alt="DOXERA" class="h-12 mx-auto mb-5 drop-shadow-sm">
         <h2 class="text-2xl font-black text-slate-900 tracking-tight">Enterprise Access</h2>
