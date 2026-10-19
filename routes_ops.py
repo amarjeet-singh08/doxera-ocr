@@ -738,7 +738,9 @@ def serve_image(filename):
 @login_required
 @role_required(['ADMIN', 'REVIEWER', 'VIEWER'])
 def exports_page():
-    return render_template('exports.html')
+    start_date = request.args.get('start_date', '')
+    end_date = request.args.get('end_date', '')
+    return render_template('exports.html', start_date=start_date, end_date=end_date)
 
 @ops_bp.route('/export/verified')
 @login_required

@@ -13,7 +13,7 @@
         </div>
         
         <a href="{{ url_for('ops.dashboard') }}" class="dox-btn-secondary !h-10 text-xs">
-            <i data-lucide="arrow-left" class="h-3.5 w-3.5 mr-1.5"></i> Dashboard
+            <i data-lucide="arrow-left" class="h-3.5 w-3.5 mr-1.5"></i> Docket Dashboard
         </a>
     </div>
 
@@ -40,11 +40,11 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Start Date</label>
-                            <input type="date" required name="start_date" class="dox-input w-full text-xs">
+                            <input type="date" required name="start_date" value="{{ start_date or '' }}" class="dox-input w-full text-xs">
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">End Date</label>
-                            <input type="date" required name="end_date" class="dox-input w-full text-xs">
+                            <input type="date" required name="end_date" value="{{ end_date or '' }}" class="dox-input w-full text-xs">
                         </div>
                     </div>
                     <button type="submit" class="dox-btn-primary w-full !h-10 justify-center text-xs font-semibold">
@@ -75,11 +75,11 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Start Date</label>
-                            <input type="date" required name="start_date" class="dox-input w-full text-xs">
+                            <input type="date" required name="start_date" value="{{ start_date or '' }}" class="dox-input w-full text-xs">
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">End Date</label>
-                            <input type="date" required name="end_date" class="dox-input w-full text-xs">
+                            <input type="date" required name="end_date" value="{{ end_date or '' }}" class="dox-input w-full text-xs">
                         </div>
                     </div>
                     <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-[11px] bg-gradient-to-b from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700 text-white border border-emerald-700/80 shadow-md shadow-emerald-600/20 w-full h-10 text-xs font-semibold transition-all cursor-pointer">
@@ -110,11 +110,11 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div>
                             <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">Start Date</label>
-                            <input type="date" required name="start_date" class="dox-input w-full text-xs">
+                            <input type="date" required name="start_date" value="{{ start_date or '' }}" class="dox-input w-full text-xs">
                         </div>
                         <div>
                             <label class="block text-[11px] font-bold text-slate-700 uppercase tracking-wider mb-1">End Date</label>
-                            <input type="date" required name="end_date" class="dox-input w-full text-xs">
+                            <input type="date" required name="end_date" value="{{ end_date or '' }}" class="dox-input w-full text-xs">
                         </div>
                     </div>
                     <button type="submit" class="dox-btn-danger w-full !h-10 justify-center text-xs font-semibold">

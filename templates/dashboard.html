@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block header_title %}Dashboard{% endblock %}
+{% block header_title %}Docket Dashboard{% endblock %}
 
 {% block content %}
 {% set total_active = (stats.processing or 0) + (stats.verified or 0) + (stats.review or 0) + (stats.rejected or 0) + (stats.failed or 0) %}
@@ -18,7 +18,7 @@
                     <span class="font-semibold text-slate-800">{{ period_label }}</span>
                 </span>
             </div>
-            <h1 class="text-2xl sm:text-[26px] font-bold text-slate-900 tracking-tight leading-tight">Dashboard</h1>
+            <h1 class="text-2xl sm:text-[26px] font-bold text-slate-900 tracking-tight leading-tight">Docket Dashboard</h1>
             <p class="text-xs sm:text-sm text-slate-600 mt-0.5">
                 Docket extraction and verification overview.
             </p>

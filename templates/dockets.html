@@ -56,6 +56,11 @@
             </button>
             {% endif %}
             
+            <a href="{{ url_for('ops.exports_page', start_date=start_date, end_date=end_date) }}" class="dox-btn-secondary !h-10 text-xs shadow-sm">
+                <i data-lucide="download" class="h-3.5 w-3.5"></i>
+                <span>Export</span>
+            </a>
+            
             <a href="{{ url_for('ops.upload') }}" class="dox-btn-primary !h-10 text-xs shadow-md shadow-blue-600/20">
                 <i data-lucide="upload-cloud" class="h-3.5 w-3.5"></i>
                 <span>Upload Dockets</span>

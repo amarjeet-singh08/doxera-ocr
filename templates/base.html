@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="DOXERA">
+    <meta name="theme-color" content="#E3ECF7">
     <title>DOXERA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
@@ -444,8 +448,20 @@
         }
 
         /* 6. Selective Liquid Glass Sidebar & Floating Top Header */
+        html, body {
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+        #main-scroll-container {
+            height: 100vh;
+            height: 100dvh;
+            -webkit-overflow-scrolling: touch;
+            padding-bottom: max(1.5rem, env(safe-area-inset-bottom, 1.5rem));
+        }
         #sidebar {
             border-radius: 22px;
+            padding-top: env(safe-area-inset-top, 0px);
+            padding-bottom: env(safe-area-inset-bottom, 0px);
         }
         #sidebar nav {
             scrollbar-width: thin;
@@ -469,6 +485,10 @@
         }
         #app-topbar {
             border-radius: 20px;
+            min-height: 56px;
+            height: 60px;
+            top: max(0.75rem, calc(env(safe-area-inset-top, 0px) + 0.5rem));
+            margin-top: max(0.75rem, calc(env(safe-area-inset-top, 0px) + 0.5rem));
         }
         /* Ensure interactive children of .lg-host sit cleanly above .lg-layer without breaking .absolute/.fixed elements */
         .lg-host > *:not(.lg-layer):not(.lg-sheen):not(.absolute):not(.fixed) {
@@ -573,7 +593,7 @@
         <nav class="flex-1 overflow-y-auto py-3 px-3 space-y-4">
             <div>
                 <a href="{{ url_for('ops.dashboard') }}" class="sidebar-link {% if request.endpoint == 'ops.dashboard' %}active{% endif %}">
-                    <i data-lucide="layout-dashboard" class="sidebar-icon"></i> Dashboard
+                    <i data-lucide="layout-dashboard" class="sidebar-icon"></i> Docket Dashboard
                 </a>
             </div>
             
@@ -642,7 +662,7 @@
     </aside>
 
     <!-- Main Scroll Viewport (Allows page content to pass directly underneath sticky Liquid Glass topbar) -->
-    <main id="main-scroll-container" class="flex-1 h-screen w-full overflow-x-hidden overflow-y-auto relative">
+    <main id="main-scroll-container" class="flex-1 h-screen h-[100dvh] w-full overflow-x-hidden overflow-y-auto relative">
         <!-- Sticky Floating Top Header (Liquid Glass Toolbar) -->
         <header id="app-topbar"
                 data-liquid-glass="toolbar"
@@ -650,20 +670,20 @@
                 data-lg-refraction="88"
                 data-lg-blur="9"
                 data-lg-light="34"
-                class="sticky top-3 z-30 mx-3 sm:mx-4 lg:mx-6 mt-3 h-15 rounded-[20px] flex items-center justify-between px-4 lg:px-6">
+                class="sticky z-30 mx-2.5 sm:mx-4 lg:mx-6 rounded-[20px] flex items-center justify-between px-3 sm:px-4 lg:px-6">
             <div class="flex items-center min-w-0">
                 <button type="button" aria-label="Open navigation menu" class="lg:hidden text-slate-700 hover:text-slate-950 mr-2.5 sm:mr-3 p-1.5 rounded-lg hover:bg-white/60 shrink-0" onclick="toggleSidebar()">
                     <i data-lucide="menu" class="h-5 w-5"></i>
                 </button>
                 <h2 class="text-sm sm:text-base lg:text-[17px] font-bold text-slate-900 tracking-tight truncate">
-                    {% block header_title %}Dashboard{% endblock %}
+                    {% block header_title %}Docket Dashboard{% endblock %}
                 </h2>
             </div>
             <div class="flex items-center space-x-2 sm:space-x-3 shrink-0" style="z-index: 40;">
                 <div class="relative">
                     <form action="{{ url_for('ops.dockets') }}" method="GET" class="flex items-center" role="search">
                         <i data-lucide="search" class="h-3.5 w-3.5 sm:h-4 sm:w-4 absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 pointer-events-none"></i>
-                        <input type="text" name="search" aria-label="Search dockets" placeholder="Search dockets..." class="dox-input !h-9 pl-8 sm:pl-9 pr-3 text-xs sm:text-sm w-28 sm:w-44 lg:w-64 !bg-white/85" required>
+                        <input type="text" name="search" aria-label="Search dockets" placeholder="Search dockets..." class="dox-input !h-9 pl-8 sm:pl-9 pr-2.5 text-xs sm:text-sm w-24 sm:w-44 lg:w-64 !bg-white/85" required>
                     </form>
                 </div>
 
