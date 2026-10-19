@@ -592,14 +592,11 @@
         
         <nav class="flex-1 overflow-y-auto py-3 px-3 space-y-4">
             <div>
-                <a href="{{ url_for('ops.dashboard') }}" class="sidebar-link {% if request.endpoint == 'ops.dashboard' %}active{% endif %}">
-                    <i data-lucide="layout-dashboard" class="sidebar-icon"></i> Docket Dashboard
-                </a>
-            </div>
-            
-            <div>
                 <div class="px-3 text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-1">Docket OCR</div>
                 <div class="space-y-0.5">
+                    <a href="{{ url_for('ops.dashboard') }}" class="sidebar-link {% if request.endpoint == 'ops.dashboard' %}active{% endif %}">
+                        <i data-lucide="layout-dashboard" class="sidebar-icon"></i> Docket Dashboard
+                    </a>
                     <a href="{{ url_for('ops.upload') }}" class="sidebar-link {% if request.endpoint == 'ops.upload' %}active{% endif %} {% if not user_has_role('ADMIN', 'REVIEWER') %}opacity-50 cursor-not-allowed pointer-events-none{% endif %}">
                         <i data-lucide="upload-cloud" class="sidebar-icon"></i> Upload Dockets
                     </a>
@@ -608,6 +605,9 @@
                     </a>
                     <a href="{{ url_for('ops.dockets') }}" class="sidebar-link {% if request.endpoint == 'ops.dockets' %}active{% endif %}">
                         <i data-lucide="files" class="sidebar-icon"></i> All Dockets
+                    </a>
+                    <a href="{{ url_for('ops.exports_page') }}" class="sidebar-link {% if request.endpoint == 'ops.exports_page' %}active{% endif %}">
+                        <i data-lucide="download" class="sidebar-icon"></i> Exports
                     </a>
                 </div>
             </div>
@@ -629,20 +629,16 @@
             </div>
             {% endif %}
             
+            {% if user_has_role('ADMIN') %}
             <div>
                 <div class="px-3 text-[10.5px] font-bold text-slate-500 uppercase tracking-wider mb-1">Administration</div>
                 <div class="space-y-0.5">
-                    <a href="{{ url_for('ops.exports_page') }}" class="sidebar-link {% if request.endpoint == 'ops.exports_page' %}active{% endif %}">
-                        <i data-lucide="download" class="sidebar-icon"></i> Exports
-                    </a>
-                    
-                    {% if user_has_role('ADMIN') %}
                     <a href="{{ url_for('auth.user_management') }}" class="sidebar-link {% if request.endpoint == 'auth.user_management' %}active{% endif %}">
                         <i data-lucide="users" class="sidebar-icon"></i> Users
                     </a>
-                    {% endif %}
                 </div>
             </div>
+            {% endif %}
         </nav>
         
         <div class="p-3 border-t border-slate-900/[0.06] bg-white/35">
